@@ -43,7 +43,7 @@
                 text-color="dark"
                 padding="10px 32px"
                 class="btn-hover-lift"
-                @click="scrollToOptions"
+                @click="scrollToNavigation"
               />
               <q-btn
                 flat
@@ -61,24 +61,58 @@
             <div class="navigation-card">
               <div class="input-group">
                 <label class="input-label">FROM:</label>
-                <q-input
+                <q-select
                   v-model="fromLocation"
+                  :options="fromLocationOptions"
                   filled
+                  use-input
+                  input-debounce="300"
                   placeholder="Enter starting location"
                   bg-color="white"
                   class="location-input"
-                />
+                  @filter="filterFromLocations"
+                  @input-value="onFromInputChange"
+                  behavior="menu"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="my_location" />
+                  </template>
+                  <template v-slot:no-option>
+                    <q-item>
+                      <q-item-section class="text-grey">
+                        Type to search Baguio locations...
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
               </div>
 
               <div class="input-group">
                 <label class="input-label">TO:</label>
-                <q-input
+                <q-select
                   v-model="toLocation"
+                  :options="toLocationOptions"
                   filled
+                  use-input
+                  input-debounce="300"
                   placeholder="Enter destination"
                   bg-color="white"
                   class="location-input"
-                />
+                  @filter="filterToLocations"
+                  @input-value="onToInputChange"
+                  behavior="menu"
+                >
+                  <template v-slot:prepend>
+                    <q-icon name="place" />
+                  </template>
+                  <template v-slot:no-option>
+                    <q-item>
+                      <q-item-section class="text-grey">
+                        Type to search Baguio locations...
+                      </q-item-section>
+                    </q-item>
+                  </template>
+                </q-select>
               </div>
 
               <q-btn
@@ -88,8 +122,55 @@
                 size="lg"
                 padding="12px 32px"
                 class="btn-hover-lift start-nav-btn"
+                :loading="isCalculatingRoute"
                 @click="startNavigation"
               />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROUTE MAP SECTION (Shows after Start Navigation) -->
+    <section v-if="showRouteMap" class="route-map-section">
+      <div class="container">
+        <div class="route-header">
+          <div class="route-header-content">
+            <div>
+              <h2 class="route-title">YOUR ROUTE</h2>
+              <p class="route-subtitle">
+                From <strong>{{ fromLocation?.label || fromLocation }}</strong> to
+                <strong>{{ toLocation?.label || toLocation }}</strong>
+              </p>
+            </div>
+            <q-btn
+              icon="close"
+              flat
+              round
+              color="dark"
+              size="md"
+              @click="closeRouteMap"
+            >
+              <q-tooltip>Close route map</q-tooltip>
+            </q-btn>
+          </div>
+        </div>
+
+        <div class="route-map-wrapper" ref="routeMapContainer"></div>
+
+        <div class="route-info-cards">
+          <div class="info-card">
+            <q-icon name="straighten" size="32px" color="primary" />
+            <div class="info-card-content">
+              <div class="info-card-label">Distance</div>
+              <div class="info-card-value">{{ routeDistance }}</div>
+            </div>
+          </div>
+          <div class="info-card">
+            <q-icon name="schedule" size="32px" color="primary" />
+            <div class="info-card-content">
+              <div class="info-card-label">Walking Time</div>
+              <div class="info-card-value">{{ routeDuration }}</div>
             </div>
           </div>
         </div>
@@ -137,15 +218,15 @@
                 @click="findNearMe"
               />
               <q-btn
-                label="Test Location"
+                label="Test: SM Baguio"
                 icon="location_searching"
                 outline
                 color="primary"
                 padding="10px 24px"
                 class="btn-hover-lift test-btn"
-                @click="testBaguioLocation"
+                @click="testSMBaguioLocation"
               >
-                <q-tooltip>Simulate being in Baguio (for testing)</q-tooltip>
+                <q-tooltip>Start from SM Baguio (for testing)</q-tooltip>
               </q-btn>
             </div>
           </div>
@@ -243,17 +324,44 @@ export default defineComponent({
   setup() {
     const $q = useQuasar()
     const optionsSection = ref(null)
-    const fromLocation = ref('')
-    const toLocation = ref('')
+    const fromLocation = ref(null)
+    const toLocation = ref(null)
+    const fromLocationOptions = ref([])
+    const toLocationOptions = ref([])
     const mapContainer = ref(null)
+    const routeMapContainer = ref(null)
     let map = null
+    let routeMap = null
     let userMarker = null
     let terminalMarker = null
+    let destinationMarker = null
     let routeLine = null
     const isLoadingLocation = ref(false)
+    const isCalculatingRoute = ref(false)
     const selectedJeepney = ref(null)
     const userLocation = ref(null)
     const routeData = ref(null)
+    const showRouteMap = ref(false)
+    const navigationRouteData = ref(null)
+
+    // Pre-defined Baguio locations
+    const baguioLocations = [
+      { label: 'SM City Baguio', value: 'sm-baguio', coords: [16.4088516, 120.5972273] },
+      { label: 'Burnham Park', value: 'burnham-park', coords: [16.40954, 120.594808] },
+      { label: 'Session Road', value: 'session-road', coords: [16.4091098, 120.597576] },
+      { label: 'Baguio Cathedral', value: 'baguio-cathedral', coords: [16.412766, 120.598469] },
+      { label: 'Baguio City Market', value: 'baguio-market', coords: [16.4149596, 120.5929984] },
+      { label: 'Camp John Hay', value: 'camp-john-hay', coords: [16.397029, 120.608785] },
+      { label: 'Mines View Park', value: 'mines-view', coords: [16.4240885, 120.6212975] },
+      { label: 'Wright Park', value: 'wright-park', coords: [16.4156996, 120.6123524] },
+      { label: 'The Mansion', value: 'the-mansion', coords: [16.4123678, 120.6188978] },
+      { label: "Teacher's Camp", value: 'teachers-camp', coords: [16.4130217, 120.6072952] },
+      { label: 'Botanical Garden', value: 'botanical-garden', coords: [16.4176, 120.5970] },
+      { label: 'Baguio Convention Center', value: 'convention-center', coords: [16.4090, 120.5940] },
+      { label: 'Baguio General Hospital', value: 'bgh', coords: [16.4068, 120.5995] },
+      { label: 'University of Baguio', value: 'ub', coords: [16.4111, 120.6005] },
+      { label: 'Saint Louis University', value: 'slu', coords: [16.4133, 120.5967] },
+    ]
 
     const jeepneyOptions = [
       {
@@ -328,16 +436,32 @@ export default defineComponent({
       },
     ]
 
+    const routeDistance = computed(() => {
+      if (!navigationRouteData.value || !navigationRouteData.value.distance) {
+        return 'Calculating...'
+      }
+      const distanceKm = (navigationRouteData.value.distance / 1000).toFixed(2)
+      return `${distanceKm} km`
+    })
+
+    const routeDuration = computed(() => {
+      if (!navigationRouteData.value || !navigationRouteData.value.duration) {
+        return 'Calculating...'
+      }
+      const timeInMinutes = Math.round(navigationRouteData.value.duration / 60)
+      return `~${timeInMinutes} minutes`
+    })
+
     const walkingInstructions = computed(() => {
       if (!selectedJeepney.value || !userLocation.value) {
-        return 'Click "Near Me" or "Test Location" to get walking directions to the terminal.'
+        return 'Click "Near Me" or "Test: SM Baguio" to get walking directions to the terminal.'
       }
-      
+
       if (routeData.value && routeData.value.distance) {
         const distanceKm = (routeData.value.distance / 1000).toFixed(2)
         return `Follow the route on the map. Total walking distance: ${distanceKm} km along streets and sidewalks.`
       }
-      
+
       return 'Follow the route on the map to reach the terminal. Walk along the marked path.'
     })
 
@@ -345,22 +469,61 @@ export default defineComponent({
       if (!selectedJeepney.value || !userLocation.value) {
         return 'Location required'
       }
-      
+
       if (routeData.value && routeData.value.duration) {
         const timeInMinutes = Math.round(routeData.value.duration / 60)
         return `Approximately ${timeInMinutes} minutes walking`
       }
-      
+
       const distance = calculateDistance(
         userLocation.value.lat,
         userLocation.value.lng,
         selectedJeepney.value.terminalCoords[0],
-        selectedJeepney.value.terminalCoords[1],
+        selectedJeepney.value.terminalCoords[1]
       )
       const walkingSpeed = 5
       const timeInMinutes = Math.round((distance / walkingSpeed) * 60)
       return `Approximately ${timeInMinutes} minutes walking`
     })
+
+    const filterFromLocations = (val, update) => {
+      update(() => {
+        const needle = val.toLowerCase()
+        if (needle === '') {
+          fromLocationOptions.value = [
+            { label: '📍 Use Current Location', value: 'current-location', isCurrentLocation: true },
+            ...baguioLocations,
+          ]
+        } else {
+          const filtered = baguioLocations.filter(
+            (loc) => loc.label.toLowerCase().indexOf(needle) > -1
+          )
+          fromLocationOptions.value = [
+            { label: '📍 Use Current Location', value: 'current-location', isCurrentLocation: true },
+            ...filtered,
+          ]
+        }
+      })
+    }
+
+    const filterToLocations = (val, update) => {
+      update(() => {
+        const needle = val.toLowerCase()
+        if (needle === '') {
+          toLocationOptions.value = [...baguioLocations]
+        } else {
+          toLocationOptions.value = baguioLocations.filter(
+            (loc) => loc.label.toLowerCase().indexOf(needle) > -1
+          )
+        }
+      })
+    }
+
+    const onFromInputChange = (val) => {
+    }
+
+    const onToInputChange = (val) => {
+    }
 
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
       const R = 6371
@@ -376,6 +539,109 @@ export default defineComponent({
       return R * c
     }
 
+    const fetchStreetRoute = async (startLat, startLng, endLat, endLng) => {
+      try {
+        const url = `https://router.project-osrm.org/route/v1/foot/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`
+
+        const response = await fetch(url)
+        const data = await response.json()
+
+        if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+          const coordinates = data.routes[0].geometry.coordinates.map((coord) => [
+            coord[1],
+            coord[0],
+          ])
+          return {
+            coordinates,
+            distance: data.routes[0].distance,
+            duration: data.routes[0].duration,
+          }
+        }
+        return null
+      } catch (error) {
+        console.error('Error fetching route:', error)
+        return null
+      }
+    }
+
+    const initRouteMap = async () => {
+      if (!routeMapContainer.value) return
+
+      if (routeMap) {
+        routeMap.remove()
+        routeMap = null
+      }
+
+      const fromCoords =
+        fromLocation.value?.isCurrentLocation && userLocation.value
+          ? [userLocation.value.lat, userLocation.value.lng]
+          : fromLocation.value?.coords
+
+      const toCoords = toLocation.value?.coords
+
+      if (!fromCoords || !toCoords) return
+
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      routeMap = L.map(routeMapContainer.value).setView(fromCoords, 14)
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+      }).addTo(routeMap)
+
+      const fromIcon = L.divIcon({
+        className: 'from-marker',
+        html: '<div class="from-icon">🔵</div>',
+        iconSize: [30, 30],
+      })
+      L.marker(fromCoords, { icon: fromIcon })
+        .addTo(routeMap)
+        .bindPopup(`<b>FROM</b><br>${fromLocation.value.label}`)
+
+      const toIcon = L.divIcon({
+        className: 'to-marker',
+        html: '<div class="to-icon">🔴</div>',
+        iconSize: [30, 30],
+      })
+      L.marker(toCoords, { icon: toIcon })
+        .addTo(routeMap)
+        .bindPopup(`<b>TO</b><br>${toLocation.value.label}`)
+
+      const routeInfo = await fetchStreetRoute(
+        fromCoords[0],
+        fromCoords[1],
+        toCoords[0],
+        toCoords[1]
+      )
+
+      if (routeInfo && routeInfo.coordinates) {
+        navigationRouteData.value = routeInfo
+
+        const routeLine = L.polyline(routeInfo.coordinates, {
+          color: '#2196F3',
+          weight: 5,
+          opacity: 0.8,
+          lineJoin: 'round',
+          lineCap: 'round',
+        }).addTo(routeMap)
+
+        const bounds = L.latLngBounds(routeInfo.coordinates)
+        routeMap.fitBounds(bounds, { padding: [50, 50] })
+      } else {
+        const straightLine = L.polyline([fromCoords, toCoords], {
+          color: '#2196F3',
+          weight: 4,
+          opacity: 0.7,
+          dashArray: '10, 10',
+        }).addTo(routeMap)
+
+        const bounds = L.latLngBounds([fromCoords, toCoords])
+        routeMap.fitBounds(bounds, { padding: [50, 50] })
+      }
+    }
+
     const initMap = () => {
       if (!mapContainer.value) return
 
@@ -389,21 +655,8 @@ export default defineComponent({
         maxZoom: 19,
       }).addTo(map)
 
-      const locations = [
-        { name: 'Burnham Park', coords: [16.40954, 120.594808] },
-        { name: 'Session Road', coords: [16.4091098,120.597576] },
-        { name: 'Baguio Cathedral', coords: [16.412766, 120.598469] },
-        { name: 'SM City Baguio', coords: [16.4088516,120.5972273] },
-        { name: 'Baguio City Market', coords: [16.4149596,120.5929984] },
-        { name: 'Camp John Hay', coords: [16.397029,120.608785] },
-        { name: 'Mines View Park', coords: [16.4240885,120.6212975] },
-        { name: 'Wright Park', coords: [16.4156996,120.6123524] },
-        { name: 'The Mansion', coords: [16.4123678,120.6188978] },
-        { name: "Teacher's Camp", coords: [16.4130217,120.6072952] },
-      ]
-
-      locations.forEach((location) => {
-        L.marker(location.coords).addTo(map).bindPopup(location.name)
+      baguioLocations.forEach((location) => {
+        L.marker(location.coords).addTo(map).bindPopup(location.label)
       })
 
       if (selectedJeepney.value) {
@@ -417,6 +670,9 @@ export default defineComponent({
       if (terminalMarker) {
         map.removeLayer(terminalMarker)
       }
+      if (destinationMarker) {
+        map.removeLayer(destinationMarker)
+      }
 
       const terminalIcon = L.divIcon({
         className: 'terminal-marker',
@@ -427,36 +683,34 @@ export default defineComponent({
       terminalMarker = L.marker(selectedJeepney.value.terminalCoords, { icon: terminalIcon })
         .addTo(map)
         .bindPopup(
-          `<b>${selectedJeepney.value.name}</b><br>${selectedJeepney.value.terminalAddress}`,
+          `<b>${selectedJeepney.value.name}</b><br>${selectedJeepney.value.terminalAddress}`
         )
         .openPopup()
 
-      map.setView(selectedJeepney.value.terminalCoords, 15)
+      if (selectedJeepney.value.destinationCoords) {
+        const destinationIcon = L.divIcon({
+          className: 'destination-marker',
+          html: '<div class="destination-icon">📍</div>',
+          iconSize: [30, 30],
+        })
+
+        destinationMarker = L.marker(selectedJeepney.value.destinationCoords, {
+          icon: destinationIcon,
+        })
+          .addTo(map)
+          .bindPopup(`<b>Destination</b><br>${selectedJeepney.value.destinationAddress}`)
+
+        const bounds = L.latLngBounds([
+          selectedJeepney.value.terminalCoords,
+          selectedJeepney.value.destinationCoords,
+        ])
+        map.fitBounds(bounds, { padding: [50, 50] })
+      } else {
+        map.setView(selectedJeepney.value.terminalCoords, 15)
+      }
 
       if (userLocation.value) {
         drawRouteToTerminal()
-      }
-    }
-
-    const fetchStreetRoute = async (startLat, startLng, endLat, endLng) => {
-      try {
-        const url = `https://router.project-osrm.org/route/v1/foot/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`
-        
-        const response = await fetch(url)
-        const data = await response.json()
-        
-        if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
-          const coordinates = data.routes[0].geometry.coordinates.map(coord => [coord[1], coord[0]])
-          return {
-            coordinates,
-            distance: data.routes[0].distance, 
-            duration: data.routes[0].duration 
-          }
-        }
-        return null
-      } catch (error) {
-        console.error('Error fetching route:', error)
-        return null
       }
     }
 
@@ -476,7 +730,7 @@ export default defineComponent({
 
       if (fetchedRouteData && fetchedRouteData.coordinates) {
         routeData.value = fetchedRouteData
-        
+
         routeLine = L.polyline(fetchedRouteData.coordinates, {
           color: '#4a5f4e',
           weight: 5,
@@ -496,7 +750,7 @@ export default defineComponent({
         })
       } else {
         routeData.value = null
-        
+
         const routeCoords = [
           [userLocation.value.lat, userLocation.value.lng],
           selectedJeepney.value.terminalCoords,
@@ -511,6 +765,13 @@ export default defineComponent({
 
         const bounds = L.latLngBounds(routeCoords)
         map.fitBounds(bounds, { padding: [50, 50] })
+      }
+    }
+
+    const scrollToNavigation = () => {
+      const element = document.querySelector('.navigation-card')
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }
     }
 
@@ -529,23 +790,105 @@ export default defineComponent({
       })
     }
 
-    const startNavigation = () => {
+    const startNavigation = async () => {
       if (!fromLocation.value || !toLocation.value) {
         $q.notify({
-          message: 'Please enter both starting and destination points',
+          message: 'Please select both starting and destination points',
           color: 'warning',
           icon: 'warning',
         })
         return
       }
 
+      if (fromLocation.value.isCurrentLocation) {
+        if (!navigator.geolocation) {
+          $q.notify({
+            message: 'Geolocation is not supported by your browser',
+            color: 'negative',
+            icon: 'error',
+          })
+          return
+        }
+
+        isCalculatingRoute.value = true
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            userLocation.value = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            }
+            proceedWithNavigation()
+          },
+          (error) => {
+            isCalculatingRoute.value = false
+            $q.notify({
+              message: 'Unable to get your location. Please enable location access.',
+              color: 'negative',
+              icon: 'error',
+            })
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0,
+          }
+        )
+      } else {
+        proceedWithNavigation()
+      }
+    }
+
+    const proceedWithNavigation = async () => {
+      isCalculatingRoute.value = true
+      
+      navigationRouteData.value = null
+      
+      if (routeMap) {
+        routeMap.remove()
+        routeMap = null
+      }
+      
+      showRouteMap.value = true
+
       $q.notify({
-        message: `Navigating from ${fromLocation.value} to ${toLocation.value}...`,
+        message: `Calculating route from ${fromLocation.value.label || 'your location'} to ${toLocation.value.label}...`,
         color: 'positive',
         icon: 'navigation',
       })
 
-      scrollToOptions()
+      await new Promise((resolve) => setTimeout(resolve, 300))
+
+      await initRouteMap()
+
+      isCalculatingRoute.value = false
+
+      setTimeout(() => {
+        const routeSection = document.querySelector('.route-map-section')
+        if (routeSection) {
+          routeSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 300)
+
+      setTimeout(() => {
+        scrollToOptions()
+      }, 2000)
+    }
+
+    const closeRouteMap = () => {
+      showRouteMap.value = false
+      navigationRouteData.value = null
+      
+      if (routeMap) {
+        routeMap.remove()
+        routeMap = null
+      }
+
+      $q.notify({
+        message: 'Route map closed',
+        color: 'info',
+        icon: 'close',
+        timeout: 1500,
+      })
     }
 
     const selectJeepney = (jeepney) => {
@@ -655,7 +998,7 @@ export default defineComponent({
           enableHighAccuracy: true,
           timeout: 10000,
           maximumAge: 0,
-        },
+        }
       )
     }
 
@@ -668,14 +1011,14 @@ export default defineComponent({
       })
     }
 
-    const testBaguioLocation = () => {
-      const testLat = 16.411
-      const testLng = 120.593
+    const testSMBaguioLocation = () => {
+      const testLat = 16.4088516
+      const testLng = 120.5972273
 
       userLocation.value = { lat: testLat, lng: testLng }
 
       $q.notify({
-        message: 'Using test location: Session Road, Baguio',
+        message: 'TEST: Starting from SM City Baguio',
         color: 'info',
         icon: 'bug_report',
       })
@@ -693,7 +1036,7 @@ export default defineComponent({
 
         userMarker = L.marker([testLat, testLng], { icon: userIcon })
           .addTo(map)
-          .bindPopup('Test Location: You are here!')
+          .bindPopup('Test Location: SM City Baguio')
           .openPopup()
 
         if (selectedJeepney.value) {
@@ -703,7 +1046,7 @@ export default defineComponent({
         }
 
         $q.notify({
-          message: 'Showing test location in Baguio',
+          message: 'Showing route from SM Baguio',
           color: 'positive',
           icon: 'location_on',
         })
@@ -733,6 +1076,15 @@ export default defineComponent({
     let observer
 
     onMounted(() => {
+      fromLocationOptions.value = [
+        { label: '📍 Use Current Location', value: 'current-location', isCurrentLocation: true },
+        ...baguioLocations,
+      ]
+      toLocationOptions.value = [...baguioLocations]
+
+      fromLocation.value = baguioLocations.find((loc) => loc.value === 'sm-baguio')
+      toLocation.value = baguioLocations.find((loc) => loc.value === 'botanical-garden')
+
       setTimeout(() => {
         observer = observeElements()
       }, 100)
@@ -749,26 +1101,44 @@ export default defineComponent({
         map.remove()
         map = null
       }
+      if (routeMap) {
+        routeMap.remove()
+        routeMap = null
+      }
     })
 
     return {
       fromLocation,
       toLocation,
+      fromLocationOptions,
+      toLocationOptions,
       jeepneyOptions,
       optionsSection,
       mapContainer,
+      routeMapContainer,
       isLoadingLocation,
+      isCalculatingRoute,
       selectedJeepney,
       routeData,
+      showRouteMap,
+      navigationRouteData,
+      routeDistance,
+      routeDuration,
       walkingInstructions,
       estimatedTime,
+      scrollToNavigation,
       scrollToOptions,
       learnMore,
       startNavigation,
       selectJeepney,
       findNearMe,
-      testBaguioLocation,
+      testSMBaguioLocation,
       markArrived,
+      filterFromLocations,
+      filterToLocations,
+      onFromInputChange,
+      onToInputChange,
+      closeRouteMap,
     }
   },
 })
@@ -862,6 +1232,30 @@ $cream-bg: #e8ebe3;
 
 :deep(.terminal-marker) {
   .terminal-icon {
+    font-size: 30px;
+    text-align: center;
+    line-height: 30px;
+  }
+}
+
+:deep(.destination-marker) {
+  .destination-icon {
+    font-size: 30px;
+    text-align: center;
+    line-height: 30px;
+  }
+}
+
+:deep(.from-marker) {
+  .from-icon {
+    font-size: 30px;
+    text-align: center;
+    line-height: 30px;
+  }
+}
+
+:deep(.to-marker) {
+  .to-icon {
     font-size: 30px;
     text-align: center;
     line-height: 30px;
@@ -1059,6 +1453,104 @@ $cream-bg: #e8ebe3;
 
     .start-nav-btn {
       width: 100%;
+    }
+  }
+}
+
+.route-map-section {
+  background: white;
+  padding: 60px 0;
+  border-bottom: 1px solid #e0e0e0;
+
+  .route-header {
+    margin-bottom: 40px;
+
+    .route-header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+
+    .route-title {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin: 0 0 1rem 0;
+      color: $text-dark;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+
+      @media (max-width: 768px) {
+        font-size: 2rem;
+      }
+    }
+
+    .route-subtitle {
+      font-size: 1.1rem;
+      color: $text-light;
+      margin: 0;
+    }
+  }
+
+  .route-map-wrapper {
+    width: 100%;
+    height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    background: $light-gray;
+    margin-bottom: 40px;
+
+    @media (max-width: 768px) {
+      height: 350px;
+    }
+
+    :deep(.leaflet-container) {
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+    }
+  }
+
+  .route-info-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+
+    .info-card {
+      background: $light-gray;
+      border-radius: 12px;
+      padding: 30px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+
+      .info-card-content {
+        .info-card-label {
+          font-size: 0.85rem;
+          color: $text-light;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 5px;
+        }
+
+        .info-card-value {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: $text-dark;
+        }
+      }
     }
   }
 }
