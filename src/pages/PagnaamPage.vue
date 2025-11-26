@@ -38,14 +38,6 @@
               class="btn-hover-lift q-mr-md"
               @click="scrollToSection('features')"
             />
-            <q-btn
-              label="Sign Up"
-              outline
-              color="white"
-              size="lg"
-              padding="12px 32px"
-              class="btn-hover-lift"
-            />
           </div>
         </div>
       </div>
@@ -145,16 +137,40 @@
 
         <div v-if="selectedJeepney" class="jeepney-detail-section section-animate">
           <div class="jeepney-detail-wrapper">
-            <div class="jeepney-detail-image-col">
-              <div class="jeepney-detail-image-wrapper">
-                <img
-                  v-if="selectedJeepney.image"
-                  :src="selectedJeepney.image"
-                  :alt="selectedJeepney.name"
-                  class="jeepney-detail-image"
-                />
-                <div v-else class="jeepney-detail-placeholder">
-                  <q-icon name="directions_bus" size="120px" color="grey-5" />
+            <div class="jeepney-detail-map-col">
+              <div class="map-wrapper">
+                <div class="map-controls">
+                  <q-btn
+                    round
+                    color="white"
+                    text-color="primary"
+                    icon="my_location"
+                    size="sm"
+                    @click="getUserLocation"
+                    :loading="isLoadingLocation"
+                    class="q-mr-sm"
+                  >
+                    <q-tooltip>Get my location</q-tooltip>
+                  </q-btn>
+                  <q-btn
+                    round
+                    color="white"
+                    text-color="primary"
+                    icon="fullscreen"
+                    size="sm"
+                    @click="showFullscreenMap = true"
+                  >
+                    <q-tooltip>Fullscreen map</q-tooltip>
+                  </q-btn>
+                </div>
+                <div ref="mapContainer" style="height: 400px; width: 100%; border-radius: 12px"></div>
+
+                <div v-if="userLocation && distanceToTerminal" class="distance-info q-mt-sm">
+                  <q-icon name="straighten" size="16px" class="q-mr-xs" />
+                  <span>{{ distanceToTerminal }} km to terminal</span>
+                  <span class="q-ml-sm">•</span>
+                  <q-icon name="schedule" size="16px" class="q-ml-sm q-mr-xs" />
+                  <span>{{ estimatedWalkingTime }} mins walk</span>
                 </div>
               </div>
             </div>
@@ -185,14 +201,24 @@
                   </div>
                 </div>
 
-                <q-btn
-                  label="GO THERE"
-                  color="dark"
-                  unelevated
-                  padding="12px 32px"
-                  class="btn-hover-lift q-mt-md"
-                  @click="navigateToJeepney(selectedJeepney)"
-                />
+                <div class="action-buttons">
+                  <q-btn
+                    label="GO THERE"
+                    color="dark"
+                    unelevated
+                    padding="12px 32px"
+                    class="btn-hover-lift"
+                    @click="showNavigationTutorial = true"
+                  />
+                  <q-btn
+                    label="Navigate on Map"
+                    outline
+                    color="dark"
+                    padding="12px 32px"
+                    class="btn-hover-lift"
+                    @click="showNavigationOnMap"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -200,15 +226,203 @@
       </div>
     </section>
 
-    <FAQSection />
+    <q-dialog v-model="showFullscreenMap" maximized>
+      <q-card>
+        <q-bar class="bg-primary text-white">
+          <q-icon name="map" />
+          <div class="text-weight-bold q-ml-sm">Navigation Map - {{ selectedJeepney?.name }}</div>
+          <q-space />
+          <q-btn dense flat icon="close" v-close-popup />
+        </q-bar>
 
+        <q-card-section class="q-pa-none" style="height: calc(100vh - 50px)">
+          <div ref="fullscreenMapContainer" style="height: 100%; width: 100%"></div>
+
+          <div class="floating-info-panel">
+            <div class="info-panel-header">
+              <q-icon name="info" size="20px" class="q-mr-sm" />
+              <span class="text-weight-bold">Route Information</span>
+            </div>
+            <div class="info-panel-content">
+              <div v-if="userLocation && distanceToTerminal">
+                <div class="info-row">
+                  <q-icon name="straighten" size="18px" color="primary" />
+                  <span
+                    >Distance to terminal: <strong>{{ distanceToTerminal }} km</strong></span
+                  >
+                </div>
+                <div class="info-row">
+                  <q-icon name="schedule" size="18px" color="primary" />
+                  <span
+                    >Est. walking time: <strong>{{ estimatedWalkingTime }} mins</strong></span
+                  >
+                </div>
+              </div>
+              <div v-else class="text-grey-7 text-center">
+                <q-icon name="my_location" size="24px" class="q-mb-xs" /><br />
+                Click "Get my location" button to see directions
+              </div>
+            </div>
+            <div class="info-panel-actions">
+              <q-btn
+                v-if="!userLocation"
+                label="Get My Location"
+                color="primary"
+                unelevated
+                @click="getUserLocation"
+                icon="my_location"
+                class="full-width"
+              />
+              <q-btn
+                v-else
+                label="Recenter Map"
+                color="primary"
+                outline
+                @click="recenterMap"
+                icon="center_focus_strong"
+                class="full-width"
+              />
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="showNavigationTutorial" position="bottom">
+      <q-card style="width: 100%; max-width: 500px">
+        <q-card-section class="bg-primary text-white">
+          <div class="text-h6">
+            <q-icon name="navigation" class="q-mr-sm" />
+            How to Get to {{ selectedJeepney?.name }} Terminal
+          </div>
+        </q-card-section>
+
+        <q-card-section>
+          <q-stepper v-model="tutorialStep" vertical animated color="primary">
+            <q-step
+              :name="1"
+              title="Check Your Location"
+              icon="my_location"
+              :done="tutorialStep > 1"
+            >
+              <div class="q-mb-md">
+                Make sure you know your current location or use GPS to pinpoint where you are in
+                Baguio City.
+              </div>
+              <q-btn
+                v-if="!userLocation"
+                label="Get My Location"
+                color="positive"
+                @click="getUserLocation"
+                icon="my_location"
+                size="sm"
+                unelevated
+                class="q-mb-sm"
+              />
+              <div v-if="userLocation" class="q-mb-sm text-positive">
+                <q-icon name="check_circle" /> Location detected!
+              </div>
+              <q-btn label="Next" color="primary" @click="tutorialStep = 2" size="sm" unelevated />
+            </q-step>
+
+            <q-step :name="2" title="Plan Your Route" icon="route" :done="tutorialStep > 2">
+              <div class="q-mb-md">
+                <strong>Terminal Location:</strong> {{ selectedJeepney?.terminalLocation }}<br />
+                You can walk, take a taxi, or ride another jeepney to reach the terminal.
+              </div>
+              <div v-if="userLocation && distanceToTerminal" class="q-mb-md">
+                <q-banner class="bg-blue-1">
+                  <template v-slot:avatar>
+                    <q-icon name="straighten" color="primary" />
+                  </template>
+                  Distance: <strong>{{ distanceToTerminal }} km</strong><br />
+                  Walking time: <strong>{{ estimatedWalkingTime }} mins</strong>
+                </q-banner>
+              </div>
+              <div class="q-mb-md">
+                <q-btn
+                  label="View on Fullscreen Map"
+                  color="primary"
+                  @click="showFullscreenMap = true"
+                  icon="map"
+                  size="sm"
+                  outline
+                  class="q-mr-sm"
+                />
+              </div>
+              <q-stepper-navigation>
+                <q-btn
+                  label="Next"
+                  color="primary"
+                  @click="tutorialStep = 3"
+                  size="sm"
+                  unelevated
+                />
+                <q-btn
+                  label="Back"
+                  color="primary"
+                  @click="tutorialStep = 1"
+                  size="sm"
+                  flat
+                  class="q-ml-sm"
+                />
+              </q-stepper-navigation>
+            </q-step>
+
+            <q-step :name="3" title="Board the Jeepney" icon="directions_bus">
+              <div class="q-mb-md">
+                Once at the terminal, look for jeepneys with the route sign:<br />
+                <div class="route-sign q-mt-sm q-pa-md">
+                  <strong style="font-size: 1.2rem">{{ selectedJeepney?.name }}</strong
+                  ><br />
+                  <span>{{ selectedJeepney?.route }}</span>
+                </div>
+              </div>
+              <div class="q-mb-md">
+                <strong>Fare:</strong>
+                <ul style="margin: 8px 0; padding-left: 20px">
+                  <li>Regular: ₱{{ selectedJeepney?.regularFare }}</li>
+                  <li>Student: ₱{{ selectedJeepney?.studentFare }}</li>
+                  <li>PWD/Senior: ₱{{ selectedJeepney?.pwdSeniorFare }}</li>
+                </ul>
+              </div>
+              <q-stepper-navigation>
+                <q-btn
+                  label="Done"
+                  color="primary"
+                  @click="showNavigationTutorial = false"
+                  size="sm"
+                  unelevated
+                />
+                <q-btn
+                  label="Back"
+                  color="primary"
+                  @click="tutorialStep = 2"
+                  size="sm"
+                  flat
+                  class="q-ml-sm"
+                />
+              </q-stepper-navigation>
+            </q-step>
+          </q-stepper>
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn label="Close" flat color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <FAQSection />
     <FooterSection />
   </q-page>
 </template>
 
 <script>
-import { defineComponent, ref, onMounted, onUnmounted } from 'vue'
+import { defineComponent, ref, computed, onMounted, onUnmounted, onBeforeUnmount, watch } from 'vue'
 import { useQuasar } from 'quasar'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import FAQSection from '../components/Home/FAQSection.vue'
 import FooterSection from '../components/Home/FooterSection.vue'
 
@@ -222,8 +436,23 @@ export default defineComponent({
   setup() {
     const $q = useQuasar()
     const searchQuery = ref('')
-    const email = ref('')
     const selectedJeepney = ref(null)
+    const showNavigationTutorial = ref(false)
+    const showFullscreenMap = ref(false)
+    const tutorialStep = ref(1)
+    const userLocation = ref(null)
+    const mapContainer = ref(null)
+    const fullscreenMapContainer = ref(null)
+    let map = null
+    let fullscreenMap = null
+    let userMarker = null
+    let terminalMarker = null
+    let destinationMarker = null
+    let routeLine = null
+    let navigationLine = null
+    const isLoadingLocation = ref(false)
+    const navigationRoute = ref([])
+    const routeDistance = ref(0)
 
     const jeepneys = [
       {
@@ -236,6 +465,14 @@ export default defineComponent({
         regularFare: '13.00',
         studentFare: '10.00',
         pwdSeniorFare: '10.00',
+        terminalCoordinates: [16.4109, 120.5964],
+        destinationCoordinates: [16.4145, 120.598],
+        routeCoordinates: [
+          [16.4109, 120.5964],
+          [16.412, 120.597],
+          [16.413, 120.5975],
+          [16.4145, 120.598],
+        ],
       },
       {
         name: 'ROUTE 02',
@@ -247,6 +484,14 @@ export default defineComponent({
         regularFare: '13.00',
         studentFare: '10.00',
         pwdSeniorFare: '10.00',
+        terminalCoordinates: [16.411, 120.593],
+        destinationCoordinates: [16.405, 120.597],
+        routeCoordinates: [
+          [16.411, 120.593],
+          [16.409, 120.5945],
+          [16.407, 120.596],
+          [16.405, 120.597],
+        ],
       },
       {
         name: 'ROUTE 03',
@@ -258,6 +503,14 @@ export default defineComponent({
         regularFare: '15.00',
         studentFare: '12.00',
         pwdSeniorFare: '12.00',
+        terminalCoordinates: [16.385, 120.585],
+        destinationCoordinates: [16.4145, 120.598],
+        routeCoordinates: [
+          [16.385, 120.585],
+          [16.395, 120.59],
+          [16.405, 120.594],
+          [16.4145, 120.598],
+        ],
       },
       {
         name: 'ROUTE 04',
@@ -269,6 +522,14 @@ export default defineComponent({
         regularFare: '15.00',
         studentFare: '12.00',
         pwdSeniorFare: '12.00',
+        terminalCoordinates: [16.402, 120.577],
+        destinationCoordinates: [16.411, 120.593],
+        routeCoordinates: [
+          [16.402, 120.577],
+          [16.405, 120.583],
+          [16.408, 120.588],
+          [16.411, 120.593],
+        ],
       },
       {
         name: 'ROUTE 05',
@@ -280,6 +541,14 @@ export default defineComponent({
         regularFare: '13.00',
         studentFare: '10.00',
         pwdSeniorFare: '10.00',
+        terminalCoordinates: [16.4168, 120.593],
+        destinationCoordinates: [16.4145, 120.598],
+        routeCoordinates: [
+          [16.4168, 120.593],
+          [16.416, 120.595],
+          [16.415, 120.5965],
+          [16.4145, 120.598],
+        ],
       },
       {
         name: 'ROUTE 06',
@@ -291,6 +560,14 @@ export default defineComponent({
         regularFare: '13.00',
         studentFare: '10.00',
         pwdSeniorFare: '10.00',
+        terminalCoordinates: [16.4123, 120.595],
+        destinationCoordinates: [16.411, 120.593],
+        routeCoordinates: [
+          [16.4123, 120.595],
+          [16.4118, 120.594],
+          [16.4115, 120.5935],
+          [16.411, 120.593],
+        ],
       },
       {
         name: 'ROUTE 07',
@@ -302,6 +579,14 @@ export default defineComponent({
         regularFare: '15.00',
         studentFare: '12.00',
         pwdSeniorFare: '12.00',
+        terminalCoordinates: [16.408, 120.585],
+        destinationCoordinates: [16.4145, 120.598],
+        routeCoordinates: [
+          [16.408, 120.585],
+          [16.41, 120.59],
+          [16.412, 120.594],
+          [16.4145, 120.598],
+        ],
       },
       {
         name: 'ROUTE 08',
@@ -313,12 +598,204 @@ export default defineComponent({
         regularFare: '15.00',
         studentFare: '12.00',
         pwdSeniorFare: '12.00',
+        terminalCoordinates: [16.403, 120.61],
+        destinationCoordinates: [16.411, 120.593],
+        routeCoordinates: [
+          [16.403, 120.61],
+          [16.405, 120.605],
+          [16.408, 120.6],
+          [16.411, 120.593],
+        ],
       },
     ]
 
     const displayedJeepneys = ref(jeepneys.slice(0, 8))
 
-    const featuresSection = ref(null)
+    const getStreetRoute = async (startLat, startLon, endLat, endLon) => {
+      try {
+        const url = `https://router.project-osrm.org/route/v1/foot/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson`
+        const response = await fetch(url)
+        const data = await response.json()
+
+        if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+          const route = data.routes[0]
+          const coordinates = route.geometry.coordinates.map((coord) => [coord[1], coord[0]])
+          routeDistance.value = route.distance / 1000
+          return coordinates
+        }
+        return []
+      } catch (error) {
+        console.error('Error fetching route:', error)
+        return []
+      }
+    }
+
+    const distanceToTerminal = computed(() => {
+      if (!routeDistance.value) return null
+      return routeDistance.value.toFixed(2)
+    })
+
+    const estimatedWalkingTime = computed(() => {
+      if (!distanceToTerminal.value) return null
+      const timeInHours = distanceToTerminal.value / 5
+      const timeInMinutes = Math.ceil(timeInHours * 60)
+      return timeInMinutes
+    })
+
+    const initMap = () => {
+      if (!mapContainer.value || !selectedJeepney.value) return
+
+      if (map) {
+        map.remove()
+        map = null
+      }
+
+      map = L.map(mapContainer.value).setView(selectedJeepney.value.terminalCoordinates, 15)
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+      }).addTo(map)
+
+      updateMapMarkers()
+    }
+
+    const initFullscreenMap = () => {
+      if (!fullscreenMapContainer.value || !selectedJeepney.value) return
+
+      if (fullscreenMap) {
+        fullscreenMap.remove()
+        fullscreenMap = null
+      }
+
+      fullscreenMap = L.map(fullscreenMapContainer.value).setView(
+        selectedJeepney.value.terminalCoordinates,
+        15,
+      )
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+      }).addTo(fullscreenMap)
+
+      updateFullscreenMapMarkers()
+    }
+
+    const updateMapMarkers = () => {
+      if (!map || !selectedJeepney.value) return
+
+      if (terminalMarker) map.removeLayer(terminalMarker)
+      if (destinationMarker) map.removeLayer(destinationMarker)
+      if (routeLine) map.removeLayer(routeLine)
+      if (navigationLine) map.removeLayer(navigationLine)
+      if (userMarker) map.removeLayer(userMarker)
+
+      const terminalIcon = L.divIcon({
+        className: 'terminal-marker',
+        html: '<div style="font-size: 32px">🚍</div>',
+        iconSize: [32, 32],
+      })
+      terminalMarker = L.marker(selectedJeepney.value.terminalCoordinates, { icon: terminalIcon })
+        .addTo(map)
+        .bindPopup(
+          `<strong>${selectedJeepney.value.name}</strong><br>${selectedJeepney.value.terminalLocation}`,
+        )
+
+      const destinationIcon = L.divIcon({
+        className: 'destination-marker',
+        html: '<div style="font-size: 28px">📍</div>',
+        iconSize: [28, 28],
+      })
+      destinationMarker = L.marker(selectedJeepney.value.destinationCoordinates, {
+        icon: destinationIcon,
+      })
+        .addTo(map)
+        .bindPopup(`<strong>Destination</strong><br>${selectedJeepney.value.destination}`)
+
+      routeLine = L.polyline(selectedJeepney.value.routeCoordinates, {
+        color: '#4a5f4e',
+        weight: 4,
+      }).addTo(map)
+
+      if (userLocation.value) {
+        const userIcon = L.divIcon({
+          className: 'user-location-marker',
+          html: '<div class="pulse"></div>',
+          iconSize: [20, 20],
+        })
+        userMarker = L.marker(userLocation.value, { icon: userIcon })
+          .addTo(map)
+          .bindPopup('You are here!')
+
+        if (navigationRoute.value.length > 0) {
+          navigationLine = L.polyline(navigationRoute.value, {
+            color: '#2196F3',
+            weight: 4,
+            dashArray: '10, 10',
+          }).addTo(map)
+
+          const bounds = L.latLngBounds([
+            userLocation.value,
+            selectedJeepney.value.terminalCoordinates,
+          ])
+          map.fitBounds(bounds, { padding: [50, 50] })
+        }
+      }
+    }
+
+    const updateFullscreenMapMarkers = () => {
+      if (!fullscreenMap || !selectedJeepney.value) return
+
+      const terminalIcon = L.divIcon({
+        className: 'terminal-marker',
+        html: '<div style="font-size: 40px">🚍</div>',
+        iconSize: [40, 40],
+      })
+      L.marker(selectedJeepney.value.terminalCoordinates, { icon: terminalIcon })
+        .addTo(fullscreenMap)
+        .bindPopup(
+          `<strong>${selectedJeepney.value.name}</strong><br>${selectedJeepney.value.terminalLocation}`,
+        )
+
+      const destinationIcon = L.divIcon({
+        className: 'destination-marker',
+        html: '<div style="font-size: 36px">📍</div>',
+        iconSize: [36, 36],
+      })
+      L.marker(selectedJeepney.value.destinationCoordinates, { icon: destinationIcon })
+        .addTo(fullscreenMap)
+        .bindPopup(`<strong>Destination</strong><br>${selectedJeepney.value.destination}`)
+
+      L.polyline(selectedJeepney.value.routeCoordinates, {
+        color: '#4a5f4e',
+        weight: 5,
+      }).addTo(fullscreenMap)
+
+      if (userLocation.value) {
+        const userIcon = L.divIcon({
+          className: 'user-location-marker',
+          html: '<div class="pulse"></div>',
+          iconSize: [20, 20],
+        })
+        L.marker(userLocation.value, { icon: userIcon })
+          .addTo(fullscreenMap)
+          .bindPopup('You are here!')
+
+        if (navigationRoute.value.length > 0) {
+          L.polyline(navigationRoute.value, {
+            color: '#2196F3',
+            weight: 5,
+            dashArray: '10, 10',
+          }).addTo(fullscreenMap)
+
+          const bounds = L.latLngBounds([
+            userLocation.value,
+            selectedJeepney.value.terminalCoordinates,
+          ])
+          fullscreenMap.fitBounds(bounds, { padding: [100, 100] })
+        }
+      }
+    }
 
     const handleSearch = () => {
       if (searchQuery.value) {
@@ -339,11 +816,17 @@ export default defineComponent({
 
     const selectJeepney = (jeepney) => {
       selectedJeepney.value = jeepney
+      tutorialStep.value = 1
+      
       setTimeout(() => {
         const detailSection = document.querySelector('.jeepney-detail-section')
         if (detailSection) {
           detailSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
         }
+
+        setTimeout(() => {
+          initMap()
+        }, 300)
       }, 100)
     }
 
@@ -355,12 +838,106 @@ export default defineComponent({
       })
     }
 
-    const navigateToJeepney = (jeepney) => {
+    const getUserLocation = async () => {
+      if (!navigator.geolocation) {
+        $q.notify({
+          message: 'Geolocation is not supported by your browser',
+          color: 'negative',
+          icon: 'error',
+        })
+        return
+      }
+
+      isLoadingLocation.value = true
       $q.notify({
-        message: `Navigating to ${jeepney.name}...`,
-        color: 'positive',
-        icon: 'navigation',
+        message: 'Getting your location...',
+        color: 'info',
+        icon: 'my_location',
+        timeout: 2000,
       })
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          isLoadingLocation.value = false
+          const userLat = position.coords.latitude
+          const userLng = position.coords.longitude
+
+          userLocation.value = [userLat, userLng]
+
+          if (selectedJeepney.value) {
+            const [terminalLat, terminalLon] = selectedJeepney.value.terminalCoordinates
+
+            const route = await getStreetRoute(userLat, userLng, terminalLat, terminalLon)
+            if (route.length > 0) {
+              navigationRoute.value = route
+            } else {
+              navigationRoute.value = [userLocation.value, selectedJeepney.value.terminalCoordinates]
+            }
+
+            if (map) {
+              updateMapMarkers()
+            }
+            if (fullscreenMap) {
+              updateFullscreenMapMarkers()
+            }
+          }
+
+          $q.notify({
+            message: 'Location detected!',
+            color: 'positive',
+            icon: 'check_circle',
+          })
+        },
+        (error) => {
+          isLoadingLocation.value = false
+          let errorMessage = 'Unable to get your location'
+
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Location permission denied. Please enable location access.'
+              break
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Location information unavailable.'
+              break
+            case error.TIMEOUT:
+              errorMessage = 'Location request timed out.'
+              break
+          }
+
+          $q.notify({
+            message: errorMessage,
+            color: 'negative',
+            icon: 'error',
+          })
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0,
+        },
+      )
+    }
+
+    const recenterMap = () => {
+      if (userLocation.value && selectedJeepney.value && fullscreenMap) {
+        const bounds = L.latLngBounds([
+          userLocation.value,
+          selectedJeepney.value.terminalCoordinates,
+        ])
+        fullscreenMap.fitBounds(bounds, { padding: [100, 100] })
+      }
+    }
+
+    const showNavigationOnMap = async () => {
+      if (!userLocation.value) {
+        await getUserLocation()
+      }
+      
+      showFullscreenMap.value = true
+      
+      setTimeout(() => {
+        initFullscreenMap()
+      }, 300)
     }
 
     const observeElements = () => {
@@ -385,6 +962,14 @@ export default defineComponent({
 
     let observer
 
+    watch(showFullscreenMap, (newVal) => {
+      if (newVal) {
+        setTimeout(() => {
+          initFullscreenMap()
+        }, 300)
+      }
+    })
+
     onMounted(() => {
       setTimeout(() => {
         observer = observeElements()
@@ -392,6 +977,9 @@ export default defineComponent({
 
       if (jeepneys.length > 0) {
         selectedJeepney.value = jeepneys[0]
+        setTimeout(() => {
+          initMap()
+        }, 500)
       }
     })
 
@@ -401,17 +989,38 @@ export default defineComponent({
       }
     })
 
+    onBeforeUnmount(() => {
+      if (map) {
+        map.remove()
+        map = null
+      }
+      if (fullscreenMap) {
+        fullscreenMap.remove()
+        fullscreenMap = null
+      }
+    })
+
     return {
       searchQuery,
-      email,
       displayedJeepneys,
       selectedJeepney,
-      featuresSection,
+      showNavigationTutorial,
+      showFullscreenMap,
+      tutorialStep,
+      userLocation,
+      mapContainer,
+      fullscreenMapContainer,
+      isLoadingLocation,
+      distanceToTerminal,
+      estimatedWalkingTime,
+      navigationRoute,
       handleSearch,
       scrollToSection,
       selectJeepney,
       loadMoreJeepneys,
-      navigateToJeepney,
+      getUserLocation,
+      showNavigationOnMap,
+      recenterMap,
     }
   },
 })
@@ -436,25 +1045,30 @@ $text-light: #666;
   }
 }
 
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-50px);
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(74, 95, 78, 0.7);
+    transform: scale(1);
   }
-  to {
-    opacity: 1;
-    transform: translateX(0);
+  50% {
+    box-shadow: 0 0 0 15px rgba(74, 95, 78, 0);
+    transform: scale(1.1);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(74, 95, 78, 0);
+    transform: scale(1);
   }
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
+:deep(.user-location-marker) {
+  .pulse {
+    width: 20px;
+    height: 20px;
+    background: $primary-green;
+    border: 3px solid white;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 0 0 rgba(74, 95, 78, 0.7);
   }
 }
 
@@ -790,9 +1404,9 @@ $text-light: #666;
 
     .jeepney-detail-wrapper {
       display: grid;
-      grid-template-columns: 5fr 7fr;
+      grid-template-columns: 1fr 1fr;
       gap: 40px;
-      align-items: center;
+      align-items: start;
 
       @media (max-width: 960px) {
         grid-template-columns: 1fr;
@@ -800,36 +1414,35 @@ $text-light: #666;
       }
     }
 
-    .jeepney-detail-image-col {
+    .jeepney-detail-map-col {
       width: 100%;
-    }
 
-    .jeepney-detail-image-wrapper {
-      width: 100%;
-      padding-top: 100%;
-      position: relative;
-      background: rgba(255, 255, 255, 0.7);
-      border-radius: 12px;
-      overflow: hidden;
+      .map-wrapper {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
-      .jeepney-detail-image {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+        .map-controls {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          z-index: 1000;
+          display: flex;
+          gap: 8px;
+        }
       }
 
-      .jeepney-detail-placeholder {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+      .distance-info {
+        background: white;
+        padding: 12px 16px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         display: flex;
         align-items: center;
-        justify-content: center;
+        font-size: 0.9rem;
+        color: $text-dark;
+        font-weight: 500;
       }
     }
 
@@ -857,7 +1470,7 @@ $text-light: #666;
       .jeepney-detail-info {
         display: flex;
         gap: 3rem;
-        margin-bottom: 1rem;
+        margin-bottom: 2rem;
         flex-wrap: wrap;
 
         .info-item {
@@ -878,7 +1491,68 @@ $text-light: #666;
           }
         }
       }
+
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
     }
+  }
+}
+
+.route-sign {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  color: #333;
+}
+
+.floating-info-panel {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  max-width: 400px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+
+  @media (max-width: 600px) {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+  }
+
+  .info-panel-header {
+    padding: 16px;
+    background: $primary-green;
+    color: white;
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .info-panel-content {
+    padding: 16px;
+
+    .info-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  .info-panel-actions {
+    padding: 0 16px 16px 16px;
   }
 }
 </style>
