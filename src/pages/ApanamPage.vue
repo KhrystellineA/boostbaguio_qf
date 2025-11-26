@@ -253,13 +253,7 @@ export default defineComponent({
     const isLoadingLocation = ref(false)
     const selectedJeepney = ref(null)
     const userLocation = ref(null)
-
-    const BAGUIO_BOUNDS = {
-      north: 16.45,
-      south: 16.35,
-      east: 120.63,
-      west: 120.55,
-    }
+    const routeData = ref(null)
 
     const jeepneyOptions = [
       {
@@ -338,13 +332,25 @@ export default defineComponent({
       if (!selectedJeepney.value || !userLocation.value) {
         return 'Click "Near Me" or "Test Location" to get walking directions to the terminal.'
       }
-      return 'Follow the blue route on the map to reach the terminal. Walk along the marked path.'
+      
+      if (routeData.value && routeData.value.distance) {
+        const distanceKm = (routeData.value.distance / 1000).toFixed(2)
+        return `Follow the route on the map. Total walking distance: ${distanceKm} km along streets and sidewalks.`
+      }
+      
+      return 'Follow the route on the map to reach the terminal. Walk along the marked path.'
     })
 
     const estimatedTime = computed(() => {
       if (!selectedJeepney.value || !userLocation.value) {
         return 'Location required'
       }
+      
+      if (routeData.value && routeData.value.duration) {
+        const timeInMinutes = Math.round(routeData.value.duration / 60)
+        return `Approximately ${timeInMinutes} minutes walking`
+      }
+      
       const distance = calculateDistance(
         userLocation.value.lat,
         userLocation.value.lng,
@@ -384,16 +390,16 @@ export default defineComponent({
       }).addTo(map)
 
       const locations = [
-        { name: 'Burnham Park', coords: [16.4117, 120.5926] },
-        { name: 'Session Road', coords: [16.411, 120.593] },
-        { name: 'Baguio Cathedral', coords: [16.4089, 120.5937] },
-        { name: 'SM City Baguio', coords: [16.4136, 120.597] },
-        { name: 'Baguio City Market', coords: [16.4147, 120.5952] },
-        { name: 'Camp John Hay', coords: [16.398, 120.583] },
-        { name: 'Mines View Park', coords: [16.402, 120.609] },
-        { name: 'Wright Park', coords: [16.4063, 120.5977] },
-        { name: 'The Mansion', coords: [16.4058, 120.6006] },
-        { name: 'Baguio Convention Center', coords: [16.4098, 120.5895] },
+        { name: 'Burnham Park', coords: [16.40954, 120.594808] },
+        { name: 'Session Road', coords: [16.4091098,120.597576] },
+        { name: 'Baguio Cathedral', coords: [16.412766, 120.598469] },
+        { name: 'SM City Baguio', coords: [16.4088516,120.5972273] },
+        { name: 'Baguio City Market', coords: [16.4149596,120.5929984] },
+        { name: 'Camp John Hay', coords: [16.397029,120.608785] },
+        { name: 'Mines View Park', coords: [16.4240885,120.6212975] },
+        { name: 'Wright Park', coords: [16.4156996,120.6123524] },
+        { name: 'The Mansion', coords: [16.4123678,120.6188978] },
+        { name: "Teacher's Camp", coords: [16.4130217,120.6072952] },
       ]
 
       locations.forEach((location) => {
@@ -432,36 +438,80 @@ export default defineComponent({
       }
     }
 
-    const drawRouteToTerminal = () => {
+    const fetchStreetRoute = async (startLat, startLng, endLat, endLng) => {
+      try {
+        const url = `https://router.project-osrm.org/route/v1/foot/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`
+        
+        const response = await fetch(url)
+        const data = await response.json()
+        
+        if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+          const coordinates = data.routes[0].geometry.coordinates.map(coord => [coord[1], coord[0]])
+          return {
+            coordinates,
+            distance: data.routes[0].distance, 
+            duration: data.routes[0].duration 
+          }
+        }
+        return null
+      } catch (error) {
+        console.error('Error fetching route:', error)
+        return null
+      }
+    }
+
+    const drawRouteToTerminal = async () => {
       if (!map || !userLocation.value || !selectedJeepney.value) return
 
       if (routeLine) {
         map.removeLayer(routeLine)
       }
 
-      const routeCoords = [
-        [userLocation.value.lat, userLocation.value.lng],
-        selectedJeepney.value.terminalCoords,
-      ]
-
-      routeLine = L.polyline(routeCoords, {
-        color: '#4a5f4e',
-        weight: 4,
-        opacity: 0.7,
-        dashArray: '10, 10',
-      }).addTo(map)
-
-      const bounds = L.latLngBounds(routeCoords)
-      map.fitBounds(bounds, { padding: [50, 50] })
-    }
-
-    const isInBaguio = (lat, lng) => {
-      return (
-        lat >= BAGUIO_BOUNDS.south &&
-        lat <= BAGUIO_BOUNDS.north &&
-        lng >= BAGUIO_BOUNDS.west &&
-        lng <= BAGUIO_BOUNDS.east
+      const fetchedRouteData = await fetchStreetRoute(
+        userLocation.value.lat,
+        userLocation.value.lng,
+        selectedJeepney.value.terminalCoords[0],
+        selectedJeepney.value.terminalCoords[1]
       )
+
+      if (fetchedRouteData && fetchedRouteData.coordinates) {
+        routeData.value = fetchedRouteData
+        
+        routeLine = L.polyline(fetchedRouteData.coordinates, {
+          color: '#4a5f4e',
+          weight: 5,
+          opacity: 0.8,
+          lineJoin: 'round',
+          lineCap: 'round',
+        }).addTo(map)
+
+        const bounds = L.latLngBounds(fetchedRouteData.coordinates)
+        map.fitBounds(bounds, { padding: [50, 50] })
+
+        $q.notify({
+          message: `Route calculated: ${(fetchedRouteData.distance / 1000).toFixed(2)} km, ~${Math.round(fetchedRouteData.duration / 60)} min walk`,
+          color: 'positive',
+          icon: 'directions_walk',
+          timeout: 3000,
+        })
+      } else {
+        routeData.value = null
+        
+        const routeCoords = [
+          [userLocation.value.lat, userLocation.value.lng],
+          selectedJeepney.value.terminalCoords,
+        ]
+
+        routeLine = L.polyline(routeCoords, {
+          color: '#4a5f4e',
+          weight: 4,
+          opacity: 0.7,
+          dashArray: '10, 10',
+        }).addTo(map)
+
+        const bounds = L.latLngBounds(routeCoords)
+        map.fitBounds(bounds, { padding: [50, 50] })
+      }
     }
 
     const scrollToOptions = () => {
@@ -548,20 +598,6 @@ export default defineComponent({
           const userLat = position.coords.latitude
           const userLng = position.coords.longitude
 
-          if (!isInBaguio(userLat, userLng)) {
-            $q.dialog({
-              title: 'Outside Baguio',
-              message:
-                'You are currently outside Baguio. This feature only works within Baguio City.',
-              persistent: false,
-              ok: {
-                label: 'OK',
-                color: 'primary',
-              },
-            })
-            return
-          }
-
           userLocation.value = { lat: userLat, lng: userLng }
 
           if (map) {
@@ -587,7 +623,7 @@ export default defineComponent({
             }
 
             $q.notify({
-              message: 'Showing your location in Baguio',
+              message: 'Showing your current location',
               color: 'positive',
               icon: 'location_on',
             })
@@ -723,6 +759,7 @@ export default defineComponent({
       mapContainer,
       isLoadingLocation,
       selectedJeepney,
+      routeData,
       walkingInstructions,
       estimatedTime,
       scrollToOptions,
