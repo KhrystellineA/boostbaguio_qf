@@ -439,7 +439,7 @@ export default defineComponent({
       { label: 'Lourdes Grotto', value: 'lourdes-grotto', coords: [16.4253, 120.5972] },
       { label: 'PMA (Philippine Military Academy)', value: 'pma', coords: [16.3928, 120.5962] },
     ]
-    
+
     const jeepneyRoutesDatabase = {
       'MINES_VIEW_ROUTE': {
         name: 'Baguio Plaza - Mines View',
@@ -1491,7 +1491,7 @@ $cream-bg: #e8ebe3;
 .hero-section {
   position: relative;
   min-height: 400px;
-  background-image: url('../assets/p2p-hero.jpg');
+  background-image: url('../assets/2.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
