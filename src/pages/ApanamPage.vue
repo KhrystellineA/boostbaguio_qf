@@ -131,127 +131,8 @@
       </div>
     </section>
 
-    <!-- ROUTE MAP SECTION (Shows after Start Navigation) -->
-    <section v-if="showRouteMap" class="route-map-section">
-      <div class="container">
-        <div class="route-header">
-          <div class="route-header-content">
-            <div>
-              <h2 class="route-title">YOUR ROUTE</h2>
-              <p class="route-subtitle">
-                From <strong>{{ fromLocation?.label || fromLocation }}</strong> to
-                <strong>{{ toLocation?.label || toLocation }}</strong>
-              </p>
-            </div>
-            <q-btn
-              icon="close"
-              flat
-              round
-              color="dark"
-              size="md"
-              @click="closeRouteMap"
-            >
-              <q-tooltip>Close route map</q-tooltip>
-            </q-btn>
-          </div>
-        </div>
-
-        <div class="route-content-grid">
-          <!-- MAP COLUMN -->
-          <div class="route-map-column">
-            <div class="route-map-wrapper" ref="routeMapContainer"></div>
-
-            <div class="route-info-cards">
-              <div class="info-card">
-                <q-icon name="straighten" size="32px" color="primary" />
-                <div class="info-card-content">
-                  <div class="info-card-label">Walking Distance</div>
-                  <div class="info-card-value">{{ routeDistance }}</div>
-                </div>
-              </div>
-              <div class="info-card">
-                <q-icon name="schedule" size="32px" color="primary" />
-                <div class="info-card-content">
-                  <div class="info-card-label">Walking Time</div>
-                  <div class="info-card-value">{{ routeDuration }}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- JEEPNEY INFO COLUMN -->
-          <div v-if="recommendedRoute" class="jeepney-info-column">
-            <div class="jeepney-card">
-              <div class="jeepney-card-header">
-                <q-icon name="directions_bus" size="40px" :color="recommendedRoute.color" />
-                <div>
-                  <h3 class="jeepney-route-name">{{ recommendedRoute.name }}</h3>
-                  <p class="jeepney-route-desc">{{ recommendedRoute.description }}</p>
-                </div>
-              </div>
-
-              <div class="jeepney-details">
-                <!-- TERMINAL INFO -->
-                <div class="detail-section">
-                  <div class="detail-icon-wrapper">
-                    <q-icon name="location_on" size="28px" />
-                  </div>
-                  <div class="detail-content">
-                    <h4 class="detail-title">JEEPNEY TERMINAL</h4>
-                    <p class="detail-text">{{ recommendedRoute.terminalName }}</p>
-                    <p class="detail-instruction">{{ recommendedRoute.terminalInstructions }}</p>
-                  </div>
-                </div>
-
-                <!-- WHAT TO SAY -->
-                <div class="detail-section">
-                  <div class="detail-icon-wrapper">
-                    <q-icon name="record_voice_over" size="28px" />
-                  </div>
-                  <div class="detail-content">
-                    <h4 class="detail-title">WHAT TO TELL THE DRIVER</h4>
-                    <p class="detail-text highlight-text">{{ recommendedRoute.rideInstructions }}</p>
-                  </div>
-                </div>
-
-                <!-- FARE INFO -->
-                <div class="detail-section">
-                  <div class="detail-icon-wrapper">
-                    <q-icon name="payments" size="28px" />
-                  </div>
-                  <div class="detail-content">
-                    <h4 class="detail-title">JEEPNEY FARE</h4>
-                    <p class="detail-text">
-                      <strong>₱{{ recommendedRoute.fare.regular }}</strong> (Regular)<br>
-                      <strong>₱{{ recommendedRoute.fare.discounted }}</strong> (Student/PWD/Senior)
-                    </p>
-                  </div>
-                </div>
-
-                <!-- RIDE TIME -->
-                <div class="detail-section">
-                  <div class="detail-icon-wrapper">
-                    <q-icon name="access_time" size="28px" />
-                  </div>
-                  <div class="detail-content">
-                    <h4 class="detail-title">ESTIMATED RIDE TIME</h4>
-                    <p class="detail-text">{{ recommendedRoute.estimatedRideTime }}</p>
-                  </div>
-                </div>
-
-                <!-- ADDITIONAL NOTE -->
-                <div v-if="recommendedRoute.note" class="note-section">
-                  <q-icon name="info" size="20px" color="primary" />
-                  <p class="note-text">{{ recommendedRoute.note }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="options" class="options-section" ref="optionsSection">
+    <!-- OPTIONS SECTION - Shows after Start Navigation -->
+    <section id="options" class="options-section" ref="optionsSection" v-show="showJeepneyOptions">
       <div class="container">
         <div class="section-header text-center">
           <h2 class="section-title">OPTIONS</h2>
@@ -275,6 +156,7 @@
       </div>
     </section>
 
+    <!-- JEEPNEY DETAIL SECTION - Shows after selecting a jeepney option -->
     <section v-if="selectedJeepney" class="jeepney-detail-section">
       <div class="container">
         <div class="detail-header">
@@ -307,10 +189,23 @@
         </div>
 
         <div class="content-grid">
+          <!-- MAP COLUMN -->
           <div class="map-column">
             <div class="map-wrapper" ref="mapContainer"></div>
+            
+            <div class="route-legend">
+              <div class="legend-item">
+                <div class="legend-line walking-line"></div>
+                <span class="legend-text">Walking Route (Current Location → Terminal)</span>
+              </div>
+              <div class="legend-item">
+                <div class="legend-line jeepney-line"></div>
+                <span class="legend-text">Jeepney Route (Terminal → Drop-off Point)</span>
+              </div>
+            </div>
           </div>
 
+          <!-- INFO COLUMN -->
           <div class="info-column">
             <div class="info-list">
               <div class="info-item">
@@ -331,7 +226,19 @@
                 <div class="info-separator"></div>
                 <div class="info-content">
                   <h3 class="info-title">HOW TO GET THERE</h3>
-                  <p class="info-description">{{ walkingInstructions }}</p>
+                  <p class="info-description">{{ selectedJeepney.terminalInstructions }}</p>
+                </div>
+              </div>
+
+              <div class="info-item">
+                <div class="info-icon-wrapper">
+                  <q-icon name="record_voice_over" size="32px" class="info-icon" />
+                </div>
+                <div class="info-separator"></div>
+                <div class="info-content">
+                  <h3 class="info-title">WHAT TO TELL THE DRIVER</h3>
+                  <p class="info-description highlight-text">"{{ selectedJeepney.whatToSay }}"</p>
+                  <p class="info-subdescription">Tell the driver this phrase when you board the jeepney</p>
                 </div>
               </div>
 
@@ -341,8 +248,8 @@
                 </div>
                 <div class="info-separator"></div>
                 <div class="info-content">
-                  <h3 class="info-title">ESTIMATED TIME</h3>
-                  <p class="info-description">{{ estimatedTime }}</p>
+                  <h3 class="info-title">ESTIMATED RIDE TIME</h3>
+                  <p class="info-description">{{ selectedJeepney.rideTime }}</p>
                 </div>
               </div>
 
@@ -354,6 +261,61 @@
                 <div class="info-content">
                   <h3 class="info-title">JEEPNEY FARE</h3>
                   <p class="info-description">{{ selectedJeepney.fare }}</p>
+                </div>
+              </div>
+
+              <div v-if="selectedJeepney.additionalInfo" class="info-item">
+                <div class="info-icon-wrapper">
+                  <q-icon name="info" size="32px" class="info-icon" />
+                </div>
+                <div class="info-separator"></div>
+                <div class="info-content">
+                  <h3 class="info-title">ADDITIONAL INFO</h3>
+                  <p class="info-description">{{ selectedJeepney.additionalInfo }}</p>
+                </div>
+              </div>
+
+              <div v-if="showWalkingRoute" class="info-item">
+                <div class="info-icon-wrapper">
+                  <q-icon name="directions" size="32px" class="info-icon" />
+                </div>
+                <div class="info-separator"></div>
+                <div class="info-content">
+                  <h3 class="info-title">WALKING ROUTE</h3>
+                  <p class="info-description">{{ walkingInstructions }}</p>
+                </div>
+              </div>
+
+              <div class="info-item journey-summary">
+                <div class="info-icon-wrapper">
+                  <q-icon name="map" size="32px" class="info-icon" />
+                </div>
+                <div class="info-separator"></div>
+                <div class="info-content">
+                  <h3 class="info-title">COMPLETE JOURNEY</h3>
+                  <div class="journey-steps">
+                    <div class="journey-step">
+                      <div class="step-number">1</div>
+                      <div class="step-content">
+                        <strong>Walk to Terminal</strong>
+                        <p>{{ walkingInstructions }}</p>
+                      </div>
+                    </div>
+                    <div class="journey-step">
+                      <div class="step-number">2</div>
+                      <div class="step-content">
+                        <strong>Board Jeepney</strong>
+                        <p>Tell driver: "{{ selectedJeepney.whatToSay }}"</p>
+                      </div>
+                    </div>
+                    <div class="journey-step">
+                      <div class="step-number">3</div>
+                      <div class="step-content">
+                        <strong>Jeepney Ride</strong>
+                        <p>{{ selectedJeepney.rideTime }} to {{ selectedJeepney.destinationName }}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -403,20 +365,18 @@ export default defineComponent({
     const fromLocationOptions = ref([])
     const toLocationOptions = ref([])
     const mapContainer = ref(null)
-    const routeMapContainer = ref(null)
     let map = null
-    let routeMap = null
     let userMarker = null
     let terminalMarker = null
     let destinationMarker = null
     let routeLine = null
+    let jeepneyRouteLine = null
     const isLoadingLocation = ref(false)
     const isCalculatingRoute = ref(false)
     const selectedJeepney = ref(null)
     const userLocation = ref(null)
     const routeData = ref(null)
-    const showRouteMap = ref(false)
-    const navigationRouteData = ref(null)
+    const showJeepneyOptions = ref(false)
 
     const baguioLocations = [
       { label: 'SM City Baguio', value: 'sm-baguio', coords: [16.4088516, 120.5972273] },
@@ -440,227 +400,68 @@ export default defineComponent({
       { label: 'PMA (Philippine Military Academy)', value: 'pma', coords: [16.3928, 120.5962] },
     ]
 
-    const jeepneyRoutesDatabase = {
-      'MINES_VIEW_ROUTE': {
-        name: 'Baguio Plaza - Mines View',
-        description: 'Main tourist route covering most attractions',
-        stops: ['session-road', 'teachers-camp', 'botanical-garden', 'wright-park', 'the-mansion', 'good-shepherd', 'mines-view'],
-        terminalName: 'Lower Mabini Street Terminal (Mines View Terminal)',
-        terminalCoords: [16.4098, 120.5979],
-        terminalInstructions: 'From Session Road, walk downhill until McDonald\'s area (now City Center Hotel), turn left to Mabini Street. Terminal on the right side near corner of Session Road.',
-        fare: { regular: 13, discounted: 10 },
-        color: '#2196F3',
-        estimatedRideTime: '10-20 minutes depending on destination'
-      },
-      'PMA_ROUTE': {
-        name: 'Baguio Plaza - KIAS - PMA - Springhills',
-        description: 'Route to Philippine Military Academy',
-        stops: ['burnham-park', 'pma'],
-        terminalName: 'Perfecto Street Terminal (PMA/Kias Station)',
-        terminalCoords: [16.4108, 120.5912],
-        terminalInstructions: 'From Session Road, walk to Harrison Road, cross via overpass. Turn left after the stairs. Terminal is at Perfecto Street, near Hotel Veniz.',
-        fare: { regular: 15, discounted: 12 },
-        color: '#4CAF50',
-        estimatedRideTime: '20-25 minutes'
-      },
-      'CAMP_JOHN_HAY_ROUTE': {
-        name: 'Baguio Plaza - Scout Barrio',
-        description: 'Route to Camp John Hay area',
-        stops: ['session-road', 'burnham-park', 'camp-john-hay'],
-        terminalName: 'Igorot Park Terminal (Scout Barrio Jeepney)',
-        terminalCoords: [16.4111, 120.5927],
-        terminalInstructions: 'Head to Igorot Park (KM 0) near Burnham Park. Look for jeepneys with "Scout Barrio" or "Loakan" signs. Also available at Bakakeng Terminal.',
-        fare: { regular: 15, discounted: 12 },
-        color: '#4CAF50',
-        estimatedRideTime: '15-20 minutes'
-      },
-      'TAM_AWAN_ROUTE': {
-        name: 'Baguio Plaza - Quezon Hill - Tam-awan',
-        description: 'Route to Tam-awan Village and Lourdes Grotto',
-        stops: ['session-road', 'lourdes-grotto', 'tam-awan'],
-        terminalName: 'Zandueta Street Terminal (Lourdes Dominical Terminal)',
-        terminalCoords: [16.4119, 120.5931],
-        terminalInstructions: 'From Harrison Road, climb overpass, walk along footbridge to Zandueta Street. Terminal across Chowking restaurant.',
-        fare: { regular: 13, discounted: 10 },
-        color: '#FF9800',
-        estimatedRideTime: '15-20 minutes'
-      },
-      'TRANCOVILLE_ROUTE': {
-        name: 'Trancoville Circular Route',
-        description: 'Circular route through city center',
-        stops: ['sm-baguio', 'session-road', 'burnham-park', 'baguio-cathedral', 'baguio-market', 'convention-center', 'ub', 'slu'],
-        terminalName: 'Multiple Terminals (Centermall / Gov Pack / Igorot Garden)',
-        terminalCoords: [16.4104, 120.5952],
-        terminalInstructions: 'Available at multiple points: Centermall Terminal, Gov Pack Road Terminal, Igorot Garden, and Slaughterhouse Terminal. This route circles the city.',
-        fare: { regular: 13, discounted: 10 },
-        color: '#9C27B0',
-        estimatedRideTime: '15-30 minutes depending on traffic'
-      },
-      'MARKET_ROUTE': {
-        name: 'City Center - Kayang Street Route',
-        description: 'Routes serving the public market area',
-        stops: ['session-road', 'baguio-market', 'baguio-cathedral', 'convention-center'],
-        terminalName: 'Kayang Street Terminal (Near Public Market)',
-        terminalCoords: [16.4147, 120.5952],
-        terminalInstructions: 'Terminal located at Kayang Street near the Baguio Public Market. Multiple city-center jeepneys pass through here.',
-        fare: { regular: 13, discounted: 10 },
-        color: '#F44336',
-        estimatedRideTime: '5-10 minutes'
-      }
-    }
-
-    const locationNames = {
-      'sm-baguio': 'SM Baguio',
-      'burnham-park': 'Burnham Park',
-      'session-road': 'Session Road',
-      'baguio-cathedral': 'Cathedral',
-      'baguio-market': 'Market',
-      'camp-john-hay': 'Camp John Hay',
-      'mines-view': 'Mines View',
-      'wright-park': 'Wright Park',
-      'the-mansion': 'The Mansion',
-      'teachers-camp': 'Teacher\'s Camp',
-      'botanical-garden': 'Botanical Garden',
-      'convention-center': 'Convention Center',
-      'bgh': 'BGH',
-      'ub': 'UB',
-      'slu': 'SLU',
-      'good-shepherd': 'Good Shepherd',
-      'tam-awan': 'Tam-awan',
-      'lourdes-grotto': 'Lourdes Grotto',
-      'pma': 'PMA'
-    }
-
-    const recommendedRoute = ref(null)
-
-    const findBestJeepneyRoute = (fromValue, toValue) => {
-      const destinationName = locationNames[toValue] || toValue
-      
-      for (const [routeKey, route] of Object.entries(jeepneyRoutesDatabase)) {
-        const fromIndex = route.stops.indexOf(fromValue)
-        const toIndex = route.stops.indexOf(toValue)
-        
-        if (fromIndex !== -1 && toIndex !== -1) {
-          return {
-            routeKey,
-            ...route,
-            directRoute: true,
-            transferNeeded: false,
-            rideInstructions: `Tell driver: "${destinationName} po"`
-          }
-        }
+    const jeepneyOptions = computed(() => {
+      if (!toLocation.value) {
+        return []
       }
 
-      for (const [routeKey, route] of Object.entries(jeepneyRoutesDatabase)) {
-        if (route.stops.includes(toValue)) {
-          return {
-            routeKey,
-            ...route,
-            directRoute: false,
-            transferNeeded: false,
-            rideInstructions: `Tell driver: "${destinationName} po"`,
-            note: 'Walk or take taxi to terminal, then ride this jeepney'
-          }
-        }
-      }
+      const destinationLabel = toLocation.value.label || 'destination'
+      const destinationCoords = toLocation.value.coords || [16.4176, 120.5970]
 
-      return {
-        routeKey: 'MINES_VIEW_ROUTE',
-        ...jeepneyRoutesDatabase.MINES_VIEW_ROUTE,
-        directRoute: false,
-        transferNeeded: false,
-        rideInstructions: `Tell driver: "${destinationName} po"`,
-        note: 'Main tourist route - ask driver for nearest stop to your destination'
-      }
-    }
-
-    const jeepneyOptions = [
-      {
-        name: 'ROUTE 01 - CITY HALL',
-        route: 'City Hall to Session Road',
-        terminalCoords: [16.4145, 120.5929],
-        terminalAddress: 'City Hall Terminal, Harrison Road, Baguio City',
-        fare: '₱13.00 (Regular), ₱10.00 (Student/PWD/Senior)',
-      },
-      {
-        name: 'ROUTE 02 - PUBLIC MARKET',
-        route: 'Market to BCM',
-        terminalCoords: [16.4147, 120.5952],
-        terminalAddress: 'Baguio Public Market Terminal, Magsaysay Avenue',
-        fare: '₱13.00 (Regular), ₱10.00 (Student/PWD/Senior)',
-      },
-      {
-        name: 'ROUTE 03 - PMA',
-        route: 'PMA to Session Road',
-        terminalCoords: [16.402, 120.5955],
-        terminalAddress: 'Philippine Military Academy Gate, Loakan Road',
-        fare: '₱15.00 (Regular), ₱12.00 (Student/PWD/Senior)',
-      },
-      {
-        name: 'ROUTE 04 - CAMP JOHN HAY',
-        route: 'Camp John Hay to Market',
-        terminalCoords: [16.398, 120.583],
-        terminalAddress: 'Camp John Hay Main Gate, Loakan Road',
-        fare: '₱15.00 (Regular), ₱12.00 (Student/PWD/Senior)',
-      },
-      {
-        name: 'ROUTE 05 - SM BAGUIO',
-        route: 'SM Baguio to Session Road',
-        terminalCoords: [16.4136, 120.597],
-        terminalAddress: 'SM City Baguio Terminal, Luneta Hill',
-        fare: '₱13.00 (Regular), ₱10.00 (Student/PWD/Senior)',
-      },
-      {
-        name: 'ROUTE 06 - BURNHAM PARK',
-        route: 'Burnham Park to Market',
-        terminalCoords: [16.4117, 120.5926],
-        terminalAddress: 'Burnham Park Main Entrance, Jose Abad Santos Drive',
-        fare: '₱13.00 (Regular), ₱10.00 (Student/PWD/Senior)',
-      },
-      {
-        name: "ROUTE 07 - TEACHER'S CAMP",
-        route: "Teacher's Camp to Session Road",
-        terminalCoords: [16.4063, 120.5977],
-        terminalAddress: "Teacher's Camp Gate, Leonard Wood Road",
-        fare: '₱15.00 (Regular), ₱12.00 (Student/PWD/Senior)',
-      },
-      {
-        name: 'ROUTE 08 - MINES VIEW',
-        route: 'Mines View to Market',
-        terminalCoords: [16.402, 120.609],
-        terminalAddress: 'Mines View Park Terminal, Outlook Drive',
-        fare: '₱15.00 (Regular), ₱12.00 (Student/PWD/Senior)',
-      },
-      {
-        name: 'ROUTE 09 - BAGUIO CATHEDRAL',
-        route: 'Cathedral to Market',
-        terminalCoords: [16.4089, 120.5937],
-        terminalAddress: 'Baguio Cathedral Area, Cathedral Loop',
-        fare: '₱13.00 (Regular), ₱10.00 (Student/PWD/Senior)',
-      },
-      {
-        name: 'ROUTE 10 - WRIGHT PARK',
-        route: 'Wright Park to Session Road',
-        terminalCoords: [16.4063, 120.5977],
-        terminalAddress: 'Wright Park, Gibraltar Road',
-        fare: '₱13.00 (Regular), ₱10.00 (Student/PWD/Senior)',
-      },
-    ]
-
-    const routeDistance = computed(() => {
-      if (!navigationRouteData.value || !navigationRouteData.value.distance) {
-        return 'Calculating...'
-      }
-      const distanceKm = (navigationRouteData.value.distance / 1000).toFixed(2)
-      return `${distanceKm} km`
-    })
-
-    const routeDuration = computed(() => {
-      if (!navigationRouteData.value || !navigationRouteData.value.duration) {
-        return 'Calculating...'
-      }
-      const timeInMinutes = Math.round(navigationRouteData.value.duration / 60)
-      return `~${timeInMinutes} minutes`
+      return [
+        {
+          name: 'MARIA BASA',
+          route: 'Maria Basa to Session Road',
+          terminalCoords: [16.4108, 120.5969],
+          terminalAddress: 'Governor Pack Road Terminal (Maria Basa Route), Near Sunshine Park, Baguio City',
+          terminalInstructions: 'From Session Road, walk to Upper Session near Casa Vallejo Hotel, then head to Sunshine Park area. The Governor Pack Road terminal is located here. Look for jeepneys with "Maria Basa" signage. Staging area is at Sandico Street.',
+          whatToSay: `${destinationLabel} po`,
+          fare: '₱13.00 (Regular), ₱10.00 (Student/PWD/Senior)',
+          rideTime: '10-15 minutes',
+          additionalInfo: 'This jeepney passes by major landmarks including Session Road, Burnham Park, and the Cathedral area.',
+          destinationCoords: destinationCoords,
+          destinationName: destinationLabel,
+        },
+        {
+          name: 'TIPTOP',
+          route: 'Tiptop to Market',
+          terminalCoords: [16.4108, 120.5969],
+          terminalAddress: 'Governor Pack Road Terminal (Tiptop Route), Near Sunshine Park, Baguio City',
+          terminalInstructions: 'From Session Road, walk to Upper Session near Casa Vallejo Hotel, then head to Sunshine Park area. The Governor Pack Road terminal is located here. Look for jeepneys with "Tiptop" signage. Staging area is at Sandico Street.',
+          whatToSay: `${destinationLabel} po`,
+          fare: '₱13.00 (Regular), ₱10.00 (Student/PWD/Senior)',
+          rideTime: '12-18 minutes',
+          additionalInfo: 'Route covers the market area and passes through several major roads. Great option if coming from downtown.',
+          destinationCoords: destinationCoords,
+          destinationName: destinationLabel,
+        },
+        {
+          name: 'NAVY BASE',
+          route: 'Navy Base to Session Road',
+          terminalCoords: [16.4107, 120.5917],
+          terminalAddress: 'Perfecto Street Terminal (PMA/Loakan/Navy Base Route), Near Hotel Veniz, Baguio City',
+          terminalInstructions: 'From Session Road, turn to Lower Mabini Street, cross Harrison Road using the pedestrian overpass. Turn right after descending the overpass stairs, then immediately turn left to Perfecto Street. The terminal is located near Hotel Veniz with "PMA-KIAS-SITEL-EPZA" jeepney loading area sign.',
+          whatToSay: `${destinationLabel} po`,
+          fare: '₱15.00 (Regular), ₱12.00 (Student/PWD/Senior)',
+          rideTime: '15-20 minutes',
+          additionalInfo: 'This jeepney route goes to Loakan, KIAS, PMA, and Springhills. Good for destinations along Loakan Road area.',
+          destinationCoords: destinationCoords,
+          destinationName: destinationLabel,
+        },
+        {
+          name: 'MINES VIEW',
+          route: 'Mines View to Market',
+          terminalCoords: [16.4108, 120.5969],
+          terminalAddress: 'Governor Pack Road Terminal (Mines View Route), Near Sunshine Park, Baguio City',
+          terminalInstructions: 'From Session Road, walk to Upper Session near Casa Vallejo Hotel, then head to Sunshine Park area. The Governor Pack Road terminal is located here. Look for jeepneys with "Mines View" signage. Alternative: You can also catch the jeepney at Lower Mabini Street near the old McDonald\'s area.',
+          whatToSay: `${destinationLabel} po`,
+          fare: '₱15.00 (Regular), ₱12.00 (Student/PWD/Senior)',
+          rideTime: '15-20 minutes',
+          additionalInfo: 'This route passes through Teacher\'s Camp, Botanical Garden, Wright Park, The Mansion, and Good Shepherd Convent before reaching Mines View Park.',
+          destinationCoords: destinationCoords,
+          destinationName: destinationLabel,
+        },
+      ]
     })
 
     const walkingInstructions = computed(() => {
@@ -674,6 +475,10 @@ export default defineComponent({
       }
 
       return 'Follow the route on the map to reach the terminal. Walk along the marked path.'
+    })
+
+    const showWalkingRoute = computed(() => {
+      return userLocation.value && selectedJeepney.value
     })
 
     const estimatedTime = computed(() => {
@@ -775,84 +580,6 @@ export default defineComponent({
       }
     }
 
-    const initRouteMap = async () => {
-      if (!routeMapContainer.value) return
-
-      if (routeMap) {
-        routeMap.remove()
-        routeMap = null
-      }
-
-      const fromCoords =
-        fromLocation.value?.isCurrentLocation && userLocation.value
-          ? [userLocation.value.lat, userLocation.value.lng]
-          : fromLocation.value?.coords
-
-      const toCoords = toLocation.value?.coords
-
-      if (!fromCoords || !toCoords) return
-
-      await new Promise((resolve) => setTimeout(resolve, 100))
-
-      routeMap = L.map(routeMapContainer.value).setView(fromCoords, 14)
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        maxZoom: 19,
-      }).addTo(routeMap)
-
-      const fromIcon = L.divIcon({
-        className: 'from-marker',
-        html: '<div class="from-icon">🔵</div>',
-        iconSize: [30, 30],
-      })
-      L.marker(fromCoords, { icon: fromIcon })
-        .addTo(routeMap)
-        .bindPopup(`<b>FROM</b><br>${fromLocation.value.label}`)
-
-      const toIcon = L.divIcon({
-        className: 'to-marker',
-        html: '<div class="to-icon">🔴</div>',
-        iconSize: [30, 30],
-      })
-      L.marker(toCoords, { icon: toIcon })
-        .addTo(routeMap)
-        .bindPopup(`<b>TO</b><br>${toLocation.value.label}`)
-
-      const routeInfo = await fetchStreetRoute(
-        fromCoords[0],
-        fromCoords[1],
-        toCoords[0],
-        toCoords[1]
-      )
-
-      if (routeInfo && routeInfo.coordinates) {
-        navigationRouteData.value = routeInfo
-
-        const routeLine = L.polyline(routeInfo.coordinates, {
-          color: '#2196F3',
-          weight: 5,
-          opacity: 0.8,
-          lineJoin: 'round',
-          lineCap: 'round',
-        }).addTo(routeMap)
-
-        const bounds = L.latLngBounds(routeInfo.coordinates)
-        routeMap.fitBounds(bounds, { padding: [50, 50] })
-      } else {
-        const straightLine = L.polyline([fromCoords, toCoords], {
-          color: '#2196F3',
-          weight: 4,
-          opacity: 0.7,
-          dashArray: '10, 10',
-        }).addTo(routeMap)
-
-        const bounds = L.latLngBounds([fromCoords, toCoords])
-        routeMap.fitBounds(bounds, { padding: [50, 50] })
-      }
-    }
-
     const initMap = () => {
       if (!mapContainer.value) return
 
@@ -875,7 +602,7 @@ export default defineComponent({
       }
     }
 
-    const updateMapForJeepney = () => {
+    const updateMapForJeepney = async () => {
       if (!map || !selectedJeepney.value) return
 
       if (terminalMarker) {
@@ -883,6 +610,9 @@ export default defineComponent({
       }
       if (destinationMarker) {
         map.removeLayer(destinationMarker)
+      }
+      if (jeepneyRouteLine) {
+        map.removeLayer(jeepneyRouteLine)
       }
 
       const terminalIcon = L.divIcon({
@@ -894,7 +624,7 @@ export default defineComponent({
       terminalMarker = L.marker(selectedJeepney.value.terminalCoords, { icon: terminalIcon })
         .addTo(map)
         .bindPopup(
-          `<b>${selectedJeepney.value.name}</b><br>${selectedJeepney.value.terminalAddress}`
+          `<b>Terminal: ${selectedJeepney.value.name}</b><br>${selectedJeepney.value.terminalAddress}`
         )
         .openPopup()
 
@@ -909,12 +639,45 @@ export default defineComponent({
           icon: destinationIcon,
         })
           .addTo(map)
-          .bindPopup(`<b>Destination</b><br>${selectedJeepney.value.destinationAddress}`)
+          .bindPopup(`<b>Drop-off Point</b><br>${selectedJeepney.value.destinationName}`)
+
+        const jeepneyRouteData = await fetchStreetRoute(
+          selectedJeepney.value.terminalCoords[0],
+          selectedJeepney.value.terminalCoords[1],
+          selectedJeepney.value.destinationCoords[0],
+          selectedJeepney.value.destinationCoords[1]
+        )
+
+        if (jeepneyRouteData && jeepneyRouteData.coordinates) {
+          jeepneyRouteLine = L.polyline(jeepneyRouteData.coordinates, {
+            color: '#FF6B35',
+            weight: 5,
+            opacity: 0.8,
+            lineJoin: 'round',
+            lineCap: 'round',
+            dashArray: '10, 10',
+          }).addTo(map)
+        } else {
+          jeepneyRouteLine = L.polyline([
+            selectedJeepney.value.terminalCoords,
+            selectedJeepney.value.destinationCoords,
+          ], {
+            color: '#FF6B35',
+            weight: 4,
+            opacity: 0.7,
+            dashArray: '10, 10',
+          }).addTo(map)
+        }
 
         const bounds = L.latLngBounds([
           selectedJeepney.value.terminalCoords,
           selectedJeepney.value.destinationCoords,
         ])
+        
+        if (userLocation.value) {
+          bounds.extend([userLocation.value.lat, userLocation.value.lng])
+        }
+        
         map.fitBounds(bounds, { padding: [50, 50] })
       } else {
         map.setView(selectedJeepney.value.terminalCoords, 15)
@@ -951,10 +714,15 @@ export default defineComponent({
         }).addTo(map)
 
         const bounds = L.latLngBounds(fetchedRouteData.coordinates)
+        
+        if (selectedJeepney.value.destinationCoords) {
+          bounds.extend(selectedJeepney.value.destinationCoords)
+        }
+        
         map.fitBounds(bounds, { padding: [50, 50] })
 
         $q.notify({
-          message: `Route calculated: ${(fetchedRouteData.distance / 1000).toFixed(2)} km, ~${Math.round(fetchedRouteData.duration / 60)} min walk`,
+          message: `Walking route: ${(fetchedRouteData.distance / 1000).toFixed(2)} km, ~${Math.round(fetchedRouteData.duration / 60)} min walk to terminal`,
           color: 'positive',
           icon: 'directions_walk',
           timeout: 3000,
@@ -975,6 +743,11 @@ export default defineComponent({
         }).addTo(map)
 
         const bounds = L.latLngBounds(routeCoords)
+        
+        if (selectedJeepney.value.destinationCoords) {
+          bounds.extend(selectedJeepney.value.destinationCoords)
+        }
+        
         map.fitBounds(bounds, { padding: [50, 50] })
       }
     }
@@ -1051,62 +824,28 @@ export default defineComponent({
 
     const proceedWithNavigation = async () => {
       isCalculatingRoute.value = true
-      
-      navigationRouteData.value = null
-      recommendedRoute.value = null
-      
-      if (routeMap) {
-        routeMap.remove()
-        routeMap = null
-      }
-      
-      const fromVal = fromLocation.value?.value
-      const toVal = toLocation.value?.value
-      
-      if (fromVal && toVal) {
-        recommendedRoute.value = findBestJeepneyRoute(fromVal, toVal)
-      }
-      
-      showRouteMap.value = true
 
       $q.notify({
-        message: `Calculating route from ${fromLocation.value.label || 'your location'} to ${toLocation.value.label}...`,
+        message: `Finding jeepney routes from ${fromLocation.value.label || 'your location'} to ${toLocation.value.label}...`,
         color: 'positive',
         icon: 'navigation',
       })
 
-      await new Promise((resolve) => setTimeout(resolve, 300))
-
-      await initRouteMap()
+      await new Promise((resolve) => setTimeout(resolve, 500))
 
       isCalculatingRoute.value = false
 
-      setTimeout(() => {
-        const routeSection = document.querySelector('.route-map-section')
-        if (routeSection) {
-          routeSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
-      }, 300)
+      showJeepneyOptions.value = true
 
       setTimeout(() => {
         scrollToOptions()
-      }, 2000)
-    }
-
-    const closeRouteMap = () => {
-      showRouteMap.value = false
-      navigationRouteData.value = null
-      
-      if (routeMap) {
-        routeMap.remove()
-        routeMap = null
-      }
+      }, 300)
 
       $q.notify({
-        message: 'Route map closed',
+        message: 'Select a jeepney route below to see terminal directions',
         color: 'info',
-        icon: 'close',
-        timeout: 1500,
+        icon: 'info',
+        timeout: 3000,
       })
     }
 
@@ -1320,10 +1059,6 @@ export default defineComponent({
         map.remove()
         map = null
       }
-      if (routeMap) {
-        routeMap.remove()
-        routeMap = null
-      }
     })
 
     return {
@@ -1334,17 +1069,13 @@ export default defineComponent({
       jeepneyOptions,
       optionsSection,
       mapContainer,
-      routeMapContainer,
       isLoadingLocation,
       isCalculatingRoute,
       selectedJeepney,
       routeData,
-      showRouteMap,
-      navigationRouteData,
-      recommendedRoute,
-      routeDistance,
-      routeDuration,
+      showJeepneyOptions,
       walkingInstructions,
+      showWalkingRoute,
       estimatedTime,
       scrollToNavigation,
       scrollToOptions,
@@ -1358,7 +1089,6 @@ export default defineComponent({
       filterToLocations,
       onFromInputChange,
       onToInputChange,
-      closeRouteMap,
     }
   },
 })
@@ -1460,22 +1190,6 @@ $cream-bg: #e8ebe3;
 
 :deep(.destination-marker) {
   .destination-icon {
-    font-size: 30px;
-    text-align: center;
-    line-height: 30px;
-  }
-}
-
-:deep(.from-marker) {
-  .from-icon {
-    font-size: 30px;
-    text-align: center;
-    line-height: 30px;
-  }
-}
-
-:deep(.to-marker) {
-  .to-icon {
     font-size: 30px;
     text-align: center;
     line-height: 30px;
@@ -1677,233 +1391,6 @@ $cream-bg: #e8ebe3;
   }
 }
 
-.route-map-section {
-  background: white;
-  padding: 60px 0;
-  border-bottom: 1px solid #e0e0e0;
-
-  .route-header {
-    margin-bottom: 40px;
-
-    .route-header-content {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 20px;
-
-      @media (max-width: 768px) {
-        flex-direction: column;
-        align-items: stretch;
-      }
-    }
-
-    .route-title {
-      font-size: 2.5rem;
-      font-weight: 800;
-      margin: 0 0 1rem 0;
-      color: $text-dark;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-
-      @media (max-width: 768px) {
-        font-size: 2rem;
-      }
-    }
-
-    .route-subtitle {
-      font-size: 1.1rem;
-      color: $text-light;
-      margin: 0;
-    }
-  }
-
-  .route-content-grid {
-    display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 40px;
-
-    @media (max-width: 1200px) {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  .route-map-column {
-    .route-map-wrapper {
-      width: 100%;
-      height: 500px;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-      background: $light-gray;
-      margin-bottom: 30px;
-
-      @media (max-width: 768px) {
-        height: 350px;
-      }
-
-      :deep(.leaflet-container) {
-        width: 100%;
-        height: 100%;
-        border-radius: 12px;
-      }
-    }
-
-    .route-info-cards {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-
-      @media (max-width: 768px) {
-        grid-template-columns: 1fr;
-      }
-
-      .info-card {
-        background: $light-gray;
-        border-radius: 12px;
-        padding: 25px;
-        display: flex;
-        align-items: center;
-        gap: 20px;
-
-        .info-card-content {
-          .info-card-label {
-            font-size: 0.85rem;
-            color: $text-light;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 5px;
-          }
-
-          .info-card-value {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: $text-dark;
-          }
-        }
-      }
-    }
-  }
-
-  .jeepney-info-column {
-    .jeepney-card {
-      background: white;
-      border: 2px solid #e0e0e0;
-      border-radius: 12px;
-      padding: 30px;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-
-      .jeepney-card-header {
-        display: flex;
-        align-items: flex-start;
-        gap: 15px;
-        margin-bottom: 30px;
-        padding-bottom: 20px;
-        border-bottom: 2px solid #f0f0f0;
-
-        .jeepney-route-name {
-          font-size: 1.3rem;
-          font-weight: 800;
-          margin: 0 0 0.5rem 0;
-          color: $text-dark;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          line-height: 1.2;
-        }
-
-        .jeepney-route-desc {
-          font-size: 0.9rem;
-          color: $text-light;
-          margin: 0;
-        }
-      }
-
-      .jeepney-details {
-        display: flex;
-        flex-direction: column;
-        gap: 25px;
-
-        .detail-section {
-          display: flex;
-          gap: 15px;
-          align-items: flex-start;
-
-          .detail-icon-wrapper {
-            flex-shrink: 0;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: $cream-bg;
-            border-radius: 8px;
-            color: $primary-green;
-          }
-
-          .detail-content {
-            flex: 1;
-
-            .detail-title {
-              font-size: 0.85rem;
-              font-weight: 700;
-              margin: 0 0 0.5rem 0;
-              color: $text-dark;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-            }
-
-            .detail-text {
-              font-size: 0.95rem;
-              line-height: 1.6;
-              color: $text-light;
-              margin: 0;
-
-              strong {
-                color: $text-dark;
-                font-weight: 700;
-              }
-            }
-
-            .detail-instruction {
-              font-size: 0.85rem;
-              line-height: 1.5;
-              color: $text-light;
-              margin: 0.5rem 0 0 0;
-              font-style: italic;
-            }
-
-            .highlight-text {
-              font-weight: 600;
-              color: $primary-green;
-              background: rgba(74, 95, 78, 0.1);
-              padding: 8px 12px;
-              border-radius: 6px;
-              display: inline-block;
-            }
-          }
-        }
-
-        .note-section {
-          display: flex;
-          gap: 10px;
-          align-items: flex-start;
-          background: #e3f2fd;
-          padding: 15px;
-          border-radius: 8px;
-          border-left: 4px solid #2196F3;
-
-          .note-text {
-            font-size: 0.9rem;
-            line-height: 1.5;
-            color: #1565c0;
-            margin: 0;
-            font-weight: 500;
-          }
-        }
-      }
-    }
-  }
-}
-
 .options-section {
   background: $cream-bg;
   padding: 100px 0;
@@ -2045,6 +1532,7 @@ $cream-bg: #e8ebe3;
       overflow: hidden;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
       background: $light-gray;
+      margin-bottom: 20px;
 
       @media (max-width: 768px) {
         height: 400px;
@@ -2063,6 +1551,53 @@ $cream-bg: #e8ebe3;
       :deep(.leaflet-popup-content) {
         font-family: 'Inter', sans-serif;
         font-size: 14px;
+      }
+    }
+
+    .route-legend {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 15px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+
+      @media (max-width: 768px) {
+        padding: 12px 15px;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .legend-line {
+          width: 40px;
+          height: 4px;
+          border-radius: 2px;
+
+          &.walking-line {
+            background: $primary-green;
+          }
+
+          &.jeepney-line {
+            background: #FF6B35;
+            background-image: repeating-linear-gradient(
+              90deg,
+              #FF6B35,
+              #FF6B35 10px,
+              transparent 10px,
+              transparent 20px
+            );
+          }
+        }
+
+        .legend-text {
+          font-size: 0.85rem;
+          color: $text-dark;
+          font-weight: 500;
+        }
       }
     }
   }
@@ -2117,6 +1652,72 @@ $cream-bg: #e8ebe3;
             line-height: 1.6;
             color: $text-light;
             margin: 0;
+          }
+
+          .highlight-text {
+            font-weight: 700;
+            color: $primary-green;
+            background: rgba(74, 95, 78, 0.1);
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: inline-block;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+          }
+
+          .info-subdescription {
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: $text-light;
+            margin: 8px 0 0 0;
+            font-style: italic;
+          }
+        }
+
+        &.journey-summary {
+          .journey-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 10px;
+
+            .journey-step {
+              display: flex;
+              gap: 15px;
+              align-items: flex-start;
+
+              .step-number {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                background: $primary-green;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: 1rem;
+                flex-shrink: 0;
+              }
+
+              .step-content {
+                flex: 1;
+
+                strong {
+                  display: block;
+                  font-size: 0.95rem;
+                  color: $text-dark;
+                  margin-bottom: 4px;
+                }
+
+                p {
+                  font-size: 0.85rem;
+                  color: $text-light;
+                  margin: 0;
+                  line-height: 1.5;
+                }
+              }
+            }
           }
         }
       }
