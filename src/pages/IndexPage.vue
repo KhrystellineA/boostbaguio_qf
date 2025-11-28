@@ -33,27 +33,65 @@
                 <div class="route-card scroll-animate">
                   <div class="input-group">
                     <div class="input-label">FROM:</div>
-                    <q-input
+                    <q-select
                       v-model="fromLocation"
-                      outlined
-                      dense
-                      class="custom-input"
+                      :options="fromLocationOptions"
+                      filled
+                      use-input
+                      input-debounce="300"
+                      placeholder="Enter starting location"
                       bg-color="white"
-                    />
+                      class="custom-input"
+                      @filter="filterFromLocations"
+                      behavior="menu"
+                    >
+                      <template v-slot:prepend>
+                        <q-icon name="my_location" />
+                      </template>
+                      <template v-slot:no-option>
+                        <q-item>
+                          <q-item-section class="text-grey">
+                            Type to search Baguio locations...
+                          </q-item-section>
+                        </q-item>
+                      </template>
+                    </q-select>
                   </div>
 
                   <div class="input-group">
                     <div class="input-label">TO:</div>
-                    <q-input
+                    <q-select
                       v-model="toLocation"
-                      outlined
-                      dense
-                      class="custom-input"
+                      :options="toLocationOptions"
+                      filled
+                      use-input
+                      input-debounce="300"
+                      placeholder="Enter destination"
                       bg-color="white"
-                    />
+                      class="custom-input"
+                      @filter="filterToLocations"
+                      behavior="menu"
+                    >
+                      <template v-slot:prepend>
+                        <q-icon name="place" />
+                      </template>
+                      <template v-slot:no-option>
+                        <q-item>
+                          <q-item-section class="text-grey">
+                            Type to search Baguio locations...
+                          </q-item-section>
+                        </q-item>
+                      </template>
+                    </q-select>
                   </div>
 
-                  <q-btn label="Start Navigation" unelevated class="start-nav-btn" size="md" />
+                  <q-btn
+                    label="Start Navigation"
+                    unelevated
+                    class="start-nav-btn"
+                    size="md"
+                    @click="startNavigation"
+                  />
                 </div>
               </div>
             </div>
@@ -122,6 +160,8 @@
 
 <script>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
 import FeaturesSection from '../components/Home/FeaturesSection.vue'
 import GuideSection from '../components/Home/GuideSection.vue'
 import AboutSection from '../components/Home/AboutSection.vue'
@@ -140,8 +180,108 @@ export default {
     FooterSection,
   },
   setup() {
-    const fromLocation = ref('')
-    const toLocation = ref('')
+    const router = useRouter()
+    const $q = useQuasar()
+    const fromLocation = ref(null)
+    const toLocation = ref(null)
+    const fromLocationOptions = ref([])
+    const toLocationOptions = ref([])
+
+    const baguioLocations = [
+      { label: 'SM City Baguio', value: 'sm-baguio', coords: [16.4088516, 120.5972273] },
+      { label: 'Burnham Park', value: 'burnham-park', coords: [16.40954, 120.594808] },
+      { label: 'Session Road', value: 'session-road', coords: [16.4091098, 120.597576] },
+      { label: 'Baguio Cathedral', value: 'baguio-cathedral', coords: [16.412766, 120.598469] },
+      { label: 'Baguio City Market', value: 'baguio-market', coords: [16.4149596, 120.5929984] },
+      { label: 'Camp John Hay', value: 'camp-john-hay', coords: [16.397029, 120.608785] },
+      { label: 'Mines View Park', value: 'mines-view', coords: [16.4240885, 120.6212975] },
+      { label: 'Wright Park', value: 'wright-park', coords: [16.4156996, 120.6123524] },
+      { label: 'The Mansion', value: 'the-mansion', coords: [16.4123678, 120.6188978] },
+      { label: "Teacher's Camp", value: 'teachers-camp', coords: [16.4130217, 120.6072952] },
+      { label: 'Botanical Garden', value: 'botanical-garden', coords: [16.4176, 120.597] },
+      { label: 'Baguio Convention Center', value: 'convention-center', coords: [16.409, 120.594] },
+      { label: 'Baguio General Hospital', value: 'bgh', coords: [16.4068, 120.5995] },
+      { label: 'University of Baguio', value: 'ub', coords: [16.4111, 120.6005] },
+      { label: 'Saint Louis University', value: 'slu', coords: [16.4133, 120.5967] },
+      { label: 'Good Shepherd Convent', value: 'good-shepherd', coords: [16.4196, 120.604] },
+      { label: 'Tam-awan Village', value: 'tam-awan', coords: [16.4231, 120.5889] },
+      { label: 'Lourdes Grotto', value: 'lourdes-grotto', coords: [16.4253, 120.5972] },
+      { label: 'PMA (Philippine Military Academy)', value: 'pma', coords: [16.3928, 120.5962] },
+    ]
+
+    const filterFromLocations = (val, update) => {
+      update(() => {
+        const needle = val.toLowerCase()
+        if (needle === '') {
+          fromLocationOptions.value = [
+            {
+              label: '📍 Use Current Location',
+              value: 'current-location',
+              isCurrentLocation: true,
+            },
+            ...baguioLocations,
+          ]
+        } else {
+          const filtered = baguioLocations.filter(
+            (loc) => loc.label.toLowerCase().indexOf(needle) > -1
+          )
+          fromLocationOptions.value = [
+            {
+              label: '📍 Use Current Location',
+              value: 'current-location',
+              isCurrentLocation: true,
+            },
+            ...filtered,
+          ]
+        }
+      })
+    }
+
+    const filterToLocations = (val, update) => {
+      update(() => {
+        const needle = val.toLowerCase()
+        if (needle === '') {
+          toLocationOptions.value = [...baguioLocations]
+        } else {
+          toLocationOptions.value = baguioLocations.filter(
+            (loc) => loc.label.toLowerCase().indexOf(needle) > -1
+          )
+        }
+      })
+    }
+
+    const startNavigation = () => {
+      if (!fromLocation.value || !toLocation.value) {
+        $q.notify({
+          message: 'Please select both starting and destination points',
+          color: 'warning',
+          icon: 'warning',
+        })
+        return
+      }
+
+      const queryParams = {
+        toName: toLocation.value.label,
+        toLat: toLocation.value.coords[0],
+        toLng: toLocation.value.coords[1],
+      }
+
+      if (fromLocation.value.isCurrentLocation) {
+        router.push({
+          path: '/apanam',
+          query: queryParams,
+        })
+      } else {
+        queryParams.fromName = fromLocation.value.label
+        queryParams.fromLat = fromLocation.value.coords[0]
+        queryParams.fromLng = fromLocation.value.coords[1]
+
+        router.push({
+          path: '/apanam',
+          query: queryParams,
+        })
+      }
+    }
 
     const observeElements = () => {
       const options = {
@@ -166,6 +306,12 @@ export default {
     let observer
 
     onMounted(() => {
+      fromLocationOptions.value = [
+        { label: '📍 Use Current Location', value: 'current-location', isCurrentLocation: true },
+        ...baguioLocations,
+      ]
+      toLocationOptions.value = [...baguioLocations]
+
       setTimeout(() => {
         observer = observeElements()
       }, 100)
@@ -180,6 +326,11 @@ export default {
     return {
       fromLocation,
       toLocation,
+      fromLocationOptions,
+      toLocationOptions,
+      filterFromLocations,
+      filterToLocations,
+      startNavigation,
     }
   },
 }
@@ -437,17 +588,17 @@ export default {
 .custom-input {
   :deep(.q-field__control) {
     border-radius: 10px;
-    height: 48px;
+    min-height: 48px;
     background: white;
     transition: all 0.3s ease;
-
-    &:before {
-      border-color: rgba(0, 0, 0, 0.12);
-    }
 
     &:hover {
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
+  }
+
+  :deep(.q-field__native) {
+    font-size: 0.95rem;
   }
 }
 
