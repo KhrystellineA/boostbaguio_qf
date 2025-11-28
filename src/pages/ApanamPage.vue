@@ -344,6 +344,7 @@
 
 <script>
 import { defineComponent, ref, computed, onMounted, onUnmounted, onBeforeUnmount } from 'vue'
+import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -359,6 +360,7 @@ export default defineComponent({
 
   setup() {
     const $q = useQuasar()
+    const router = useRouter()
     const optionsSection = ref(null)
     const fromLocation = ref(null)
     const toLocation = ref(null)
@@ -1034,19 +1036,69 @@ export default defineComponent({
     let observer
 
     onMounted(() => {
-      fromLocationOptions.value = [
-        { label: '📍 Use Current Location', value: 'current-location', isCurrentLocation: true },
-        ...baguioLocations,
-      ]
-      toLocationOptions.value = [...baguioLocations]
+  fromLocationOptions.value = [
+    { label: '📍 Use Current Location', value: 'current-location', isCurrentLocation: true },
+    ...baguioLocations,
+  ]
+  toLocationOptions.value = [...baguioLocations]
 
-      fromLocation.value = baguioLocations.find((loc) => loc.value === 'sm-baguio')
-      toLocation.value = baguioLocations.find((loc) => loc.value === 'botanical-garden')
+  const route = router.currentRoute.value
+  if (route.query && (route.query.toName || route.query.toLat)) {
+    if (route.query.toName && route.query.toLat && route.query.toLng) {
+      toLocation.value = {
+        label: route.query.toName,
+        value: route.query.toName.toLowerCase().replace(/\s+/g, '-'),
+        coords: [parseFloat(route.query.toLat), parseFloat(route.query.toLng)],
+      }
 
+      $q.notify({
+        message: `Destination set to: ${route.query.toName}`,
+        color: 'positive',
+        icon: 'place',
+      })
+    }
+
+    if (route.query.fromLat && route.query.fromLng) {
+      userLocation.value = {
+        lat: parseFloat(route.query.fromLat),
+        lng: parseFloat(route.query.fromLng),
+      }
+      fromLocation.value = {
+        label: route.query.fromName || 'Your Location',
+        value: 'from-ayan-mo',
+        coords: [parseFloat(route.query.fromLat), parseFloat(route.query.fromLng)],
+      }
+    } else {
+      fromLocation.value = { 
+        label: '📍 Use Current Location', 
+        value: 'current-location', 
+        isCurrentLocation: true 
+      }
+    }
+
+    if (toLocation.value && fromLocation.value) {
       setTimeout(() => {
-        observer = observeElements()
-      }, 100)
-    })
+        $q.notify({
+          message: 'Preparing your route...',
+          color: 'info',
+          icon: 'navigation',
+          timeout: 1500,
+        })
+        
+        setTimeout(() => {
+          startNavigation()
+        }, 1000)
+      }, 500)
+    }
+  } else {
+    fromLocation.value = baguioLocations.find((loc) => loc.value === 'sm-baguio')
+    toLocation.value = baguioLocations.find((loc) => loc.value === 'botanical-garden')
+  }
+
+  setTimeout(() => {
+    observer = observeElements()
+  }, 100)
+})
 
     onUnmounted(() => {
       if (observer) {

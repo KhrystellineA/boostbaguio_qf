@@ -8,6 +8,7 @@ const routes = [
       { path: 'maykan', component: () => import('pages/MaykanPage.vue') },
       { path: 'aramidem', component: () => import('pages/AramidemPage.vue') },
       { path: 'apanam', component: () => import('pages/ApanamPage.vue') },
+      { path: 'ayanmo', component: () => import('pages/AyanMoPage.vue') },
     ],
   },
 
