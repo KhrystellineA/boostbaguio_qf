@@ -127,26 +127,24 @@ export default {
     const drawer = ref(false)
 
     const navLinks = [
-      { label: 'APANAM', path: '#apanam' },
-      { label: 'PAGNAAM', path: '#pagnaam' },
-      { label: 'ARAMIDEM', path: '#aramidem' },
+      { label: 'APANAM', path: 'apanam' },
+      { label: 'PAGNAAM', path: 'pagnaam' },
+      { label: 'ARAMIDEM', path: 'aramidem' },
     ]
 
     const moreOptions = [
-      { label: 'Features', path: '#features' },
-      { label: 'Routes', path: '#routes' },
-      { label: 'About', path: '#about' },
-      { label: 'Contact', path: '#contact' },
-      { label: 'FAQ', path: '#faq' },
+      { label: 'Features', path: 'features' },
+      { label: 'Routes', path: 'routes' },
+      { label: 'About', path: 'about' },
+      { label: 'Contact', path: 'contact' },
+      { label: 'FAQ', path: 'faq' },
     ]
 
     const handleLogin = () => {
-      // Handle login navigation
       console.log('Navigate to login')
     }
 
     const handleSignup = () => {
-      // Handle signup navigation
       console.log('Navigate to signup')
     }
 
