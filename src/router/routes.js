@@ -9,6 +9,25 @@ const routes = [
       { path: 'aramidem', component: () => import('pages/AramidemPage.vue') },
       { path: 'apanam', component: () => import('pages/ApanamPage.vue') },
       { path: 'ayanmo', component: () => import('pages/AyanMoPage.vue') },
+      {
+        path: '/login',
+        component: () => import('pages/AuthPage.vue')
+      },
+      {
+        path: '/account',
+        component: () => import('pages/AccountPage.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: '/saved-routes',
+        component: () => import('pages/SavedRoutesPage.vue'),
+        meta: { requiresAuth: true, requiresPremium: true }
+      },
+      {
+        path: '/offline',
+        component: () => import('pages/OfflinePage.vue'),
+        meta: { requiresAuth: true, requiresPremium: true }
+}
     ],
   },
 
