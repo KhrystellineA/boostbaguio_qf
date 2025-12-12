@@ -11,7 +11,7 @@ export default defineConfig((/* ctx */) => {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
-    boot: [],
+    boot: ['pinia','firebase'],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#css
     css: ['app.sass'],
@@ -55,6 +55,15 @@ export default defineConfig((/* ctx */) => {
 
       // extendViteConf (viteConf) {},
       // viteVuePluginOptions: {},
+      
+      env: {
+        FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
+        FIREBASE_AUTH_DOMAIN: process.env.FIREBASE_AUTH_DOMAIN,
+        FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
+        FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET,
+        FIREBASE_MESSAGING_SENDER_ID: process.env.FIREBASE_MESSAGING_SENDER_ID,
+        FIREBASE_APP_ID: process.env.FIREBASE_APP_ID
+      },
 
       vitePlugins: [
         [
@@ -73,6 +82,9 @@ export default defineConfig((/* ctx */) => {
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#devserver
     devServer: {
       // https: true,
+      host: '0.0.0.0',
+      port: 9200,
+      allowedHosts: 'all',
       open: true, // opens browser window automatically
     },
 
@@ -91,7 +103,7 @@ export default defineConfig((/* ctx */) => {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Notify', 'Dialog'],
+      plugins: ['Notify', 'Dialog', 'Loading', 'LocalStorage', 'SessionStorage'],
     },
 
     // animations: 'all', // --- includes all animations
@@ -137,16 +149,101 @@ export default defineConfig((/* ctx */) => {
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-pwa/configuring-pwa
     pwa: {
-      workboxMode: 'GenerateSW', // 'GenerateSW' or 'InjectManifest'
-      // swFilename: 'sw.js',
-      // manifestFilename: 'manifest.json',
-      // extendManifestJson (json) {},
-      // useCredentialsForManifestTag: true,
-      // injectPwaMetaTags: false,
-      // extendPWACustomSWConf (esbuildConf) {},
-      // extendGenerateSWOptions (cfg) {},
-      // extendInjectManifestOptions (cfg) {}
-    },
+  workboxMode: 'GenerateSW', // lowercase 'g' in generateSW
+  injectPwaMetaTags: true,
+  swFilename: 'sw.js',
+  manifestFilename: 'manifest.json',
+  useCredentialsForManifestTag: false,
+  
+  extendGenerateSWOptions (cfg) {
+    cfg.skipWaiting = true
+    cfg.clientsClaim = true
+    cfg.cleanupOutdatedCaches = true
+    
+    // Add caching strategies
+    cfg.runtimeCaching = [
+      // Google Fonts
+      {
+        urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'google-fonts-stylesheets',
+          expiration: {
+            maxEntries: 10,
+            maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+          },
+          cacheableResponse: {
+            statuses: [0, 200]
+          }
+        }
+      },
+      {
+        urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'gstatic-fonts-cache',
+          expiration: {
+            maxEntries: 10,
+            maxAgeSeconds: 60 * 60 * 24 * 365
+          },
+          cacheableResponse: {
+            statuses: [0, 200]
+          }
+        }
+      },
+      // Images
+      {
+        urlPattern: /\.(?:png|gif|jpg|jpeg|svg|webp)$/,
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'images-cache',
+          expiration: {
+            maxEntries: 60,
+            maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+          }
+        }
+      },
+      // Firebase Storage
+      {
+        urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\/.*/i,
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'firebase-storage-cache',
+          networkTimeoutSeconds: 10,
+          expiration: {
+            maxEntries: 50,
+            maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
+          }
+        }
+      },
+      // Firebase Data
+      {
+        urlPattern: /^https:\/\/.*\.firebaseio\.com\/.*/i,
+        handler: 'NetworkFirst',
+        options: {
+          cacheName: 'firebase-data-cache',
+          networkTimeoutSeconds: 5,
+          expiration: {
+            maxEntries: 100,
+            maxAgeSeconds: 60 * 10 // 10 minutes
+          }
+        }
+      }
+    ]
+  },
+
+  // Manifest configuration
+  extendManifestJson (json) {
+    json.name = 'Baguio Boost - Jeepney Navigation'
+    json.short_name = 'Baguio Boost'
+    json.description = 'Premium jeepney navigation app for Baguio City'
+    json.display = 'standalone'
+    json.orientation = 'portrait'
+    json.background_color = '#ffffff'
+    json.theme_color = '#667eea'
+    json.categories = ['navigation', 'travel', 'utilities']
+  }
+},
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-cordova-apps/configuring-cordova
     cordova: {

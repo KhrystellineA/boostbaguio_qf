@@ -537,11 +537,11 @@ export default defineComponent({
       })
     }
 
-    const onFromInputChange = (val) => {
-    }
+    const onFromInputChange = () => {
+}
 
-    const onToInputChange = (val) => {
-    }
+const onToInputChange = () => {
+}
 
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
       const R = 6371
@@ -576,8 +576,8 @@ export default defineComponent({
           }
         }
         return null
-      } catch (error) {
-        console.error('Error fetching route:', error)
+      } catch {
+        console.log('Error fetching route:')
         return null
       }
     }
@@ -805,7 +805,7 @@ export default defineComponent({
             }
             proceedWithNavigation()
           },
-          (error) => {
+          () => {
             isCalculatingRoute.value = false
             $q.notify({
               message: 'Unable to get your location. Please enable location access.',

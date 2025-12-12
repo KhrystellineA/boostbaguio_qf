@@ -980,7 +980,7 @@ export default defineComponent({
           icon: 'navigation',
           position: 'top',
         })
-      } catch (error) {
+      } catch {
         $q.notify({
           message:
             'APANAM feature is coming soon! Your destination will be: ' + selectedPlace.value.name,
