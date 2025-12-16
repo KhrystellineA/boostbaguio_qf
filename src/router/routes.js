@@ -27,12 +27,32 @@ const routes = [
         path: '/offline',
         component: () => import('pages/OfflinePage.vue'),
         meta: { requiresAuth: true, requiresPremium: true }
-}
+      },
     ],
   },
 
-  // Always leave this as last one,
-  // but you can also remove it
+
+  {
+    path: '/admin',
+    component: () => import('layouts/BlankLayout.vue'),
+    children: [
+      {
+        path: 'adminlogin',
+        name: 'AdminLogin',
+        component: () => import('pages/Admin/AdminLogin.vue')
+      },
+      {
+        path: '/admin/signup',
+        component: () => import('pages/admin/AdminSignup.vue')
+      },
+      {
+        path: '/admin/dashboard',
+        component: () => import('pages/admin/AdminDashboard.vue'),
+        meta: { requiresAuth: true }
+      },
+    ]
+  },
+
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
