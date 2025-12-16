@@ -881,7 +881,7 @@ const fetchRoutes = async () => {
       await fetchRoutes()
 
       console.log('[LandingPage] After fetch, jeepneys:', jeepneys.value)
-      
+
       if (jeepneys.value.length > 0) {
         selectedJeepney.value = jeepneys.value[0]
         setTimeout(() => {

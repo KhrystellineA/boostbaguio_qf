@@ -2,6 +2,7 @@ import { boot } from 'quasar/wrappers'
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
+import { getStorage } from 'firebase/storage'
 
 const firebaseConfig = {
   apiKey: "AIzaSyAllxHJVBHgH3P70gfCqV4494t4ssARbig",
@@ -16,10 +17,11 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
+const storage = getStorage(app)
 
 export default boot(({ app }) => {
   app.config.globalProperties.$auth = auth
   app.config.globalProperties.$db = db
 })
 
-export { auth, db }
+export { auth, db, storage   }

@@ -193,6 +193,10 @@ export default {
       showConfirmPassword: false,
       loading: false,
       roleOptions: [
+      {
+          label: 'Super Admin - Full access to all features',
+          value: 'super_admin'
+        },
         {
           label: 'Route Manager - Manage jeepney routes',
           value: 'route_manager'

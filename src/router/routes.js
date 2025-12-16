@@ -31,7 +31,6 @@ const routes = [
     ],
   },
 
-
   {
     path: '/admin',
     component: () => import('layouts/BlankLayout.vue'),
@@ -39,14 +38,16 @@ const routes = [
       {
         path: 'adminlogin',
         name: 'AdminLogin',
-        component: () => import('pages/Admin/AdminLogin.vue')
+        component: () => import('pages/admin/AdminLogin.vue')
       },
       {
-        path: '/admin/signup',
+        path: 'signup',
+        name: 'AdminSignup',
         component: () => import('pages/admin/AdminSignup.vue')
       },
       {
-        path: '/admin/dashboard',
+        path: 'dashboard',
+        name: 'AdminDashboard',
         component: () => import('pages/admin/AdminDashboard.vue'),
         meta: { requiresAuth: true }
       },

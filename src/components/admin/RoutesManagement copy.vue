@@ -70,8 +70,9 @@
       </q-card-section>
     </q-card>
 
+    <!-- Main Form Dialog -->
     <q-dialog v-model="showDialog" persistent>
-      <q-card style="min-width: 600px">
+      <q-card style="min-width: 700px; max-width: 900px">
         <q-card-section class="bg-pine-green text-white">
           <div class="text-h6">
             {{ editMode ? 'Edit Route' : 'Add New Route' }}
@@ -79,7 +80,7 @@
         </q-card-section>
 
         <q-card-section>
-          <q-form @submit="saveRoute" class="q-gutter-md">
+          <q-form @submit.prevent="saveRoute" class="q-gutter-md">
             <div class="row q-col-gutter-md">
               <div class="col-12">
                 <q-input
@@ -87,6 +88,7 @@
                   label="Route Name *"
                   outlined
                   :rules="[val => !!val || 'Route name is required']"
+                  hint="e.g., ROUTE 01, Market to Session Road"
                 />
               </div>
 
@@ -114,6 +116,7 @@
                   label="Terminal Location *"
                   outlined
                   :rules="[val => !!val || 'Terminal location is required']"
+                  hint="Full address of the terminal"
                 />
               </div>
 
@@ -150,58 +153,93 @@
                 />
               </div>
 
+              <!-- Terminal Coordinates with Map Picker -->
               <div class="col-12">
-                <div class="text-subtitle2 q-mb-sm">Terminal Coordinates</div>
-                <div class="row q-col-gutter-sm">
-                  <div class="col-6">
-                    <q-input
-                      v-model.number="routeForm.terminalLat"
-                      label="Latitude *"
-                      type="number"
-                      outlined
-                      dense
-                      step="0.0001"
-                    />
-                  </div>
-                  <div class="col-6">
-                    <q-input
-                      v-model.number="routeForm.terminalLng"
-                      label="Longitude *"
-                      type="number"
-                      outlined
-                      dense
-                      step="0.0001"
-                    />
+                <div class="coordinate-section">
+                  <div class="text-subtitle2 q-mb-sm">Terminal Coordinates</div>
+                  <div class="row q-col-gutter-sm">
+                    <div class="col-5">
+                      <q-input
+                        v-model.number="routeForm.terminalLat"
+                        label="Latitude *"
+                        type="number"
+                        outlined
+                        dense
+                        step="0.0001"
+                        readonly
+                      />
+                    </div>
+                    <div class="col-5">
+                      <q-input
+                        v-model.number="routeForm.terminalLng"
+                        label="Longitude *"
+                        type="number"
+                        outlined
+                        dense
+                        step="0.0001"
+                        readonly
+                      />
+                    </div>
+                    <div class="col-2">
+                      <q-btn
+                        icon="map"
+                        color="primary"
+                        outline
+                        dense
+                        @click="openMapPicker('terminal')"
+                        style="width: 100%; height: 40px"
+                      >
+                        <q-tooltip>Pick from map</q-tooltip>
+                      </q-btn>
+                    </div>
                   </div>
                 </div>
               </div>
 
+              <!-- Destination Coordinates with Map Picker -->
               <div class="col-12">
-                <div class="text-subtitle2 q-mb-sm">Destination Coordinates</div>
-                <div class="row q-col-gutter-sm">
-                  <div class="col-6">
-                    <q-input
-                      v-model.number="routeForm.destinationLat"
-                      label="Latitude *"
-                      type="number"
-                      outlined
-                      dense
-                      step="0.0001"
-                    />
-                  </div>
-                  <div class="col-6">
-                    <q-input
-                      v-model.number="routeForm.destinationLng"
-                      label="Longitude *"
-                      type="number"
-                      outlined
-                      dense
-                      step="0.0001"
-                    />
+                <div class="coordinate-section">
+                  <div class="text-subtitle2 q-mb-sm">Destination Coordinates</div>
+                  <div class="row q-col-gutter-sm">
+                    <div class="col-5">
+                      <q-input
+                        v-model.number="routeForm.destinationLat"
+                        label="Latitude *"
+                        type="number"
+                        outlined
+                        dense
+                        step="0.0001"
+                        readonly
+                      />
+                    </div>
+                    <div class="col-5">
+                      <q-input
+                        v-model.number="routeForm.destinationLng"
+                        label="Longitude *"
+                        type="number"
+                        outlined
+                        dense
+                        step="0.0001"
+                        readonly
+                      />
+                    </div>
+                    <div class="col-2">
+                      <q-btn
+                        icon="map"
+                        color="primary"
+                        outline
+                        dense
+                        @click="openMapPicker('destination')"
+                        style="width: 100%; height: 40px"
+                      >
+                        <q-tooltip>Pick from map</q-tooltip>
+                      </q-btn>
+                    </div>
                   </div>
                 </div>
               </div>
 
+              <!-- Image Upload -->
               <div class="col-12">
                 <div class="text-subtitle2 q-mb-sm">Route Image</div>
                 <q-file
@@ -247,15 +285,62 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <!-- Map Picker Dialog -->
+    <q-dialog v-model="showMapPicker" maximized>
+      <q-card>
+        <q-bar class="bg-primary text-white">
+          <q-icon name="map" />
+          <div class="text-weight-bold q-ml-sm">
+            Select {{ pickerMode === 'terminal' ? 'Terminal' : 'Destination' }} Location
+          </div>
+          <q-space />
+          <q-btn dense flat icon="close" @click="closeMapPicker" />
+        </q-bar>
+
+        <q-card-section class="q-pa-none" style="height: calc(100vh - 100px)">
+          <div ref="mapPickerContainer" style="height: 100%; width: 100%"></div>
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-pa-md bg-grey-1">
+          <div class="row full-width items-center">
+            <div class="col">
+              <div class="text-caption text-grey-7">Click on the map to select location</div>
+              <div v-if="tempCoords" class="text-body2">
+                <strong>Selected:</strong> {{ tempCoords.lat.toFixed(6) }}, {{ tempCoords.lng.toFixed(6) }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <q-btn
+                label="Cancel"
+                flat
+                color="grey-7"
+                @click="closeMapPicker"
+                class="q-mr-sm"
+              />
+              <q-btn
+                label="Confirm Location"
+                unelevated
+                color="primary"
+                @click="confirmMapSelection"
+                :disable="!tempCoords"
+              />
+            </div>
+          </div>
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { useQuasar } from 'quasar'
 import { db, storage } from 'src/boot/firebase'
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore'
 import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 
 export default {
   name: 'RoutesManagement',
@@ -279,6 +364,14 @@ export default {
     const searchFilter = ref('')
     const imagePreview = ref(null)
 
+    // Map picker state
+    const showMapPicker = ref(false)
+    const mapPickerContainer = ref(null)
+    const pickerMode = ref('terminal') // 'terminal' or 'destination'
+    const tempCoords = ref(null)
+    let mapPickerInstance = null
+    let markerInstance = null
+
     const routeForm = ref({
       id: null,
       routeName: '',
@@ -293,7 +386,8 @@ export default {
       destinationLat: 16.4145,
       destinationLng: 120.598,
       imageFile: null,
-      imageUrl: null
+      imageUrl: null,
+      createdAt: null
     })
 
     const columns = [
@@ -337,9 +431,9 @@ export default {
 
       const search = searchFilter.value.toLowerCase()
       return routes.value.filter(route =>
-        route.routeName.toLowerCase().includes(search) ||
-        route.startingPoint.toLowerCase().includes(search) ||
-        route.destination.toLowerCase().includes(search)
+        route.routeName?.toLowerCase().includes(search) ||
+        route.startingPoint?.toLowerCase().includes(search) ||
+        route.destination?.toLowerCase().includes(search)
       )
     })
 
@@ -398,7 +492,6 @@ export default {
 
         // Upload new image if provided
         if (routeForm.value.imageFile) {
-          // Delete old image if updating
           if (editMode.value && routeForm.value.imageUrl) {
             await deleteImage(routeForm.value.imageUrl)
           }
@@ -406,21 +499,37 @@ export default {
         }
 
         const routeData = {
+          // Use consistent field names for compatibility
+          name: routeForm.value.routeName,
           routeName: routeForm.value.routeName,
+          code: routeForm.value.routeName.toLowerCase().replace(/\s+/g, '-'),
+          
+          // Route details
+          origin: routeForm.value.startingPoint,
           startingPoint: routeForm.value.startingPoint,
           destination: routeForm.value.destination,
           terminalLocation: routeForm.value.terminalLocation,
+          description: `${routeForm.value.startingPoint} to ${routeForm.value.destination}`,
+          
+          // Fares
+          fare: routeForm.value.regularFare,
           regularFare: routeForm.value.regularFare,
           studentFare: routeForm.value.studentFare,
           pwdSeniorFare: routeForm.value.pwdSeniorFare,
+          
+          // Coordinates
+          originCoordinates: [routeForm.value.terminalLat, routeForm.value.terminalLng],
           terminalCoordinates: [routeForm.value.terminalLat, routeForm.value.terminalLng],
           destinationCoordinates: [routeForm.value.destinationLat, routeForm.value.destinationLng],
           routeCoordinates: [
             [routeForm.value.terminalLat, routeForm.value.terminalLng],
             [routeForm.value.destinationLat, routeForm.value.destinationLng]
           ],
+          
+          // Image and timestamps
           imageUrl: imageUrl,
-          updatedAt: new Date().toISOString()
+          updatedAt: new Date().toISOString(),
+          createdAt: editMode.value ? routeForm.value.createdAt : new Date().toISOString()
         }
 
         if (editMode.value) {
@@ -432,7 +541,6 @@ export default {
             position: 'top'
           })
         } else {
-          routeData.createdAt = new Date().toISOString()
           await addDoc(collection(db, 'routes'), routeData)
           $q.notify({
             type: 'positive',
@@ -467,12 +575,13 @@ export default {
         regularFare: route.regularFare,
         studentFare: route.studentFare,
         pwdSeniorFare: route.pwdSeniorFare,
-        terminalLat: route.terminalCoordinates[0],
-        terminalLng: route.terminalCoordinates[1],
-        destinationLat: route.destinationCoordinates[0],
-        destinationLng: route.destinationCoordinates[1],
+        terminalLat: route.terminalCoordinates?.[0] || 16.4109,
+        terminalLng: route.terminalCoordinates?.[1] || 120.5964,
+        destinationLat: route.destinationCoordinates?.[0] || 16.4145,
+        destinationLng: route.destinationCoordinates?.[1] || 120.598,
         imageFile: null,
-        imageUrl: route.imageUrl
+        imageUrl: route.imageUrl,
+        createdAt: route.createdAt
       }
       showDialog.value = true
     }
@@ -485,7 +594,6 @@ export default {
         persistent: true
       }).onOk(async () => {
         try {
-          // Delete image if exists
           if (route.imageUrl) {
             await deleteImage(route.imageUrl)
           }
@@ -529,8 +637,95 @@ export default {
         destinationLat: 16.4145,
         destinationLng: 120.598,
         imageFile: null,
-        imageUrl: null
+        imageUrl: null,
+        createdAt: null
       }
+    }
+
+    const openMapPicker = (mode) => {
+      pickerMode.value = mode
+      tempCoords.value = null
+      showMapPicker.value = true
+      
+      nextTick(() => {
+        initMapPicker()
+      })
+    }
+
+    const initMapPicker = () => {
+      if (!mapPickerContainer.value) return
+
+      // Get current coordinates based on mode
+      const currentLat = pickerMode.value === 'terminal' 
+        ? routeForm.value.terminalLat 
+        : routeForm.value.destinationLat
+      const currentLng = pickerMode.value === 'terminal' 
+        ? routeForm.value.terminalLng 
+        : routeForm.value.destinationLng
+
+      if (mapPickerInstance) {
+        mapPickerInstance.remove()
+      }
+
+      mapPickerInstance = L.map(mapPickerContainer.value).setView([currentLat, currentLng], 15)
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(mapPickerInstance)
+
+      // Add marker at current location
+      const markerIcon = L.divIcon({
+        className: 'custom-marker',
+        html: '<div style="font-size: 32px">📍</div>',
+        iconSize: [32, 32]
+      })
+      
+      markerInstance = L.marker([currentLat, currentLng], { icon: markerIcon }).addTo(mapPickerInstance)
+      tempCoords.value = { lat: currentLat, lng: currentLng }
+
+      // Handle map clicks
+      mapPickerInstance.on('click', (e) => {
+        const { lat, lng } = e.latlng
+        tempCoords.value = { lat, lng }
+        
+        if (markerInstance) {
+          mapPickerInstance.removeLayer(markerInstance)
+        }
+        
+        markerInstance = L.marker([lat, lng], { icon: markerIcon }).addTo(mapPickerInstance)
+      })
+    }
+
+    const confirmMapSelection = () => {
+      if (!tempCoords.value) return
+
+      if (pickerMode.value === 'terminal') {
+        routeForm.value.terminalLat = tempCoords.value.lat
+        routeForm.value.terminalLng = tempCoords.value.lng
+      } else {
+        routeForm.value.destinationLat = tempCoords.value.lat
+        routeForm.value.destinationLng = tempCoords.value.lng
+      }
+
+      $q.notify({
+        type: 'positive',
+        message: `${pickerMode.value === 'terminal' ? 'Terminal' : 'Destination'} coordinates set`,
+        icon: 'check_circle',
+        position: 'top'
+      })
+
+      closeMapPicker()
+    }
+
+    const closeMapPicker = () => {
+      if (mapPickerInstance) {
+        mapPickerInstance.remove()
+        mapPickerInstance = null
+      }
+      markerInstance = null
+      tempCoords.value = null
+      showMapPicker.value = false
     }
 
     const onImageRejected = () => {
@@ -575,10 +770,17 @@ export default {
       columns,
       filteredRoutes,
       imagePreview,
+      showMapPicker,
+      mapPickerContainer,
+      pickerMode,
+      tempCoords,
       saveRoute,
       editRoute,
       deleteRoute,
       closeDialog,
+      openMapPicker,
+      confirmMapSelection,
+      closeMapPicker,
       onImageRejected
     }
   }
@@ -595,4 +797,13 @@ export default {
 
 .text-pine-green
   color: #2d6a4f
+
+.coordinate-section
+  background: #f5f5f5
+  padding: 12px
+  border-radius: 8px
+
+:deep(.custom-marker)
+  background: transparent
+  border: none
 </style>
