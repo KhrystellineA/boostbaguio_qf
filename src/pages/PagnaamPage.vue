@@ -479,12 +479,37 @@ export default defineComponent({
     const jeepneys = ref([])
     const isLoadingRoutes = ref(false)
 
+    let observer = null
+
     const displayedJeepneys = computed(() => {
-      // Filter out invalid jeepneys and take first 8
       const displayed = jeepneys.value.filter((jeepney) => jeepney && jeepney.name).slice(0, 8)
       console.log('[DisplayedJeepneys] Count:', displayed.length, 'Data:', displayed)
       return displayed
     })
+
+    const observeElements = () => {
+      const options = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px',
+      }
+
+      if (observer) {
+        observer.disconnect()
+      }
+
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-in')
+          }
+        })
+      }, options)
+
+      const elements = document.querySelectorAll('.section-animate')
+      elements.forEach((el) => observer.observe(el))
+
+      return observer
+    }
 
     const fetchRoutes = async () => {
       isLoadingRoutes.value = true
@@ -538,6 +563,10 @@ export default defineComponent({
 
         jeepneys.value = routes
         console.log('[LandingPage] Total routes loaded:', routes.length)
+
+        setTimeout(() => {
+          observeElements()
+        }, 100)
 
         if (routes.length === 0) {
           $q.notify({
@@ -949,28 +978,6 @@ export default defineComponent({
       }, 300)
     }
 
-    const observeElements = () => {
-      const options = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -100px 0px',
-      }
-
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate-in')
-          }
-        })
-      }, options)
-
-      const elements = document.querySelectorAll('.section-animate')
-      elements.forEach((el) => observer.observe(el))
-
-      return observer
-    }
-
-    let observer
-
     watch(showFullscreenMap, (newVal) => {
       if (newVal) {
         setTimeout(() => {
@@ -979,16 +986,22 @@ export default defineComponent({
       }
     })
 
+    watch(
+      displayedJeepneys,
+      (newVal) => {
+        console.log('Displayed jeepneys changed:', newVal.length, newVal)
+      },
+      { immediate: true }
+    )
+
     onMounted(async () => {
       console.log('[LandingPage] Component mounted')
 
       setTimeout(() => {
-        observer = observeElements()
+        observeElements()
       }, 100)
 
       await fetchRoutes()
-
-      // Fetch street routes for all jeepneys
       await fetchStreetRoutesForAllJeepneys()
 
       console.log('[LandingPage] After fetch, jeepneys:', jeepneys.value)
