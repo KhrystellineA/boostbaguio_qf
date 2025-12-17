@@ -13,6 +13,39 @@
 
     <q-card class="q-mt-md">
       <q-card-section>
+        <!-- Conflict Warning Banner -->
+        <q-banner 
+          v-if="detectedConflicts.length > 0" 
+          class="bg-warning text-white q-mb-md"
+        >
+          <template v-slot:avatar>
+            <q-icon name="warning" color="white" />
+          </template>
+          <div class="text-weight-bold">
+            {{ detectedConflicts.length }} route conflict(s) detected
+          </div>
+          <div class="q-mt-xs">
+            <q-chip 
+              v-for="(conflict, index) in detectedConflicts" 
+              :key="index"
+              dense
+              color="white"
+              text-color="dark"
+              class="q-mr-xs"
+            >
+              {{ conflict.message }}
+            </q-chip>
+          </div>
+          <template v-slot:action>
+            <q-btn 
+              flat 
+              color="white" 
+              label="Review Conflicts" 
+              @click="showConflictDialog = true" 
+            />
+          </template>
+        </q-banner>
+
         <q-input
           v-model="searchFilter"
           outlined
@@ -62,6 +95,170 @@
         </q-table>
       </q-card-section>
     </q-card>
+
+    <!-- Conflict Resolution Dialog -->
+    <q-dialog v-model="showConflictDialog" persistent>
+      <q-card style="min-width: 800px; max-width: 900px">
+        <q-card-section class="bg-warning text-white">
+          <div class="text-h6">
+            <q-icon name="warning" class="q-mr-sm" />
+            Resolve Route Conflicts
+          </div>
+          <div class="text-caption">
+            Review conflicts before saving this route
+          </div>
+        </q-card-section>
+
+        <q-card-section style="max-height: 70vh; overflow-y: auto">
+          <div v-for="(conflict, index) in detectedConflicts" :key="index" class="q-mb-lg">
+            <q-banner 
+              :class="conflict.severity === 'high' ? 'bg-red-1' : 'bg-orange-1'"
+              class="q-mb-sm"
+            >
+              <template v-slot:avatar>
+                <q-icon 
+                  :name="conflict.severity === 'high' ? 'error' : 'warning'" 
+                  :color="conflict.severity === 'high' ? 'negative' : 'orange'" 
+                />
+              </template>
+              <div class="text-weight-bold">{{ conflict.message }}</div>
+              <div class="text-caption">Type: {{ conflict.type }}</div>
+            </q-banner>
+
+            <div class="row q-col-gutter-md">
+              <!-- Existing Route -->
+              <div class="col-6">
+                <q-card flat bordered class="bg-grey-2">
+                  <q-card-section>
+                    <div class="text-caption text-grey-7 q-mb-xs">EXISTING ROUTE</div>
+                    <div class="text-h6 text-weight-bold">{{ conflict.existing.routeName }}</div>
+                    <div class="text-body2 q-mt-xs">
+                      {{ conflict.existing.startingPoint }} → {{ conflict.existing.destination }}
+                    </div>
+                    <q-separator class="q-my-sm" />
+                    <div class="text-body2">
+                      <div><strong>Terminal:</strong> {{ conflict.existing.terminalLocation }}</div>
+                      <div><strong>Regular Fare:</strong> ₱{{ conflict.existing.regularFare }}</div>
+                    </div>
+                  </q-card-section>
+                  <q-card-section v-if="conflict.existing.imageUrl" class="q-pt-none">
+                    <q-img :src="conflict.existing.imageUrl" style="max-height: 120px; border-radius: 8px" />
+                  </q-card-section>
+                </q-card>
+              </div>
+
+              <!-- New Route -->
+              <div class="col-6">
+                <q-card flat bordered class="bg-blue-1">
+                  <q-card-section>
+                    <div class="text-caption text-grey-7 q-mb-xs">NEW ROUTE (Pending)</div>
+                    <div class="text-h6 text-weight-bold">{{ conflict.new.routeName }}</div>
+                    <div class="text-body2 q-mt-xs">
+                      {{ conflict.new.startingPoint }} → {{ conflict.new.destination }}
+                    </div>
+                    <q-separator class="q-my-sm" />
+                    <div class="text-body2">
+                      <div><strong>Terminal:</strong> {{ conflict.new.terminalLocation }}</div>
+                      <div><strong>Regular Fare:</strong> ₱{{ conflict.new.regularFare }}</div>
+                    </div>
+                  </q-card-section>
+                  <q-card-section v-if="imagePreview" class="q-pt-none">
+                    <q-img :src="imagePreview" style="max-height: 120px; border-radius: 8px" />
+                  </q-card-section>
+                </q-card>
+              </div>
+            </div>
+
+            <!-- Resolution Actions -->
+            <div class="q-mt-md">
+              <div class="text-caption text-grey-7 q-mb-sm">Choose an action:</div>
+              <q-btn-group unelevated spread>
+                <q-btn 
+                  label="Keep Both" 
+                  color="primary"
+                  icon="done_all"
+                  @click="resolveConflict(conflict, 'keep-both')"
+                  no-caps
+                >
+                  <q-tooltip>Save both routes as separate entries</q-tooltip>
+                </q-btn>
+                <q-btn 
+                  label="Create Variant" 
+                  color="orange"
+                  icon="alt_route"
+                  @click="resolveConflict(conflict, 'variant')"
+                  no-caps
+                >
+                  <q-tooltip>Save as Express/Regular variant</q-tooltip>
+                </q-btn>
+                <q-btn 
+                  label="Replace" 
+                  color="negative"
+                  icon="swap_horiz"
+                  @click="resolveConflict(conflict, 'replace')"
+                  no-caps
+                >
+                  <q-tooltip>Delete existing and save new route</q-tooltip>
+                </q-btn>
+                <q-btn 
+                  label="Cancel New" 
+                  color="grey"
+                  icon="cancel"
+                  @click="resolveConflict(conflict, 'cancel')"
+                  flat
+                  no-caps
+                >
+                  <q-tooltip>Discard the new route</q-tooltip>
+                </q-btn>
+              </q-btn-group>
+            </div>
+
+            <q-separator class="q-mt-lg" v-if="index < detectedConflicts.length - 1" />
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn 
+            flat 
+            label="Cancel All" 
+            color="grey-7" 
+            @click="cancelAllConflicts" 
+            no-caps
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Variant Dialog -->
+    <q-dialog v-model="showVariantDialog">
+      <q-card style="min-width: 400px">
+        <q-card-section class="bg-primary text-white">
+          <div class="text-h6">Create Route Variant</div>
+        </q-card-section>
+
+        <q-card-section>
+          <div class="text-body1 q-mb-md">
+            Choose how to differentiate this route:
+          </div>
+          <q-option-group
+            v-model="variantType"
+            :options="variantOptions"
+            color="primary"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" v-close-popup no-caps />
+          <q-btn 
+            unelevated 
+            label="Create Variant" 
+            color="primary"
+            @click="createVariant"
+            no-caps
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
     <!-- Main Form Dialog -->
     <q-dialog v-model="showDialog" persistent>
@@ -238,14 +435,14 @@
                 <q-file
                   v-model="routeForm.imageFile"
                   outlined
-                  accept="image/*"
+                  accept="image/jpeg,image/jpg,image/png"
                   max-file-size="5242880"
                   @rejected="onImageRejected"
                 >
                   <template v-slot:prepend>
                     <q-icon name="image" />
                   </template>
-                  <template v-slot:hint> Max file size: 5MB (JPG, PNG, WebP) </template>
+                  <template v-slot:hint> Max file size: 5MB | Accepted formats: JPG, PNG only </template>
                 </q-file>
 
                 <div v-if="routeForm.imageUrl || imagePreview" class="q-mt-sm">
@@ -345,6 +542,21 @@ export default {
     const searchFilter = ref('')
     const imagePreview = ref(null)
 
+    const showConflictDialog = ref(false)
+    const detectedConflicts = ref([])
+    const pendingRoute = ref(null)
+    const showVariantDialog = ref(false)
+    const variantType = ref('express')
+    const currentConflict = ref(null)
+
+    const variantOptions = [
+      { label: 'Express Route', value: 'express' },
+      { label: 'Regular Route', value: 'regular' },
+      { label: 'Via Market', value: 'via-market' },
+      { label: 'Via Mall', value: 'via-mall' },
+      { label: 'Alternative Route', value: 'alternative' },
+    ]
+
     const showMapPicker = ref(false)
     const mapPickerContainer = ref(null)
     const pickerMode = ref('terminal')
@@ -439,14 +651,230 @@ export default {
       }
     }
 
+    const checkRouteConflicts = async (newRoute) => {
+      const conflicts = []
+
+      for (const existingRoute of routes.value) {
+        if (editMode.value && existingRoute.id === routeForm.value.id) {
+          continue
+        }
+
+        const existing = {
+          ...existingRoute,
+          terminalLat: existingRoute.terminalCoordinates?.[0] || existingRoute.originCoordinates?.[0],
+          terminalLng: existingRoute.terminalCoordinates?.[1] || existingRoute.originCoordinates?.[1],
+          destinationLat: existingRoute.destinationCoordinates?.[0],
+          destinationLng: existingRoute.destinationCoordinates?.[1],
+        }
+
+        if (existing.routeName?.toLowerCase() === newRoute.routeName?.toLowerCase()) {
+          conflicts.push({
+            type: 'duplicate-name',
+            message: `Duplicate route name found`,
+            existing,
+            new: newRoute,
+            severity: 'high'
+          })
+          continue
+        }
+
+        const nameSimilarity = calculateSimilarity(existing.routeName || '', newRoute.routeName || '')
+        if (nameSimilarity > 0.8) {
+          conflicts.push({
+            type: 'similar-name',
+            message: `Similar route name: "${existing.routeName}" (${Math.round(nameSimilarity * 100)}% match)`,
+            existing,
+            new: newRoute,
+            severity: 'medium'
+          })
+        }
+
+        if (
+          existing.startingPoint?.toLowerCase() === newRoute.startingPoint?.toLowerCase() &&
+          existing.destination?.toLowerCase() === newRoute.destination?.toLowerCase()
+        ) {
+          conflicts.push({
+            type: 'same-endpoints',
+            message: `Route serves same endpoints: ${existing.startingPoint} → ${existing.destination}`,
+            existing,
+            new: newRoute,
+            severity: 'high'
+          })
+        }
+
+        if (existing.terminalLat && existing.terminalLng && newRoute.terminalLat && newRoute.terminalLng) {
+          const distance = calculateDistance(
+            existing.terminalLat,
+            existing.terminalLng,
+            newRoute.terminalLat,
+            newRoute.terminalLng
+          )
+
+          if (distance < 0.1) {
+            conflicts.push({
+              type: 'same-terminal',
+              message: `Same terminal location: ${Math.round(distance * 1000)}m from "${existing.routeName}"`,
+              existing,
+              new: newRoute,
+              severity: 'medium'
+            })
+          }
+        }
+
+        if (existing.terminalLocation && newRoute.terminalLocation) {
+          if (existing.terminalLocation.toLowerCase() === newRoute.terminalLocation.toLowerCase()) {
+            conflicts.push({
+              type: 'same-terminal-address',
+              message: `Same terminal address as "${existing.routeName}"`,
+              existing,
+              new: newRoute,
+              severity: 'medium'
+            })
+          }
+        }
+      }
+
+      return conflicts
+    }
+
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+      const R = 6371
+      const dLat = deg2rad(lat2 - lat1)
+      const dLon = deg2rad(lon2 - lon1)
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2)
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+      return R * c
+    }
+
+    const deg2rad = (deg) => {
+      return deg * (Math.PI / 180)
+    }
+
+    const calculateSimilarity = (str1, str2) => {
+      const longer = str1.length > str2.length ? str1 : str2
+      const shorter = str1.length > str2.length ? str2 : str1
+
+      if (longer.length === 0) return 1.0
+
+      const editDistance = levenshteinDistance(longer.toLowerCase(), shorter.toLowerCase())
+      return (longer.length - editDistance) / longer.length
+    }
+
+    const levenshteinDistance = (str1, str2) => {
+      const matrix = []
+
+      for (let i = 0; i <= str2.length; i++) {
+        matrix[i] = [i]
+      }
+
+      for (let j = 0; j <= str1.length; j++) {
+        matrix[0][j] = j
+      }
+
+      for (let i = 1; i <= str2.length; i++) {
+        for (let j = 1; j <= str1.length; j++) {
+          if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+            matrix[i][j] = matrix[i - 1][j - 1]
+          } else {
+            matrix[i][j] = Math.min(
+              matrix[i - 1][j - 1] + 1,
+              matrix[i][j - 1] + 1,
+              matrix[i - 1][j] + 1
+            )
+          }
+        }
+      }
+
+      return matrix[str2.length][str1.length]
+    }
+
+    const resolveConflict = async (conflict, action) => {
+      try {
+        switch (action) {
+          case 'keep-both':
+            const routeWithSuffix = {
+              ...conflict.new,
+              routeName: `${conflict.new.routeName} (New)`
+            }
+            await saveRouteToDatabase(routeWithSuffix)
+            removeConflict(conflict)
+            break
+
+          case 'variant':
+            currentConflict.value = conflict
+            showVariantDialog.value = true
+            break
+
+          case 'replace':
+            if (conflict.existing.imageUrl) {
+              await deleteImage(conflict.existing.imageUrl)
+            }
+            await deleteDoc(doc(db, 'routes', conflict.existing.id))
+            await saveRouteToDatabase(conflict.new)
+            removeConflict(conflict)
+            break
+
+          case 'cancel':
+            removeConflict(conflict)
+            break
+        }
+      } catch (error) {
+        console.error('[Routes] Error resolving conflict:', error)
+        $q.notify({
+          type: 'negative',
+          message: 'Failed to resolve conflict',
+          position: 'top'
+        })
+      }
+    }
+
+    const createVariant = async () => {
+      if (!currentConflict.value) return
+
+      const variantName = `${currentConflict.value.new.routeName} (${variantType.value.replace('-', ' ')})`
+      const routeWithVariant = {
+        ...currentConflict.value.new,
+        routeName: variantName
+      }
+
+      await saveRouteToDatabase(routeWithVariant)
+      removeConflict(currentConflict.value)
+      showVariantDialog.value = false
+      currentConflict.value = null
+    }
+
+    const removeConflict = (conflict) => {
+      const index = detectedConflicts.value.indexOf(conflict)
+      if (index > -1) {
+        detectedConflicts.value.splice(index, 1)
+      }
+
+      if (detectedConflicts.value.length === 0) {
+        showConflictDialog.value = false
+        pendingRoute.value = null
+      }
+    }
+
+    const cancelAllConflicts = () => {
+      detectedConflicts.value = []
+      showConflictDialog.value = false
+      pendingRoute.value = null
+      showDialog.value = true
+    }
+
     const uploadImage = async (file) => {
       try {
         const timestamp = Date.now()
         const fileName = `routes/${timestamp}_${file.name}`
         const imageRef = storageRef(storage, fileName)
 
+        console.log('[Upload] Starting upload:', fileName)
         await uploadBytes(imageRef, file)
         const downloadURL = await getDownloadURL(imageRef)
+        console.log('[Upload] Success:', downloadURL)
 
         return downloadURL
       } catch (error) {
@@ -467,55 +895,131 @@ export default {
     }
 
     const saveRoute = async () => {
-      saving.value = true
-      try {
-        let imageUrl = routeForm.value.imageUrl
+      if (!routeForm.value.routeName || !routeForm.value.startingPoint || !routeForm.value.destination || !routeForm.value.terminalLocation) {
+        $q.notify({
+          type: 'warning',
+          message: 'Please fill in all required fields',
+          position: 'top'
+        })
+        return
+      }
 
-        if (routeForm.value.imageFile) {
-          if (editMode.value && routeForm.value.imageUrl) {
-            await deleteImage(routeForm.value.imageUrl)
-          }
-          imageUrl = await uploadImage(routeForm.value.imageFile)
-        }
-
-        const routeData = {
-          name: routeForm.value.routeName,
+      if (detectedConflicts.value.length === 0) {
+        const preparedRoute = {
           routeName: routeForm.value.routeName,
-          code: routeForm.value.routeName.toLowerCase().replace(/\s+/g, '-'),
-
-          origin: routeForm.value.startingPoint,
           startingPoint: routeForm.value.startingPoint,
           destination: routeForm.value.destination,
           terminalLocation: routeForm.value.terminalLocation,
-          description: `${routeForm.value.startingPoint} to ${routeForm.value.destination}`,
-
-          fare: routeForm.value.regularFare,
           regularFare: routeForm.value.regularFare,
           studentFare: routeForm.value.studentFare,
           pwdSeniorFare: routeForm.value.pwdSeniorFare,
+          terminalLat: routeForm.value.terminalLat,
+          terminalLng: routeForm.value.terminalLng,
+          destinationLat: routeForm.value.destinationLat,
+          destinationLng: routeForm.value.destinationLng,
+        }
 
-          originCoordinates: [routeForm.value.terminalLat, routeForm.value.terminalLng],
-          terminalCoordinates: [routeForm.value.terminalLat, routeForm.value.terminalLng],
-          destinationCoordinates: [routeForm.value.destinationLat, routeForm.value.destinationLng],
+        const conflicts = await checkRouteConflicts(preparedRoute)
+
+        if (conflicts.length > 0) {
+          detectedConflicts.value = conflicts
+          pendingRoute.value = { ...routeForm.value }
+          showConflictDialog.value = true
+          showDialog.value = false
+          return
+        }
+      }
+
+      await saveRouteToDatabase(routeForm.value)
+    }
+
+    const saveRouteToDatabase = async (formData) => {
+      saving.value = true
+      try {
+        console.log('[Save] Starting save process...')
+        console.log('[Save] Edit mode:', editMode.value)
+        console.log('[Save] Image file selected:', formData.imageFile)
+        console.log('[Save] Existing image URL:', formData.imageUrl)
+
+        let imageUrl = null
+
+        if (formData.imageFile) {
+          console.log('[Save] New image file detected, uploading...')
+          
+          if (editMode.value && formData.imageUrl) {
+            console.log('[Save] Deleting old image:', formData.imageUrl)
+            try {
+              await deleteImage(formData.imageUrl)
+              console.log('[Save] Old image deleted successfully')
+            } catch (error) {
+              console.error('[Save] Error deleting old image:', error)
+            }
+          }
+          
+          try {
+            imageUrl = await uploadImage(formData.imageFile)
+            console.log('[Save] New image uploaded successfully:', imageUrl)
+          } catch (error) {
+            console.error('[Save] Error uploading new image:', error)
+            throw new Error('Failed to upload image: ' + error.message)
+          }
+        } else if (editMode.value && formData.imageUrl) {
+          imageUrl = formData.imageUrl
+          console.log('[Save] Keeping existing image URL:', imageUrl)
+        } else {
+          console.log('[Save] No image provided')
+        }
+
+        const routeData = {
+          name: formData.routeName,
+          routeName: formData.routeName,
+          code: formData.routeName.toLowerCase().replace(/\s+/g, '-'),
+
+          origin: formData.startingPoint,
+          startingPoint: formData.startingPoint,
+          destination: formData.destination,
+          terminalLocation: formData.terminalLocation,
+          description: `${formData.startingPoint} to ${formData.destination}`,
+
+          fare: formData.regularFare,
+          regularFare: formData.regularFare,
+          studentFare: formData.studentFare,
+          pwdSeniorFare: formData.pwdSeniorFare,
+
+          originCoordinates: [formData.terminalLat, formData.terminalLng],
+          terminalCoordinates: [formData.terminalLat, formData.terminalLng],
+          destinationCoordinates: [formData.destinationLat, formData.destinationLng],
 
           routeCoordinates: [
             {
-              lat: routeForm.value.terminalLat,
-              lng: routeForm.value.terminalLng,
+              lat: formData.terminalLat,
+              lng: formData.terminalLng,
             },
             {
-              lat: routeForm.value.destinationLat,
-              lng: routeForm.value.destinationLng,
+              lat: formData.destinationLat,
+              lng: formData.destinationLng,
             },
           ],
 
-          imageUrl: imageUrl,
           updatedAt: new Date().toISOString(),
-          createdAt: editMode.value ? routeForm.value.createdAt : new Date().toISOString(),
+        }
+
+        if (imageUrl) {
+          routeData.imageUrl = imageUrl
+          console.log('[Save] Adding imageUrl to route data:', imageUrl)
         }
 
         if (editMode.value) {
-          await updateDoc(doc(db, 'routes', routeForm.value.id), routeData)
+          routeData.createdAt = formData.createdAt || new Date().toISOString()
+        } else {
+          routeData.createdAt = new Date().toISOString()
+        }
+
+        console.log('[Save] Final route data:', routeData)
+
+        if (editMode.value && formData.id) {
+          console.log('[Save] Updating existing route:', formData.id)
+          await updateDoc(doc(db, 'routes', formData.id), routeData)
           $q.notify({
             type: 'positive',
             message: 'Route updated successfully',
@@ -523,6 +1027,7 @@ export default {
             position: 'top',
           })
         } else {
+          console.log('[Save] Creating new route')
           await addDoc(collection(db, 'routes'), routeData)
           $q.notify({
             type: 'positive',
@@ -532,14 +1037,20 @@ export default {
           })
         }
 
+        console.log('[Save] Save completed successfully')
         await fetchRoutes()
         closeDialog()
+        
+        detectedConflicts.value = []
+        showConflictDialog.value = false
+        pendingRoute.value = null
       } catch (error) {
         console.error('[Routes] Error saving:', error)
         $q.notify({
           type: 'negative',
-          message: 'Failed to save route',
+          message: 'Failed to save route: ' + error.message,
           position: 'top',
+          timeout: 5000
         })
       } finally {
         saving.value = false
@@ -547,33 +1058,44 @@ export default {
     }
 
     const editRoute = (route) => {
+      console.log('[Edit] Loading route for edit:', route)
       editMode.value = true
       routeForm.value = {
         id: route.id,
-        routeName: route.routeName,
-        startingPoint: route.startingPoint,
-        destination: route.destination,
-        terminalLocation: route.terminalLocation,
-        regularFare: route.regularFare,
-        studentFare: route.studentFare,
-        pwdSeniorFare: route.pwdSeniorFare,
+        routeName: route.routeName || '',
+        startingPoint: route.startingPoint || '',
+        destination: route.destination || '',
+        terminalLocation: route.terminalLocation || '',
+        regularFare: route.regularFare || 0,
+        studentFare: route.studentFare || 0,
+        pwdSeniorFare: route.pwdSeniorFare || 0,
         terminalLat: route.terminalCoordinates?.[0] || 16.4109,
         terminalLng: route.terminalCoordinates?.[1] || 120.5964,
         destinationLat: route.destinationCoordinates?.[0] || 16.4145,
         destinationLng: route.destinationCoordinates?.[1] || 120.598,
         imageFile: null,
-        imageUrl: route.imageUrl,
-        createdAt: route.createdAt,
+        imageUrl: route.imageUrl || null,
+        createdAt: route.createdAt || null,
       }
+      console.log('[Edit] Form populated with route data')
       showDialog.value = true
     }
 
     const deleteRoute = async (route) => {
       $q.dialog({
         title: 'Confirm Delete',
-        message: `Are you sure you want to delete "${route.routeName}"?`,
+        message: `Are you sure you want to delete "${route.routeName}"? This action cannot be undone.`,
         cancel: true,
         persistent: true,
+        ok: {
+          label: 'Delete',
+          color: 'negative',
+          unelevated: true
+        },
+        cancel: {
+          label: 'Cancel',
+          flat: true
+        }
       }).onOk(async () => {
         try {
           if (route.imageUrl) {
@@ -711,21 +1233,57 @@ export default {
       showMapPicker.value = false
     }
 
-    const onImageRejected = () => {
-      $q.notify({
-        type: 'negative',
-        message: 'Image must be less than 5MB',
-        position: 'top',
-      })
+    const onImageRejected = (rejectedEntries) => {
+      console.log('[Image Rejected]', rejectedEntries)
+      
+      if (!rejectedEntries || rejectedEntries.length === 0) {
+        $q.notify({
+          type: 'negative',
+          message: 'Invalid image file',
+          position: 'top',
+          icon: 'error'
+        })
+        return
+      }
+
+      const rejection = rejectedEntries[0]
+      
+      if (rejection.failedPropValidation === 'accept') {
+        $q.notify({
+          type: 'negative',
+          message: 'Only JPG and PNG images are allowed. WebP is not supported.',
+          position: 'top',
+          icon: 'error',
+          timeout: 3000
+        })
+      } else if (rejection.failedPropValidation === 'max-file-size') {
+        $q.notify({
+          type: 'negative',
+          message: 'Image must be less than 5MB',
+          position: 'top',
+          icon: 'error',
+          timeout: 3000
+        })
+      } else {
+        $q.notify({
+          type: 'negative',
+          message: 'Invalid image file. Please use JPG or PNG format.',
+          position: 'top',
+          icon: 'error',
+          timeout: 3000
+        })
+      }
     }
 
     watch(
       () => routeForm.value.imageFile,
       (newFile) => {
         if (newFile) {
+          console.log('[Watch] New image file selected:', newFile.name)
           const reader = new FileReader()
           reader.onload = (e) => {
             imagePreview.value = e.target.result
+            console.log('[Watch] Image preview generated')
           }
           reader.readAsDataURL(newFile)
         } else {
@@ -763,6 +1321,14 @@ export default {
       mapPickerContainer,
       pickerMode,
       tempCoords,
+      showConflictDialog,
+      detectedConflicts,
+      showVariantDialog,
+      variantType,
+      variantOptions,
+      resolveConflict,
+      createVariant,
+      cancelAllConflicts,
       saveRoute,
       editRoute,
       deleteRoute,
