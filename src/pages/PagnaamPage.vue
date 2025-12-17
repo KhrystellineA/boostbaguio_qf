@@ -98,40 +98,56 @@
         </div>
 
         <div class="jeepneys-grid">
-          <div class="jeepney-cards-wrapper">
-            <div
-              v-for="(jeepney, index) in displayedJeepneys"
-              :key="index"
-              class="jeepney-card section-animate card-hover"
-              @click="selectJeepney(jeepney)"
-            >
-              <div class="jeepney-image-wrapper">
-                <img
-                  v-if="jeepney.image"
-                  :src="jeepney.image"
-                  :alt="jeepney.name"
-                  class="jeepney-image"
-                />
-                <div v-else class="jeepney-placeholder">
-                  <q-icon name="directions_bus" size="48px" color="grey-5" />
-                </div>
-              </div>
-              <div class="jeepney-info">
-                <h3 class="jeepney-name">{{ jeepney.name }}</h3>
-                <p class="jeepney-route">{{ jeepney.route }}</p>
-              </div>
-            </div>
+          <!-- Loading State -->
+          <div v-if="isLoadingRoutes" class="text-center q-pa-xl">
+            <q-spinner-dots color="primary" size="50px" />
+            <p class="text-grey-7 q-mt-md">Loading jeepney routes...</p>
           </div>
 
-          <div class="text-center q-mt-lg">
-            <q-btn
-              label="See More"
-              outline
-              color="dark"
-              padding="10px 32px"
-              class="btn-hover-lift"
-              @click="loadMoreJeepneys"
-            />
+          <!-- Empty State -->
+          <div v-else-if="displayedJeepneys.length === 0" class="text-center q-pa-xl">
+            <q-icon name="directions_bus" size="80px" color="grey-5" />
+            <p class="text-h6 text-grey-7 q-mt-md">No routes available</p>
+            <p class="text-grey-6">Please check back later or add routes in the admin panel.</p>
+          </div>
+
+          <!-- Jeepney Cards -->
+          <div v-else>
+            <div class="jeepney-cards-wrapper">
+              <div
+                v-for="(jeepney, index) in displayedJeepneys"
+                :key="jeepney.id || index"
+                class="jeepney-card section-animate card-hover"
+                @click="selectJeepney(jeepney)"
+              >
+                <div class="jeepney-image-wrapper">
+                  <img
+                    v-if="jeepney.image"
+                    :src="jeepney.image"
+                    :alt="jeepney.name"
+                    class="jeepney-image"
+                  />
+                  <div v-else class="jeepney-placeholder">
+                    <q-icon name="directions_bus" size="48px" color="grey-5" />
+                  </div>
+                </div>
+                <div class="jeepney-info">
+                  <h3 class="jeepney-name">{{ jeepney.name }}</h3>
+                  <p class="jeepney-route">{{ jeepney.route }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="text-center q-mt-lg">
+              <q-btn
+                label="See More"
+                outline
+                color="dark"
+                padding="10px 32px"
+                class="btn-hover-lift"
+                @click="loadMoreJeepneys"
+              />
+            </div>
           </div>
         </div>
 
@@ -163,7 +179,10 @@
                     <q-tooltip>Fullscreen map</q-tooltip>
                   </q-btn>
                 </div>
-                <div ref="mapContainer" style="height: 400px; width: 100%; border-radius: 12px"></div>
+                <div
+                  ref="mapContainer"
+                  style="height: 400px; width: 100%; border-radius: 12px"
+                ></div>
 
                 <div v-if="userLocation && distanceToTerminal" class="distance-info q-mt-sm">
                   <q-icon name="straighten" size="16px" class="q-mr-xs" />
@@ -178,25 +197,26 @@
             <div class="jeepney-detail-content-col">
               <div class="jeepney-detail-content">
                 <div class="text-overline text-primary q-mb-sm">Discover</div>
-                <h2 class="jeepney-detail-title">{{ selectedJeepney.name }}</h2>
+                <h2 class="jeepney-detail-title">{{ selectedJeepney.name || 'Loading...' }}</h2>
                 <p class="jeepney-detail-description">
                   Passes through:<br />
-                  <strong>Starting point:</strong> {{ selectedJeepney.startingPoint }}<br />
-                  <strong>Destination:</strong> {{ selectedJeepney.destination }}
+                  <strong>Starting point:</strong> {{ selectedJeepney.startingPoint || 'N/A'
+                  }}<br />
+                  <strong>Destination:</strong> {{ selectedJeepney.destination || 'N/A' }}
                 </p>
 
                 <div class="jeepney-detail-info">
                   <div class="info-item">
                     <h3 class="info-label">TERMINAL LOCATION:</h3>
-                    <p class="info-value">{{ selectedJeepney.terminalLocation }}</p>
+                    <p class="info-value">{{ selectedJeepney.terminalLocation || 'N/A' }}</p>
                   </div>
 
                   <div class="info-item">
                     <h3 class="info-label">FARE:</h3>
                     <p class="info-value">
-                      REGULAR: ₱{{ selectedJeepney.regularFare }}<br />
-                      STUDENT: ₱{{ selectedJeepney.studentFare }}<br />
-                      PWD/SENIOR: ₱{{ selectedJeepney.pwdSeniorFare }}
+                      REGULAR: ₱{{ selectedJeepney.regularFare || '0.00' }}<br />
+                      STUDENT: ₱{{ selectedJeepney.studentFare || '0.00' }}<br />
+                      PWD/SENIOR: ₱{{ selectedJeepney.pwdSeniorFare || '0.00' }}
                     </p>
                   </div>
                 </div>
@@ -419,7 +439,16 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, onMounted, onUnmounted, onBeforeUnmount, watch } from 'vue'
+import {
+  defineComponent,
+  ref,
+  computed,
+  onMounted,
+  onUnmounted,
+  onBeforeUnmount,
+  watch,
+  nextTick,
+} from 'vue'
 import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -460,75 +489,130 @@ export default defineComponent({
     const isLoadingRoutes = ref(false)
 
     const displayedJeepneys = computed(() => {
-      console.log('[Debug] jeepneys.value:', jeepneys.value)
-      return jeepneys.value.slice(0, 8)
+      // Filter out invalid jeepneys and take first 8
+      const displayed = jeepneys.value.filter((jeepney) => jeepney && jeepney.name).slice(0, 8)
+      console.log('[DisplayedJeepneys] Count:', displayed.length, 'Data:', displayed)
+      return displayed
     })
 
-const fetchRoutes = async () => {
-  isLoadingRoutes.value = true
-  try {
-    console.log('[LandingPage] Fetching routes from Firebase...')
-    const routesQuery = query(collection(db, 'routes'), orderBy('createdAt', 'desc'))
-    const querySnapshot = await getDocs(routesQuery)
-    
-    const routes = []
-    querySnapshot.forEach((doc) => {
-      const data = doc.data()
-      console.log('[LandingPage] Route data:', data)
-      
-      routes.push({
-        id: doc.id,
-        name: data.name || data.routeName || 'Unknown Route',
-        route: `${data.origin || data.startingPoint || 'Unknown'} - ${data.destination || 'Unknown'}`,
-        image: data.imageUrl || null,
-        startingPoint: data.origin || data.startingPoint || 'Unknown Origin',
-        destination: data.destination || 'Unknown Destination',
-        terminalLocation: data.terminalLocation || data.origin || 'Unknown Location',
-        regularFare: data.fare?.toString() || data.regularFare?.toString() || '0.00',
-        studentFare: data.studentFare?.toString() || (data.fare * 0.8)?.toString() || '0.00',
-        pwdSeniorFare: data.pwdSeniorFare?.toString() || (data.fare * 0.8)?.toString() || '0.00',
-        terminalCoordinates: data.terminalCoordinates || data.originCoordinates || [16.4109, 120.5964],
-        destinationCoordinates: data.destinationCoordinates || [16.4145, 120.598],
-        routeCoordinates: data.routeCoordinates || [
-          data.terminalCoordinates || data.originCoordinates || [16.4109, 120.5964],
-          data.destinationCoordinates || [16.4145, 120.598]
-        ],
-      })
-    })
-    
-    jeepneys.value = routes
-    
-    console.log('[LandingPage] Loaded routes:', routes.length)
-    console.log('[LandingPage] Mapped routes:', routes)
-  } catch (error) {
-    console.error('[LandingPage] Error fetching routes:', error)
-    $q.notify({
-      type: 'negative',
-      message: 'Failed to load routes',
-      position: 'top'
-    })
-  } finally {
-    isLoadingRoutes.value = false
-  }
-}
+    const fetchRoutes = async () => {
+      isLoadingRoutes.value = true
+      try {
+        console.log('[LandingPage] Fetching routes from Firebase...')
+        const routesQuery = query(collection(db, 'routes'), orderBy('createdAt', 'desc'))
+        const querySnapshot = await getDocs(routesQuery)
+
+        console.log('[LandingPage] Found documents:', querySnapshot.size)
+
+        const routes = []
+        querySnapshot.forEach((doc) => {
+          const data = doc.data()
+          console.log('[LandingPage] Route document:', doc.id, data)
+
+          const terminalCoords = data.terminalCoordinates ||
+            data.originCoordinates || [16.4109, 120.5964]
+          const destCoords = data.destinationCoordinates || [16.4145, 120.598]
+
+          let routeCoords = []
+          if (data.routeCoordinates && Array.isArray(data.routeCoordinates)) {
+            if (data.routeCoordinates[0]?.lat !== undefined) {
+              routeCoords = data.routeCoordinates.map((coord) => [coord.lat, coord.lng])
+            } else {
+              routeCoords = data.routeCoordinates
+            }
+          } else {
+            routeCoords = [terminalCoords, destCoords]
+          }
+
+          const routeObj = {
+            id: doc.id,
+            name: data.name || data.routeName || 'Unknown Route',
+            route: `${data.origin || data.startingPoint || 'Unknown'} - ${data.destination || 'Unknown'}`,
+            image: data.imageUrl || null,
+            startingPoint: data.origin || data.startingPoint || 'Unknown Origin',
+            destination: data.destination || 'Unknown Destination',
+            terminalLocation: data.terminalLocation || data.origin || 'Unknown Location',
+            regularFare: data.fare?.toString() || data.regularFare?.toString() || '0.00',
+            studentFare: data.studentFare?.toString() || (data.fare * 0.8)?.toFixed(2) || '0.00',
+            pwdSeniorFare:
+              data.pwdSeniorFare?.toString() || (data.fare * 0.8)?.toFixed(2) || '0.00',
+            terminalCoordinates: terminalCoords,
+            destinationCoordinates: destCoords,
+            routeCoordinates: routeCoords,
+          }
+
+          console.log('[LandingPage] Processed route:', routeObj)
+          routes.push(routeObj)
+        })
+
+        jeepneys.value = routes
+        console.log('[LandingPage] Total routes loaded:', routes.length)
+
+        if (routes.length === 0) {
+          $q.notify({
+            type: 'warning',
+            message: 'No routes found in database',
+            position: 'top',
+          })
+        }
+      } catch (error) {
+        console.error('[LandingPage] Error fetching routes:', error)
+        $q.notify({
+          type: 'negative',
+          message: 'Failed to load routes: ' + error.message,
+          position: 'top',
+        })
+      } finally {
+        isLoadingRoutes.value = false
+      }
+    }
 
     const getStreetRoute = async (startLat, startLon, endLat, endLon) => {
       try {
-        const url = `https://router.project-osrm.org/route/v1/foot/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson`
+        const url = `https://router.project-osrm.org/route/v1/driving/${startLon},${startLat};${endLon},${endLat}?overview=full&geometries=geojson`
         const response = await fetch(url)
         const data = await response.json()
 
         if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
           const route = data.routes[0]
           const coordinates = route.geometry.coordinates.map((coord) => [coord[1], coord[0]])
-          routeDistance.value = route.distance / 1000
-          return coordinates
+          return { coordinates, distance: route.distance / 1000 }
         }
-        return []
+        return { coordinates: [], distance: 0 }
       } catch (error) {
         console.error('Error fetching route:', error)
-        return []
+        return { coordinates: [], distance: 0 }
       }
+    }
+
+    const fetchStreetRoutesForAllJeepneys = async () => {
+      console.log('[LandingPage] Fetching street routes for all jeepneys...')
+
+      const updatedJeepneys = await Promise.all(
+        jeepneys.value.map(async (jeepney) => {
+          const [terminalLat, terminalLng] = jeepney.terminalCoordinates
+          const [destLat, destLng] = jeepney.destinationCoordinates
+
+          const { coordinates: streetRoute } = await getStreetRoute(
+            terminalLat,
+            terminalLng,
+            destLat,
+            destLng
+          )
+
+          if (streetRoute.length > 0) {
+            return {
+              ...jeepney,
+              routeCoordinates: streetRoute,
+            }
+          }
+
+          return jeepney
+        })
+      )
+
+      jeepneys.value = updatedJeepneys
+      console.log('[LandingPage] Street routes fetched for all jeepneys')
     }
 
     const distanceToTerminal = computed(() => {
@@ -544,21 +628,46 @@ const fetchRoutes = async () => {
     })
 
     const initMap = () => {
-      if (!mapContainer.value || !selectedJeepney.value) return
+      console.log('[InitMap] Starting map initialization...')
+      console.log('[InitMap] mapContainer.value:', mapContainer.value)
+      console.log('[InitMap] selectedJeepney.value:', selectedJeepney.value)
 
-      if (map) {
-        map.remove()
-        map = null
+      if (!mapContainer.value) {
+        console.error('[InitMap] Map container not found!')
+        return
       }
 
-      map = L.map(mapContainer.value).setView(selectedJeepney.value.terminalCoordinates, 15)
+      if (!selectedJeepney.value) {
+        console.error('[InitMap] No jeepney selected!')
+        return
+      }
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19,
-      }).addTo(map)
+      console.log('[InitMap] Terminal coords:', selectedJeepney.value.terminalCoordinates)
+      console.log('[InitMap] Route coords:', selectedJeepney.value.routeCoordinates)
 
-      updateMapMarkers()
+      try {
+        if (map) {
+          console.log('[InitMap] Removing existing map...')
+          map.remove()
+          map = null
+        }
+
+        console.log('[InitMap] Creating new map...')
+        map = L.map(mapContainer.value).setView(selectedJeepney.value.terminalCoordinates, 15)
+
+        console.log('[InitMap] Adding tile layer...')
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          maxZoom: 19,
+        }).addTo(map)
+
+        console.log('[InitMap] Updating markers...')
+        updateMapMarkers()
+
+        console.log('[InitMap] Map initialized successfully!')
+      } catch (error) {
+        console.error('[InitMap] Error initializing map:', error)
+      }
     }
 
     const initFullscreenMap = () => {
@@ -571,7 +680,7 @@ const fetchRoutes = async () => {
 
       fullscreenMap = L.map(fullscreenMapContainer.value).setView(
         selectedJeepney.value.terminalCoordinates,
-        15,
+        15
       )
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -599,7 +708,7 @@ const fetchRoutes = async () => {
       terminalMarker = L.marker(selectedJeepney.value.terminalCoordinates, { icon: terminalIcon })
         .addTo(map)
         .bindPopup(
-          `<strong>${selectedJeepney.value.name}</strong><br>${selectedJeepney.value.terminalLocation}`,
+          `<strong>${selectedJeepney.value.name}</strong><br>${selectedJeepney.value.terminalLocation}`
         )
 
       const destinationIcon = L.divIcon({
@@ -655,7 +764,7 @@ const fetchRoutes = async () => {
       L.marker(selectedJeepney.value.terminalCoordinates, { icon: terminalIcon })
         .addTo(fullscreenMap)
         .bindPopup(
-          `<strong>${selectedJeepney.value.name}</strong><br>${selectedJeepney.value.terminalLocation}`,
+          `<strong>${selectedJeepney.value.name}</strong><br>${selectedJeepney.value.terminalLocation}`
         )
 
       const destinationIcon = L.divIcon({
@@ -715,20 +824,55 @@ const fetchRoutes = async () => {
       }
     }
 
-    const selectJeepney = (jeepney) => {
-      selectedJeepney.value = jeepney
+    const selectJeepney = async (jeepney) => {
+      console.log('[SelectJeepney] Selected:', jeepney)
+      console.log(
+        '[SelectJeepney] Has coordinates?',
+        jeepney.terminalCoordinates,
+        jeepney.destinationCoordinates
+      )
+
+      // Set selected jeepney - watch will handle map initialization
+      selectedJeepney.value = { ...jeepney }
       tutorialStep.value = 1
-      
+
+      // Wait for DOM to render
+      await nextTick()
+
+      // Scroll to detail section
       setTimeout(() => {
         const detailSection = document.querySelector('.jeepney-detail-section')
-        if (detailSection) {
-          detailSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
+        console.log('[SelectJeepney] Detail section found:', !!detailSection)
 
-        setTimeout(() => {
-          initMap()
-        }, 300)
+        if (detailSection) {
+          detailSection.classList.add('animate-in')
+        }
       }, 100)
+
+      // Fetch street route in background if needed
+      if (jeepney.routeCoordinates.length === 2) {
+        console.log('[SelectJeepney] Fetching street route for 2-point route')
+        const [terminalLat, terminalLng] = jeepney.terminalCoordinates
+        const [destLat, destLng] = jeepney.destinationCoordinates
+
+        getStreetRoute(terminalLat, terminalLng, destLat, destLng)
+          .then(({ coordinates: streetRoute }) => {
+            if (streetRoute.length > 0) {
+              console.log(
+                '[SelectJeepney] Street route fetched, updating:',
+                streetRoute.length,
+                'points'
+              )
+              selectedJeepney.value = {
+                ...jeepney,
+                routeCoordinates: streetRoute,
+              }
+            }
+          })
+          .catch((error) => {
+            console.error('[SelectJeepney] Error fetching street route:', error)
+          })
+      }
     }
 
     const loadMoreJeepneys = () => {
@@ -768,11 +912,21 @@ const fetchRoutes = async () => {
           if (selectedJeepney.value) {
             const [terminalLat, terminalLon] = selectedJeepney.value.terminalCoordinates
 
-            const route = await getStreetRoute(userLat, userLng, terminalLat, terminalLon)
+            const { coordinates: route, distance } = await getStreetRoute(
+              userLat,
+              userLng,
+              terminalLat,
+              terminalLon
+            )
+
             if (route.length > 0) {
               navigationRoute.value = route
+              routeDistance.value = distance
             } else {
-              navigationRoute.value = [userLocation.value, selectedJeepney.value.terminalCoordinates]
+              navigationRoute.value = [
+                userLocation.value,
+                selectedJeepney.value.terminalCoordinates,
+              ]
             }
 
             if (map) {
@@ -815,7 +969,7 @@ const fetchRoutes = async () => {
           enableHighAccuracy: true,
           timeout: 10000,
           maximumAge: 0,
-        },
+        }
       )
     }
 
@@ -833,9 +987,9 @@ const fetchRoutes = async () => {
       if (!userLocation.value) {
         await getUserLocation()
       }
-      
+
       showFullscreenMap.value = true
-      
+
       setTimeout(() => {
         initFullscreenMap()
       }, 300)
@@ -871,23 +1025,58 @@ const fetchRoutes = async () => {
       }
     })
 
+    watch(
+      selectedJeepney,
+      async (newVal, oldVal) => {
+        if (newVal && newVal !== oldVal) {
+          console.log('[Watch] selectedJeepney changed')
+
+          // Check if it's just coordinates that changed (street route update)
+          if (
+            oldVal &&
+            newVal.id === oldVal.id &&
+            newVal.routeCoordinates !== oldVal.routeCoordinates
+          ) {
+            console.log('[Watch] Route coordinates updated, refreshing map')
+            if (map) {
+              updateMapMarkers()
+            }
+            return
+          }
+
+          // New jeepney selected, initialize map
+          console.log('[Watch] New jeepney selected, waiting for DOM...')
+          await nextTick()
+
+          setTimeout(() => {
+            console.log('[Watch] Initializing map for selected jeepney')
+            if (mapContainer.value) {
+              initMap()
+            } else {
+              console.error('[Watch] Map container still not available!')
+            }
+          }, 600)
+        }
+      },
+      { deep: true }
+    )
+
     onMounted(async () => {
       console.log('[LandingPage] Component mounted')
-      
+
       setTimeout(() => {
         observer = observeElements()
       }, 100)
 
       await fetchRoutes()
 
+      // Fetch street routes for all jeepneys
+      await fetchStreetRoutesForAllJeepneys()
+
       console.log('[LandingPage] After fetch, jeepneys:', jeepneys.value)
-      
-      if (jeepneys.value.length > 0) {
-        selectedJeepney.value = jeepneys.value[0]
-        setTimeout(() => {
-          initMap()
-        }, 500)
-      }
+
+      // Don't auto-select first jeepney - let user click to see details
+      // This avoids map initialization issues on page load
     })
 
     onUnmounted(() => {
@@ -1213,7 +1402,7 @@ $text-light: #666;
 
 .jeepneys-section {
   padding: 100px 0;
-  background: white;
+  background: #f8f9fa;
 
   .jeepneys-grid {
     margin-bottom: 80px;
@@ -1245,6 +1434,7 @@ $text-light: #666;
       height: 100%;
       display: flex;
       flex-direction: column;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 
       .jeepney-image-wrapper {
         width: 100%;

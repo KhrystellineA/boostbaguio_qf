@@ -141,7 +141,21 @@
           </p>
         </div>
 
-        <div class="options-grid">
+        <!-- Loading State -->
+        <div v-if="isLoadingOptions" class="text-center q-py-xl">
+          <q-spinner color="primary" size="50px" />
+          <p class="q-mt-md text-grey-7">Loading jeepney options...</p>
+        </div>
+
+        <!-- No Options Found -->
+        <div v-else-if="jeepneyOptions.length === 0 && toLocation" class="text-center q-py-xl">
+          <q-icon name="directions_bus_filled" size="64px" color="grey-5" />
+          <p class="text-h6 q-mt-md text-grey-7">No jeepney routes found for this destination</p>
+          <p class="text-grey-6">Try selecting a different destination or check back later.</p>
+        </div>
+
+        <!-- Options Grid -->
+        <div v-else class="options-grid">
           <div
             v-for="(option, index) in jeepneyOptions"
             :key="index"
@@ -192,7 +206,7 @@
           <!-- MAP COLUMN -->
           <div class="map-column">
             <div class="map-wrapper" ref="mapContainer"></div>
-            
+
             <div class="route-legend">
               <div class="legend-item">
                 <div class="legend-line walking-line"></div>
@@ -238,7 +252,9 @@
                 <div class="info-content">
                   <h3 class="info-title">WHAT TO TELL THE DRIVER</h3>
                   <p class="info-description highlight-text">"{{ selectedJeepney.whatToSay }}"</p>
-                  <p class="info-subdescription">Tell the driver this phrase when you board the jeepney</p>
+                  <p class="info-subdescription">
+                    Tell the driver this phrase when you board the jeepney
+                  </p>
                 </div>
               </div>
 
@@ -312,7 +328,9 @@
                       <div class="step-number">3</div>
                       <div class="step-content">
                         <strong>Jeepney Ride</strong>
-                        <p>{{ selectedJeepney.rideTime }} to {{ selectedJeepney.destinationName }}</p>
+                        <p>
+                          {{ selectedJeepney.rideTime }} to {{ selectedJeepney.destinationName }}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -337,17 +355,27 @@
     </section>
 
     <FAQSection />
-
     <FooterSection />
   </q-page>
 </template>
 
 <script>
-import { defineComponent, ref, computed, onMounted, onUnmounted, onBeforeUnmount } from 'vue'
+import {
+  defineComponent,
+  ref,
+  computed,
+  onMounted,
+  onUnmounted,
+  onBeforeUnmount,
+  watch,
+  nextTick,
+} from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { db } from 'src/boot/firebase'
+import { collection, getDocs, query, where } from 'firebase/firestore'
 import FAQSection from '../components/Home/FAQSection.vue'
 import FooterSection from '../components/Home/FooterSection.vue'
 
@@ -379,6 +407,10 @@ export default defineComponent({
     const userLocation = ref(null)
     const routeData = ref(null)
     const showJeepneyOptions = ref(false)
+    const allJeepneyOptions = ref([])
+    const isLoadingOptions = ref(false)
+
+    let observer = null
 
     const baguioLocations = [
       { label: 'SM City Baguio', value: 'sm-baguio', coords: [16.4088516, 120.5972273] },
@@ -391,79 +423,155 @@ export default defineComponent({
       { label: 'Wright Park', value: 'wright-park', coords: [16.4156996, 120.6123524] },
       { label: 'The Mansion', value: 'the-mansion', coords: [16.4123678, 120.6188978] },
       { label: "Teacher's Camp", value: 'teachers-camp', coords: [16.4130217, 120.6072952] },
-      { label: 'Botanical Garden', value: 'botanical-garden', coords: [16.4176, 120.5970] },
-      { label: 'Baguio Convention Center', value: 'convention-center', coords: [16.4090, 120.5940] },
+      { label: 'Botanical Garden', value: 'botanical-garden', coords: [16.4176, 120.597] },
+      { label: 'Baguio Convention Center', value: 'convention-center', coords: [16.409, 120.594] },
       { label: 'Baguio General Hospital', value: 'bgh', coords: [16.4068, 120.5995] },
       { label: 'University of Baguio', value: 'ub', coords: [16.4111, 120.6005] },
       { label: 'Saint Louis University', value: 'slu', coords: [16.4133, 120.5967] },
-      { label: 'Good Shepherd Convent', value: 'good-shepherd', coords: [16.4196, 120.6040] },
+      { label: 'Good Shepherd Convent', value: 'good-shepherd', coords: [16.4196, 120.604] },
       { label: 'Tam-awan Village', value: 'tam-awan', coords: [16.4231, 120.5889] },
       { label: 'Lourdes Grotto', value: 'lourdes-grotto', coords: [16.4253, 120.5972] },
       { label: 'PMA (Philippine Military Academy)', value: 'pma', coords: [16.3928, 120.5962] },
     ]
 
-    const jeepneyOptions = computed(() => {
-      if (!toLocation.value) {
-        return []
+    const fetchJeepneyOptions = async () => {
+      isLoadingOptions.value = true
+      try {
+        console.log('[ApanamPage] Fetching jeepney options from Firebase...')
+
+        const optionsQuery = query(collection(db, 'jeepneyOptions'), where('isActive', '==', true))
+        const querySnapshot = await getDocs(optionsQuery)
+
+        allJeepneyOptions.value = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+
+        console.log('[ApanamPage] Loaded jeepney options:', allJeepneyOptions.value.length)
+      } catch (error) {
+        console.error('[ApanamPage] Error fetching jeepney options:', error)
+
+        console.log('[ApanamPage] Using fallback default options')
+        allJeepneyOptions.value = getDefaultJeepneyOptions()
+
+        $q.notify({
+          message: 'Using default jeepney routes',
+          color: 'info',
+          icon: 'info',
+          position: 'top',
+          timeout: 2000,
+        })
+      } finally {
+        isLoadingOptions.value = false
       }
+    }
 
-      const destinationLabel = toLocation.value.label || 'destination'
-      const destinationCoords = toLocation.value.coords || [16.4176, 120.5970]
-
+    const getDefaultJeepneyOptions = () => {
       return [
         {
           name: 'MARIA BASA',
           route: 'Maria Basa to Session Road',
           terminalCoords: [16.4108, 120.5969],
-          terminalAddress: 'Governor Pack Road Terminal (Maria Basa Route), Near Sunshine Park, Baguio City',
-          terminalInstructions: 'From Session Road, walk to Upper Session near Casa Vallejo Hotel, then head to Sunshine Park area. The Governor Pack Road terminal is located here. Look for jeepneys with "Maria Basa" signage. Staging area is at Sandico Street.',
-          whatToSay: `${destinationLabel} po`,
+          terminalAddress:
+            'Governor Pack Road Terminal (Maria Basa Route), Near Sunshine Park, Baguio City',
+          terminalInstructions:
+            'From Session Road, walk to Upper Session near Casa Vallejo Hotel, then head to Sunshine Park area. The Governor Pack Road terminal is located here. Look for jeepneys with "Maria Basa" signage.',
+          whatToSay: '{destination} po',
           fare: '₱13.00 (Regular), ₱10.00 (Student/PWD/Senior)',
           rideTime: '10-15 minutes',
-          additionalInfo: 'This jeepney passes by major landmarks including Session Road, Burnham Park, and the Cathedral area.',
-          destinationCoords: destinationCoords,
-          destinationName: destinationLabel,
+          additionalInfo:
+            'This jeepney passes by major landmarks including Session Road, Burnham Park, and the Cathedral area.',
+          coveredAreas: [
+            'SM City Baguio',
+            'Burnham Park',
+            'Session Road',
+            'Baguio Cathedral',
+            'Maria Basa',
+          ],
+          isActive: true,
         },
         {
           name: 'TIPTOP',
           route: 'Tiptop to Market',
           terminalCoords: [16.4108, 120.5969],
-          terminalAddress: 'Governor Pack Road Terminal (Tiptop Route), Near Sunshine Park, Baguio City',
-          terminalInstructions: 'From Session Road, walk to Upper Session near Casa Vallejo Hotel, then head to Sunshine Park area. The Governor Pack Road terminal is located here. Look for jeepneys with "Tiptop" signage. Staging area is at Sandico Street.',
-          whatToSay: `${destinationLabel} po`,
+          terminalAddress:
+            'Governor Pack Road Terminal (Tiptop Route), Near Sunshine Park, Baguio City',
+          terminalInstructions:
+            'From Session Road, walk to Upper Session near Casa Vallejo Hotel, then head to Sunshine Park area. Look for jeepneys with "Tiptop" signage.',
+          whatToSay: '{destination} po',
           fare: '₱13.00 (Regular), ₱10.00 (Student/PWD/Senior)',
           rideTime: '12-18 minutes',
-          additionalInfo: 'Route covers the market area and passes through several major roads. Great option if coming from downtown.',
-          destinationCoords: destinationCoords,
-          destinationName: destinationLabel,
+          additionalInfo: 'Route covers the market area and passes through several major roads.',
+          coveredAreas: ['Baguio City Market', 'Session Road', 'Tiptop'],
+          isActive: true,
         },
         {
           name: 'NAVY BASE',
           route: 'Navy Base to Session Road',
           terminalCoords: [16.4107, 120.5917],
-          terminalAddress: 'Perfecto Street Terminal (PMA/Loakan/Navy Base Route), Near Hotel Veniz, Baguio City',
-          terminalInstructions: 'From Session Road, turn to Lower Mabini Street, cross Harrison Road using the pedestrian overpass. Turn right after descending the overpass stairs, then immediately turn left to Perfecto Street. The terminal is located near Hotel Veniz with "PMA-KIAS-SITEL-EPZA" jeepney loading area sign.',
-          whatToSay: `${destinationLabel} po`,
+          terminalAddress:
+            'Perfecto Street Terminal (PMA/Loakan/Navy Base Route), Near Hotel Veniz, Baguio City',
+          terminalInstructions:
+            'From Session Road, turn to Lower Mabini Street, cross Harrison Road using the pedestrian overpass. Turn right after descending the overpass stairs, then immediately turn left to Perfecto Street.',
+          whatToSay: '{destination} po',
           fare: '₱15.00 (Regular), ₱12.00 (Student/PWD/Senior)',
           rideTime: '15-20 minutes',
-          additionalInfo: 'This jeepney route goes to Loakan, KIAS, PMA, and Springhills. Good for destinations along Loakan Road area.',
-          destinationCoords: destinationCoords,
-          destinationName: destinationLabel,
+          additionalInfo: 'This jeepney route goes to Loakan, KIAS, PMA, and Springhills.',
+          coveredAreas: ['Navy Base', 'PMA (Philippine Military Academy)', 'Loakan', 'KIAS'],
+          isActive: true,
         },
         {
           name: 'MINES VIEW',
           route: 'Mines View to Market',
           terminalCoords: [16.4108, 120.5969],
-          terminalAddress: 'Governor Pack Road Terminal (Mines View Route), Near Sunshine Park, Baguio City',
-          terminalInstructions: 'From Session Road, walk to Upper Session near Casa Vallejo Hotel, then head to Sunshine Park area. The Governor Pack Road terminal is located here. Look for jeepneys with "Mines View" signage. Alternative: You can also catch the jeepney at Lower Mabini Street near the old McDonald\'s area.',
-          whatToSay: `${destinationLabel} po`,
+          terminalAddress:
+            'Governor Pack Road Terminal (Mines View Route), Near Sunshine Park, Baguio City',
+          terminalInstructions:
+            'From Session Road, walk to Upper Session near Casa Vallejo Hotel. Look for jeepneys with "Mines View" signage.',
+          whatToSay: '{destination} po',
           fare: '₱15.00 (Regular), ₱12.00 (Student/PWD/Senior)',
           rideTime: '15-20 minutes',
-          additionalInfo: 'This route passes through Teacher\'s Camp, Botanical Garden, Wright Park, The Mansion, and Good Shepherd Convent before reaching Mines View Park.',
-          destinationCoords: destinationCoords,
-          destinationName: destinationLabel,
+          additionalInfo:
+            "This route passes through Teacher's Camp, Botanical Garden, Wright Park, The Mansion, and Good Shepherd Convent.",
+          coveredAreas: [
+            'Mines View Park',
+            "Teacher's Camp",
+            'Botanical Garden',
+            'Wright Park',
+            'The Mansion',
+            'Good Shepherd Convent',
+          ],
+          isActive: true,
         },
       ]
+    }
+
+    const jeepneyOptions = computed(() => {
+      if (!toLocation.value || allJeepneyOptions.value.length === 0) return []
+
+      const destinationLabel = toLocation.value.label || 'destination'
+      const destinationCoords = toLocation.value.coords || [16.4176, 120.597]
+
+      const filteredOptions = allJeepneyOptions.value.filter((option) => {
+        if (!option.isActive) return false
+
+        if (option.coveredAreas && option.coveredAreas.length > 0) {
+          return option.coveredAreas.some(
+            (area) =>
+              destinationLabel.toLowerCase().includes(area.toLowerCase()) ||
+              area.toLowerCase().includes(destinationLabel.toLowerCase())
+          )
+        }
+
+        return true
+      })
+
+      return filteredOptions.map((option) => ({
+        ...option,
+        whatToSay: option.whatToSay.replace(/\{destination\}/g, destinationLabel),
+        destinationCoords: destinationCoords,
+        destinationName: destinationLabel,
+      }))
     })
 
     const walkingInstructions = computed(() => {
@@ -479,69 +587,7 @@ export default defineComponent({
       return 'Follow the route on the map to reach the terminal. Walk along the marked path.'
     })
 
-    const showWalkingRoute = computed(() => {
-      return userLocation.value && selectedJeepney.value
-    })
-
-    const estimatedTime = computed(() => {
-      if (!selectedJeepney.value || !userLocation.value) {
-        return 'Location required'
-      }
-
-      if (routeData.value && routeData.value.duration) {
-        const timeInMinutes = Math.round(routeData.value.duration / 60)
-        return `Approximately ${timeInMinutes} minutes walking`
-      }
-
-      const distance = calculateDistance(
-        userLocation.value.lat,
-        userLocation.value.lng,
-        selectedJeepney.value.terminalCoords[0],
-        selectedJeepney.value.terminalCoords[1]
-      )
-      const walkingSpeed = 5
-      const timeInMinutes = Math.round((distance / walkingSpeed) * 60)
-      return `Approximately ${timeInMinutes} minutes walking`
-    })
-
-    const filterFromLocations = (val, update) => {
-      update(() => {
-        const needle = val.toLowerCase()
-        if (needle === '') {
-          fromLocationOptions.value = [
-            { label: '📍 Use Current Location', value: 'current-location', isCurrentLocation: true },
-            ...baguioLocations,
-          ]
-        } else {
-          const filtered = baguioLocations.filter(
-            (loc) => loc.label.toLowerCase().indexOf(needle) > -1
-          )
-          fromLocationOptions.value = [
-            { label: '📍 Use Current Location', value: 'current-location', isCurrentLocation: true },
-            ...filtered,
-          ]
-        }
-      })
-    }
-
-    const filterToLocations = (val, update) => {
-      update(() => {
-        const needle = val.toLowerCase()
-        if (needle === '') {
-          toLocationOptions.value = [...baguioLocations]
-        } else {
-          toLocationOptions.value = baguioLocations.filter(
-            (loc) => loc.label.toLowerCase().indexOf(needle) > -1
-          )
-        }
-      })
-    }
-
-    const onFromInputChange = () => {
-}
-
-const onToInputChange = () => {
-}
+    const showWalkingRoute = computed(() => userLocation.value && selectedJeepney.value)
 
     const calculateDistance = (lat1, lon1, lat2, lon2) => {
       const R = 6371
@@ -560,7 +606,6 @@ const onToInputChange = () => {
     const fetchStreetRoute = async (startLat, startLng, endLat, endLng) => {
       try {
         const url = `https://router.project-osrm.org/route/v1/foot/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`
-
         const response = await fetch(url)
         const data = await response.json()
 
@@ -577,7 +622,7 @@ const onToInputChange = () => {
         }
         return null
       } catch {
-        console.log('Error fetching route:')
+        console.log('Error fetching route')
         return null
       }
     }
@@ -586,7 +631,6 @@ const onToInputChange = () => {
       if (!mapContainer.value) return
 
       const baguioCoords = [16.411, 120.593]
-
       map = L.map(mapContainer.value).setView(baguioCoords, 13)
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -599,23 +643,15 @@ const onToInputChange = () => {
         L.marker(location.coords).addTo(map).bindPopup(location.label)
       })
 
-      if (selectedJeepney.value) {
-        updateMapForJeepney()
-      }
+      if (selectedJeepney.value) updateMapForJeepney()
     }
 
     const updateMapForJeepney = async () => {
       if (!map || !selectedJeepney.value) return
 
-      if (terminalMarker) {
-        map.removeLayer(terminalMarker)
-      }
-      if (destinationMarker) {
-        map.removeLayer(destinationMarker)
-      }
-      if (jeepneyRouteLine) {
-        map.removeLayer(jeepneyRouteLine)
-      }
+      if (terminalMarker) map.removeLayer(terminalMarker)
+      if (destinationMarker) map.removeLayer(destinationMarker)
+      if (jeepneyRouteLine) map.removeLayer(jeepneyRouteLine)
 
       const terminalIcon = L.divIcon({
         className: 'terminal-marker',
@@ -660,42 +696,30 @@ const onToInputChange = () => {
             dashArray: '10, 10',
           }).addTo(map)
         } else {
-          jeepneyRouteLine = L.polyline([
-            selectedJeepney.value.terminalCoords,
-            selectedJeepney.value.destinationCoords,
-          ], {
-            color: '#FF6B35',
-            weight: 4,
-            opacity: 0.7,
-            dashArray: '10, 10',
-          }).addTo(map)
+          jeepneyRouteLine = L.polyline(
+            [selectedJeepney.value.terminalCoords, selectedJeepney.value.destinationCoords],
+            { color: '#FF6B35', weight: 4, opacity: 0.7, dashArray: '10, 10' }
+          ).addTo(map)
         }
 
         const bounds = L.latLngBounds([
           selectedJeepney.value.terminalCoords,
           selectedJeepney.value.destinationCoords,
         ])
-        
-        if (userLocation.value) {
-          bounds.extend([userLocation.value.lat, userLocation.value.lng])
-        }
-        
+
+        if (userLocation.value) bounds.extend([userLocation.value.lat, userLocation.value.lng])
         map.fitBounds(bounds, { padding: [50, 50] })
       } else {
         map.setView(selectedJeepney.value.terminalCoords, 15)
       }
 
-      if (userLocation.value) {
-        drawRouteToTerminal()
-      }
+      if (userLocation.value) drawRouteToTerminal()
     }
 
     const drawRouteToTerminal = async () => {
       if (!map || !userLocation.value || !selectedJeepney.value) return
 
-      if (routeLine) {
-        map.removeLayer(routeLine)
-      }
+      if (routeLine) map.removeLayer(routeLine)
 
       const fetchedRouteData = await fetchStreetRoute(
         userLocation.value.lat,
@@ -716,15 +740,14 @@ const onToInputChange = () => {
         }).addTo(map)
 
         const bounds = L.latLngBounds(fetchedRouteData.coordinates)
-        
-        if (selectedJeepney.value.destinationCoords) {
+        if (selectedJeepney.value.destinationCoords)
           bounds.extend(selectedJeepney.value.destinationCoords)
-        }
-        
         map.fitBounds(bounds, { padding: [50, 50] })
 
         $q.notify({
-          message: `Walking route: ${(fetchedRouteData.distance / 1000).toFixed(2)} km, ~${Math.round(fetchedRouteData.duration / 60)} min walk to terminal`,
+          message: `Walking route: ${(fetchedRouteData.distance / 1000).toFixed(2)} km, ~${Math.round(
+            fetchedRouteData.duration / 60
+          )} min walk to terminal`,
           color: 'positive',
           icon: 'directions_walk',
           timeout: 3000,
@@ -745,27 +768,20 @@ const onToInputChange = () => {
         }).addTo(map)
 
         const bounds = L.latLngBounds(routeCoords)
-        
-        if (selectedJeepney.value.destinationCoords) {
+        if (selectedJeepney.value.destinationCoords)
           bounds.extend(selectedJeepney.value.destinationCoords)
-        }
-        
         map.fitBounds(bounds, { padding: [50, 50] })
       }
     }
 
     const scrollToNavigation = () => {
       const element = document.querySelector('.navigation-card')
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      }
+      if (element) element.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
 
     const scrollToOptions = () => {
       const element = document.getElementById('options')
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
+      if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
 
     const learnMore = () => {
@@ -798,11 +814,7 @@ const onToInputChange = () => {
 
         isCalculatingRoute.value = true
         navigator.geolocation.getCurrentPosition(
-          (position) => {
-            userLocation.value = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            }
+          () => {
             proceedWithNavigation()
           },
           () => {
@@ -813,11 +825,7 @@ const onToInputChange = () => {
               icon: 'error',
             })
           },
-          {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0,
-          }
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         )
       } else {
         proceedWithNavigation()
@@ -828,7 +836,9 @@ const onToInputChange = () => {
       isCalculatingRoute.value = true
 
       $q.notify({
-        message: `Finding jeepney routes from ${fromLocation.value.label || 'your location'} to ${toLocation.value.label}...`,
+        message: `Finding jeepney routes from ${fromLocation.value.label || 'your location'} to ${
+          toLocation.value.label
+        }...`,
         color: 'positive',
         icon: 'navigation',
       })
@@ -836,19 +846,25 @@ const onToInputChange = () => {
       await new Promise((resolve) => setTimeout(resolve, 500))
 
       isCalculatingRoute.value = false
-
       showJeepneyOptions.value = true
 
-      setTimeout(() => {
-        scrollToOptions()
-      }, 300)
+      setTimeout(() => scrollToOptions(), 300)
 
-      $q.notify({
-        message: 'Select a jeepney route below to see terminal directions',
-        color: 'info',
-        icon: 'info',
-        timeout: 3000,
-      })
+      if (jeepneyOptions.value.length === 0) {
+        $q.notify({
+          message: 'No jeepney routes found for this destination',
+          color: 'warning',
+          icon: 'warning',
+          timeout: 3000,
+        })
+      } else {
+        $q.notify({
+          message: 'Select a jeepney route below to see terminal directions',
+          color: 'info',
+          icon: 'info',
+          timeout: 3000,
+        })
+      }
     }
 
     const selectJeepney = (jeepney) => {
@@ -862,9 +878,7 @@ const onToInputChange = () => {
 
       setTimeout(() => {
         const mapSection = document.querySelector('.jeepney-detail-section')
-        if (mapSection) {
-          mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
+        if (mapSection) mapSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
 
         if (map) {
           setTimeout(() => {
@@ -904,9 +918,7 @@ const onToInputChange = () => {
           userLocation.value = { lat: userLat, lng: userLng }
 
           if (map) {
-            if (userMarker) {
-              map.removeLayer(userMarker)
-            }
+            if (userMarker) map.removeLayer(userMarker)
 
             const userIcon = L.divIcon({
               className: 'user-location-marker',
@@ -919,11 +931,8 @@ const onToInputChange = () => {
               .bindPopup('You are here!')
               .openPopup()
 
-            if (selectedJeepney.value) {
-              drawRouteToTerminal()
-            } else {
-              map.setView([userLat, userLng], 15)
-            }
+            if (selectedJeepney.value) drawRouteToTerminal()
+            else map.setView([userLat, userLng], 15)
 
             $q.notify({
               message: 'Showing your current location',
@@ -954,21 +963,8 @@ const onToInputChange = () => {
             icon: 'error',
           })
         },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0,
-        }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       )
-    }
-
-    const markArrived = () => {
-      $q.notify({
-        message: 'You have arrived at your destination!',
-        color: 'positive',
-        icon: 'check_circle',
-        position: 'top',
-      })
     }
 
     const testSMBaguioLocation = () => {
@@ -984,9 +980,7 @@ const onToInputChange = () => {
       })
 
       if (map) {
-        if (userMarker) {
-          map.removeLayer(userMarker)
-        }
+        if (userMarker) map.removeLayer(userMarker)
 
         const userIcon = L.divIcon({
           className: 'user-location-marker',
@@ -999,11 +993,8 @@ const onToInputChange = () => {
           .bindPopup('Test Location: SM City Baguio')
           .openPopup()
 
-        if (selectedJeepney.value) {
-          drawRouteToTerminal()
-        } else {
-          map.setView([testLat, testLng], 15)
-        }
+        if (selectedJeepney.value) drawRouteToTerminal()
+        else map.setView([testLat, testLng], 15)
 
         $q.notify({
           message: 'Showing route from SM Baguio',
@@ -1013,97 +1004,153 @@ const onToInputChange = () => {
       }
     }
 
-    const observeElements = () => {
-      const options = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -100px 0px',
-      }
+    const markArrived = () => {
+      $q.notify({
+        message: 'You have arrived at your destination!',
+        color: 'positive',
+        icon: 'check_circle',
+        position: 'top',
+      })
+    }
 
-      const observer = new IntersectionObserver((entries) => {
+    const filterFromLocations = (val, update) => {
+      update(() => {
+        const needle = val.toLowerCase()
+        if (needle === '') {
+          fromLocationOptions.value = [
+            {
+              label: '📍 Use Current Location',
+              value: 'current-location',
+              isCurrentLocation: true,
+            },
+            ...baguioLocations,
+          ]
+        } else {
+          const filtered = baguioLocations.filter(
+            (loc) => loc.label.toLowerCase().indexOf(needle) > -1
+          )
+          fromLocationOptions.value = [
+            {
+              label: '📍 Use Current Location',
+              value: 'current-location',
+              isCurrentLocation: true,
+            },
+            ...filtered,
+          ]
+        }
+      })
+    }
+
+    const filterToLocations = (val, update) => {
+      update(() => {
+        const needle = val.toLowerCase()
+        if (needle === '') toLocationOptions.value = [...baguioLocations]
+        else {
+          toLocationOptions.value = baguioLocations.filter(
+            (loc) => loc.label.toLowerCase().indexOf(needle) > -1
+          )
+        }
+      })
+    }
+
+    const onFromInputChange = () => {}
+    const onToInputChange = () => {}
+
+    const observeElements = () => {
+      const options = { threshold: 0.1, rootMargin: '0px 0px -100px 0px' }
+
+      const io = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate-in')
-          }
+          if (entry.isIntersecting) entry.target.classList.add('animate-in')
         })
       }, options)
 
       const elements = document.querySelectorAll('.section-animate')
-      elements.forEach((el) => observer.observe(el))
+      elements.forEach((el) => io.observe(el))
 
-      return observer
+      return io
     }
 
-    let observer
+    watch(showJeepneyOptions, async (val) => {
+      if (!val) return
+
+      await nextTick()
+
+      if (observer) observer.disconnect()
+      observer = observeElements()
+
+      document.querySelectorAll('.options-section .section-animate').forEach((el) => {
+        el.classList.add('animate-in')
+      })
+    })
 
     onMounted(() => {
-  fromLocationOptions.value = [
-    { label: '📍 Use Current Location', value: 'current-location', isCurrentLocation: true },
-    ...baguioLocations,
-  ]
-  toLocationOptions.value = [...baguioLocations]
+      fromLocationOptions.value = [
+        { label: '📍 Use Current Location', value: 'current-location', isCurrentLocation: true },
+        ...baguioLocations,
+      ]
+      toLocationOptions.value = [...baguioLocations]
 
-  const route = router.currentRoute.value
-  if (route.query && (route.query.toName || route.query.toLat)) {
-    if (route.query.toName && route.query.toLat && route.query.toLng) {
-      toLocation.value = {
-        label: route.query.toName,
-        value: route.query.toName.toLowerCase().replace(/\s+/g, '-'),
-        coords: [parseFloat(route.query.toLat), parseFloat(route.query.toLng)],
+      fetchJeepneyOptions()
+
+      const route = router.currentRoute.value
+      if (route.query && (route.query.toName || route.query.toLat)) {
+        if (route.query.toName && route.query.toLat && route.query.toLng) {
+          toLocation.value = {
+            label: route.query.toName,
+            value: route.query.toName.toLowerCase().replace(/\s+/g, '-'),
+            coords: [parseFloat(route.query.toLat), parseFloat(route.query.toLng)],
+          }
+
+          $q.notify({
+            message: `Destination set to: ${route.query.toName}`,
+            color: 'positive',
+            icon: 'place',
+          })
+        }
+
+        if (route.query.fromLat && route.query.fromLng) {
+          userLocation.value = {
+            lat: parseFloat(route.query.fromLat),
+            lng: parseFloat(route.query.fromLng),
+          }
+          fromLocation.value = {
+            label: route.query.fromName || 'Your Location',
+            value: 'from-ayan-mo',
+            coords: [parseFloat(route.query.fromLat), parseFloat(route.query.fromLng)],
+          }
+        } else {
+          fromLocation.value = {
+            label: '📍 Use Current Location',
+            value: 'current-location',
+            isCurrentLocation: true,
+          }
+        }
+
+        if (toLocation.value && fromLocation.value) {
+          setTimeout(() => {
+            $q.notify({
+              message: 'Preparing your route...',
+              color: 'info',
+              icon: 'navigation',
+              timeout: 1500,
+            })
+
+            setTimeout(() => startNavigation(), 1000)
+          }, 500)
+        }
+      } else {
+        fromLocation.value = baguioLocations.find((loc) => loc.value === 'sm-baguio')
+        toLocation.value = baguioLocations.find((loc) => loc.value === 'botanical-garden')
       }
 
-      $q.notify({
-        message: `Destination set to: ${route.query.toName}`,
-        color: 'positive',
-        icon: 'place',
-      })
-    }
-
-    if (route.query.fromLat && route.query.fromLng) {
-      userLocation.value = {
-        lat: parseFloat(route.query.fromLat),
-        lng: parseFloat(route.query.fromLng),
-      }
-      fromLocation.value = {
-        label: route.query.fromName || 'Your Location',
-        value: 'from-ayan-mo',
-        coords: [parseFloat(route.query.fromLat), parseFloat(route.query.fromLng)],
-      }
-    } else {
-      fromLocation.value = { 
-        label: '📍 Use Current Location', 
-        value: 'current-location', 
-        isCurrentLocation: true 
-      }
-    }
-
-    if (toLocation.value && fromLocation.value) {
       setTimeout(() => {
-        $q.notify({
-          message: 'Preparing your route...',
-          color: 'info',
-          icon: 'navigation',
-          timeout: 1500,
-        })
-        
-        setTimeout(() => {
-          startNavigation()
-        }, 1000)
-      }, 500)
-    }
-  } else {
-    fromLocation.value = baguioLocations.find((loc) => loc.value === 'sm-baguio')
-    toLocation.value = baguioLocations.find((loc) => loc.value === 'botanical-garden')
-  }
-
-  setTimeout(() => {
-    observer = observeElements()
-  }, 100)
-})
+        observer = observeElements()
+      }, 100)
+    })
 
     onUnmounted(() => {
-      if (observer) {
-        observer.disconnect()
-      }
+      if (observer) observer.disconnect()
     })
 
     onBeforeUnmount(() => {
@@ -1128,7 +1175,7 @@ const onToInputChange = () => {
       showJeepneyOptions,
       walkingInstructions,
       showWalkingRoute,
-      estimatedTime,
+      isLoadingOptions,
       scrollToNavigation,
       scrollToOptions,
       learnMore,
@@ -1634,11 +1681,11 @@ $cream-bg: #e8ebe3;
           }
 
           &.jeepney-line {
-            background: #FF6B35;
+            background: #ff6b35;
             background-image: repeating-linear-gradient(
               90deg,
-              #FF6B35,
-              #FF6B35 10px,
+              #ff6b35,
+              #ff6b35 10px,
               transparent 10px,
               transparent 20px
             );

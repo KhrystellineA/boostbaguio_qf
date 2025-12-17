@@ -49,9 +49,7 @@
     >
       <q-scroll-area class="fit">
         <q-list padding>
-          <q-item-label header class="text-weight-bold text-grey-8">
-            Navigation
-          </q-item-label>
+          <q-item-label header class="text-weight-bold text-grey-8"> Navigation </q-item-label>
 
           <q-item
             clickable
@@ -81,6 +79,22 @@
             </q-item-section>
             <q-item-section>
               <q-item-label>Routes</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item
+            v-if="canManageRoutes"
+            clickable
+            v-ripple
+            :active="activeMenu === 'jeepney-options'"
+            @click="activeMenu = 'jeepney-options'"
+            active-class="bg-pine-green text-white"
+          >
+            <q-item-section avatar>
+              <q-icon name="directions_bus" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Jeepney Options</q-item-label>
             </q-item-section>
           </q-item>
 
@@ -118,9 +132,7 @@
 
           <q-separator class="q-my-md" />
 
-          <q-item-label header class="text-weight-bold text-grey-8">
-            Management
-          </q-item-label>
+          <q-item-label header class="text-weight-bold text-grey-8"> Management </q-item-label>
 
           <q-item
             v-if="canManageAdmins"
@@ -212,6 +224,24 @@
               </q-card>
             </div>
 
+            <div class="col-12 col-sm-6 col-md-3" v-if="canManageRoutes">
+              <q-card class="stat-card">
+                <q-card-section>
+                  <div class="row items-center">
+                    <div class="col">
+                      <div class="stat-icon bg-teal-1">
+                        <q-icon name="directions_bus" size="md" color="teal" />
+                      </div>
+                    </div>
+                    <div class="col text-right">
+                      <div class="stat-value">{{ stats.jeepneyOptions }}</div>
+                      <div class="stat-label">Jeepney Options</div>
+                    </div>
+                  </div>
+                </q-card-section>
+              </q-card>
+            </div>
+
             <div class="col-12 col-sm-6 col-md-3" v-if="canManagePlaces">
               <q-card class="stat-card">
                 <q-card-section>
@@ -287,6 +317,16 @@
                       @click="openAddRoute"
                     />
                     <q-btn
+                      v-if="canManageRoutes"
+                      unelevated
+                      style="background: #2d6a4f; color: white"
+                      label="Add Jeepney Option"
+                      icon="directions_bus"
+                      no-caps
+                      class="full-width"
+                      @click="openAddJeepneyOption"
+                    />
+                    <q-btn
                       v-if="canManagePlaces"
                       unelevated
                       style="background: #2d6a4f; color: white"
@@ -332,7 +372,11 @@
                   <q-list padding v-if="recentActivities.length > 0">
                     <q-item v-for="activity in recentActivities" :key="activity.id">
                       <q-item-section avatar>
-                        <q-avatar :color="activity.color" text-color="white" :icon="activity.icon" />
+                        <q-avatar
+                          :color="activity.color"
+                          text-color="white"
+                          :icon="activity.icon"
+                        />
                       </q-item-section>
                       <q-item-section>
                         <q-item-label>{{ activity.title }}</q-item-label>
@@ -340,9 +384,7 @@
                       </q-item-section>
                     </q-item>
                   </q-list>
-                  <div v-else class="text-center text-grey-6 q-py-md">
-                    No recent activity
-                  </div>
+                  <div v-else class="text-center text-grey-6 q-py-md">No recent activity</div>
                 </q-card-section>
               </q-card>
             </div>
@@ -353,6 +395,12 @@
           v-else-if="activeMenu === 'routes'"
           :open-dialog="triggerRouteDialog"
           @dialog-opened="onDialogOpened('route')"
+        />
+
+        <JeepneyOptionsManagement
+          v-else-if="activeMenu === 'jeepney-options'"
+          :open-dialog="triggerJeepneyDialog"
+          @dialog-opened="onDialogOpened('jeepney')"
         />
 
         <PlacesManagement
@@ -367,9 +415,7 @@
           @dialog-opened="onDialogOpened('event')"
         />
 
-        <AdminsManagement
-          v-else-if="activeMenu === 'admins'"
-        />
+        <AdminsManagement v-else-if="activeMenu === 'admins'" />
 
         <div v-else-if="activeMenu === 'analytics'" class="content-section">
           <h4 class="text-pine-green">Analytics</h4>
@@ -394,6 +440,7 @@ import RoutesManagement from 'src/components/admin/RoutesManagement.vue'
 import PlacesManagement from 'src/components/admin/PlacesManagement.vue'
 import EventsManagement from 'src/components/admin/EventsManagement.vue'
 import AdminsManagement from 'src/components/admin/AdminsManagement.vue'
+import JeepneyOptionsManagement from 'src/components/admin/JeepneyOptionsManagement.vue'
 
 export default {
   name: 'AdminDashboard',
@@ -402,7 +449,8 @@ export default {
     RoutesManagement,
     PlacesManagement,
     EventsManagement,
-    AdminsManagement
+    AdminsManagement,
+    JeepneyOptionsManagement,
   },
 
   setup() {
@@ -419,13 +467,15 @@ export default {
         routes: 0,
         places: 0,
         events: 0,
-        admins: 0
+        admins: 0,
+        jeepneyOptions: 0,
       },
       recentActivities: [],
       notifications: [],
       triggerRouteDialog: false,
       triggerPlaceDialog: false,
-      triggerEventDialog: false
+      triggerEventDialog: false,
+      triggerJeepneyDialog: false,
     }
   },
 
@@ -434,7 +484,7 @@ export default {
       const roles = {
         super_admin: 'Super Admin',
         route_manager: 'Route Manager',
-        content_admin: 'Content Admin'
+        content_admin: 'Content Admin',
       }
       return roles[this.adminData.role] || 'Admin'
     },
@@ -457,7 +507,7 @@ export default {
 
     canViewAnalytics() {
       return this.adminData.permissions?.viewAnalytics || false
-    }
+    },
   },
 
   watch: {
@@ -465,7 +515,7 @@ export default {
       if (newVal === 'dashboard') {
         this.loadStats()
       }
-    }
+    },
   },
 
   mounted() {
@@ -486,18 +536,20 @@ export default {
 
     async loadStats() {
       try {
-        const [routesSnap, placesSnap, eventsSnap, adminsSnap] = await Promise.all([
+        const [routesSnap, placesSnap, eventsSnap, adminsSnap, jeepneySnap] = await Promise.all([
           getDocs(collection(db, 'routes')),
           getDocs(collection(db, 'places')),
           getDocs(collection(db, 'events')),
-          getDocs(collection(db, 'admins'))
+          getDocs(collection(db, 'admins')),
+          getDocs(collection(db, 'jeepneyOptions')),
         ])
 
         this.stats = {
           routes: routesSnap.size,
           places: placesSnap.size,
           events: eventsSnap.size,
-          admins: adminsSnap.size
+          admins: adminsSnap.size,
+          jeepneyOptions: jeepneySnap.size,
         }
 
         console.log('[Dashboard] Stats loaded:', this.stats)
@@ -506,7 +558,7 @@ export default {
         this.$q.notify({
           type: 'negative',
           message: 'Failed to load statistics',
-          position: 'top'
+          position: 'top',
         })
       }
     },
@@ -520,6 +572,14 @@ export default {
       this.triggerRouteDialog = false
       this.$nextTick(() => {
         this.triggerRouteDialog = true
+      })
+    },
+
+    openAddJeepneyOption() {
+      this.activeMenu = 'jeepney-options'
+      this.triggerJeepneyDialog = false
+      this.$nextTick(() => {
+        this.triggerJeepneyDialog = true
       })
     },
 
@@ -543,13 +603,14 @@ export default {
       if (type === 'route') this.triggerRouteDialog = false
       if (type === 'place') this.triggerPlaceDialog = false
       if (type === 'event') this.triggerEventDialog = false
+      if (type === 'jeepney') this.triggerJeepneyDialog = false
     },
 
     viewProfile() {
       this.$q.notify({
         type: 'info',
         message: 'Profile page coming soon!',
-        position: 'top'
+        position: 'top',
       })
     },
 
@@ -557,12 +618,12 @@ export default {
       try {
         await signOut(auth)
         sessionStorage.clear()
-        
+
         this.$q.notify({
           type: 'positive',
           message: 'Logged out successfully',
           icon: 'check_circle',
-          position: 'top'
+          position: 'top',
         })
 
         this.$router.push('/admin/adminlogin')
@@ -571,11 +632,11 @@ export default {
         this.$q.notify({
           type: 'negative',
           message: 'Logout failed',
-          position: 'top'
+          position: 'top',
         })
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -591,7 +652,7 @@ export default {
 
 .stat-card
   transition: all 0.3s ease
-  
+
   &:hover
     transform: translateY(-4px)
     box-shadow: 0 4px 12px rgba(0,0,0,0.1)
