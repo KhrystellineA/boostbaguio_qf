@@ -439,16 +439,7 @@
 </template>
 
 <script>
-import {
-  defineComponent,
-  ref,
-  computed,
-  onMounted,
-  onUnmounted,
-  onBeforeUnmount,
-  watch,
-  nextTick,
-} from 'vue'
+import { defineComponent, ref, computed, onMounted, onUnmounted, onBeforeUnmount, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -628,46 +619,21 @@ export default defineComponent({
     })
 
     const initMap = () => {
-      console.log('[InitMap] Starting map initialization...')
-      console.log('[InitMap] mapContainer.value:', mapContainer.value)
-      console.log('[InitMap] selectedJeepney.value:', selectedJeepney.value)
+      if (!mapContainer.value || !selectedJeepney.value) return
 
-      if (!mapContainer.value) {
-        console.error('[InitMap] Map container not found!')
-        return
+      if (map) {
+        map.remove()
+        map = null
       }
 
-      if (!selectedJeepney.value) {
-        console.error('[InitMap] No jeepney selected!')
-        return
-      }
+      map = L.map(mapContainer.value).setView(selectedJeepney.value.terminalCoordinates, 15)
 
-      console.log('[InitMap] Terminal coords:', selectedJeepney.value.terminalCoordinates)
-      console.log('[InitMap] Route coords:', selectedJeepney.value.routeCoordinates)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        maxZoom: 19,
+      }).addTo(map)
 
-      try {
-        if (map) {
-          console.log('[InitMap] Removing existing map...')
-          map.remove()
-          map = null
-        }
-
-        console.log('[InitMap] Creating new map...')
-        map = L.map(mapContainer.value).setView(selectedJeepney.value.terminalCoordinates, 15)
-
-        console.log('[InitMap] Adding tile layer...')
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-          maxZoom: 19,
-        }).addTo(map)
-
-        console.log('[InitMap] Updating markers...')
-        updateMapMarkers()
-
-        console.log('[InitMap] Map initialized successfully!')
-      } catch (error) {
-        console.error('[InitMap] Error initializing map:', error)
-      }
+      updateMapMarkers()
     }
 
     const initFullscreenMap = () => {
@@ -824,55 +790,43 @@ export default defineComponent({
       }
     }
 
-    const selectJeepney = async (jeepney) => {
+    const selectJeepney = (jeepney) => {
       console.log('[SelectJeepney] Selected:', jeepney)
-      console.log(
-        '[SelectJeepney] Has coordinates?',
-        jeepney.terminalCoordinates,
-        jeepney.destinationCoordinates
-      )
 
-      // Set selected jeepney - watch will handle map initialization
       selectedJeepney.value = { ...jeepney }
       tutorialStep.value = 1
 
-      // Wait for DOM to render
-      await nextTick()
-
-      // Scroll to detail section
       setTimeout(() => {
         const detailSection = document.querySelector('.jeepney-detail-section')
-        console.log('[SelectJeepney] Detail section found:', !!detailSection)
-
         if (detailSection) {
           detailSection.classList.add('animate-in')
         }
+
+        setTimeout(() => {
+          initMap()
+
+          if (jeepney.routeCoordinates.length === 2) {
+            const [terminalLat, terminalLng] = jeepney.terminalCoordinates
+            const [destLat, destLng] = jeepney.destinationCoordinates
+
+            getStreetRoute(terminalLat, terminalLng, destLat, destLng)
+              .then(({ coordinates: streetRoute }) => {
+                if (streetRoute.length > 0) {
+                  selectedJeepney.value = {
+                    ...jeepney,
+                    routeCoordinates: streetRoute,
+                  }
+                  if (map) {
+                    updateMapMarkers()
+                  }
+                }
+              })
+              .catch((error) => {
+                console.error('[SelectJeepney] Error fetching street route:', error)
+              })
+          }
+        }, 300)
       }, 100)
-
-      // Fetch street route in background if needed
-      if (jeepney.routeCoordinates.length === 2) {
-        console.log('[SelectJeepney] Fetching street route for 2-point route')
-        const [terminalLat, terminalLng] = jeepney.terminalCoordinates
-        const [destLat, destLng] = jeepney.destinationCoordinates
-
-        getStreetRoute(terminalLat, terminalLng, destLat, destLng)
-          .then(({ coordinates: streetRoute }) => {
-            if (streetRoute.length > 0) {
-              console.log(
-                '[SelectJeepney] Street route fetched, updating:',
-                streetRoute.length,
-                'points'
-              )
-              selectedJeepney.value = {
-                ...jeepney,
-                routeCoordinates: streetRoute,
-              }
-            }
-          })
-          .catch((error) => {
-            console.error('[SelectJeepney] Error fetching street route:', error)
-          })
-      }
     }
 
     const loadMoreJeepneys = () => {
@@ -1025,42 +979,6 @@ export default defineComponent({
       }
     })
 
-    watch(
-      selectedJeepney,
-      async (newVal, oldVal) => {
-        if (newVal && newVal !== oldVal) {
-          console.log('[Watch] selectedJeepney changed')
-
-          // Check if it's just coordinates that changed (street route update)
-          if (
-            oldVal &&
-            newVal.id === oldVal.id &&
-            newVal.routeCoordinates !== oldVal.routeCoordinates
-          ) {
-            console.log('[Watch] Route coordinates updated, refreshing map')
-            if (map) {
-              updateMapMarkers()
-            }
-            return
-          }
-
-          // New jeepney selected, initialize map
-          console.log('[Watch] New jeepney selected, waiting for DOM...')
-          await nextTick()
-
-          setTimeout(() => {
-            console.log('[Watch] Initializing map for selected jeepney')
-            if (mapContainer.value) {
-              initMap()
-            } else {
-              console.error('[Watch] Map container still not available!')
-            }
-          }, 600)
-        }
-      },
-      { deep: true }
-    )
-
     onMounted(async () => {
       console.log('[LandingPage] Component mounted')
 
@@ -1075,8 +993,12 @@ export default defineComponent({
 
       console.log('[LandingPage] After fetch, jeepneys:', jeepneys.value)
 
-      // Don't auto-select first jeepney - let user click to see details
-      // This avoids map initialization issues on page load
+      if (jeepneys.value.length > 0) {
+        selectedJeepney.value = jeepneys.value[0]
+        setTimeout(() => {
+          initMap()
+        }, 500)
+      }
     })
 
     onUnmounted(() => {
