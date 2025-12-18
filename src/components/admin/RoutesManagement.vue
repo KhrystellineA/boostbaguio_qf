@@ -343,7 +343,7 @@
                 />
               </div>
 
-              <!-- Terminal Coordinates with Map Picker -->
+              <!-- Terminal Coordinates with Search -->
               <div class="col-12">
                 <div class="coordinate-section">
                   <div class="text-subtitle2 q-mb-sm">Terminal Coordinates</div>
@@ -372,21 +372,21 @@
                     </div>
                     <div class="col-2">
                       <q-btn
-                        icon="map"
+                        icon="search"
                         color="primary"
-                        outline
+                        unelevated
                         dense
                         @click="openMapPicker('terminal')"
                         style="width: 100%; height: 40px"
                       >
-                        <q-tooltip>Pick from map</q-tooltip>
+                        <q-tooltip>Search location</q-tooltip>
                       </q-btn>
                     </div>
                   </div>
                 </div>
               </div>
 
-              <!-- Destination Coordinates with Map Picker -->
+              <!-- Destination Coordinates with Search -->
               <div class="col-12">
                 <div class="coordinate-section">
                   <div class="text-subtitle2 q-mb-sm">Destination Coordinates</div>
@@ -415,14 +415,14 @@
                     </div>
                     <div class="col-2">
                       <q-btn
-                        icon="map"
+                        icon="search"
                         color="primary"
-                        outline
+                        unelevated
                         dense
                         @click="openMapPicker('destination')"
                         style="width: 100%; height: 40px"
                       >
-                        <q-tooltip>Pick from map</q-tooltip>
+                        <q-tooltip>Search location</q-tooltip>
                       </q-btn>
                     </div>
                   </div>
@@ -469,7 +469,7 @@
       </q-card>
     </q-dialog>
 
-    <!-- Map Picker Dialog -->
+    <!-- Map Picker Dialog with Search -->
     <q-dialog v-model="showMapPicker" maximized>
       <q-card>
         <q-bar class="bg-primary text-white">
@@ -481,29 +481,115 @@
           <q-btn dense flat icon="close" @click="closeMapPicker" />
         </q-bar>
 
-        <q-card-section class="q-pa-none" style="height: calc(100vh - 100px)">
+        <!-- Search Section -->
+        <q-card-section class="q-pa-md bg-grey-1">
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-md-8">
+              <q-input
+                v-model="locationSearch"
+                outlined
+                placeholder="Search for a location (e.g., 'Session Road' or 'SM City Baguio')"
+                dense
+                @keyup.enter="searchLocation"
+                :loading="searching"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="search" />
+                </template>
+                <template v-slot:append>
+                  <q-btn 
+                    v-if="locationSearch"
+                    flat dense round icon="close" 
+                    @click="locationSearch = ''"
+                  />
+                </template>
+              </q-input>
+            </div>
+            <div class="col-12 col-md-4">
+              <q-btn
+                label="Search"
+                icon="search"
+                color="primary"
+                unelevated
+                class="full-width"
+                :loading="searching"
+                :disable="!locationSearch"
+                @click="searchLocation"
+                style="height: 40px"
+              />
+            </div>
+          </div>
+
+          <!-- Search Results -->
+          <div v-if="searchResults.length > 0" class="q-mt-md">
+            <div class="text-caption text-grey-7 q-mb-xs">Search Results:</div>
+            <q-list bordered separator>
+              <q-item
+                v-for="(result, index) in searchResults"
+                :key="index"
+                clickable
+                v-ripple
+                @click="selectSearchResult(result)"
+                class="search-result-item"
+              >
+                <q-item-section avatar>
+                  <q-icon name="place" color="primary" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ result.display_name }}</q-item-label>
+                  <q-item-label caption>{{ result.lat }}, {{ result.lon }}</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-btn flat dense round icon="my_location" color="primary">
+                    <q-tooltip>Select this location</q-tooltip>
+                  </q-btn>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+
+          <!-- No Results -->
+          <div v-if="searchAttempted && searchResults.length === 0" class="q-mt-md">
+            <q-banner class="bg-grey-3">
+              <template v-slot:avatar>
+                <q-icon name="info" color="grey-7" />
+              </template>
+              No results found. Try a different search term or click on the map.
+            </q-banner>
+          </div>
+        </q-card-section>
+
+        <!-- Map Container -->
+        <q-card-section class="q-pa-none" style="height: calc(100vh - 280px)">
           <div ref="mapPickerContainer" style="height: 100%; width: 100%"></div>
         </q-card-section>
 
-        <q-card-actions align="right" class="q-pa-md bg-grey-1">
-          <div class="row full-width items-center">
-            <div class="col">
-              <div class="text-caption text-grey-7">Click on the map to select location</div>
-              <div v-if="tempCoords" class="text-body2">
-                <strong>Selected:</strong> {{ tempCoords.lat.toFixed(6) }},
-                {{ tempCoords.lng.toFixed(6) }}
-              </div>
+        <!-- Footer Actions -->
+        <q-card-actions align="between" class="q-pa-md bg-grey-1">
+          <div class="col">
+            <div class="text-caption text-grey-7">
+              Search for a location above or click on the map
             </div>
-            <div class="col-auto">
-              <q-btn label="Cancel" flat color="grey-7" @click="closeMapPicker" class="q-mr-sm" />
-              <q-btn
-                label="Confirm Location"
-                unelevated
-                color="primary"
-                @click="confirmMapSelection"
-                :disable="!tempCoords"
-              />
+            <div v-if="tempCoords" class="text-body2 q-mt-xs">
+              <strong>Selected:</strong> 
+              <span class="text-primary">
+                {{ tempCoords.lat.toFixed(6) }}, {{ tempCoords.lng.toFixed(6) }}
+              </span>
+              <span v-if="selectedLocationName" class="q-ml-sm text-grey-7">
+                ({{ selectedLocationName }})
+              </span>
             </div>
+          </div>
+          <div class="col-auto">
+            <q-btn label="Cancel" flat color="grey-7" @click="closeMapPicker" class="q-mr-sm" />
+            <q-btn
+              label="Confirm Location"
+              unelevated
+              color="primary"
+              icon="check"
+              @click="confirmMapSelection"
+              :disable="!tempCoords"
+            />
           </div>
         </q-card-actions>
       </q-card>
@@ -563,6 +649,12 @@ export default {
     const tempCoords = ref(null)
     let mapPickerInstance = null
     let markerInstance = null
+
+    const locationSearch = ref('')
+    const searchResults = ref([])
+    const searching = ref(false)
+    const searchAttempted = ref(false)
+    const selectedLocationName = ref('')
 
     const routeForm = ref({
       id: null,
@@ -649,6 +741,111 @@ export default {
       } finally {
         loading.value = false
       }
+    }
+
+    const searchLocation = async () => {
+      if (!locationSearch.value.trim()) {
+        $q.notify({
+          type: 'warning',
+          message: 'Please enter a location to search',
+          position: 'top'
+        })
+        return
+      }
+
+      searching.value = true
+      searchAttempted.value = true
+      searchResults.value = []
+
+      try {
+        let searchQuery = locationSearch.value.trim()
+        if (!searchQuery.toLowerCase().includes('baguio')) {
+          searchQuery = `${searchQuery}, Baguio City, Philippines`
+        }
+
+        console.log('[Search] Searching for:', searchQuery)
+
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?` +
+          `q=${encodeURIComponent(searchQuery)}` +
+          `&format=json` +
+          `&limit=5` +
+          `&addressdetails=1` +
+          `&bounded=1` +
+          `&viewbox=120.50,16.35,120.65,16.45`,
+          {
+            headers: {
+              'Accept': 'application/json',
+              'User-Agent': 'BaguioBoostPH/1.0'
+            }
+          }
+        )
+
+        if (!response.ok) {
+          throw new Error('Search request failed')
+        }
+
+        const data = await response.json()
+        console.log('[Search] Results:', data.length)
+
+        searchResults.value = data
+
+        if (data.length === 0) {
+          $q.notify({
+            type: 'info',
+            message: 'No results found. Try a different search term.',
+            position: 'top'
+          })
+        } else {
+          $q.notify({
+            type: 'positive',
+            message: `Found ${data.length} result(s)`,
+            position: 'top'
+          })
+        }
+      } catch (error) {
+        console.error('[Search] Error:', error)
+        $q.notify({
+          type: 'negative',
+          message: 'Failed to search location. Please try again.',
+          position: 'top'
+        })
+      } finally {
+        searching.value = false
+      }
+    }
+
+    const selectSearchResult = (result) => {
+      const lat = parseFloat(result.lat)
+      const lng = parseFloat(result.lon)
+
+      tempCoords.value = { lat, lng }
+      selectedLocationName.value = result.display_name
+
+      if (mapPickerInstance) {
+        mapPickerInstance.setView([lat, lng], 16)
+
+        if (markerInstance) {
+          mapPickerInstance.removeLayer(markerInstance)
+        }
+
+        const markerIcon = L.divIcon({
+          className: 'custom-marker',
+          html: '<div style="font-size: 32px">📍</div>',
+          iconSize: [32, 32],
+        })
+
+        markerInstance = L.marker([lat, lng], { icon: markerIcon }).addTo(mapPickerInstance)
+      }
+
+      searchResults.value = []
+      
+      $q.notify({
+        type: 'positive',
+        message: 'Location selected',
+        icon: 'place',
+        position: 'top'
+      })
     }
 
     const checkRouteConflicts = async (newRoute) => {
@@ -937,9 +1134,6 @@ export default {
       saving.value = true
       try {
         console.log('[Save] Starting save process...')
-        console.log('[Save] Edit mode:', editMode.value)
-        console.log('[Save] Image file selected:', formData.imageFile)
-        console.log('[Save] Existing image URL:', formData.imageUrl)
 
         let imageUrl = null
 
@@ -950,7 +1144,6 @@ export default {
             console.log('[Save] Deleting old image:', formData.imageUrl)
             try {
               await deleteImage(formData.imageUrl)
-              console.log('[Save] Old image deleted successfully')
             } catch (error) {
               console.error('[Save] Error deleting old image:', error)
             }
@@ -958,16 +1151,13 @@ export default {
           
           try {
             imageUrl = await uploadImage(formData.imageFile)
-            console.log('[Save] New image uploaded successfully:', imageUrl)
+            console.log('[Save] New image uploaded:', imageUrl)
           } catch (error) {
-            console.error('[Save] Error uploading new image:', error)
+            console.error('[Save] Error uploading image:', error)
             throw new Error('Failed to upload image: ' + error.message)
           }
         } else if (editMode.value && formData.imageUrl) {
           imageUrl = formData.imageUrl
-          console.log('[Save] Keeping existing image URL:', imageUrl)
-        } else {
-          console.log('[Save] No image provided')
         }
 
         const routeData = {
@@ -1006,7 +1196,6 @@ export default {
 
         if (imageUrl) {
           routeData.imageUrl = imageUrl
-          console.log('[Save] Adding imageUrl to route data:', imageUrl)
         }
 
         if (editMode.value) {
@@ -1015,10 +1204,7 @@ export default {
           routeData.createdAt = new Date().toISOString()
         }
 
-        console.log('[Save] Final route data:', routeData)
-
         if (editMode.value && formData.id) {
-          console.log('[Save] Updating existing route:', formData.id)
           await updateDoc(doc(db, 'routes', formData.id), routeData)
           $q.notify({
             type: 'positive',
@@ -1027,7 +1213,6 @@ export default {
             position: 'top',
           })
         } else {
-          console.log('[Save] Creating new route')
           await addDoc(collection(db, 'routes'), routeData)
           $q.notify({
             type: 'positive',
@@ -1037,7 +1222,6 @@ export default {
           })
         }
 
-        console.log('[Save] Save completed successfully')
         await fetchRoutes()
         closeDialog()
         
@@ -1077,7 +1261,6 @@ export default {
         imageUrl: route.imageUrl || null,
         createdAt: route.createdAt || null,
       }
-      console.log('[Edit] Form populated with route data')
       showDialog.value = true
     }
 
@@ -1149,6 +1332,10 @@ export default {
     const openMapPicker = (mode) => {
       pickerMode.value = mode
       tempCoords.value = null
+      locationSearch.value = ''
+      searchResults.value = []
+      searchAttempted.value = false
+      selectedLocationName.value = ''
       showMapPicker.value = true
 
       nextTick(() => {
@@ -1193,12 +1380,19 @@ export default {
       mapPickerInstance.on('click', (e) => {
         const { lat, lng } = e.latlng
         tempCoords.value = { lat, lng }
+        selectedLocationName.value = 'Manual selection'
 
         if (markerInstance) {
           mapPickerInstance.removeLayer(markerInstance)
         }
 
         markerInstance = L.marker([lat, lng], { icon: markerIcon }).addTo(mapPickerInstance)
+
+        $q.notify({
+          type: 'info',
+          message: 'Location selected from map',
+          position: 'top'
+        })
       })
     }
 
@@ -1230,6 +1424,10 @@ export default {
       }
       markerInstance = null
       tempCoords.value = null
+      locationSearch.value = ''
+      searchResults.value = []
+      searchAttempted.value = false
+      selectedLocationName.value = ''
       showMapPicker.value = false
     }
 
@@ -1283,7 +1481,6 @@ export default {
           const reader = new FileReader()
           reader.onload = (e) => {
             imagePreview.value = e.target.result
-            console.log('[Watch] Image preview generated')
           }
           reader.readAsDataURL(newFile)
         } else {
@@ -1326,6 +1523,15 @@ export default {
       showVariantDialog,
       variantType,
       variantOptions,
+      // Location search
+      locationSearch,
+      searchResults,
+      searching,
+      searchAttempted,
+      selectedLocationName,
+      searchLocation,
+      selectSearchResult,
+      // Functions
       resolveConflict,
       createVariant,
       cancelAllConflicts,
@@ -1357,6 +1563,10 @@ export default {
   background: #f5f5f5
   padding: 12px
   border-radius: 8px
+
+.search-result-item
+  &:hover
+    background: #f0f0f0
 
 :deep(.custom-marker)
   background: transparent
