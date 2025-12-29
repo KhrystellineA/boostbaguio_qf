@@ -60,7 +60,7 @@ export default {
 
 <style lang="scss" scoped>
 .guide-section {
-  background: #9db98f;
+  background: #7ab56d;
   padding: 5rem 0;
 }
 
@@ -70,7 +70,6 @@ export default {
   padding: 0 2rem;
 }
 
-// Header
 .guide-header {
   margin-bottom: 3rem;
 }

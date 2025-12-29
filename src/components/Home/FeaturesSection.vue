@@ -79,10 +79,7 @@
 
       <!-- Action Buttons -->
       <div class="action-buttons">
-        <q-btn label="Learn More" outline rounded class="learn-btn" size="md" />
-        <q-btn label="Sign Up" flat class="signup-btn" size="md">
-          <q-icon name="arrow_forward" size="18px" class="q-ml-xs" />
-        </q-btn>
+        <q-btn label="Learn More" outline rounded class="learn-btn" size="md" to="/pagnaam" />
       </div>
     </div>
   </section>
