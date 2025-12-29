@@ -81,12 +81,7 @@
               </q-chip>
 
               <!-- User Dropdown -->
-              <q-btn-dropdown
-                flat
-                no-caps
-                class="user-dropdown-btn"
-                dropdown-icon="expand_more"
-              >
+              <q-btn-dropdown flat no-caps class="user-dropdown-btn" dropdown-icon="expand_more">
                 <template v-slot:label>
                   <div class="row items-center no-wrap">
                     <q-avatar size="32px" color="primary" text-color="white">
@@ -250,15 +245,14 @@ const drawer = ref(false)
 const navLinks = [
   { label: 'APANAM', path: 'apanam' },
   { label: 'PAGNAAM', path: 'pagnaam' },
-  { label: 'ARAMIDEM', path: 'aramidem' },
 ]
 
 const moreOptions = [
-  { label: 'Features', path: 'features' },
-  { label: 'Routes', path: 'routes' },
-  { label: 'About', path: 'about' },
-  { label: 'Contact', path: 'contact' },
-  { label: 'FAQ', path: 'faq' },
+  { label: 'APANAM', path: 'apanam' },
+  { label: 'PAGNAAM', path: 'pagnaam' },
+  { label: 'ARAMIDEM', path: 'aramidem' },
+  { label: 'MAYKAN', path: 'maykan' },
+  { label: 'AYAN MO', path: 'ayanmo' },
 ]
 
 // Get user initials for avatar
@@ -288,12 +282,12 @@ const handleMyAccount = () => {
 
 const handleLogout = async () => {
   drawer.value = false
-  
+
   $q.dialog({
     title: 'Confirm Logout',
     message: 'Are you sure you want to sign out?',
     cancel: true,
-    persistent: true
+    persistent: true,
   }).onOk(async () => {
     await userStore.logout()
     router.push('/')
@@ -417,7 +411,7 @@ const handleLogout = async () => {
 .user-dropdown-btn {
   padding: 0.25rem 0.75rem;
   border-radius: 8px;
-  
+
   &:hover {
     background: rgba(0, 0, 0, 0.04);
   }

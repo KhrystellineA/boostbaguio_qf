@@ -56,7 +56,7 @@
       <div class="faqs-cta">
         <h3 class="cta-title">STILL HAVE QUESTIONS?</h3>
         <p class="cta-description">We're here to help you!</p>
-        <q-btn label="Contact" unelevated rounded class="contact-btn" size="md" />
+        <q-btn label="Contact" unelevated rounded class="contact-btn" size="md" to="/contact" />
       </div>
     </div>
   </section>

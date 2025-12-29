@@ -32,7 +32,7 @@ export default {
 
 <style lang="scss" scoped>
 .about-section {
-  background: #c8d5b9;
+  background: #9ec98f;
   padding: 5rem 0;
 }
 
