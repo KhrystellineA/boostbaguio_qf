@@ -276,8 +276,23 @@ const handleSignup = () => {
 }
 
 const handleMyAccount = () => {
+  console.log('🔵 STEP 1: handleMyAccount called')
+  console.log('🔵 STEP 2: Current route:', router.currentRoute.value.path)
+  console.log('🔵 STEP 3: Drawer value:', drawer.value)
+  
   drawer.value = false
-  router.push('/account')
+  
+  console.log('🔵 STEP 4: About to push /account')
+  
+  const pushResult = router.push('/account')
+  console.log('🔵 STEP 5: Push returned:', pushResult)
+  
+  pushResult.then(() => {
+    console.log('🔵 STEP 6: Push completed')
+    console.log('🔵 STEP 7: New route:', router.currentRoute.value.path)
+  }).catch(err => {
+    console.error('🔵 STEP 6: Push error:', err)
+  })
 }
 
 const handleLogout = async () => {

@@ -1,7 +1,6 @@
 <template>
   <q-page class="flex flex-center bg-page">
     <q-card class="login-card q-pa-lg" flat bordered>
-      <!-- Logo/Header -->
       <q-card-section class="text-center q-pb-md">
         <div class="text-h3 text-weight-bold text-primary q-mb-xs">
           Baguio Boost
@@ -11,7 +10,6 @@
         </div>
       </q-card-section>
 
-      <!-- Tabs for Login/Signup -->
       <q-tabs
         v-model="tab"
         class="q-mb-md"
@@ -27,7 +25,6 @@
       <q-separator class="q-mb-md" />
 
       <q-tab-panels v-model="tab" animated transition-prev="fade" transition-next="fade">
-        <!-- Login Panel -->
         <q-tab-panel name="login" class="q-px-none">
           <q-form @submit="handleLogin" class="q-gutter-md">
             <q-input
@@ -78,9 +75,15 @@
               />
             </div>
           </q-form>
+          
+          <div class="text-center q-mt-md">
+            <q-separator class="q-mb-sm" />
+            <div class="text-caption text-grey-7">
+              Admin? <a @click="$router.push('/admin/adminlogin')" class="text-primary cursor-pointer">Login here</a>
+            </div>
+          </div>
         </q-tab-panel>
 
-        <!-- Signup Panel -->
         <q-tab-panel name="signup" class="q-px-none">
           <q-form @submit="handleSignup" class="q-gutter-md">
             <q-input
@@ -165,7 +168,6 @@
         </q-tab-panel>
       </q-tab-panels>
 
-      <!-- Premium Features Info -->
       <q-separator class="q-my-md" />
       
       <q-card-section class="q-py-md">
@@ -183,9 +185,11 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useQuasar } from 'quasar'
 import { useUserStore } from 'stores/user-store'
 
 const router = useRouter()
+const $q = useQuasar()
 const userStore = useUserStore()
 
 const tab = ref('login')
@@ -206,25 +210,83 @@ const signupForm = ref({
 
 const handleLogin = async () => {
   loading.value = true
-  const result = await userStore.signIn(loginForm.value.email, loginForm.value.password)
-  loading.value = false
-
-  if (result.success) {
-    router.push('/')
+  
+  try {
+    sessionStorage.removeItem('adminRole')
+    sessionStorage.removeItem('adminData')
+    sessionStorage.removeItem('adminUid')
+    
+    const result = await userStore.signIn(loginForm.value.email, loginForm.value.password)
+    
+    if (result.success) {
+      $q.notify({
+        type: 'positive',
+        message: 'Welcome back!',
+        icon: 'check_circle',
+        position: 'top'
+      })
+      router.push('/')
+    } else {
+      $q.notify({
+        type: 'negative',
+        message: result.message || 'Login failed',
+        icon: 'error',
+        position: 'top'
+      })
+    }
+  } catch (error) {
+    console.error('[AuthPage] Login error:', error)
+    $q.notify({
+      type: 'negative',
+      message: error.message || 'Login failed. Please try again.',
+      icon: 'error',
+      position: 'top'
+    })
+  } finally {
+    loading.value = false
   }
 }
 
 const handleSignup = async () => {
   loading.value = true
-  const result = await userStore.signUp(
-    signupForm.value.email,
-    signupForm.value.password,
-    signupForm.value.displayName
-  )
-  loading.value = false
+  
+  try {
+    sessionStorage.removeItem('adminRole')
+    sessionStorage.removeItem('adminData')
+    sessionStorage.removeItem('adminUid')
+    
+    const result = await userStore.signUp(
+      signupForm.value.email,
+      signupForm.value.password,
+      signupForm.value.displayName
+    )
 
-  if (result.success) {
-    router.push('/')
+    if (result.success) {
+      $q.notify({
+        type: 'positive',
+        message: 'Account created successfully!',
+        icon: 'check_circle',
+        position: 'top'
+      })
+      router.push('/')
+    } else {
+      $q.notify({
+        type: 'negative',
+        message: result.message || 'Signup failed',
+        icon: 'error',
+        position: 'top'
+      })
+    }
+  } catch (error) {
+    console.error('[AuthPage] Signup error:', error)
+    $q.notify({
+      type: 'negative',
+      message: error.message || 'Signup failed. Please try again.',
+      icon: 'error',
+      position: 'top'
+    })
+  } finally {
+    loading.value = false
   }
 }
 </script>
@@ -239,5 +301,14 @@ const handleSignup = async () => {
   width: 100%;
   max-width: 420px;
   background: white;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.cursor-pointer:hover {
+  text-decoration: underline;
 }
 </style>

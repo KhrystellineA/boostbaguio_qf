@@ -130,6 +130,21 @@
             </q-item-section>
           </q-item>
 
+          <q-item
+            clickable
+            v-ripple
+            :active="activeMenu === 'photos'"
+            @click="activeMenu = 'photos'"
+            active-class="bg-pine-green text-white"
+          >
+            <q-item-section avatar>
+              <q-icon name="photo_library" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Page Photos</q-item-label>
+            </q-item-section>
+          </q-item>
+
           <q-separator class="q-my-md" />
 
           <q-item-label header class="text-weight-bold text-grey-8"> Management </q-item-label>
@@ -415,12 +430,11 @@
           @dialog-opened="onDialogOpened('event')"
         />
 
+        <PhotosManagement v-else-if="activeMenu === 'photos'" />
+
         <AdminsManagement v-else-if="activeMenu === 'admins'" />
 
-        <div v-else-if="activeMenu === 'analytics'" class="content-section">
-          <h4 class="text-pine-green">Analytics</h4>
-          <p class="text-grey-7">View usage statistics and analytics</p>
-        </div>
+        <AnalyticsManagement v-else-if="activeMenu === 'analytics'" />
 
         <div v-else-if="activeMenu === 'settings'" class="content-section">
           <h4 class="text-pine-green">Settings</h4>
@@ -441,6 +455,8 @@ import PlacesManagement from 'src/components/admin/PlacesManagement.vue'
 import EventsManagement from 'src/components/admin/EventsManagement.vue'
 import AdminsManagement from 'src/components/admin/AdminsManagement.vue'
 import JeepneyOptionsManagement from 'src/components/admin/JeepneyOptionsManagement.vue'
+import PhotosManagement from 'src/components/admin/PhotosManagement.vue'
+import AnalyticsManagement from 'src/components/admin/AnalyticsManagement.vue'
 
 export default {
   name: 'AdminDashboard',
@@ -451,6 +467,8 @@ export default {
     EventsManagement,
     AdminsManagement,
     JeepneyOptionsManagement,
+    PhotosManagement,
+    AnalyticsManagement,
   },
 
   setup() {

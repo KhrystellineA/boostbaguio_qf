@@ -5,9 +5,16 @@
         <div class="hero-box">
           <div class="hero-bg-wrapper">
             <q-img
-              src="https://images.unsplash.com/photo-1511497584788-876760111969?w=1920&h=900&fit=crop"
+              :src="heroImage || defaultHeroImage"
               class="hero-bg"
-            />
+              :ratio="16/9"
+            >
+              <template v-slot:loading>
+                <div class="absolute-full flex flex-center">
+                  <q-spinner color="white" size="50px" />
+                </div>
+              </template>
+            </q-img>
             <div class="hero-overlay"></div>
           </div>
 
@@ -162,6 +169,8 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
+import { db } from 'src/boot/firebase'
+import { doc, getDoc } from 'firebase/firestore'
 import FeaturesSection from '../components/Home/FeaturesSection.vue'
 import GuideSection from '../components/Home/GuideSection.vue'
 import AboutSection from '../components/Home/AboutSection.vue'
@@ -186,6 +195,8 @@ export default {
     const toLocation = ref(null)
     const fromLocationOptions = ref([])
     const toLocationOptions = ref([])
+    const heroImage = ref('')
+    const defaultHeroImage = 'https://images.unsplash.com/photo-1511497584788-876760111969?w=1920&h=900&fit=crop'
 
     const baguioLocations = [
       { label: 'SM City Baguio', value: 'sm-baguio', coords: [16.4088516, 120.5972273] },
@@ -208,6 +219,34 @@ export default {
       { label: 'Lourdes Grotto', value: 'lourdes-grotto', coords: [16.4253, 120.5972] },
       { label: 'PMA (Philippine Military Academy)', value: 'pma', coords: [16.3928, 120.5962] },
     ]
+
+    const loadHeroImage = async () => {
+      try {
+        console.log('[IndexPage] Loading hero image from Firebase...')
+        const docRef = doc(db, 'pagePhotos', 'home')
+        const docSnap = await getDoc(docRef)
+        
+        if (docSnap.exists()) {
+          const data = docSnap.data()
+          if (data.imageUrl) {
+            heroImage.value = data.imageUrl
+            console.log('[IndexPage] Hero image loaded:', data.imageUrl)
+          } else {
+            console.log('[IndexPage] No custom hero image, using default')
+          }
+        } else {
+          console.log('[IndexPage] No hero image document, using default')
+        }
+      } catch (error) {
+        console.error('[IndexPage] Error loading hero image:', error)
+        $q.notify({
+          type: 'warning',
+          message: 'Using default hero image',
+          position: 'top',
+          timeout: 2000
+        })
+      }
+    }
 
     const filterFromLocations = (val, update) => {
       update(() => {
@@ -306,12 +345,17 @@ export default {
     let observer
 
     onMounted(() => {
+      // Load hero image from Firebase
+      loadHeroImage()
+
+      // Initialize location options
       fromLocationOptions.value = [
         { label: '📍 Use Current Location', value: 'current-location', isCurrentLocation: true },
         ...baguioLocations,
       ]
       toLocationOptions.value = [...baguioLocations]
 
+      // Setup scroll animations
       setTimeout(() => {
         observer = observeElements()
       }, 100)
@@ -328,6 +372,8 @@ export default {
       toLocation,
       fromLocationOptions,
       toLocationOptions,
+      heroImage,
+      defaultHeroImage,
       filterFromLocations,
       filterToLocations,
       startNavigation,

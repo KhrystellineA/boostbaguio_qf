@@ -1,13 +1,12 @@
 <template>
   <q-page class="ayan-mo-page">
-    <section class="hero-section">
+    <!-- Hero Section - UPDATED: Dynamic background -->
+    <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
       <div class="hero-overlay">
         <div class="hero-content animate-fade-in">
-          <h1 class="hero-title">DISCOVER BAGUIO'S HIDDEN GEMS NEAR YOU</h1>
+          <h1 class="hero-title">AYAN MO</h1>
           <p class="hero-description">
-            Explore Near You! Mini-tourist spots, cafes, affordable restaurants, and more locations within
-            Baguio City. Get personalized suggestions based on your current location and easily
-            navigate to them using Apanam.
+           With our Near Me feature. you can easily explore nearby attractions and local favorites in Baguio City. Get personalized recommendations based on your locations and enjoy a seamless travel experience.
           </p>
           <div class="search-bar-wrapper">
             <q-input
@@ -122,17 +121,19 @@
             <q-btn
               label="Explore"
               unelevated
-              color="primary"
+              color="white"
+              text-color="black"
               size="lg"
               padding="10px 32px"
-              class="btn-hover-lift"
+              class="btn-hover-lift explore-btn"
               @click="scrollToPlaces"
             />
           </div>
 
+          <!-- UPDATED: Dynamic discovery image -->
           <div class="discovery-image">
-            <div class="image-placeholder">
-              <q-icon name="place" size="120px" color="grey-5" />
+            <div class="image-placeholder" :style="discoveryImageUrl ? { backgroundImage: `url(${discoveryImageUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}">
+              <q-icon v-if="!discoveryImageUrl" name="place" size="120px" color="grey-5" />
             </div>
           </div>
         </div>
@@ -368,7 +369,10 @@ import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { db } from 'src/boot/firebase'
+import { doc, getDoc } from 'firebase/firestore'
 import FooterSection from '../components/Home/FooterSection.vue'
+import heroFallback from '../assets/30.png'
 
 export default defineComponent({
   name: 'AyanMoPage',
@@ -395,6 +399,8 @@ export default defineComponent({
     const selectedCategory = ref('all')
     const selectedRadius = ref(500)
     const places = ref([])
+    const heroImageUrl = ref(heroFallback)
+    const discoveryImageUrl = ref(null)
 
     const radiusOptions = [
       { label: '500m', value: 500 },
@@ -439,6 +445,40 @@ export default defineComponent({
         isOpen: false,
       },
     ])
+
+    const fetchHeroImage = async () => {
+      try {
+        console.log('[AyanMoPage] Fetching hero image from Firestore...')
+        const docRef = doc(db, 'pagePhotos', 'ayanmo')
+        const docSnap = await getDoc(docRef)
+        
+        if (docSnap.exists() && docSnap.data().imageUrl) {
+          heroImageUrl.value = docSnap.data().imageUrl
+          console.log('[AyanMoPage] Hero image loaded:', heroImageUrl.value)
+        } else {
+          console.log('[AyanMoPage] No hero image found, using fallback')
+        }
+      } catch (error) {
+        console.error('[AyanMoPage] Error fetching hero image:', error)
+      }
+    }
+
+    const fetchDiscoveryImage = async () => {
+      try {
+        console.log('[AyanMoPage] Fetching discovery image from Firestore...')
+        const docRef = doc(db, 'pagePhotos', 'ayanmo-discovery')
+        const docSnap = await getDoc(docRef)
+        
+        if (docSnap.exists() && docSnap.data().imageUrl) {
+          discoveryImageUrl.value = docSnap.data().imageUrl
+          console.log('[AyanMoPage] Discovery image loaded:', discoveryImageUrl.value)
+        } else {
+          console.log('[AyanMoPage] No discovery image found')
+        }
+      } catch (error) {
+        console.error('[AyanMoPage] Error fetching discovery image:', error)
+      }
+    }
 
     watch(searchQuery, (newVal) => {
       if (!newVal) {
@@ -596,9 +636,7 @@ export default defineComponent({
         
       } catch (error) {
         console.error('Error fetching places:', error)
-        
         loadFallbackPlaces(category)
-        
         $q.notify({
           message: 'Loaded sample places (API temporarily unavailable)',
           color: 'warning',
@@ -851,9 +889,7 @@ export default defineComponent({
 
       if (map) {
         map.setView(place.coords, 16)
-        
         updateMapMarkers()
-        
         if (selectedMarker) {
           selectedMarker.openPopup()
         }
@@ -1004,6 +1040,9 @@ export default defineComponent({
     }
 
     onMounted(() => {
+      fetchHeroImage()
+      fetchDiscoveryImage()
+      
       setTimeout(async () => {
         initMap()
         loadFallbackPlaces('all')
@@ -1038,6 +1077,8 @@ export default defineComponent({
       filteredPlaces,
       faqs,
       mapContainer,
+      heroImageUrl,
+      discoveryImageUrl,
       calculateDistance,
       getCategoryIcon,
       getUserLocation,
@@ -1128,7 +1169,9 @@ $brown-bg: #5d4e37;
 .hero-section {
   position: relative;
   min-height: 500px;
-  background: linear-gradient(135deg, $primary-green 0%, $dark-green 100%);
+  background-size: cover;     
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   align-items: center;
   overflow: visible;
@@ -1809,7 +1852,17 @@ $brown-bg: #5d4e37;
 
     .explore-btn {
       border-width: 2px;
+      border-radius: 999px; 
     }
+    .explore-btn .q-btn__wrapper::before {
+  border: 1px solid #222;      
+  border-radius: 999px;
+}
+  
+.explore-btn .q-btn__content {
+  font-weight: 500;
+  font-size: 14px;
+}
   }
 
   .faqs-list {

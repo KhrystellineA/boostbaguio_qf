@@ -40,13 +40,19 @@
           </div>
         </div>
 
-        <!-- Center Image -->
+        <!-- Center Image - NOW DYNAMIC -->
         <div class="center-image">
           <q-img
-            src="https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=600&h=800&fit=crop"
+            :src="featureImage || defaultImage"
             class="tower-image"
             :ratio="3 / 4"
-          />
+          >
+            <template v-slot:loading>
+              <div class="absolute-full flex flex-center">
+                <q-spinner color="primary" size="40px" />
+              </div>
+            </template>
+          </q-img>
         </div>
 
         <!-- Right Column -->
@@ -86,8 +92,44 @@
 </template>
 
 <script>
+import { ref, onMounted } from 'vue'
+import { db } from 'src/boot/firebase'
+import { doc, getDoc } from 'firebase/firestore'
+
 export default {
   name: 'FeaturesSection',
+  
+  setup() {
+    const featureImage = ref('')
+    const defaultImage = 'https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=600&h=800&fit=crop'
+
+    const loadFeatureImage = async () => {
+      try {
+        console.log('[FeaturesSection] Loading image from Firebase...')
+        const docRef = doc(db, 'pagePhotos', 'home-features')
+        const docSnap = await getDoc(docRef)
+        
+        if (docSnap.exists()) {
+          const data = docSnap.data()
+          if (data.imageUrl) {
+            featureImage.value = data.imageUrl
+            console.log('[FeaturesSection] Image loaded:', data.imageUrl)
+          }
+        }
+      } catch (error) {
+        console.error('[FeaturesSection] Error loading image:', error)
+      }
+    }
+
+    onMounted(() => {
+      loadFeatureImage()
+    })
+
+    return {
+      featureImage,
+      defaultImage,
+    }
+  },
 }
 </script>
 

@@ -1,10 +1,10 @@
 <template>
   <q-page class="landing-page">
-    <section class="hero-section">
+    <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
       <div class="hero-overlay">
         <div class="hero-content animate-fade-in">
           <div class="text-overline text-white q-mb-sm">Navigate</div>
-          <h1 class="hero-title">EXPLORE JEEPNEY ROUTES</h1>
+          <h1 class="hero-title">PAGNAAM</h1>
           <p class="hero-description">
             Discover Baguio's jeepney routes with real-time updates and seamless navigation at your
             fingertips.
@@ -80,7 +80,15 @@
 
           <div class="features-image-col">
             <div class="features-image-wrapper section-animate">
-              <img src="../assets/img1.png" alt="Jeepneys on street" class="features-image" />
+              <img 
+                v-if="featuresImageUrl" 
+                :src="featuresImageUrl" 
+                alt="Jeepneys on street" 
+                class="features-image" 
+              />
+              <div v-else class="features-placeholder">
+                <q-icon name="directions_bus" size="80px" color="white" style="opacity: 0.5" />
+              </div>
             </div>
           </div>
         </div>
@@ -98,20 +106,17 @@
         </div>
 
         <div class="jeepneys-grid">
-          <!-- Loading State -->
           <div v-if="isLoadingRoutes" class="text-center q-pa-xl">
             <q-spinner-dots color="primary" size="50px" />
             <p class="text-grey-7 q-mt-md">Loading jeepney routes...</p>
           </div>
 
-          <!-- Empty State -->
           <div v-else-if="displayedJeepneys.length === 0" class="text-center q-pa-xl">
             <q-icon name="directions_bus" size="80px" color="grey-5" />
             <p class="text-h6 text-grey-7 q-mt-md">No routes available</p>
             <p class="text-grey-6">Please check back later or add routes in the admin panel.</p>
           </div>
 
-          <!-- Jeepney Cards -->
           <div v-else>
             <div class="jeepney-cards-wrapper">
               <div
@@ -444,9 +449,11 @@ import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { db } from 'src/boot/firebase'
-import { collection, getDocs, query, orderBy } from 'firebase/firestore'
+import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore'
 import FAQSection from '../components/Home/FAQSection.vue'
 import FooterSection from '../components/Home/FooterSection.vue'
+import heroFallback from '../assets/44.png'
+import featuresFallback from '../assets/img1.png'
 
 export default defineComponent({
   name: 'PagnaamPage',
@@ -478,6 +485,8 @@ export default defineComponent({
 
     const jeepneys = ref([])
     const isLoadingRoutes = ref(false)
+    const heroImageUrl = ref(heroFallback)
+    const featuresImageUrl = ref(featuresFallback)
 
     let observer = null
 
@@ -486,6 +495,40 @@ export default defineComponent({
       console.log('[DisplayedJeepneys] Count:', displayed.length, 'Data:', displayed)
       return displayed
     })
+
+    const fetchHeroImage = async () => {
+      try {
+        console.log('[PagnaamPage] Fetching hero image from Firestore...')
+        const docRef = doc(db, 'pagePhotos', 'pagnaam')
+        const docSnap = await getDoc(docRef)
+        
+        if (docSnap.exists() && docSnap.data().imageUrl) {
+          heroImageUrl.value = docSnap.data().imageUrl
+          console.log('[PagnaamPage] Hero image loaded:', heroImageUrl.value)
+        } else {
+          console.log('[PagnaamPage] No hero image found, using fallback')
+        }
+      } catch (error) {
+        console.error('[PagnaamPage] Error fetching hero image:', error)
+      }
+    }
+
+    const fetchFeaturesImage = async () => {
+      try {
+        console.log('[PagnaamPage] Fetching features image from Firestore...')
+        const docRef = doc(db, 'pagePhotos', 'pagnaam-features')
+        const docSnap = await getDoc(docRef)
+        
+        if (docSnap.exists() && docSnap.data().imageUrl) {
+          featuresImageUrl.value = docSnap.data().imageUrl
+          console.log('[PagnaamPage] Features image loaded:', featuresImageUrl.value)
+        } else {
+          console.log('[PagnaamPage] No features image found, using fallback')
+        }
+      } catch (error) {
+        console.error('[PagnaamPage] Error fetching features image:', error)
+      }
+    }
 
     const observeElements = () => {
       const options = {
@@ -997,6 +1040,9 @@ export default defineComponent({
     onMounted(async () => {
       console.log('[LandingPage] Component mounted')
 
+      fetchHeroImage()
+      fetchFeaturesImage()
+
       setTimeout(() => {
         observeElements()
       }, 100)
@@ -1046,6 +1092,8 @@ export default defineComponent({
       distanceToTerminal,
       estimatedWalkingTime,
       navigationRoute,
+      heroImageUrl,
+      featuresImageUrl,
       handleSearch,
       scrollToSection,
       selectJeepney,
@@ -1176,7 +1224,6 @@ $text-light: #666;
 .hero-section {
   position: relative;
   min-height: 700px;
-  background-image: url('../assets/44.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -1325,11 +1372,24 @@ $text-light: #666;
       border-radius: 12px;
       overflow: hidden;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.2);
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       .features-image {
         width: 100%;
         height: auto;
         display: block;
+      }
+
+      .features-placeholder {
+        width: 100%;
+        height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
     }
   }
