@@ -159,7 +159,7 @@ export default defineConfig((/* ctx */) => {
     cfg.skipWaiting = true
     cfg.clientsClaim = true
     cfg.cleanupOutdatedCaches = true
-    
+    cfg.navigateFallback = '/index.html'
     // Add caching strategies
     cfg.runtimeCaching = [
       // Google Fonts

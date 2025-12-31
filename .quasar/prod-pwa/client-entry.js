@@ -146,7 +146,9 @@ createQuasarApp(createApp, quasarUserOptions)
       
       import('boot/pinia'),
       
-      import('boot/firebase')
+      import('boot/firebase'),
+      
+      import('boot/router-guards')
       
     ]).then(bootFiles => {
       const boot = mapFn(bootFiles).filter(entry => typeof entry === 'function')
