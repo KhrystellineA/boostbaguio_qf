@@ -18,9 +18,6 @@ const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const storage = getStorage(app)
 
-// =========================================
-// MODERN OFFLINE PERSISTENCE (No deprecation warnings!)
-// =========================================
 const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
     cacheSizeBytes: 50 * 1024 * 1024, 
