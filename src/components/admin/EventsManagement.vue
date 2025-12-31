@@ -39,6 +39,15 @@
           flat
           bordered
         >
+          <template #body-cell-image="props">
+            <q-td :props="props">
+              <q-avatar v-if="props.value" size="60px" square>
+                <img :src="props.value" />
+              </q-avatar>
+              <q-icon v-else name="image" size="40px" color="grey-4" />
+            </q-td>
+          </template>
+
           <template #body-cell-status="props">
             <q-td :props="props">
               <q-badge :color="getStatusColor(props.value)">
@@ -75,13 +84,52 @@
       </q-card-section>
     </q-card>
 
-    <q-dialog v-model="showAddDialog">
-      <q-card style="min-width: 500px">
+    <q-dialog v-model="showAddDialog" @hide="onDialogHide">
+      <q-card style="min-width: 500px; max-width: 600px">
         <q-card-section>
           <div class="text-h6 text-pine-green">{{ editingEvent ? 'Edit Event' : 'Add New Event' }}</div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
+          <div class="q-mb-md">
+            <div class="text-subtitle2 q-mb-sm">Event Image</div>
+            
+            <div v-if="imagePreview || form.imageUrl" class="image-preview-container q-mb-sm">
+              <img :src="imagePreview || form.imageUrl" class="image-preview" />
+              <q-btn
+                round
+                dense
+                icon="close"
+                color="negative"
+                size="sm"
+                class="remove-image-btn"
+                @click="removeImage"
+              >
+                <q-tooltip>Remove Image</q-tooltip>
+              </q-btn>
+            </div>
+
+            <!-- Upload Button -->
+            <q-file
+              v-model="imageFile"
+              outlined
+              label="Choose Event Image"
+              accept="image/*"
+              max-file-size="5242880"
+              @update:model-value="onImageSelected"
+              @rejected="onImageRejected"
+            >
+              <template #prepend>
+                <q-icon name="image" />
+              </template>
+              <template #hint>
+                Max 5MB (JPG, PNG, WebP)
+              </template>
+            </q-file>
+          </div>
+
+          <q-separator class="q-my-md" />
+
           <q-input
             v-model="form.title"
             outlined
@@ -191,6 +239,7 @@
 <script>
 import { db } from 'src/boot/firebase'
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore'
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { useQuasar } from 'quasar'
 
 export default {
@@ -209,6 +258,8 @@ export default {
       saving: false,
       showAddDialog: false,
       editingEvent: null,
+      imageFile: null,
+      imagePreview: null,
       form: {
         title: '',
         location: '',
@@ -220,10 +271,13 @@ export default {
         organizer: '',
         contactEmail: '',
         contactPhone: '',
-        description: ''
+        description: '',
+        imageUrl: '',
+        imagePath: '' 
       },
       statusOptions: ['Upcoming', 'Ongoing', 'Completed', 'Cancelled'],
       columns: [
+        { name: 'image', label: 'Image', field: 'imageUrl', align: 'center' },
         { name: 'title', label: 'Event Title', field: 'title', align: 'left', sortable: true },
         { name: 'location', label: 'Location', field: 'location', align: 'left' },
         { name: 'startDate', label: 'Start Date', field: 'startDate', align: 'left', sortable: true },
@@ -272,6 +326,75 @@ export default {
       }
     },
 
+    onImageSelected(file) {
+      if (file) {
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          this.imagePreview = e.target.result
+        }
+        reader.readAsDataURL(file)
+      }
+    },
+
+    onImageRejected(rejectedEntries) {
+      const reason = rejectedEntries[0]?.failedPropValidation
+      let message = 'Image upload failed'
+      
+      if (reason === 'max-file-size') {
+        message = 'Image size must be less than 5MB'
+      } else if (reason === 'accept') {
+        message = 'Only image files are allowed'
+      }
+      
+      this.$q.notify({
+        type: 'negative',
+        message: message,
+        position: 'top'
+      })
+    },
+
+    removeImage() {
+      this.imageFile = null
+      this.imagePreview = null
+      this.form.imageUrl = ''
+      this.form.imagePath = ''
+    },
+
+    async uploadImage(eventId) {
+      if (!this.imageFile) return null
+
+      try {
+        const storage = getStorage()
+        const timestamp = Date.now()
+        const fileName = `${eventId}_${timestamp}_${this.imageFile.name}`
+        const storageRef = ref(storage, `events/${fileName}`)
+
+        await uploadBytes(storageRef, this.imageFile)
+        
+        const downloadURL = await getDownloadURL(storageRef)
+        
+        return {
+          imageUrl: downloadURL,
+          imagePath: `events/${fileName}`
+        }
+      } catch (error) {
+        console.error('[Events] Error uploading image:', error)
+        throw error
+      }
+    },
+
+    async deleteImage(imagePath) {
+      if (!imagePath) return
+
+      try {
+        const storage = getStorage()
+        const imageRef = ref(storage, imagePath)
+        await deleteObject(imageRef)
+      } catch (error) {
+        console.error('[Events] Error deleting image:', error)
+      }
+    },
+
     editEvent(event) {
       this.editingEvent = event
       this.form = { ...event }
@@ -290,6 +413,20 @@ export default {
 
       this.saving = true
       try {
+        let imageData = {
+          imageUrl: this.form.imageUrl || '',
+          imagePath: this.form.imagePath || ''
+        }
+
+        if (this.imageFile) {
+          if (this.editingEvent?.imagePath) {
+            await this.deleteImage(this.editingEvent.imagePath)
+          }
+
+          const eventId = this.editingEvent?.id || `temp_${Date.now()}`
+          imageData = await this.uploadImage(eventId)
+        }
+
         const eventData = {
           title: this.form.title,
           location: this.form.location,
@@ -302,6 +439,8 @@ export default {
           contactEmail: this.form.contactEmail || '',
           contactPhone: this.form.contactPhone || '',
           description: this.form.description || '',
+          imageUrl: imageData.imageUrl,
+          imagePath: imageData.imagePath,
           updatedAt: serverTimestamp()
         }
 
@@ -310,7 +449,8 @@ export default {
           this.$q.notify({
             type: 'positive',
             message: 'Event updated successfully',
-            position: 'top'
+            position: 'top',
+            icon: 'check_circle'
           })
         } else {
           eventData.createdAt = serverTimestamp()
@@ -318,7 +458,8 @@ export default {
           this.$q.notify({
             type: 'positive',
             message: 'Event created successfully',
-            position: 'top'
+            position: 'top',
+            icon: 'check_circle'
           })
         }
 
@@ -345,11 +486,17 @@ export default {
         persistent: true
       }).onOk(async () => {
         try {
+          if (event.imagePath) {
+            await this.deleteImage(event.imagePath)
+          }
+
           await deleteDoc(doc(db, 'events', event.id))
+          
           this.$q.notify({
             type: 'positive',
             message: 'Event deleted successfully',
-            position: 'top'
+            position: 'top',
+            icon: 'delete'
           })
           this.loadEvents()
         } catch (error) {
@@ -385,9 +532,17 @@ export default {
         organizer: '',
         contactEmail: '',
         contactPhone: '',
-        description: ''
+        description: '',
+        imageUrl: '',
+        imagePath: ''
       }
+      this.imageFile = null
+      this.imagePreview = null
       this.editingEvent = null
+    },
+
+    onDialogHide() {
+      this.resetForm()
     }
   },
 
@@ -404,4 +559,23 @@ export default {
 <style lang="sass" scoped>
 .text-pine-green
   color: #2d6a4f
+
+.image-preview-container
+  position: relative
+  width: 100%
+  max-width: 400px
+  border-radius: 8px
+  overflow: hidden
+  border: 2px solid #e0e0e0
+
+.image-preview
+  width: 100%
+  height: 200px
+  object-fit: cover
+  display: block
+
+.remove-image-btn
+  position: absolute
+  top: 8px
+  right: 8px
 </style>

@@ -991,7 +991,7 @@ export default {
     const resolveConflict = async (conflict, action) => {
       try {
         switch (action) {
-          case 'keep-both':
+          case 'keep-both': {
             const routeWithSuffix = {
               ...conflict.new,
               routeName: `${conflict.new.routeName} (New)`
@@ -999,13 +999,15 @@ export default {
             await saveRouteToDatabase(routeWithSuffix)
             removeConflict(conflict)
             break
+          }
 
-          case 'variant':
+          case 'variant': {
             currentConflict.value = conflict
             showVariantDialog.value = true
             break
+          }
 
-          case 'replace':
+          case 'replace': {
             if (conflict.existing.imageUrl) {
               await deleteImage(conflict.existing.imageUrl)
             }
@@ -1013,10 +1015,12 @@ export default {
             await saveRouteToDatabase(conflict.new)
             removeConflict(conflict)
             break
+          }
 
-          case 'cancel':
+          case 'cancel': {
             removeConflict(conflict)
             break
+          }
         }
       } catch (error) {
         console.error('[Routes] Error resolving conflict:', error)
@@ -1268,7 +1272,6 @@ export default {
       $q.dialog({
         title: 'Confirm Delete',
         message: `Are you sure you want to delete "${route.routeName}"? This action cannot be undone.`,
-        cancel: true,
         persistent: true,
         ok: {
           label: 'Delete',

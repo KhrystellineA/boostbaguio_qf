@@ -55,7 +55,7 @@
                 id="name"
                 name="from_name"
                 v-model="formData.name"
-                placeholder=""
+                placeholder="Your name"
                 required
               />
             </div>
@@ -65,9 +65,9 @@
               <input
                 type="email"
                 id="email"
-                name="reply_to"
+                name="from_email"
                 v-model="formData.email"
-                placeholder=""
+                placeholder="your.email@example.com"
                 required
               />
             </div>
@@ -83,6 +83,8 @@
                 required
               ></textarea>
             </div>
+
+            <input type="hidden" name="to_email" value="reubencabrera1@gmail.com" />
 
             <div class="form-group checkbox-group">
               <input type="checkbox" id="terms" v-model="formData.acceptTerms" required />
@@ -139,15 +141,17 @@ export default {
     async handleSubmit() {
       this.isSubmitting = true
       this.showError = false
+      this.showSuccess = false
 
       try {
-        await emailjs.sendForm(
-          'service_8ynb7sl',
-          'template_ulpsosa',
+        const result = await emailjs.sendForm(
+          'service_8ynb7sl',   
+          'template_ulpsosa',    
           this.$refs.contactForm,
-          'zqjrv9JYsfZvzDG8t'
+          'zqjrv9JYsfZvzDG8t' 
         )
 
+        console.log('Email sent successfully:', result)
         this.showSuccess = true
 
         setTimeout(() => {
@@ -160,7 +164,12 @@ export default {
       } catch (error) {
         console.error('EmailJS Error:', error)
         this.showError = true
-        this.errorMessage = 'Failed to send message. Please try again or email us directly.'
+        
+        if (error.text) {
+          this.errorMessage = `Error: ${error.text}. Please try emailing us directly at reubencabrera1@gmail.com`
+        } else {
+          this.errorMessage = 'Failed to send message. Please try again or email us directly at reubencabrera1@gmail.com'
+        }
 
         setTimeout(() => {
           this.showError = false
@@ -183,6 +192,7 @@ export default {
       window.open(mapsUrl, '_blank')
     },
     showTerms() {
+      this.$emit('close')
       this.$router.push('/terms')
     },
   },
@@ -392,6 +402,7 @@ export default {
   cursor: pointer;
   transition: all 0.3s;
   margin-top: 10px;
+  width: 100%;
 }
 
 .submit-btn:hover:not(:disabled) {
@@ -404,29 +415,12 @@ export default {
   cursor: not-allowed;
 }
 
-.success-message {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #4caf50;
-  color: white;
-  padding: 20px 30px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  animation: fadeIn 0.3s;
-  z-index: 10;
-}
-
+.success-message,
 .error-message {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #f44336;
-  color: white;
   padding: 20px 30px;
   border-radius: 8px;
   font-size: 14px;
@@ -434,269 +428,18 @@ export default {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   animation: fadeIn 0.3s;
   z-index: 10;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-@media (max-width: 768px) {
-  .contact-container {
-    padding: 30px 20px;
-  }
-
-  .contact-content {
-    grid-template-columns: 1fr;
-    gap: 30px;
-  }
-
-  .contact-header h1 {
-    font-size: 24px;
-  }
-
-  .contact-header p {
-    font-size: 14px;
-  }
-}
-</style>
-
-<style scoped>
-.contact-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
-.contact-container {
-  background: white;
-  border-radius: 12px;
-  max-width: 900px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  position: relative;
-  padding: 40px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-}
-
-.close-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: none;
-  border: none;
-  font-size: 32px;
-  cursor: pointer;
-  color: #666;
-  line-height: 1;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.3s;
-}
-
-.close-btn:hover {
-  color: #000;
-}
-
-.contact-header {
+  max-width: 90%;
   text-align: center;
-  margin-bottom: 40px;
-}
-
-.contact-header h1 {
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  margin: 0 0 10px 0;
-  color: #1a1a1a;
-}
-
-.contact-header p {
-  font-size: 16px;
-  color: #666;
-  margin: 0;
-}
-
-.contact-content {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  gap: 50px;
-}
-
-/* Left Side - Contact Info */
-.contact-info {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-}
-
-.info-section {
-  display: flex;
-  gap: 15px;
-}
-
-.info-icon {
-  font-size: 24px;
-  color: #333;
-  width: 40px;
-  flex-shrink: 0;
-}
-
-.info-details h3 {
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  margin: 0 0 8px 0;
-  color: #1a1a1a;
-}
-
-.info-details p {
-  font-size: 14px;
-  color: #666;
-  margin: 0 0 5px 0;
-}
-
-.info-details a {
-  display: block;
-  font-size: 14px;
-  color: #333;
-  text-decoration: none;
-  margin: 3px 0;
-  transition: color 0.3s;
-}
-
-.info-details a:hover {
-  color: #007bff;
-}
-
-.directions-link {
-  font-weight: 500;
-  margin-top: 8px !important;
-}
-
-/* Right Side - Contact Form */
-.contact-form {
-  position: relative;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 8px;
-  color: #333;
-}
-
-.form-group input[type='text'],
-.form-group input[type='email'],
-.form-group textarea {
-  width: 100%;
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-  font-family: inherit;
-  transition: border-color 0.3s;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #007bff;
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-.checkbox-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.checkbox-group input[type='checkbox'] {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-}
-
-.checkbox-group label {
-  margin: 0;
-  font-size: 13px;
-  color: #666;
-  cursor: pointer;
-}
-
-.checkbox-group a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-.checkbox-group a:hover {
-  text-decoration: underline;
-}
-
-.submit-btn {
-  background-color: #fff;
-  color: #333;
-  border: 2px solid #333;
-  padding: 12px 40px;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  margin-top: 10px;
-}
-
-.submit-btn:hover:not(:disabled) {
-  background-color: #333;
-  color: white;
-}
-
-.submit-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .success-message {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   background: #4caf50;
   color: white;
-  padding: 20px 30px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  animation: fadeIn 0.3s;
+}
+
+.error-message {
+  background: #f44336;
+  color: white;
 }
 
 @keyframes fadeIn {
@@ -710,7 +453,6 @@ export default {
   }
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .contact-container {
     padding: 30px 20px;

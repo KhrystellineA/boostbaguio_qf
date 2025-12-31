@@ -1,12 +1,11 @@
 <template>
   <q-page class="apanam-page">
-    <section class="hero-section">
+    <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
       <div class="hero-overlay">
         <div class="hero-content animate-fade-in">
-          <h1 class="hero-title">P2P NAVIGATION</h1>
+          <h1 class="hero-title">APANAM</h1>
           <p class="hero-description">
-            Easily navigate Baguio's jeepney routes with step-by-step directions tailored just for
-            you.
+            P2P Navigation! Easy navigate Baguio's jeepney routes with step-by-step directions tailored just for you.
           </p>
         </div>
       </div>
@@ -44,15 +43,6 @@
                 padding="10px 32px"
                 class="btn-hover-lift"
                 @click="scrollToNavigation"
-              />
-              <q-btn
-                flat
-                label="Learn More"
-                color="white"
-                padding="10px 20px"
-                icon-right="arrow_forward"
-                class="learn-more-btn"
-                @click="learnMore"
               />
             </div>
           </div>
@@ -131,7 +121,6 @@
       </div>
     </section>
 
-    <!-- OPTIONS SECTION - Shows after Start Navigation -->
     <section id="options" class="options-section" ref="optionsSection" v-show="showJeepneyOptions">
       <div class="container">
         <div class="section-header text-center">
@@ -141,20 +130,17 @@
           </p>
         </div>
 
-        <!-- Loading State -->
         <div v-if="isLoadingOptions" class="text-center q-py-xl">
           <q-spinner color="primary" size="50px" />
           <p class="q-mt-md text-grey-7">Loading jeepney options...</p>
         </div>
 
-        <!-- No Options Found -->
         <div v-else-if="jeepneyOptions.length === 0 && toLocation" class="text-center q-py-xl">
           <q-icon name="directions_bus_filled" size="64px" color="grey-5" />
           <p class="text-h6 q-mt-md text-grey-7">No jeepney routes found for this destination</p>
           <p class="text-grey-6">Try selecting a different destination or check back later.</p>
         </div>
 
-        <!-- Options Grid -->
         <div v-else class="options-grid">
           <div
             v-for="(option, index) in jeepneyOptions"
@@ -170,9 +156,8 @@
       </div>
     </section>
 
-    <!-- JEEPNEY DETAIL SECTION - Shows after selecting a jeepney option -->
     <section v-if="selectedJeepney" class="jeepney-detail-section">
-      <div class="container">
+      <div class="container-full">
         <div class="detail-header">
           <div class="header-content">
             <h1 class="jeep-title">{{ selectedJeepney.name }}</h1>
@@ -202,9 +187,8 @@
           </div>
         </div>
 
-        <div class="content-grid">
-          <!-- MAP COLUMN -->
-          <div class="map-column">
+        <div class="content-grid-sakay">
+          <div class="map-column-wide">
             <div class="map-wrapper" ref="mapContainer"></div>
 
             <div class="route-legend">
@@ -219,25 +203,22 @@
             </div>
           </div>
 
-          <!-- INFO COLUMN -->
-          <div class="info-column">
-            <div class="info-list">
+          <div class="info-column-narrow">
+            <div class="info-list-scrollable">
               <div class="info-item">
                 <div class="info-icon-wrapper">
-                  <q-icon name="location_on" size="32px" class="info-icon" />
+                  <q-icon name="location_on" size="28px" class="info-icon" />
                 </div>
-                <div class="info-separator"></div>
                 <div class="info-content">
-                  <h3 class="info-title">TERMINAL LOCATION</h3>
+                  <h3 class="info-title">TERMINAL</h3>
                   <p class="info-description">{{ selectedJeepney.terminalAddress }}</p>
                 </div>
               </div>
 
               <div class="info-item">
                 <div class="info-icon-wrapper">
-                  <q-icon name="directions_walk" size="32px" class="info-icon" />
+                  <q-icon name="directions_walk" size="28px" class="info-icon" />
                 </div>
-                <div class="info-separator"></div>
                 <div class="info-content">
                   <h3 class="info-title">HOW TO GET THERE</h3>
                   <p class="info-description">{{ selectedJeepney.terminalInstructions }}</p>
@@ -246,108 +227,67 @@
 
               <div class="info-item">
                 <div class="info-icon-wrapper">
-                  <q-icon name="record_voice_over" size="32px" class="info-icon" />
+                  <q-icon name="record_voice_over" size="28px" class="info-icon" />
                 </div>
-                <div class="info-separator"></div>
                 <div class="info-content">
-                  <h3 class="info-title">WHAT TO TELL THE DRIVER</h3>
+                  <h3 class="info-title">TELL THE DRIVER</h3>
                   <p class="info-description highlight-text">"{{ selectedJeepney.whatToSay }}"</p>
                   <p class="info-subdescription">
-                    Tell the driver this phrase when you board the jeepney
+                    Say this when you board
                   </p>
                 </div>
               </div>
 
               <div class="info-item">
                 <div class="info-icon-wrapper">
-                  <q-icon name="schedule" size="32px" class="info-icon" />
+                  <q-icon name="schedule" size="28px" class="info-icon" />
                 </div>
-                <div class="info-separator"></div>
                 <div class="info-content">
-                  <h3 class="info-title">ESTIMATED RIDE TIME</h3>
+                  <h3 class="info-title">RIDE TIME</h3>
                   <p class="info-description">{{ selectedJeepney.rideTime }}</p>
                 </div>
               </div>
 
               <div class="info-item">
                 <div class="info-icon-wrapper">
-                  <q-icon name="payments" size="32px" class="info-icon" />
+                  <q-icon name="payments" size="28px" class="info-icon" />
                 </div>
-                <div class="info-separator"></div>
                 <div class="info-content">
-                  <h3 class="info-title">JEEPNEY FARE</h3>
+                  <h3 class="info-title">FARE</h3>
                   <p class="info-description">{{ selectedJeepney.fare }}</p>
                 </div>
               </div>
 
               <div v-if="selectedJeepney.additionalInfo" class="info-item">
                 <div class="info-icon-wrapper">
-                  <q-icon name="info" size="32px" class="info-icon" />
+                  <q-icon name="info" size="28px" class="info-icon" />
                 </div>
-                <div class="info-separator"></div>
                 <div class="info-content">
-                  <h3 class="info-title">ADDITIONAL INFO</h3>
+                  <h3 class="info-title">INFO</h3>
                   <p class="info-description">{{ selectedJeepney.additionalInfo }}</p>
                 </div>
               </div>
 
               <div v-if="showWalkingRoute" class="info-item">
                 <div class="info-icon-wrapper">
-                  <q-icon name="directions" size="32px" class="info-icon" />
+                  <q-icon name="directions" size="28px" class="info-icon" />
                 </div>
-                <div class="info-separator"></div>
                 <div class="info-content">
                   <h3 class="info-title">WALKING ROUTE</h3>
                   <p class="info-description">{{ walkingInstructions }}</p>
                 </div>
               </div>
 
-              <div class="info-item journey-summary">
-                <div class="info-icon-wrapper">
-                  <q-icon name="map" size="32px" class="info-icon" />
-                </div>
-                <div class="info-separator"></div>
-                <div class="info-content">
-                  <h3 class="info-title">COMPLETE JOURNEY</h3>
-                  <div class="journey-steps">
-                    <div class="journey-step">
-                      <div class="step-number">1</div>
-                      <div class="step-content">
-                        <strong>Walk to Terminal</strong>
-                        <p>{{ walkingInstructions }}</p>
-                      </div>
-                    </div>
-                    <div class="journey-step">
-                      <div class="step-number">2</div>
-                      <div class="step-content">
-                        <strong>Board Jeepney</strong>
-                        <p>Tell driver: "{{ selectedJeepney.whatToSay }}"</p>
-                      </div>
-                    </div>
-                    <div class="journey-step">
-                      <div class="step-number">3</div>
-                      <div class="step-content">
-                        <strong>Jeepney Ride</strong>
-                        <p>
-                          {{ selectedJeepney.rideTime }} to {{ selectedJeepney.destinationName }}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div class="arrived-button-wrapper">
+                <q-btn
+                  label="I HAVE ARRIVED!"
+                  outline
+                  color="dark"
+                  size="md"
+                  class="btn-hover-lift full-width"
+                  @click="markArrived"
+                />
               </div>
-            </div>
-
-            <div class="arrived-button-wrapper">
-              <q-btn
-                label="I HAVE ARRIVED!"
-                outline
-                color="dark"
-                size="lg"
-                padding="12px 40px"
-                class="btn-hover-lift"
-                @click="markArrived"
-              />
             </div>
           </div>
         </div>
@@ -375,9 +315,10 @@ import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { db } from 'src/boot/firebase'
-import { collection, getDocs, query, where } from 'firebase/firestore'
+import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore'
 import FAQSection from '../components/Home/FAQSection.vue'
 import FooterSection from '../components/Home/FooterSection.vue'
+import fallbackImage from '../assets/2.png'
 
 export default defineComponent({
   name: 'ApanamPage',
@@ -395,6 +336,9 @@ export default defineComponent({
     const fromLocationOptions = ref([])
     const toLocationOptions = ref([])
     const mapContainer = ref(null)
+    
+    const heroImageUrl = ref(fallbackImage)
+    
     let map = null
     let userMarker = null
     let terminalMarker = null
@@ -433,6 +377,23 @@ export default defineComponent({
       { label: 'Lourdes Grotto', value: 'lourdes-grotto', coords: [16.4253, 120.5972] },
       { label: 'PMA (Philippine Military Academy)', value: 'pma', coords: [16.3928, 120.5962] },
     ]
+
+    const fetchHeroImage = async () => {
+      try {
+        console.log('[ApanamPage] Fetching hero image from Firestore...')
+        const docRef = doc(db, 'pagePhotos', 'apanam')
+        const docSnap = await getDoc(docRef)
+        
+        if (docSnap.exists() && docSnap.data().imageUrl) {
+          heroImageUrl.value = docSnap.data().imageUrl
+          console.log('[ApanamPage] Hero image loaded:', heroImageUrl.value)
+        } else {
+          console.log('[ApanamPage] No hero image found in Firestore, using fallback')
+        }
+      } catch (error) {
+        console.error('[ApanamPage] Error fetching hero image:', error)
+      }
+    }
 
     const fetchJeepneyOptions = async () => {
       isLoadingOptions.value = true
@@ -588,20 +549,6 @@ export default defineComponent({
     })
 
     const showWalkingRoute = computed(() => userLocation.value && selectedJeepney.value)
-
-    const calculateDistance = (lat1, lon1, lat2, lon2) => {
-      const R = 6371
-      const dLat = ((lat2 - lat1) * Math.PI) / 180
-      const dLon = ((lon2 - lon1) * Math.PI) / 180
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos((lat1 * Math.PI) / 180) *
-          Math.cos((lat2 * Math.PI) / 180) *
-          Math.sin(dLon / 2) *
-          Math.sin(dLon / 2)
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-      return R * c
-    }
 
     const fetchStreetRoute = async (startLat, startLng, endLat, endLng) => {
       try {
@@ -782,14 +729,6 @@ export default defineComponent({
     const scrollToOptions = () => {
       const element = document.getElementById('options')
       if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-
-    const learnMore = () => {
-      $q.notify({
-        message: 'Loading more information...',
-        color: 'primary',
-        icon: 'info',
-      })
     }
 
     const startNavigation = async () => {
@@ -1091,6 +1030,7 @@ export default defineComponent({
       ]
       toLocationOptions.value = [...baguioLocations]
 
+      fetchHeroImage()
       fetchJeepneyOptions()
 
       const route = router.currentRoute.value
@@ -1176,9 +1116,9 @@ export default defineComponent({
       walkingInstructions,
       showWalkingRoute,
       isLoadingOptions,
+      heroImageUrl,
       scrollToNavigation,
       scrollToOptions,
-      learnMore,
       startNavigation,
       selectJeepney,
       findNearMe,
@@ -1301,10 +1241,14 @@ $cream-bg: #e8ebe3;
   padding: 0 20px;
 }
 
+.container-full {
+  max-width: 100%;
+  padding: 0 20px;
+}
+
 .hero-section {
   position: relative;
   min-height: 400px;
-  background-image: url('../assets/2.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -1430,15 +1374,6 @@ $cream-bg: #e8ebe3;
       gap: 1rem;
       align-items: center;
       flex-wrap: wrap;
-
-      .learn-more-btn {
-        font-weight: 600;
-        text-transform: none;
-
-        &:hover {
-          background: rgba(255, 255, 255, 0.1);
-        }
-      }
     }
   }
 
@@ -1561,14 +1496,15 @@ $cream-bg: #e8ebe3;
 
 .jeepney-detail-section {
   background: white;
-  padding: 60px 0;
+  padding: 40px 0;
 
   @media (max-width: 768px) {
-    padding: 40px 0;
+    padding: 20px 0;
   }
 
   .detail-header {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
+    padding: 0 20px;
 
     .header-content {
       display: flex;
@@ -1599,7 +1535,7 @@ $cream-bg: #e8ebe3;
     }
 
     .jeep-title {
-      font-size: 2.5rem;
+      font-size: 2rem;
       font-weight: 800;
       margin: 0;
       color: $text-dark;
@@ -1607,40 +1543,44 @@ $cream-bg: #e8ebe3;
       letter-spacing: 1px;
 
       @media (max-width: 768px) {
-        font-size: 2rem;
+        font-size: 1.5rem;
       }
     }
   }
-
-  .content-grid {
+  .content-grid-sakay {
     display: grid;
-    grid-template-columns: 55fr 45fr;
-    gap: 60px;
+    grid-template-columns: 65fr 35fr; 
+    gap: 0; 
+    height: calc(100vh - 200px);
+    min-height: 600px;
 
     @media (max-width: 960px) {
       grid-template-columns: 1fr;
-      gap: 40px;
+      height: auto;
+      min-height: unset;
     }
   }
 
-  .map-column {
+  .map-column-wide {
+    position: relative;
+    height: 100%;
+
+    @media (max-width: 960px) {
+      height: 500px;
+    }
+
     .map-wrapper {
       width: 100%;
-      height: 600px;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      height: calc(100% - 70px); 
       background: $light-gray;
-      margin-bottom: 20px;
 
-      @media (max-width: 768px) {
+      @media (max-width: 960px) {
         height: 400px;
       }
 
       :deep(.leaflet-container) {
         width: 100%;
         height: 100%;
-        border-radius: 12px;
       }
 
       :deep(.leaflet-popup-content-wrapper) {
@@ -1655,25 +1595,28 @@ $cream-bg: #e8ebe3;
 
     .route-legend {
       background: white;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
+      border-top: 1px solid #e0e0e0;
       padding: 15px 20px;
       display: flex;
-      flex-direction: column;
-      gap: 12px;
+      gap: 30px;
+      align-items: center;
+      height: 60px;
 
       @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 12px;
+        height: auto;
         padding: 12px 15px;
       }
 
       .legend-item {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 10px;
 
         .legend-line {
-          width: 40px;
-          height: 4px;
+          width: 30px;
+          height: 3px;
           border-radius: 2px;
 
           &.walking-line {
@@ -1685,15 +1628,15 @@ $cream-bg: #e8ebe3;
             background-image: repeating-linear-gradient(
               90deg,
               #ff6b35,
-              #ff6b35 10px,
-              transparent 10px,
-              transparent 20px
+              #ff6b35 8px,
+              transparent 8px,
+              transparent 16px
             );
           }
         }
 
         .legend-text {
-          font-size: 0.85rem;
+          font-size: 0.8rem;
           color: $text-dark;
           font-weight: 500;
         }
@@ -1701,55 +1644,59 @@ $cream-bg: #e8ebe3;
     }
   }
 
-  .info-column {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  .info-column-narrow {
+    height: 100%;
+    background: #fafafa;
+    border-left: 1px solid #e0e0e0;
+    overflow-y: auto; 
 
-    .info-list {
+    @media (max-width: 960px) {
+      height: auto;
+      max-height: 600px;
+      border-left: none;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .info-list-scrollable {
+      padding: 25px 20px;
       display: flex;
       flex-direction: column;
-      gap: 40px;
-      margin-bottom: 40px;
+      gap: 25px;
 
       .info-item {
-        display: grid;
-        grid-template-columns: auto auto 1fr;
-        gap: 20px;
+        display: flex;
+        gap: 15px;
         align-items: flex-start;
+        padding-bottom: 20px;
+        border-bottom: 1px solid #e0e0e0;
 
-        .info-icon-wrapper {
-          .info-icon {
-            color: $text-dark;
-          }
+        &:last-child {
+          border-bottom: none;
         }
 
-        .info-separator {
-          width: 2px;
-          height: 100%;
-          min-height: 80px;
-          background: #e0e0e0;
-          margin: 0 10px;
-
-          @media (max-width: 768px) {
-            min-height: 60px;
+        .info-icon-wrapper {
+          flex-shrink: 0;
+          .info-icon {
+            color: $primary-green;
           }
         }
 
         .info-content {
+          flex: 1;
+
           .info-title {
-            font-size: 1rem;
+            font-size: 0.75rem;
             font-weight: 700;
-            margin: 0 0 0.75rem 0;
+            margin: 0 0 8px 0;
             color: $text-dark;
             text-transform: uppercase;
             letter-spacing: 0.5px;
           }
 
           .info-description {
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: $text-light;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: $text-dark;
             margin: 0;
           }
 
@@ -1757,82 +1704,46 @@ $cream-bg: #e8ebe3;
             font-weight: 700;
             color: $primary-green;
             background: rgba(74, 95, 78, 0.1);
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 6px;
             display: inline-block;
-            font-size: 1.1rem;
-            margin-bottom: 8px;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
           }
 
           .info-subdescription {
-            font-size: 0.85rem;
-            line-height: 1.5;
+            font-size: 0.75rem;
+            line-height: 1.4;
             color: $text-light;
-            margin: 8px 0 0 0;
+            margin: 6px 0 0 0;
             font-style: italic;
           }
         }
+      }
 
-        &.journey-summary {
-          .journey-steps {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin-top: 10px;
+      .arrived-button-wrapper {
+        padding-top: 10px;
 
-            .journey-step {
-              display: flex;
-              gap: 15px;
-              align-items: flex-start;
-
-              .step-number {
-                width: 32px;
-                height: 32px;
-                border-radius: 50%;
-                background: $primary-green;
-                color: white;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: 700;
-                font-size: 1rem;
-                flex-shrink: 0;
-              }
-
-              .step-content {
-                flex: 1;
-
-                strong {
-                  display: block;
-                  font-size: 0.95rem;
-                  color: $text-dark;
-                  margin-bottom: 4px;
-                }
-
-                p {
-                  font-size: 0.85rem;
-                  color: $text-light;
-                  margin: 0;
-                  line-height: 1.5;
-                }
-              }
-            }
-          }
+        .full-width {
+          width: 100%;
         }
       }
     }
 
-    .arrived-button-wrapper {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
 
-      @media (max-width: 768px) {
-        justify-content: stretch;
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
 
-        .q-btn {
-          width: 100%;
-        }
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+
+      &:hover {
+        background: #555;
       }
     }
   }

@@ -1,149 +1,184 @@
 <template>
   <q-page class="aramidem-page">
-    <section class="hero-section">
-      <div class="hero-image-wrapper">
-        <img src="../assets/bakery.png" alt="Baguio Events" class="hero-image" />
-      </div>
-      <div class="hero-content-wrapper">
-        <div class="hero-content animate-fade-in">
-          <h1 class="hero-title">DISCOVER EXCITING EVENTS IN BAGUIO CITY</h1>
-          <p class="hero-description">
-            Stay updated on the latest festivals and concerts happening in Baguio. Our platform
-            ensures you are well-informed (connect here to make your stay memorable and enjoyable!)
-          </p>
-
-          <div class="hero-actions">
-            <q-btn
-              label="Explore"
-              unelevated
-              color="dark"
-              size="lg"
-              padding="12px 32px"
-              class="btn-hover-lift q-mr-md"
-              @click="scrollToSection('events')"
-            />
-            <q-btn
-              label="Learn More"
-              outline
-              color="dark"
-              size="lg"
-              padding="12px 32px"
-              class="btn-hover-lift"
-              @click="learnMore"
-            />
-          </div>
-        </div>
+    <section class="hero-image-header" :style="{ backgroundImage: `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.3)), url(${heroImageUrl})` }">
+      <div class="hero-overlay-content">
+        <h1 class="brand-name">ARAMIDEM</h1>
+        <p class="brand-tagline">Check out what's happening in Baguio City!</p>
       </div>
     </section>
 
-    <section id="events" class="events-section" ref="eventsSection">
-      <div class="container">
-        <div class="section-header text-center">
-          <div class="text-overline text-white q-mb-sm">ARAMIDEM</div>
-          <h2 class="section-title">TOP EVENTS OF THE MONTH</h2>
-          <p class="section-subtitle">
-            Discover Baguio's vibrant events and cultural celebrations.
+    <section class="hero-info-bar">
+      <div class="container info-flex-container">
+        <div class="info-left-col">
+          <h2 class="main-headline">DISCOVER EXCITING EVENTS IN BAGUIO CITY</h2>
+        </div>
+        <div class="info-right-col">
+          <p class="sub-text">
+            Stay updated on the latest festivals and events in happening in Baguio. 
+            Our platform provides you with essential info to make your event experience seamless.
           </p>
-        </div>
-
-        <div class="events-grid">
-          <div
-            v-for="(event, index) in events"
-            :key="index"
-            class="event-card section-animate card-hover"
-          >
-            <div class="event-image-wrapper">
-              <img v-if="event.image" :src="event.image" :alt="event.title" class="event-image" />
-              <div v-else class="event-placeholder">
-                <q-icon name="event" size="60px" color="grey-5" />
-              </div>
-              <div class="event-date-badge">
-                <div class="date-day">{{ event.day }}</div>
-                <div class="date-month">{{ event.month }}</div>
-              </div>
-            </div>
-
-            <div class="event-content">
-              <div class="event-category">{{ event.category }}</div>
-              <h3 class="event-title">{{ event.title }}</h3>
-              <p class="event-description">{{ event.description }}</p>
-              <a href="#" class="event-link" @click.prevent="viewEvent(event)">
-                View more
-                <q-icon name="arrow_forward" size="16px" />
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div class="text-center q-mt-xl">
-          <q-btn
-            label="View All"
-            unelevated
-            color="white"
-            text-color="dark"
-            padding="12px 40px"
-            class="btn-hover-lift"
-            @click="viewAllEvents"
+          <q-btn 
+            label="Explore" 
+            unelevated 
+            class="explore-pill-btn" 
+            @click="scrollToSection('events')" 
           />
         </div>
       </div>
     </section>
 
-    <section class="calendar-section">
+    <section id="events" class="events-section">
+      <div class="container">
+        <div class="section-header text-center">
+          <div class="text-overline">ARAMIDEM</div>
+          <h2 class="section-title">TOP EVENTS OF THE MONTH</h2>
+        </div>
+
+        <div v-if="loading" class="row justify-center q-pa-xl">
+          <div class="text-center">
+            <q-spinner-hourglass color="white" size="50px" />
+            <p class="text-white q-mt-md">Loading events...</p>
+          </div>
+        </div>
+
+        <div v-else-if="topEvents.length === 0" class="no-events-state">
+          <q-icon name="event_busy" size="80px" color="white" />
+          <h3 class="text-white q-mt-md">No Events This Month</h3>
+          <p class="text-white" style="opacity: 0.8">Check back soon for new events!</p>
+        </div>
+
+        <div v-else class="events-grid">
+          <div 
+            v-for="event in topEvents" 
+            :key="event.id" 
+            class="event-card"
+            @click="viewEventDetails(event)"
+          >
+            <div class="event-image-wrapper">
+              <img 
+                v-if="event.imageUrl" 
+                :src="event.imageUrl" 
+                :alt="event.title"
+                class="event-image" 
+              />
+              <div v-else class="event-placeholder">
+                <q-icon name="event" size="64px" color="grey-4" />
+              </div>
+              
+              <div class="event-date-badge">
+                <div class="date-day">{{ getDay(event.startDate) }}</div>
+                <div class="date-month">{{ getMonth(event.startDate) }}</div>
+              </div>
+
+              <div class="event-status-badge" :class="`status-${event.status.toLowerCase()}`">
+                {{ event.status }}
+              </div>
+            </div>
+
+            <div class="event-content">
+              <h3 class="event-title">{{ event.title }}</h3>
+              
+              <p class="event-description">
+                {{ truncateText(event.description, 100) }}
+              </p>
+
+              <a href="#" class="event-link" @click.prevent="viewEventDetails(event)">
+                Learn more →
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="!loading && topEvents.length > 0" class="text-center q-mt-xl">
+          <q-btn
+            label="View All"
+            unelevated
+            color="white"
+            text-color="primary"
+            padding="10px 35px"
+            class="view-all-btn"
+            @click="scrollToSection('calendar')"
+          />
+        </div>
+      </div>
+    </section>
+
+    <section id="calendar" class="calendar-section">
       <div class="container">
         <div class="calendar-grid">
-          <div class="calendar-column">
-            <div class="calendar-wrapper">
-              <div class="calendar-header">
-                <h3 class="calendar-month">February</h3>
+          <div class="calendar-widget">
+            <div class="calendar-header">
+              <h3>{{ currentMonth }}</h3>
+              <div class="month-nav">
+                <q-btn flat dense icon="chevron_left" @click="previousMonth" />
+                <q-btn flat dense icon="chevron_right" @click="nextMonth" />
               </div>
-              <div class="calendar-body">
-                <div class="calendar-weekdays">
-                  <div class="weekday">Su</div>
-                  <div class="weekday">Mo</div>
-                  <div class="weekday">Tu</div>
-                  <div class="weekday">We</div>
-                  <div class="weekday">Th</div>
-                  <div class="weekday">Fr</div>
-                  <div class="weekday">Sa</div>
+            </div>
+            <div class="calendar-body">
+              <div class="calendar-days">
+                <div v-for="day in ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']" :key="day" class="day-header">
+                  {{ day }}
                 </div>
-                <div class="calendar-days">
-                  <div
-                    v-for="day in calendarDays"
-                    :key="day.id"
-                    :class="[
-                      'calendar-day',
-                      { 'has-event': day.hasEvent, inactive: !day.currentMonth },
-                    ]"
-                  >
-                    <span class="day-number">{{ day.number }}</span>
-                    <div v-if="day.hasEvent" class="event-indicator"></div>
-                  </div>
+              </div>
+              <div class="calendar-dates">
+                <div 
+                  v-for="(date, index) in calendarDates" 
+                  :key="index"
+                  class="calendar-date"
+                  :class="{ 
+                    'has-event': hasEvent(date),
+                    'today': isToday(date),
+                    'other-month': !isCurrentMonth(date)
+                  }"
+                  @click="selectDate(date)"
+                >
+                  {{ date ? date.getDate() : '' }}
                 </div>
               </div>
             </div>
           </div>
 
-          <div class="themed-cards-column">
-            <div
-              v-for="(theme, index) in themedEvents"
-              :key="index"
-              class="themed-card section-animate"
+          <div class="events-list">
+            <div v-if="selectedDateEvents.length === 0" class="no-events-message">
+              <p>No events scheduled for this month</p>
+            </div>
+            <div 
+              v-for="event in selectedDateEvents" 
+              :key="event.id"
+              class="event-list-item"
             >
-              <div class="themed-card-header">
-                <h4 class="themed-card-title">JEEPNEY THEMES</h4>
-                <q-btn
-                  flat
-                  dense
-                  round
-                  icon="close"
-                  color="grey-7"
-                  size="sm"
-                  @click="closeTheme(theme)"
+              <div 
+                class="events-list-header"
+                @click="toggleEventExpand(event.id)"
+              >
+                <h3>{{ event.title }}</h3>
+                <q-icon 
+                  :name="expandedEvents.includes(event.id) ? 'expand_less' : 'expand_more'" 
+                  size="24px" 
                 />
               </div>
-              <div class="themed-card-content">
-                <p class="themed-card-text">Short desc: Recipe content</p>
+              <p class="event-list-date">{{ event.location }}</p>
+              
+              <div v-if="expandedEvents.includes(event.id)" class="event-list-details">
+                <p class="event-list-description">{{ event.description }}</p>
+                <div class="event-list-meta">
+                  <div class="meta-row">
+                    <q-icon name="event" size="16px" />
+                    <span>{{ formatDateRange(event.startDate, event.endDate) }}</span>
+                  </div>
+                  <div class="meta-row" v-if="event.startTime">
+                    <q-icon name="access_time" size="16px" />
+                    <span>{{ formatTime(event.startTime) }} - {{ formatTime(event.endTime) }}</span>
+                  </div>
+                </div>
+                <q-btn
+                  label="View Details"
+                  outline
+                  color="primary"
+                  size="sm"
+                  class="q-mt-sm"
+                  @click="viewEventDetails(event)"
+                />
               </div>
             </div>
           </div>
@@ -151,630 +186,1547 @@
       </div>
     </section>
 
-    <FAQSection />
+    <section class="featured-event-section">
+      <div class="container">
+        <div v-if="featuredEvent" class="featured-grid">
+          <div class="featured-content">
+            <div class="featured-overline">EVENTS</div>
+            <h2 class="featured-title">{{ featuredEvent.title.toUpperCase() }}</h2>
+            <p class="featured-description">
+              {{ featuredEvent.description || 'Join us for this amazing event in Baguio City!' }}
+            </p>
+            
+            <div class="featured-details">
+              <div class="detail-item">
+                <h4>EVENT DATES</h4>
+                <p>{{ formatDateRange(featuredEvent.startDate, featuredEvent.endDate) }}{{ featuredEvent.startTime ? ` - ${formatTime(featuredEvent.startTime)}` : '' }}</p>
+              </div>
+              
+              <div class="detail-item" v-if="featuredEvent.organizer">
+                <h4>ORGANIZED BY</h4>
+                <p>{{ featuredEvent.organizer }}</p>
+              </div>
 
+              <div class="detail-item">
+                <h4>LOCATION</h4>
+                <p>{{ featuredEvent.location }}</p>
+              </div>
+            </div>
+
+            <q-btn
+              label="View Event Details"
+              unelevated
+              color="white"
+              text-color="primary"
+              size="lg"
+              padding="12px 35px"
+              class="q-mt-lg"
+              @click="viewEventDetails(featuredEvent)"
+            />
+          </div>
+
+          <div class="featured-image">
+            <div v-if="featuredEvent.imageUrl" class="image-wrapper">
+              <img :src="featuredEvent.imageUrl" :alt="featuredEvent.title" class="featured-img" />
+            </div>
+            <div v-else class="image-placeholder">
+              <q-icon name="image" size="80px" color="grey-4" />
+            </div>
+          </div>
+        </div>
+
+        <div v-else class="featured-grid">
+          <div class="featured-content">
+            <div class="featured-overline">EVENTS</div>
+            <h2 class="featured-title">STAY TUNED FOR UPCOMING EVENTS!</h2>
+            <p class="featured-description">
+              Check back soon for exciting events happening in Baguio City.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="schedule-section">
+      <div class="container">
+        <div class="schedule-header">
+          <h2 class="schedule-title">SCHEDULE</h2>
+          <p class="schedule-subtitle">Join us for an exciting lineup of events happening this weekend in Baguio City!</p>
+        </div>
+
+        <div class="schedule-filters">
+          <q-btn 
+            v-for="filter in scheduleFilters" 
+            :key="filter"
+            :label="filter"
+            :unelevated="selectedFilter === filter"
+            :outline="selectedFilter !== filter"
+            class="filter-btn"
+            @click="selectedFilter = filter"
+          />
+        </div>
+
+        <div class="schedule-list">
+          <div v-if="scheduleItems.length === 0" class="no-schedule-message">
+            <p>No upcoming events scheduled</p>
+          </div>
+          <div 
+            v-for="event in scheduleItems" 
+            :key="event.id"
+            class="schedule-item"
+          >
+            <div class="schedule-time">
+              <div class="time-display">{{ event.startTime ? event.startTime.split(':')[0] : '--' }}</div>
+              <div class="time-period">{{ event.startTime ? (parseInt(event.startTime.split(':')[0]) >= 12 ? 'pm' : 'am') : '--' }}</div>
+            </div>
+
+            <div class="schedule-icon">
+              <div class="icon-wrapper">
+                <q-icon name="event" size="24px" />
+              </div>
+            </div>
+
+            <div class="schedule-details">
+              <h3 class="schedule-event-title">{{ event.title }}</h3>
+              <p class="schedule-event-location">
+                <q-icon name="place" size="16px" />
+                {{ event.location }}
+              </p>
+            </div>
+
+            <div class="schedule-action">
+              <q-btn 
+                flat
+                dense
+                round
+                icon="place"
+                size="sm"
+                @click="getDirections(event.location)"
+              >
+                <q-tooltip>View on Map</q-tooltip>
+              </q-btn>
+              <q-btn 
+                label="Explore" 
+                outline 
+                color="primary"
+                size="sm"
+                class="explore-btn"
+                @click="exploreEvent(event)"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <q-dialog v-model="showEventDialog" maximized transition-show="slide-up">
+      <q-card class="event-detail-card">
+        <q-bar class="bg-primary text-white">
+          <q-space />
+          <q-btn dense flat icon="close" @click="showEventDialog = false">
+            <q-tooltip>Close</q-tooltip>
+          </q-btn>
+        </q-bar>
+
+        <q-card-section class="event-detail-hero" v-if="selectedEvent">
+          <div class="event-detail-image-wrapper">
+            <img 
+              v-if="selectedEvent.imageUrl" 
+              :src="selectedEvent.imageUrl" 
+              :alt="selectedEvent.title"
+              class="event-detail-image"
+            />
+            <div v-else class="event-detail-placeholder">
+              <q-icon name="event" size="120px" color="grey-4" />
+            </div>
+          </div>
+          
+          <div class="event-detail-overlay">
+            <div class="container">
+              <q-badge 
+                :color="getStatusColor(selectedEvent.status)" 
+                class="q-mb-md"
+                style="font-size: 0.85rem; padding: 8px 16px"
+              >
+                {{ selectedEvent.status }}
+              </q-badge>
+              <h2 class="event-detail-title">{{ selectedEvent.title }}</h2>
+              <div class="event-detail-meta">
+                <div class="meta-item">
+                  <q-icon name="place" size="20px" />
+                  <span>{{ selectedEvent.location }}</span>
+                </div>
+                <div class="meta-item">
+                  <q-icon name="event" size="20px" />
+                  <span>{{ formatDateRange(selectedEvent.startDate, selectedEvent.endDate) }}</span>
+                </div>
+                <div class="meta-item" v-if="selectedEvent.startTime">
+                  <q-icon name="access_time" size="20px" />
+                  <span>{{ formatTime(selectedEvent.startTime) }} - {{ formatTime(selectedEvent.endTime) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </q-card-section>
+
+        <q-card-section class="event-detail-body" v-if="selectedEvent">
+          <div class="container">
+            <div class="detail-grid">
+              <div class="detail-main">
+                <h3 class="detail-section-title">About This Event</h3>
+                <p class="event-full-description">{{ selectedEvent.description || 'No description available.' }}</p>
+
+                <div v-if="selectedEvent.organizer" class="q-mt-lg">
+                  <h3 class="detail-section-title">Organizer</h3>
+                  <div class="organizer-card">
+                    <q-icon name="business" size="32px" color="primary" />
+                    <div class="organizer-info">
+                      <div class="organizer-name">{{ selectedEvent.organizer }}</div>
+                      <div class="organizer-contacts">
+                        <div v-if="selectedEvent.contactEmail" class="contact-item">
+                          <q-icon name="email" size="16px" />
+                          <a :href="`mailto:${selectedEvent.contactEmail}`">{{ selectedEvent.contactEmail }}</a>
+                        </div>
+                        <div v-if="selectedEvent.contactPhone" class="contact-item">
+                          <q-icon name="phone" size="16px" />
+                          <a :href="`tel:${selectedEvent.contactPhone}`">{{ selectedEvent.contactPhone }}</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="detail-sidebar">
+                <q-card flat bordered class="info-card">
+                  <q-card-section>
+                    <div class="info-card-title">Event Information</div>
+                    
+                    <div class="info-item">
+                      <div class="info-label">
+                        <q-icon name="calendar_today" size="18px" />
+                        Start Date
+                      </div>
+                      <div class="info-value">{{ formatFullDate(selectedEvent.startDate) }}</div>
+                    </div>
+
+                    <div class="info-item">
+                      <div class="info-label">
+                        <q-icon name="event" size="18px" />
+                        End Date
+                      </div>
+                      <div class="info-value">{{ formatFullDate(selectedEvent.endDate) }}</div>
+                    </div>
+
+                    <div class="info-item" v-if="selectedEvent.startTime">
+                      <div class="info-label">
+                        <q-icon name="access_time" size="18px" />
+                        Time
+                      </div>
+                      <div class="info-value">
+                        {{ formatTime(selectedEvent.startTime) }} - {{ formatTime(selectedEvent.endTime) }}
+                      </div>
+                    </div>
+
+                    <div class="info-item">
+                      <div class="info-label">
+                        <q-icon name="place" size="18px" />
+                        Location
+                      </div>
+                      <div class="info-value">{{ selectedEvent.location }}</div>
+                    </div>
+
+                    <q-separator class="q-my-md" />
+
+                    <q-btn
+                      unelevated
+                      color="primary"
+                      icon="directions"
+                      label="Get Directions"
+                      class="full-width q-mb-sm"
+                      @click="getDirections(selectedEvent.location)"
+                    />
+
+                    <q-btn
+                      outline
+                      color="primary"
+                      icon="share"
+                      label="Share Event"
+                      class="full-width"
+                      @click="shareEvent(selectedEvent)"
+                    />
+                  </q-card-section>
+                </q-card>
+              </div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
+    <FAQSection />
     <FooterSection />
   </q-page>
 </template>
 
 <script>
-import { defineComponent, ref, onMounted, onUnmounted } from 'vue'
+import { defineComponent, ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
+import { db } from 'src/boot/firebase'
+import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore'
 import FAQSection from '../components/Home/FAQSection.vue'
 import FooterSection from '../components/Home/FooterSection.vue'
+import bakeryImage from '../assets/bakery.png'
 
 export default defineComponent({
   name: 'AramidemPage',
-  components: {
-    FAQSection,
-    FooterSection,
-  },
+  components: { FAQSection, FooterSection },
 
   setup() {
     const $q = useQuasar()
-    const eventsSection = ref(null)
+    const events = ref([])
+    const loading = ref(true)
+    const showEventDialog = ref(false)
+    const selectedEvent = ref(null)
+    const heroImageUrl = ref(bakeryImage)
+    const currentDate = ref(new Date())
+    const selectedFilter = ref('All Events')
+    const expandedEvents = ref([])
+    const randomSeed = ref(Math.random())
+    
+    const scheduleFilters = ['All Events', 'Today', 'This Week']
 
-    const events = [
-      {
-        day: '08',
-        month: 'FEBRUARY',
-        category: 'Event/Festival',
-        title: 'PANAGBENGA SPRING/FLOWER FEST OF BAGUIO',
-        description:
-          "Baguio City's month-long festival showcasing the region's unique flora and vibrant culture of the Igorots(local people) in the Philippines.",
-        image: null,
-      },
-      {
-        day: '16',
-        month: 'MARCH',
-        category: 'Fair',
-        title: 'MARKET FLOWER PARADE',
-        description: 'A showcase for food safety and floral arrangements at the Public Market.',
-        image: null,
-      },
-      {
-        day: '11',
-        month: 'APRIL',
-        category: 'Event/Festival',
-        title: 'ADIVAY FESTIVAL',
-        description:
-          "Nueva Vizcaya's unity-based festival showcasing their historical culture through vibrant street dancing.",
-        image: null,
-      },
-    ]
+    const topEvents = computed(() => {
+      const now = new Date()
+      const currentMonth = now.getMonth()
+      const currentYear = now.getFullYear()
+      const today = now.toISOString().split('T')[0]
+      
+      return events.value
+        .filter(event => {
+          const eventDate = new Date(event.startDate)
+          return (
+            (event.status === 'Ongoing' || event.status === 'Upcoming') &&
+            event.endDate >= today &&
+            eventDate.getMonth() === currentMonth &&
+            eventDate.getFullYear() === currentYear
+          )
+        })
+        .slice(0, 3)
+    })
 
-    const generateCalendarDays = () => {
-      const days = []
-      let id = 1
+    const selectedDateEvents = computed(() => {
+      const month = currentDate.value.getMonth()
+      const year = currentDate.value.getFullYear()
+      
+      return events.value.filter(event => {
+        const eventDate = new Date(event.startDate)
+        return (
+          eventDate.getMonth() === month &&
+          eventDate.getFullYear() === year &&
+          event.status !== 'Cancelled'
+        )
+      }).sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+    })
 
-      for (let i = 0; i < 3; i++) {
-        days.push({
-          id: id++,
-          number: 29 + i,
-          currentMonth: false,
-          hasEvent: false,
+    const scheduleItems = computed(() => {
+      const now = new Date()
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      
+      let filtered = events.value.filter(event => {
+        const eventDate = new Date(event.startDate)
+        return event.status !== 'Cancelled' && eventDate >= today
+      })
+
+      if (selectedFilter.value === 'Today') {
+        const tomorrow = new Date(today)
+        tomorrow.setDate(tomorrow.getDate() + 1)
+        filtered = filtered.filter(event => {
+          const eventDate = new Date(event.startDate)
+          return eventDate >= today && eventDate < tomorrow
+        })
+      } else if (selectedFilter.value === 'This Week') {
+        const weekEnd = new Date(today)
+        weekEnd.setDate(weekEnd.getDate() + 7)
+        filtered = filtered.filter(event => {
+          const eventDate = new Date(event.startDate)
+          return eventDate >= today && eventDate < weekEnd
         })
       }
 
-      for (let i = 1; i <= 29; i++) {
-        const hasEvent = [8, 14, 16, 21, 28].includes(i)
-        days.push({
-          id: id++,
-          number: i,
-          currentMonth: true,
-          hasEvent: hasEvent,
-        })
-      }
+      return filtered
+        .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+        .slice(0, 10)
+    })
 
-      for (let i = 1; i <= 7; i++) {
-        days.push({
-          id: id++,
-          number: i,
-          currentMonth: false,
-          hasEvent: false,
-        })
-      }
+    const featuredEvent = computed(() => {
+      const now = new Date()
+      const today = now.toISOString().split('T')[0]
+      
+      const upcomingEvents = events.value.filter(event => {
+        return (
+          (event.status === 'Upcoming' || event.status === 'Ongoing') &&
+          event.endDate >= today
+        )
+      })
 
-      return days
+      if (upcomingEvents.length === 0) {
+        return null
+      }
+      
+      const randomIndex = Math.floor(Math.random() * upcomingEvents.length)
+      return upcomingEvents[randomIndex]
+    })
+
+    const currentMonth = computed(() => {
+      return currentDate.value.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    })
+
+    const calendarDates = computed(() => {
+      const year = currentDate.value.getFullYear()
+      const month = currentDate.value.getMonth()
+      const firstDay = new Date(year, month, 1)
+      const lastDay = new Date(year, month + 1, 0)
+      const prevLastDay = new Date(year, month, 0)
+      
+      const dates = []
+      const firstDayOfWeek = firstDay.getDay()
+      
+      for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+        dates.push(new Date(year, month - 1, prevLastDay.getDate() - i))
+      }
+      
+      for (let i = 1; i <= lastDay.getDate(); i++) {
+        dates.push(new Date(year, month, i))
+      }
+      
+      const remainingDays = 42 - dates.length
+      for (let i = 1; i <= remainingDays; i++) {
+        dates.push(new Date(year, month + 1, i))
+      }
+      
+      return dates
+    })
+
+    const fetchHeroImage = async () => {
+      try {
+        const docRef = doc(db, 'pagePhotos', 'aramidem')
+        const docSnap = await getDoc(docRef)
+        
+        if (docSnap.exists() && docSnap.data().imageUrl) {
+          heroImageUrl.value = docSnap.data().imageUrl
+        }
+      } catch (error) {
+        console.error('[AramidemPage] Error fetching hero image:', error)
+      }
     }
 
-    const calendarDays = ref(generateCalendarDays())
+    const fetchEvents = async () => {
+      loading.value = true
+      try {
+        const q = query(
+          collection(db, 'events'),
+          orderBy('startDate', 'asc')
+        )
+        const querySnapshot = await getDocs(q)
+        events.value = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+      } catch (error) {
+        console.error('[Aramidem] Error loading events:', error)
+        $q.notify({
+          type: 'negative',
+          message: 'Failed to load events',
+          position: 'top'
+        })
+      } finally {
+        loading.value = false
+      }
+    }
 
-    const themedEvents = ref([
-      { id: 1, title: 'JEEPNEY THEMES', description: 'Short desc: Recipe content' },
-      { id: 2, title: 'JEEPNEY THEMES', description: 'Short desc: Recipe content' },
-      { id: 3, title: 'JEEPNEY THEMES', description: 'Short desc: Recipe content' },
-      { id: 4, title: 'JEEPNEY THEMES', description: 'Short desc: Recipe content' },
-      { id: 5, title: 'JEEPNEY THEMES', description: 'Short desc: Recipe content' },
-    ])
+    const viewEventDetails = (event) => {
+      selectedEvent.value = event
+      showEventDialog.value = true
+    }
 
-    const scrollToSection = (sectionId) => {
-      const element = document.getElementById(sectionId)
+    const getDay = (dateStr) => {
+      if (!dateStr) return '00'
+      const date = new Date(dateStr)
+      return date.getDate().toString().padStart(2, '0')
+    }
+
+    const getMonth = (dateStr) => {
+      if (!dateStr) return 'JAN'
+      const date = new Date(dateStr)
+      return date.toLocaleString('default', { month: 'short' }).toUpperCase()
+    }
+
+    const formatTime = (timeStr) => {
+      if (!timeStr) return ''
+      const [hours, minutes] = timeStr.split(':')
+      const hour = parseInt(hours)
+      const ampm = hour >= 12 ? 'PM' : 'AM'
+      const displayHour = hour % 12 || 12
+      return `${displayHour}:${minutes} ${ampm}`
+    }
+
+    const formatFullDate = (dateStr) => {
+      if (!dateStr) return ''
+      const date = new Date(dateStr)
+      return date.toLocaleDateString('en-US', { 
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    }
+
+    const formatDateRange = (startDate, endDate) => {
+      if (!startDate || !endDate) return ''
+      const start = new Date(startDate)
+      const end = new Date(endDate)
+      if (startDate === endDate) {
+        return start.toLocaleDateString('en-US', { 
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        })
+      }
+      return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+    }
+
+    const truncateText = (text, maxLength) => {
+      if (!text) return 'No description available.'
+      if (text.length <= maxLength) return text
+      return text.substring(0, maxLength) + '...'
+    }
+
+    const getStatusColor = (status) => {
+      const colors = {
+        'Upcoming': 'blue',
+        'Ongoing': 'green',
+        'Completed': 'grey',
+        'Cancelled': 'red'
+      }
+      return colors[status] || 'grey'
+    }
+
+    const scrollToSection = (id) => {
+      const element = document.getElementById(id)
       if (element) {
         element.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
     }
 
-    const learnMore = () => {
-      $q.notify({
-        message: 'Loading more information...',
-        color: 'primary',
-        icon: 'info',
-      })
+    const getDirections = (location) => {
+      const encodedLocation = encodeURIComponent(location)
+      window.open(`https://www.google.com/maps/search/?api=1&query=${encodedLocation}`, '_blank')
     }
 
-    const viewEvent = (event) => {
-      $q.notify({
-        message: `Opening ${event.title}...`,
-        color: 'primary',
-        icon: 'event',
-      })
-    }
-
-    const viewAllEvents = () => {
-      $q.notify({
-        message: 'Loading all events...',
-        color: 'primary',
-        icon: 'calendar_month',
-      })
-    }
-
-    const closeTheme = (theme) => {
-      themedEvents.value = themedEvents.value.filter((t) => t.id !== theme.id)
-    }
-
-    const observeElements = () => {
-      const options = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -100px 0px',
-      }
-
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate-in')
-          }
+    const shareEvent = (event) => {
+      if (navigator.share) {
+        navigator.share({
+          title: event.title,
+          text: event.description,
+          url: window.location.href
+        }).catch(() => {
+          copyToClipboard()
         })
-      }, options)
-
-      const elements = document.querySelectorAll('.section-animate')
-      elements.forEach((el) => observer.observe(el))
-
-      return observer
+      } else {
+        copyToClipboard()
+      }
     }
 
-    let observer
+    const copyToClipboard = () => {
+      navigator.clipboard.writeText(window.location.href)
+      $q.notify({
+        type: 'positive',
+        message: 'Link copied to clipboard!',
+        position: 'top',
+        icon: 'content_copy'
+      })
+    }
+
+    const previousMonth = () => {
+      currentDate.value = new Date(
+        currentDate.value.getFullYear(),
+        currentDate.value.getMonth() - 1,
+        1
+      )
+    }
+
+    const nextMonth = () => {
+      currentDate.value = new Date(
+        currentDate.value.getFullYear(),
+        currentDate.value.getMonth() + 1,
+        1
+      )
+    }
+
+    const isCurrentMonth = (date) => {
+      if (!date) return false
+      return date.getMonth() === currentDate.value.getMonth()
+    }
+
+    const isToday = (date) => {
+      if (!date) return false
+      const today = new Date()
+      return date.toDateString() === today.toDateString()
+    }
+
+    const hasEvent = (date) => {
+      if (!date) return false
+      return events.value.some(event => {
+        const eventDate = new Date(event.startDate)
+        return eventDate.toDateString() === date.toDateString()
+      })
+    }
+
+    const selectDate = (date) => {
+      console.log('Selected date:', date)
+    }
+
+    const toggleEventExpand = (eventId) => {
+      const index = expandedEvents.value.indexOf(eventId)
+      if (index > -1) {
+        expandedEvents.value.splice(index, 1)
+      } else {
+        expandedEvents.value.push(eventId)
+      }
+    }
+
+    const exploreEvent = (event) => {
+      viewEventDetails(event)
+    }
 
     onMounted(() => {
-      setTimeout(() => {
-        observer = observeElements()
-      }, 100)
+      randomSeed.value = Math.random()
+      fetchHeroImage()
+      fetchEvents()
     })
 
-    onUnmounted(() => {
-      if (observer) {
-        observer.disconnect()
-      }
-    })
-
-    return {
+    return { 
       events,
-      calendarDays,
-      themedEvents,
-      eventsSection,
+      topEvents,
+      selectedDateEvents,
+      featuredEvent,
+      loading,
+      showEventDialog,
+      selectedEvent,
+      heroImageUrl,
+      currentMonth,
+      calendarDates,
+      scheduleFilters,
+      selectedFilter,
+      scheduleItems,
+      expandedEvents,
+      getDay,
+      getMonth,
+      formatTime,
+      formatFullDate,
+      formatDateRange,
+      truncateText,
+      getStatusColor,
       scrollToSection,
-      learnMore,
-      viewEvent,
-      viewAllEvents,
-      closeTheme,
+      viewEventDetails,
+      getDirections,
+      shareEvent,
+      previousMonth,
+      nextMonth,
+      isCurrentMonth,
+      isToday,
+      hasEvent,
+      selectDate,
+      toggleEventExpand,
+      exploreEvent
     }
-  },
+  }
 })
 </script>
 
 <style lang="scss" scoped>
-$primary-green: #4a5f4e;
-$dark-green: #3a4f3e;
-$light-gray: #f5f5f5;
-$light-green: #e8f5e0;
-$text-dark: #333;
-$text-light: #666;
-$cream-bg: #f8f6f0;
-$yellow-accent: #f5d547;
+$primary-green: #2d6a4f;
+$dark-green: #1b4332;
+$light-bg: #f5f5f0;
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+.hero-image-header {
+  height: 450px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
 
-.animate-fade-in {
-  animation: fadeIn 1s ease-out;
-}
-
-.section-animate {
-  opacity: 0;
-  transform: translateY(30px);
-  transition:
-    opacity 0.8s ease,
-    transform 0.8s ease;
-
-  &.animate-in {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.btn-hover-lift {
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  }
-}
-
-.card-hover {
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  }
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.hero-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  min-height: 500px;
-  background: $cream-bg;
-
-  @media (max-width: 960px) {
-    grid-template-columns: 1fr;
+  .hero-overlay-content {
+    z-index: 2;
   }
 
-  .hero-image-wrapper {
-    position: relative;
-    overflow: hidden;
-    min-height: 500px;
-
-    @media (max-width: 960px) {
-      min-height: 300px;
-    }
-
-    .hero-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-  }
-
-  .hero-content-wrapper {
-    display: flex;
-    align-items: center;
-    padding: 60px 80px;
-    background: $cream-bg;
-
-    @media (max-width: 1200px) {
-      padding: 40px 60px;
-    }
+  .brand-name {
+    color: white;
+    font-size: 4rem;
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: 4px;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.5);
 
     @media (max-width: 768px) {
-      padding: 40px 30px;
+      font-size: 2.5rem;
     }
   }
 
-  .hero-content {
-    max-width: 500px;
+  .brand-tagline {
+    color: white;
+    font-size: 1.3rem;
+    opacity: 0.95;
+    margin-top: 10px;
+    font-weight: 500;
 
-    .hero-title {
-      font-size: 2.2rem;
-      font-weight: 900;
-      line-height: 1.2;
-      margin: 0 0 1.5rem 0;
-      color: $text-dark;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-
-      @media (max-width: 768px) {
-        font-size: 1.8rem;
-      }
-    }
-
-    .hero-description {
+    @media (max-width: 768px) {
       font-size: 1rem;
-      line-height: 1.7;
-      margin-bottom: 2rem;
-      color: $text-light;
     }
+  }
+}
 
-    .hero-actions {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
+.hero-info-bar {
+  background: white;
+  padding: 80px 0;
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .info-flex-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+
+    @media (max-width: 900px) {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+  }
+
+  .main-headline {
+    font-size: 2.5rem;
+    font-weight: 900;
+    line-height: 1.2;
+    color: #1a1a1a;
+    margin: 0;
+
+    @media (max-width: 768px) {
+      font-size: 2rem;
+    }
+  }
+
+  .sub-text {
+    font-size: 1.05rem;
+    color: #666;
+    line-height: 1.7;
+    margin-bottom: 25px;
+  }
+
+  .explore-pill-btn {
+    background: $primary-green;
+    color: white;
+    border-radius: 30px;
+    padding: 10px 35px;
+    font-weight: 600;
+    text-transform: none;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: $dark-green;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(45, 106, 79, 0.3);
     }
   }
 }
 
 .events-section {
   background-color: $primary-green;
-  padding: 100px 0;
-  color: white;
+  padding: 80px 0 100px 0;
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
 
   .section-header {
     margin-bottom: 60px;
 
-    .section-title {
-      font-size: 2.5rem;
-      font-weight: 800;
-      margin: 0 0 1rem 0;
-      color: white;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-
-      @media (max-width: 768px) {
-        font-size: 2rem;
-      }
-    }
-
-    .section-subtitle {
-      font-size: 1.1rem;
-      color: rgba(255, 255, 255, 0.9);
-      max-width: 600px;
-      margin: 0 auto;
+    .text-overline {
+      color: rgba(255,255,255,0.8);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
     }
   }
-
-  .events-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 30px;
-    margin-bottom: 40px;
-
-    @media (max-width: 1024px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
+  
+  .section-title {
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: 1px;
 
     @media (max-width: 768px) {
-      grid-template-columns: 1fr;
+      font-size: 2rem;
+    }
+  }
+}
+
+.no-events-state {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.event-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+  }
+
+  .event-image-wrapper {
+    height: 220px;
+    position: relative;
+    background: #f0f0f0;
+    
+    .event-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
-    .event-card {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 12px;
-      overflow: hidden;
+    .event-placeholder {
+      width: 100%;
+      height: 100%;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    }
+    
+    .event-date-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(10px);
+      color: white;
+      padding: 12px 14px;
+      border-radius: 10px;
+      text-align: center;
+      min-width: 65px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 
-      .event-image-wrapper {
-        position: relative;
-        width: 100%;
-        padding-top: 60%;
-        background: $light-gray;
-        overflow: hidden;
-
-        .event-image {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-
-        .event-placeholder {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: $light-gray;
-        }
-
-        .event-date-badge {
-          position: absolute;
-          top: 20px;
-          right: 20px;
-          background: rgba(0, 0, 0, 0.85);
-          backdrop-filter: blur(10px);
-          color: white;
-          padding: 12px 16px;
-          border-radius: 8px;
-          text-align: center;
-          min-width: 70px;
-
-          .date-day {
-            font-size: 1.8rem;
-            font-weight: 900;
-            line-height: 1;
-            margin-bottom: 2px;
-          }
-
-          .date-month {
-            font-size: 0.65rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-          }
-        }
+      .date-day {
+        font-size: 1.6rem;
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 2px;
       }
+      .date-month {
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+    }
 
-      .event-content {
-        padding: 30px;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
+    .event-status-badge {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
 
-        .event-category {
-          font-size: 0.75rem;
-          font-weight: 600;
-          color: $text-light;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          margin-bottom: 0.5rem;
-        }
-
-        .event-title {
-          font-size: 1.1rem;
-          font-weight: 800;
-          color: $text-dark;
-          margin: 0 0 1rem 0;
-          line-height: 1.3;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        .event-description {
-          font-size: 0.9rem;
-          line-height: 1.6;
-          color: $text-light;
-          margin: 0 0 1.5rem 0;
-          flex: 1;
-        }
-
-        .event-link {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          font-size: 0.9rem;
-          font-weight: 600;
-          color: $text-dark;
-          text-decoration: none;
-          transition: all 0.3s ease;
-
-          &:hover {
-            gap: 0.75rem;
-            color: $primary-green;
-          }
-        }
+      &.status-upcoming {
+        background: rgba(33, 150, 243, 0.9);
+        color: white;
+      }
+      &.status-ongoing {
+        background: rgba(76, 175, 80, 0.9);
+        color: white;
+      }
+      &.status-completed {
+        background: rgba(158, 158, 158, 0.9);
+        color: white;
       }
     }
   }
+
+  .event-content {
+    padding: 25px;
+    
+    .event-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin: 0 0 12px 0;
+      line-height: 1.3;
+      color: #1a1a1a;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .event-description {
+      color: #666;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-bottom: 15px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .event-link {
+      color: $primary-green;
+      font-weight: 700;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: gap 0.3s ease;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.view-all-btn {
+  border-radius: 30px;
+  font-weight: 600;
+  text-transform: none;
 }
 
 .calendar-section {
   background: white;
   padding: 80px 0;
 
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
   .calendar-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: start;
+    grid-template-columns: 350px 1fr;
+    gap: 40px;
 
-    @media (max-width: 960px) {
+    @media (max-width: 900px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .calendar-widget {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+
+      h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      .month-nav {
+        display: flex;
+        gap: 5px;
+      }
+    }
+
+    .calendar-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      margin-bottom: 10px;
+
+      .day-header {
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #666;
+      }
+    }
+
+    .calendar-dates {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+
+      .calendar-date {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+
+        &.other-month {
+          color: #ccc;
+        }
+
+        &.today {
+          background: $primary-green;
+          color: white;
+          font-weight: 700;
+        }
+
+        &.has-event {
+          background: lighten($primary-green, 40%);
+        }
+
+        &:hover {
+          background: lighten($primary-green, 35%);
+        }
+      }
+    }
+  }
+
+  .events-list {
+    .no-events-message {
+      padding: 40px 20px;
+      text-align: center;
+      color: #999;
+      font-size: 0.95rem;
+    }
+
+    .event-list-item {
+      margin-bottom: 10px;
+    }
+
+    .events-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 0;
+      border-bottom: 2px solid #e0e0e0;
+      cursor: pointer;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: #f8f8f8;
+      }
+
+      h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0;
+      }
+    }
+
+    .event-list-date {
+      font-size: 0.85rem;
+      color: #666;
+      margin: 5px 0 0 0;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .event-list-details {
+      padding: 15px 0;
+      border-bottom: 1px solid #f0f0f0;
+
+      .event-list-description {
+        font-size: 0.9rem;
+        color: #666;
+        line-height: 1.6;
+        margin-bottom: 10px;
+      }
+
+      .event-list-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 10px;
+
+        .meta-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.85rem;
+          color: #666;
+        }
+      }
+    }
+  }
+}
+
+.featured-event-section {
+  background: $primary-green;
+  padding: 80px 0;
+  color: white;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .featured-grid {
+    display: grid;
+    grid-template-columns: 1fr 500px;
+    gap: 60px;
+    align-items: center;
+
+    @media (max-width: 1024px) {
       grid-template-columns: 1fr;
       gap: 40px;
     }
   }
 
-  .calendar-column {
-    .calendar-wrapper {
-      background: white;
-      border: 1px solid #e0e0e0;
-      border-radius: 12px;
-      padding: 30px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  .featured-overline {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+    opacity: 0.9;
+  }
+
+  .featured-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    line-height: 1.2;
+    margin: 0 0 20px 0;
+
+    @media (max-width: 768px) {
+      font-size: 2rem;
     }
+  }
 
-    .calendar-header {
-      margin-bottom: 30px;
+  .featured-description {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 30px;
+    opacity: 0.95;
+  }
 
-      .calendar-month {
-        font-size: 1.5rem;
+  .featured-details {
+    .detail-item {
+      margin-bottom: 25px;
+
+      h4 {
+        font-size: 0.9rem;
         font-weight: 700;
-        color: $text-dark;
+        letter-spacing: 1px;
+        margin: 0 0 8px 0;
+        opacity: 0.8;
+      }
+
+      p {
+        font-size: 1rem;
         margin: 0;
+        line-height: 1.6;
+      }
+    }
+  }
+
+  .featured-image {
+    .image-wrapper {
+      width: 100%;
+      height: 400px;
+      border-radius: 12px;
+      overflow: hidden;
+
+      @media (max-width: 1024px) {
+        height: 300px;
+      }
+
+      .featured-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
     }
 
-    .calendar-body {
-      .calendar-weekdays {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 8px;
-        margin-bottom: 15px;
+    .image-placeholder {
+      width: 100%;
+      height: 400px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-        .weekday {
-          text-align: center;
-          font-size: 0.85rem;
-          font-weight: 600;
-          color: $text-light;
-          padding: 8px 0;
+      @media (max-width: 1024px) {
+        height: 300px;
+      }
+    }
+  }
+}
+
+.schedule-section {
+  background: $light-bg;
+  padding: 80px 0;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .schedule-header {
+    text-align: center;
+    margin-bottom: 40px;
+
+    .schedule-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin: 0 0 15px 0;
+      color: #1a1a1a;
+
+      @media (max-width: 768px) {
+        font-size: 2rem;
+      }
+    }
+
+    .schedule-subtitle {
+      font-size: 1.05rem;
+      color: #666;
+      margin: 0;
+    }
+  }
+
+  .schedule-filters {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+
+    .filter-btn {
+      border-radius: 25px;
+      padding: 8px 24px;
+      text-transform: none;
+      font-weight: 600;
+    }
+  }
+
+  .schedule-list {
+    .no-schedule-message {
+      padding: 60px 20px;
+      text-align: center;
+      color: #999;
+      font-size: 1rem;
+      background: white;
+      border-radius: 12px;
+    }
+
+    .schedule-item {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 15px;
+      display: grid;
+      grid-template-columns: 100px 60px 1fr auto;
+      gap: 20px;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+
+      &:hover {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+      }
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .schedule-time {
+        display: flex;
+        align-items: baseline;
+        gap: 5px;
+
+        .time-display {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #1a1a1a;
+        }
+
+        .time-period {
+          font-size: 0.9rem;
+          color: #666;
         }
       }
 
-      .calendar-days {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 8px;
-
-        .calendar-day {
-          aspect-ratio: 1;
+      .schedule-icon {
+        .icon-wrapper {
+          width: 50px;
+          height: 50px;
+          background: lighten($primary-green, 40%);
+          border-radius: 50%;
           display: flex;
-          flex-direction: column;
           align-items: center;
           justify-content: center;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          position: relative;
-          padding: 8px;
+          color: $primary-green;
+        }
+      }
 
-          &:hover {
-            background: $light-gray;
-          }
+      .schedule-details {
+        .schedule-event-title {
+          font-size: 1.1rem;
+          font-weight: 700;
+          margin: 0 0 5px 0;
+          color: #1a1a1a;
+        }
 
-          &.inactive {
-            .day-number {
-              color: #ccc;
-            }
-          }
+        .schedule-event-location {
+          font-size: 0.9rem;
+          color: #666;
+          margin: 0;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
+      }
 
-          &.has-event {
-            background: $primary-green;
+      .schedule-action {
+        display: flex;
+        align-items: center;
+        gap: 10px;
 
-            .day-number {
-              color: white;
-              font-weight: 700;
-            }
+        @media (max-width: 768px) {
+          justify-content: flex-start;
+        }
 
-            &:hover {
-              background: $dark-green;
-            }
-          }
+        .explore-btn {
+          border-radius: 20px;
+          text-transform: none;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
 
-          .day-number {
-            font-size: 0.95rem;
-            color: $text-dark;
-          }
+.event-detail-card {
+  background: white;
 
-          .event-indicator {
-            position: absolute;
-            bottom: 4px;
-            width: 4px;
-            height: 4px;
-            background: white;
-            border-radius: 50%;
-          }
+  .event-detail-hero {
+    position: relative;
+    padding: 0;
+
+    .event-detail-image-wrapper {
+      height: 400px;
+      position: relative;
+      background: #f0f0f0;
+
+      @media (max-width: 768px) {
+        height: 300px;
+      }
+
+      .event-detail-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .event-detail-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+      }
+    }
+
+    .event-detail-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+      padding: 60px 0 40px 0;
+
+      .event-detail-title {
+        color: white;
+        font-size: 2.5rem;
+        font-weight: 900;
+        margin: 0 0 20px 0;
+        line-height: 1.2;
+
+        @media (max-width: 768px) {
+          font-size: 1.8rem;
+        }
+      }
+
+      .event-detail-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 25px;
+
+        .meta-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: white;
+          font-size: 1rem;
+          font-weight: 500;
         }
       }
     }
   }
 
-  .themed-cards-column {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  .event-detail-body {
+    padding: 60px 0;
 
-    .themed-card {
-      background: white;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 40px;
+
+      @media (max-width: 1024px) {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .detail-section-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin: 0 0 20px 0;
+      color: #1a1a1a;
+    }
+
+    .event-full-description {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: #444;
+      white-space: pre-wrap;
+    }
+
+    .organizer-card {
+      display: flex;
+      gap: 15px;
       padding: 20px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      background: #f8f8f8;
+      border-radius: 12px;
 
-      .themed-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
+      .organizer-info {
+        flex: 1;
 
-        .themed-card-title {
-          font-size: 0.85rem;
+        .organizer-name {
+          font-size: 1.1rem;
           font-weight: 700;
-          color: $text-dark;
-          margin: 0;
+          color: #1a1a1a;
+          margin-bottom: 10px;
+        }
+
+        .organizer-contacts {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+
+          .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #666;
+
+            a {
+              color: $primary-green;
+              text-decoration: none;
+
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .info-card {
+      position: sticky;
+      top: 20px;
+
+      .info-card-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #1a1a1a;
+      }
+
+      .info-item {
+        padding: 15px 0;
+        border-bottom: 1px solid #eee;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .info-label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: #888;
+          margin-bottom: 5px;
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
-      }
 
-      .themed-card-content {
-        .themed-card-text {
-          font-size: 0.9rem;
-          color: $text-light;
-          margin: 0;
-          line-height: 1.5;
+        .info-value {
+          font-size: 1rem;
+          font-weight: 600;
+          color: #1a1a1a;
         }
       }
     }

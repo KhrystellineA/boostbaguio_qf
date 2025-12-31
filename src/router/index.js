@@ -7,7 +7,6 @@ import {
 } from 'vue-router'
 import routes from './routes'
 import { useUserStore } from 'stores/user-store'
-import { setupAuthGuard } from './guards'
 
 export default defineRouter(function (/* { store, ssrContext } */) {
   const createHistory = process.env.SERVER
@@ -22,7 +21,6 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     history: createHistory(process.env.VUE_ROUTER_BASE),
   })
 
-  setupAuthGuard(Router)
 
   Router.beforeEach(async (to, from, next) => {
     const userStore = useUserStore()

@@ -16,7 +16,19 @@
         <!-- Step 1 -->
         <div class="step-card">
           <div class="step-image">
-            <q-icon name="image" size="64px" color="grey-6" />
+            <q-img
+              v-if="stepImages[0]"
+              :src="stepImages[0]"
+              class="step-img"
+              fit="cover"
+            >
+              <template v-slot:loading>
+                <div class="absolute-full flex flex-center">
+                  <q-spinner color="primary" size="30px" />
+                </div>
+              </template>
+            </q-img>
+            <q-icon v-else name="image" size="64px" color="grey-6" />
           </div>
           <h3 class="step-title">STEP 1: INPUT YOUR START AND END POINTS</h3>
           <p class="step-description">Enter your desired locations for tailored navigation.</p>
@@ -25,7 +37,19 @@
         <!-- Step 2 -->
         <div class="step-card">
           <div class="step-image">
-            <q-icon name="image" size="64px" color="grey-6" />
+            <q-img
+              v-if="stepImages[1]"
+              :src="stepImages[1]"
+              class="step-img"
+              fit="cover"
+            >
+              <template v-slot:loading>
+                <div class="absolute-full flex flex-center">
+                  <q-spinner color="primary" size="30px" />
+                </div>
+              </template>
+            </q-img>
+            <q-icon v-else name="image" size="64px" color="grey-6" />
           </div>
           <h3 class="step-title">STEP 2: FOLLOW THE SUGGESTED ROUTE</h3>
           <p class="step-description">Receive step-by-step directions to your destination.</p>
@@ -34,7 +58,19 @@
         <!-- Step 3 -->
         <div class="step-card">
           <div class="step-image">
-            <q-icon name="image" size="64px" color="grey-6" />
+            <q-img
+              v-if="stepImages[2]"
+              :src="stepImages[2]"
+              class="step-img"
+              fit="cover"
+            >
+              <template v-slot:loading>
+                <div class="absolute-full flex flex-center">
+                  <q-spinner color="primary" size="30px" />
+                </div>
+              </template>
+            </q-img>
+            <q-icon v-else name="image" size="64px" color="grey-6" />
           </div>
           <h3 class="step-title">STEP 3: DISCOVER LOCAL ATTRACTIONS</h3>
           <p class="step-description">Explore curated tourist spots along your route.</p>
@@ -53,8 +89,49 @@
 </template>
 
 <script>
+import { ref, onMounted } from 'vue'
+import { db } from 'src/boot/firebase'
+import { doc, getDoc } from 'firebase/firestore'
+
 export default {
   name: 'GuideSection',
+  
+  setup() {
+    const stepImages = ref([])
+
+    const loadStepImages = async () => {
+      try {
+        console.log('[GuideSection] Loading images from Firebase...')
+        const docRef = doc(db, 'pagePhotos', 'home-guide')
+        const docSnap = await getDoc(docRef)
+        
+        if (docSnap.exists()) {
+          const data = docSnap.data()
+          
+          if (data.images && Array.isArray(data.images)) {
+            stepImages.value = data.images.map(img => img.imageUrl)
+            console.log('[GuideSection] Loaded', data.images.length, 'step images')
+          } 
+          else if (data.imageUrl) {
+            stepImages.value = [data.imageUrl, data.imageUrl, data.imageUrl]
+            console.log('[GuideSection] Using single image for all steps')
+          }
+        } else {
+          console.log('[GuideSection] No guide images document found')
+        }
+      } catch (error) {
+        console.error('[GuideSection] Error loading images:', error)
+      }
+    }
+
+    onMounted(() => {
+      loadStepImages()
+    })
+
+    return {
+      stepImages,
+    }
+  },
 }
 </script>
 
@@ -98,7 +175,6 @@ export default {
   max-width: 700px;
 }
 
-// Steps Grid
 .steps-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -129,6 +205,14 @@ export default {
   align-items: center;
   justify-content: center;
   margin-bottom: 1.5rem;
+  overflow: hidden;
+  position: relative;
+}
+
+.step-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .step-title {
@@ -148,7 +232,6 @@ export default {
   padding: 0 1.5rem 1.5rem;
 }
 
-// Action Buttons
 .guide-actions {
   display: flex;
   align-items: center;
@@ -177,7 +260,6 @@ export default {
   }
 }
 
-// Responsive
 @media (max-width: 1023px) {
   .guide-section {
     padding: 4rem 0;

@@ -15,9 +15,19 @@
           </p>
         </div>
 
-        <!-- Right Image -->
+        <!-- Right Image - NOW DYNAMIC -->
         <div class="about-image">
-          <q-img src="../../assets/img.png" class="about-img" :ratio="4 / 3" />
+          <q-img 
+            :src="aboutImage || defaultImage" 
+            class="about-img" 
+            :ratio="4 / 3"
+          >
+            <template v-slot:loading>
+              <div class="absolute-full flex flex-center">
+                <q-spinner color="primary" size="40px" />
+              </div>
+            </template>
+          </q-img>
         </div>
       </div>
     </div>
@@ -25,8 +35,44 @@
 </template>
 
 <script>
+import { ref, onMounted } from 'vue'
+import { db } from 'src/boot/firebase'
+import { doc, getDoc } from 'firebase/firestore'
+
 export default {
   name: 'AboutSection',
+  
+  setup() {
+    const aboutImage = ref('')
+    const defaultImage = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=900&fit=crop'
+
+    const loadAboutImage = async () => {
+      try {
+        console.log('[AboutSection] Loading image from Firebase...')
+        const docRef = doc(db, 'pagePhotos', 'home-about')
+        const docSnap = await getDoc(docRef)
+        
+        if (docSnap.exists()) {
+          const data = docSnap.data()
+          if (data.imageUrl) {
+            aboutImage.value = data.imageUrl
+            console.log('[AboutSection] Image loaded:', data.imageUrl)
+          }
+        }
+      } catch (error) {
+        console.error('[AboutSection] Error loading image:', error)
+      }
+    }
+
+    onMounted(() => {
+      loadAboutImage()
+    })
+
+    return {
+      aboutImage,
+      defaultImage,
+    }
+  },
 }
 </script>
 

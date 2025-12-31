@@ -94,6 +94,8 @@ export const useUserStore = defineStore('user', {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password)
         this.user = userCredential.user
+        
+        // ✅ IMPROVED: Check premium status but don't let it fail login
         await this.checkPremiumStatus()
 
         Notify.create({
@@ -104,6 +106,8 @@ export const useUserStore = defineStore('user', {
 
         return { success: true }
       } catch (error) {
+        console.error('[UserStore] Sign in error:', error.code, error.message)
+        
         let message = 'Failed to sign in'
         
         if (error.code === 'auth/user-not-found') {
@@ -112,6 +116,8 @@ export const useUserStore = defineStore('user', {
           message = 'Incorrect password'
         } else if (error.code === 'auth/invalid-email') {
           message = 'Invalid email address'
+        } else if (error.code === 'auth/invalid-credential') {
+          message = 'Invalid email or password'
         }
 
         Notify.create({
@@ -138,7 +144,9 @@ export const useUserStore = defineStore('user', {
         })
 
         return { success: true }
-      } catch {
+      } catch (error) {
+        console.error('[UserStore] Logout error:', error)
+        
         Notify.create({
           type: 'negative',
           message: 'Failed to sign out',
@@ -174,9 +182,36 @@ export const useUserStore = defineStore('user', {
               })
             }
           }
+        } else {
+          // ✅ IMPROVED: If user document doesn't exist, create it
+          console.warn('[UserStore] User document not found, creating...')
+          await this.createUserDocument()
         }
-      } catch {
-        console('Error checking premium status:')
+      } catch (error) {
+        // ✅ FIXED: Changed console() to console.error()
+        console.error('[UserStore] Error checking premium status:', error)
+      }
+    },
+
+    // ✅ NEW: Create missing user document
+    async createUserDocument() {
+      if (!this.user) return
+
+      try {
+        await setDoc(doc(db, 'users', this.user.uid), {
+          email: this.user.email,
+          displayName: this.user.displayName || 'User',
+          isPremium: false,
+          createdAt: new Date().toISOString(),
+          premiumExpiry: null
+        })
+
+        this.isPremium = false
+        this.premiumExpiry = null
+
+        console.log('[UserStore] User document created successfully')
+      } catch (error) {
+        console.error('[UserStore] Error creating user document:', error)
       }
     },
 
@@ -194,8 +229,8 @@ export const useUserStore = defineStore('user', {
         this.premiumExpiry = expiryDate
 
         return { success: true }
-      } catch {
-        console.log('Error updating premium status:')
+      } catch (error) {
+        console.error('[UserStore] Error updating premium status:', error)
         return { success: false }
       }
     },

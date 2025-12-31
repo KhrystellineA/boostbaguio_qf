@@ -1,52 +1,23 @@
 <template>
   <q-page class="maykan-page">
-    <!-- Section 1: Hero Section -->
-    <section class="hero-section">
+    <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
       <div class="hero-overlay">
         <div class="hero-content animate-fade-in">
-          <div class="text-overline text-white q-mb-sm">MAYKAN</div>
-          <h1 class="hero-title">DISCOVER BAGUIO'S BEST PLACES</h1>
+          <h1 class="hero-title">MAYKAN</h1>
           <p class="hero-description">
-            Your comprehensive guide to Baguio's tourist spots, cafes, parks, and hidden gems.
-            Find the perfect place and navigate there with ease using our jeepney route finder.
+            Discover Baguio's gems! Uncover curated tourist spots with easy commute guides tailored for your Baguio adventure.
           </p>
-
-          <div class="hero-actions">
-            <q-btn
-              label="Explore Places"
-              unelevated
-              color="white"
-              text-color="dark"
-              size="lg"
-              padding="12px 32px"
-              class="btn-hover-lift q-mr-md"
-              @click="scrollToSection('places')"
-            />
-            <q-btn
-              label="Join Community"
-              outline
-              color="white"
-              size="lg"
-              padding="12px 32px"
-              class="btn-hover-lift"
-              @click="openSaBaguioGroup"
-            />
-          </div>
         </div>
       </div>
     </section>
 
-    <!-- Section 2: About MAYKAN -->
-    <section class="about-section">
+    <section class="explore-section">
       <div class="container">
-        <div class="section-header text-center">
-          <div class="text-overline text-primary q-mb-sm">About</div>
-          <h2 class="section-title">WHAT IS MAYKAN?</h2>
-          <p class="section-subtitle">
-            MAYKAN is your ultimate companion for exploring Baguio City. We provide detailed
-            information about the city's best places and seamlessly connect you to our APANAM
-            feature for easy jeepney navigation. Whether you're a tourist or a local, MAYKAN
-            helps you discover and reach Baguio's amazing destinations.
+        <div class="explore-header text-center">
+          <div class="text-overline">Explore</div>
+          <h2 class="explore-title">DISCOVER BAGUIO'S HIDDEN GEMS WITH EASE</h2>
+          <p class="explore-subtitle">
+            Baguio City is filled with breathtaking sights and experiences waiting to be discovered. Our curated list of tourist spots ensures you navigate the city effortlessly while enjoying its rich culture.
           </p>
         </div>
 
@@ -54,10 +25,10 @@
           <div
             v-for="(feature, index) in features"
             :key="index"
-            class="feature-card section-animate card-hover"
+            class="feature-card section-animate"
           >
             <div class="feature-icon-wrapper">
-              <q-icon :name="feature.icon" size="48px" class="feature-icon" />
+              <q-icon :name="feature.icon" size="64px" class="feature-icon" />
             </div>
             <h3 class="feature-title">{{ feature.title }}</h3>
             <p class="feature-description">{{ feature.description }}</p>
@@ -66,24 +37,23 @@
       </div>
     </section>
 
-    <!-- Small Ribbon: Sa Baguio Community -->
     <section class="community-ribbon">
       <div class="container">
         <div class="ribbon-content">
           <div class="ribbon-text">
             <q-icon name="groups" size="32px" class="ribbon-icon" />
             <div>
-              <h3 class="ribbon-title">Join the Sa Baguio Community</h3>
+              <h3 class="ribbon-title">Want more organic content?</h3>
               <p class="ribbon-subtitle">
-                Connect with locals and travelers, share experiences, and get insider tips!
+                Visit Sa Baguio Facebook group to see more personal and unique suggestions and experiences!
               </p>
             </div>
           </div>
           <q-btn
-            label="Join Facebook Group"
+            label="Sa Baguio!"
             unelevated
-            color="primary"
-            text-color="white"
+            color="white"
+            text-color="dark"
             padding="10px 28px"
             class="btn-hover-lift"
             icon-right="open_in_new"
@@ -93,7 +63,6 @@
       </div>
     </section>
 
-    <!-- Section 3: Places Directory (Pinterest-style Grid) -->
     <section id="places" class="places-section" ref="placesSection">
       <div class="container">
         <div class="section-header text-center">
@@ -103,7 +72,6 @@
             and more. Click on any place to view details and get directions.
           </p>
 
-          <!-- Category Filter -->
           <div class="category-filter">
             <q-btn
               v-for="category in categories"
@@ -120,61 +88,63 @@
           </div>
         </div>
 
-        <!-- Places Grid (Pinterest-style) -->
-        <div class="places-masonry">
+        <div v-if="loading" class="text-center q-py-xl">
+          <q-spinner-hourglass color="primary" size="60px" />
+          <p class="q-mt-md text-grey-7">Loading places...</p>
+        </div>
+
+        <div v-else-if="filteredPlaces.length === 0" class="no-places-state">
+          <q-icon name="place" size="80px" color="grey-5" />
+          <h3 class="text-grey-7 q-mt-md">No Places Found</h3>
+          <p class="text-grey-6">{{ selectedCategory === 'all' ? 'No places available yet' : 'No places in this category' }}</p>
+        </div>
+
+        <div v-else class="places-masonry">
           <div
-            v-for="(place, index) in filteredPlaces"
-            :key="index"
-            class="place-card section-animate card-hover"
+            v-for="place in filteredPlaces"
+            :key="place.id"
+            class="place-card card-hover"
             @click="selectPlace(place)"
           >
             <div class="place-image-wrapper">
-              <img v-if="place.image" :src="place.image" :alt="place.name" class="place-image" />
+              <img 
+                v-if="place.imageUrl" 
+                :src="place.imageUrl" 
+                :alt="place.name" 
+                class="place-image" 
+              />
               <div v-else class="place-placeholder">
-                <q-icon name="image" size="48px" color="grey-4" />
+                <q-icon name="place" size="48px" color="grey-4" />
               </div>
               <div class="place-category-badge">{{ place.category }}</div>
             </div>
 
             <div class="place-content">
               <h3 class="place-name">{{ place.name }}</h3>
-              <p class="place-short-desc">{{ place.shortDescription }}</p>
+              <p class="place-short-desc">{{ place.shortDescription || truncateText(place.description, 80) }}</p>
 
               <div class="place-meta">
-                <div class="meta-item">
+                <div class="meta-item" v-if="place.operatingHours">
                   <q-icon name="schedule" size="16px" />
-                  <span>{{ place.hours }}</span>
+                  <span>{{ place.operatingHours }}</span>
                 </div>
-                <div class="meta-item">
+                <div class="meta-item" v-if="place.area">
                   <q-icon name="location_on" size="16px" />
                   <span>{{ place.area }}</span>
                 </div>
               </div>
 
-              <div class="place-tags">
-                <span v-for="(tag, tagIndex) in place.tags" :key="tagIndex" class="place-tag">
+              <div class="place-tags" v-if="place.tags && place.tags.length > 0">
+                <span v-for="(tag, tagIndex) in place.tags.slice(0, 3)" :key="tagIndex" class="place-tag">
                   {{ tag }}
                 </span>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Load More Button -->
-        <div class="text-center q-mt-xl" v-if="hasMorePlaces">
-          <q-btn
-            label="Load More Places"
-            unelevated
-            color="primary"
-            padding="12px 40px"
-            class="btn-hover-lift"
-            @click="loadMorePlaces"
-          />
-        </div>
       </div>
     </section>
 
-    <!-- Section 4: Place Detail Modal -->
     <q-dialog
       v-model="showPlaceDetail"
       transition-show="slide-up"
@@ -183,7 +153,6 @@
     >
       <q-card class="place-detail-card">
         <q-card-section class="place-detail-content">
-          <!-- Close Button -->
           <q-btn
             flat
             dense
@@ -195,69 +164,50 @@
             @click="showPlaceDetail = false"
           />
 
-          <div class="detail-container">
-            <!-- Image Section -->
+          <div class="detail-container" v-if="selectedPlace">
             <div class="detail-image-section">
               <div class="detail-image-wrapper">
                 <img
-                  v-if="selectedPlace?.image"
-                  :src="selectedPlace.image"
+                  v-if="selectedPlace.imageUrl"
+                  :src="selectedPlace.imageUrl"
                   :alt="selectedPlace.name"
                   class="detail-image"
                 />
                 <div v-else class="detail-image-placeholder">
-                  <q-icon name="image" size="120px" color="grey-4" />
-                </div>
-              </div>
-
-              <!-- Image Gallery Thumbnails (if available) -->
-              <div v-if="selectedPlace?.gallery" class="image-gallery">
-                <div
-                  v-for="(img, idx) in selectedPlace.gallery"
-                  :key="idx"
-                  class="gallery-thumb"
-                >
-                  <img :src="img" :alt="`${selectedPlace.name} ${idx + 1}`" />
+                  <q-icon name="place" size="120px" color="grey-4" />
                 </div>
               </div>
             </div>
 
-            <!-- Info Section -->
             <div class="detail-info-section">
               <div class="detail-header">
-                <div class="category-badge">{{ selectedPlace?.category }}</div>
-                <h2 class="detail-title">{{ selectedPlace?.name }}</h2>
-                <p class="detail-description">{{ selectedPlace?.description }}</p>
+                <div class="category-badge">{{ selectedPlace.category }}</div>
+                <h2 class="detail-title">{{ selectedPlace.name }}</h2>
+                <p class="detail-description">{{ selectedPlace.description || 'No description available.' }}</p>
               </div>
 
-              <!-- Operating Hours -->
-              <div class="detail-info-card">
+              <div class="detail-info-card" v-if="selectedPlace.operatingHours">
                 <div class="info-card-header">
                   <q-icon name="schedule" size="32px" color="primary" />
                   <h3>Operating Hours</h3>
                 </div>
                 <div class="info-card-content">
-                  <p class="hours-text">{{ selectedPlace?.operatingHours }}</p>
-                  <p v-if="selectedPlace?.specialHours" class="special-hours">
-                    {{ selectedPlace.specialHours }}
-                  </p>
+                  <p class="hours-text">{{ selectedPlace.operatingHours }}</p>
                 </div>
               </div>
 
-              <!-- Location & Address -->
               <div class="detail-info-card">
                 <div class="info-card-header">
                   <q-icon name="location_on" size="32px" color="primary" />
                   <h3>Location</h3>
                 </div>
                 <div class="info-card-content">
-                  <p class="address-text">{{ selectedPlace?.address }}</p>
-                  <p class="landmark-text">{{ selectedPlace?.landmark }}</p>
+                  <p class="address-text">{{ selectedPlace.address }}</p>
+                  <p class="landmark-text" v-if="selectedPlace.area">Area: {{ selectedPlace.area }}</p>
                 </div>
               </div>
 
-              <!-- Additional Info -->
-              <div class="detail-info-card" v-if="selectedPlace?.entranceFee">
+              <div class="detail-info-card" v-if="selectedPlace.entranceFee">
                 <div class="info-card-header">
                   <q-icon name="payments" size="32px" color="primary" />
                   <h3>Entrance Fee</h3>
@@ -267,25 +217,29 @@
                 </div>
               </div>
 
-              <!-- Contact Info -->
-              <div class="detail-info-card" v-if="selectedPlace?.contact">
+              <div class="detail-info-card" v-if="selectedPlace.phone || selectedPlace.website">
                 <div class="info-card-header">
                   <q-icon name="phone" size="32px" color="primary" />
                   <h3>Contact</h3>
                 </div>
                 <div class="info-card-content">
-                  <p class="contact-text">{{ selectedPlace.contact }}</p>
+                  <p class="contact-text" v-if="selectedPlace.phone">
+                    <q-icon name="phone" size="16px" />
+                    {{ selectedPlace.phone }}
+                  </p>
+                  <p class="contact-text" v-if="selectedPlace.website">
+                    <q-icon name="language" size="16px" />
+                    <a :href="selectedPlace.website" target="_blank">{{ selectedPlace.website }}</a>
+                  </p>
                 </div>
               </div>
 
-              <!-- Tags -->
-              <div class="detail-tags">
-                <span v-for="(tag, idx) in selectedPlace?.tags" :key="idx" class="detail-tag">
+              <div class="detail-tags" v-if="selectedPlace.tags && selectedPlace.tags.length > 0">
+                <span v-for="(tag, idx) in selectedPlace.tags" :key="idx" class="detail-tag">
                   {{ tag }}
                 </span>
               </div>
 
-              <!-- Action Buttons -->
               <div class="detail-actions">
                 <q-btn
                   label="Get Directions via APANAM"
@@ -309,7 +263,8 @@
                     @click="sharePlace"
                   />
                   <q-btn
-                    label="Save"
+                    :label="isSaving ? 'Saving...' : 'Save'"
+                    :loading="isSaving"
                     outline
                     color="primary"
                     size="md"
@@ -325,10 +280,8 @@
       </q-card>
     </q-dialog>
 
-    <!-- Section 5: FAQs -->
     <FAQSection />
 
-    <!-- Section 6: Footer -->
     <FooterSection />
   </q-page>
 </template>
@@ -337,6 +290,9 @@
 import { defineComponent, ref, computed, onMounted, onUnmounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
+import { db, auth } from 'src/boot/firebase'
+import { collection, getDocs, addDoc, query, orderBy, doc, getDoc, where } from 'firebase/firestore'
+import { useUserStore } from 'stores/user-store'
 import FAQSection from '../components/Home/FAQSection.vue'
 import FooterSection from '../components/Home/FooterSection.vue'
 
@@ -350,581 +306,94 @@ export default defineComponent({
   setup() {
     const $q = useQuasar()
     const router = useRouter()
+    const userStore = useUserStore()
     const placesSection = ref(null)
     const showPlaceDetail = ref(false)
     const selectedPlace = ref(null)
     const selectedCategory = ref('all')
-    const hasMorePlaces = ref(false)
+    const places = ref([])
+    const loading = ref(true)
+    const heroImageUrl = ref(null)
+    const isSaving = ref(false)
 
     const features = [
       {
-        icon: 'explore',
-        title: 'Discover Places',
-        description:
-          'Browse through hundreds of curated tourist spots, cafes, parks, and hidden gems in Baguio City.',
+        icon: 'place',
+        title: 'MUST-VISIT ATTRACTIONS IN BAGUIO CITY',
+        description: 'From parks to historical sites, explore Baguio\'s best.',
       },
       {
-        icon: 'info',
-        title: 'Detailed Information',
-        description:
-          'Get complete details including operating hours, entrance fees, contact info, and exact locations.',
+        icon: 'flag',
+        title: 'YOUR GUIDE TO BAGUIO\'S TOURIST SPOTS',
+        description: 'Follow our commute guides for a hassle-free visit.',
       },
       {
-        icon: 'directions',
-        title: 'Easy Navigation',
-        description:
-          'Seamlessly connect to APANAM for instant jeepney routes and directions to your chosen destination.',
+        icon: 'palette',
+        title: 'EXPERIENCE THE BEST OF BAGUIO\'S CULTURE',
+        description: 'Immerse yourself in local traditions and attractions.',
       },
     ]
 
     const categories = [
       { label: 'All Places', value: 'all' },
-      { label: 'Tourist Spots', value: 'tourist' },
-      { label: 'Cafes & Restaurants', value: 'cafe' },
-      { label: 'Parks & Nature', value: 'park' },
-      { label: 'Museums & Culture', value: 'museum' },
-      { label: 'Shopping', value: 'shopping' },
-    ]
-
-    const places = [
-      {
-        name: 'Burnham Park',
-        category: 'Tourist Spots',
-        shortDescription: "Baguio's iconic central park with boating and biking activities",
-        description:
-          "Burnham Park is the heart of Baguio City, a sprawling urban park perfect for families and tourists. Enjoy boat rides on the lagoon, bike around the park, or simply relax on the grass. It's a must-visit destination that captures the essence of Baguio.",
-        area: 'City Center',
-        hours: '24 hours',
-        operatingHours: 'Open 24 hours daily',
-        specialHours: 'Boat rentals: 6:00 AM - 6:00 PM',
-        address: 'Jose Abad Santos Drive, Baguio City',
-        landmark: 'Near Baguio Cathedral and Session Road',
-        entranceFee: 'Free (boat rentals: ₱150-300 per 30 minutes)',
-        contact: 'N/A',
-        tags: ['Parks', 'Family-Friendly', 'Boating', 'Iconic'],
-        image: 'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1586348943529-beaae6c28db9?w=400&q=80',
-          'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400&q=80',
-          'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&q=80',
-        ],
-      },
-      {
-        name: 'The Mansion',
-        category: 'Tourist Spots',
-        shortDescription: "Official summer residence of the Philippine President",
-        description:
-          "The Mansion serves as the official summer residence of the President of the Philippines. While you can't enter the building itself, the well-manicured gardens and impressive architecture make it a popular photo spot. The surrounding area is perfect for a leisurely walk.",
-        area: 'Leonard Wood Road',
-        hours: 'Gardens: 8AM-5PM',
-        operatingHours: 'Gardens open daily 8:00 AM - 5:00 PM',
-        specialHours: 'Building interior closed to public',
-        address: 'Leonard Wood Road, Baguio City',
-        landmark: 'Near Wright Park',
-        entranceFee: 'Free',
-        contact: 'N/A',
-        tags: ['Historical', 'Architecture', 'Photo Spot', 'Gardens'],
-        image: 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=400&q=80',
-          'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&q=80',
-          'https://images.unsplash.com/photo-1583225214464-9296029427aa?w=400&q=80',
-        ],
-      },
-      {
-        name: "Mines View Park",
-        category: 'Tourist Spots',
-        shortDescription: 'Panoramic views of mining areas and souvenir shops',
-        description:
-          "Mines View Park offers breathtaking panoramic views of the Cordillera mountain ranges and former mining towns. The park features numerous souvenir shops selling local handicrafts, woven products, and Baguio delicacies. Don't miss the photo opportunity with the famous St. Bernard dogs!",
-        area: 'Outlook Drive',
-        hours: '7AM-6PM',
-        operatingHours: 'Open daily 7:00 AM - 6:00 PM',
-        address: 'Outlook Drive, Baguio City',
-        landmark: 'Near Baguio Country Club',
-        entranceFee: 'Free',
-        contact: 'N/A',
-        tags: ['Scenic Views', 'Shopping', 'Photo Spot', 'Mountain Views'],
-        image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80',
-          'https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=400&q=80',
-          'https://images.unsplash.com/photo-1454391304352-2bf4678b1a7a?w=400&q=80',
-        ],
-      },
-      {
-        name: 'Baguio Cathedral',
-        category: 'Tourist Spots',
-        shortDescription: 'Pink twin-spired Catholic cathedral in the city center',
-        description:
-          'Also known as Our Lady of Atonement Cathedral, this iconic pink church with twin spires is one of Baguio\'s most recognizable landmarks. Built in 1936, it features beautiful stained glass windows and offers a peaceful sanctuary in the heart of the city. The long flight of stairs leading to the cathedral is also a popular photo spot.',
-        area: 'City Center',
-        hours: 'Daily: 6AM-7PM',
-        operatingHours: 'Open daily for prayer 6:00 AM - 7:00 PM',
-        specialHours: 'Mass schedules: Sunday 5:30 AM, 7:00 AM, 8:30 AM, 10:00 AM, 5:00 PM',
-        address: 'Cathedral Loop, Session Road, Baguio City',
-        landmark: 'At the top of Session Road stairs',
-        entranceFee: 'Free',
-        contact: '(074) 442-3363',
-        tags: ['Religious', 'Historical', 'Architecture', 'Photo Spot'],
-        image: 'https://images.unsplash.com/photo-1548625149-720d74bf8f05?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1548625149-720d74bf8f05?w=400&q=80',
-          'https://images.unsplash.com/photo-1519378058457-4c29a0a2efac?w=400&q=80',
-          'https://images.unsplash.com/photo-1605102295070-96259eb81623?w=400&q=80',
-        ],
-      },
-      {
-        name: 'Wright Park',
-        category: 'Parks & Nature',
-        shortDescription: 'Historic park with horseback riding and a pool of pine trees',
-        description:
-          'Wright Park is famous for its "Pool of Pines" - a scenic stretch of tall pine trees creating a natural canopy. The park offers horseback riding experiences and is a favorite spot for morning walks. The cool, fresh air and towering trees make it a perfect escape from city life.',
-        area: 'Leonard Wood Road',
-        hours: '6AM-6PM',
-        operatingHours: 'Open daily 6:00 AM - 6:00 PM',
-        specialHours: 'Horse rentals available during operating hours',
-        address: 'Upper Session Road, Baguio City',
-        landmark: 'Near The Mansion',
-        entranceFee: 'Free (horseback riding: ₱200-500)',
-        contact: 'N/A',
-        tags: ['Parks', 'Horseback Riding', 'Nature', 'Photo Spot'],
-        image: 'https://images.unsplash.com/photo-1542359649-31e03cd4d909?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1542359649-31e03cd4d909?w=400&q=80',
-          'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&q=80',
-          'https://images.unsplash.com/photo-1511497584788-876760111969?w=400&q=80',
-        ],
-      },
-      {
-        name: 'Tam-awan Village',
-        category: 'Museums & Culture',
-        shortDescription: 'Traditional Cordillera village showcasing indigenous culture',
-        description:
-          'Tam-awan Village is a reconstructed traditional Cordillera village that serves as an artist village and cultural center. Experience authentic huts, learn about indigenous traditions, and appreciate local art. The village often hosts workshops and cultural performances, making it a living museum of Cordillera heritage.',
-        area: 'Pinsao',
-        hours: '9AM-6PM',
-        operatingHours: 'Open daily 9:00 AM - 6:00 PM',
-        address: '366 Pinsao Proper, Baguio City',
-        landmark: 'Near Teacher\'s Camp',
-        entranceFee: '₱60 (adults), ₱40 (students)',
-        contact: '(074) 446-2949',
-        tags: ['Cultural', 'Indigenous', 'Art', 'Educational'],
-        image: 'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=400&q=80',
-          'https://images.unsplash.com/photo-1545558014-8692077e9b5c?w=400&q=80',
-          'https://images.unsplash.com/photo-1604357209793-fca5dca89f97?w=400&q=80',
-        ],
-      },
-      {
-        name: 'Bell Church (Our Lady of Lourdes Grotto)',
-        category: 'Tourist Spots',
-        shortDescription: 'Serene grotto with 252 steps and religious significance',
-        description:
-          'The Our Lady of Lourdes Grotto, commonly called Bell Church, is a peaceful religious site featuring a replica of the grotto in Lourdes, France. Climbing the 252 steps to the shrine offers both spiritual reflection and exercise. At the top, you\'re rewarded with a beautiful view and a sense of tranquility.',
-        area: 'Dominican Hill',
-        hours: '6AM-6PM',
-        operatingHours: 'Open daily 6:00 AM - 6:00 PM',
-        address: 'Dominican Hill Road, Baguio City',
-        landmark: 'Near Lourdes Grotto',
-        entranceFee: 'Free',
-        contact: 'N/A',
-        tags: ['Religious', 'Pilgrimage', 'Exercise', 'Peaceful'],
-        image: 'https://images.unsplash.com/photo-1508768787810-6adc1f613514?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1508768787810-6adc1f613514?w=400&q=80',
-          'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80',
-          'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&q=80',
-        ],
-      },
-
-      // Cafes & Restaurants
-      {
-        name: 'Hill Station',
-        category: 'Cafes & Restaurants',
-        shortDescription: 'Upscale dining with colonial ambiance and international cuisine',
-        description:
-          'Hill Station offers a sophisticated dining experience in a beautifully restored colonial house. The restaurant serves international and Filipino fusion cuisine in an elegant setting. Perfect for special occasions or romantic dinners, with impeccable service and exquisite food presentation.',
-        area: 'Casa Vallejo',
-        hours: '11AM-2PM, 6PM-10PM',
-        operatingHours: 'Lunch: 11:00 AM - 2:00 PM | Dinner: 6:00 PM - 10:00 PM',
-        specialHours: 'Closed on Mondays',
-        address: 'Casa Vallejo, Upper Session Road, Baguio City',
-        landmark: 'Inside Casa Vallejo Hotel',
-        entranceFee: 'N/A',
-        contact: '(074) 424-2547',
-        tags: ['Fine Dining', 'International', 'Romantic', 'Colonial'],
-        image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80',
-          'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80',
-          'https://images.unsplash.com/photo-1559339352-11d035aa65de?w=400&q=80',
-        ],
-      },
-      {
-        name: 'Café by the Ruins',
-        category: 'Cafes & Restaurants',
-        shortDescription: 'Bohemian café serving organic local dishes',
-        description:
-          'A beloved Baguio institution, Café by the Ruins celebrates local culture and organic ingredients. Built around actual ruins, the café offers a unique ambiance with its open-air setting and eclectic décor. Try their famous mushroom soup and organic salads while enjoying the artsy atmosphere.',
-        area: 'Shuntug Trail',
-        hours: '8AM-8PM',
-        operatingHours: 'Open daily 8:00 AM - 8:00 PM',
-        address: '25 Shuntug Trail, Baguio City',
-        landmark: 'Near Baguio Cathedral',
-        entranceFee: 'N/A',
-        contact: '(074) 442-4010',
-        tags: ['Local Cuisine', 'Organic', 'Bohemian', 'Historic'],
-        image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&q=80',
-          'https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=400&q=80',
-          'https://images.unsplash.com/photo-1521017432531-fbd92d768814?w=400&q=80',
-        ],
-      },
-      {
-        name: 'Vizco\'s Restaurant & Cake Shop',
-        category: 'Cafes & Restaurants',
-        shortDescription: 'Famous for strawberry shortcake and Filipino comfort food',
-        description:
-          'Vizco\'s is a Baguio favorite known for their legendary strawberry shortcake and delicious Filipino dishes. The restaurant offers generous portions of comfort food in a cozy setting. Don\'t leave without trying their signature cake - it\'s a Baguio must-have!',
-        area: 'Various locations',
-        hours: '8AM-8PM',
-        operatingHours: 'Open daily 8:00 AM - 8:00 PM',
-        address: 'Multiple branches: Session Road, Abanao Square, SM Baguio',
-        landmark: 'Main branch on Session Road',
-        entranceFee: 'N/A',
-        contact: '(074) 442-2551',
-        tags: ['Bakery', 'Filipino Food', 'Desserts', 'Popular'],
-        image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&q=80',
-          'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=80',
-          'https://images.unsplash.com/photo-1464349095431-e9a21285b5f3?w=400&q=80',
-        ],
-      },
-      {
-        name: 'Good Taste Café and Restaurant',
-        category: 'Cafes & Restaurants',
-        shortDescription: 'Budget-friendly Filipino-Chinese dishes',
-        description:
-          'Good Taste has been serving affordable and delicious Filipino-Chinese cuisine since the 1970s. Known for generous portions and reasonable prices, it\'s a favorite among locals and budget-conscious travelers. Their pancit canton and fried chicken are highly recommended.',
-        area: 'Session Road',
-        hours: '10AM-10PM',
-        operatingHours: 'Open daily 10:00 AM - 10:00 PM',
-        address: '88 Session Road, Baguio City',
-        landmark: 'Near Baguio Center Mall',
-        entranceFee: 'N/A',
-        contact: '(074) 442-8072',
-        tags: ['Budget-Friendly', 'Filipino-Chinese', 'Local Favorite', 'Casual'],
-        image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',
-          'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80',
-          'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&q=80',
-        ],
-      },
-      {
-        name: 'Ketchup Food Community',
-        category: 'Cafes & Restaurants',
-        shortDescription: 'Modern food hall with diverse dining options',
-        description:
-          'Ketchup Food Community is Baguio\'s premier food hall featuring multiple food stalls and restaurants under one roof. From Korean BBQ to Italian pasta, Japanese ramen to Filipino favorites - there\'s something for everyone. The modern, Instagram-worthy space makes it popular with younger crowds.',
-        area: 'Session Road',
-        hours: '11AM-11PM',
-        operatingHours: 'Open daily 11:00 AM - 11:00 PM',
-        address: 'Session Road, Baguio City',
-        landmark: 'Near Baguio Cathedral',
-        entranceFee: 'N/A',
-        contact: 'Various per stall',
-        tags: ['Food Hall', 'Diverse Cuisine', 'Modern', 'Instagram-worthy'],
-        image: 'https://images.unsplash.com/photo-1567521464027-f127ff144326?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1567521464027-f127ff144326?w=400&q=80',
-          'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=400&q=80',
-          'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?w=400&q=80',
-        ],
-      },
-      {
-        name: 'The Coffee Beanery',
-        category: 'Cafes & Restaurants',
-        shortDescription: 'Cozy coffee shop with mountain views',
-        description:
-          'The Coffee Beanery is a charming café offering quality coffee and pastries with stunning views of the Cordillera mountains. The warm ambiance and friendly service make it perfect for catching up with friends or working remotely. Their specialty coffee blends and homemade cakes are customer favorites.',
-        area: 'Upper Session Road',
-        hours: '7AM-9PM',
-        operatingHours: 'Open daily 7:00 AM - 9:00 PM',
-        address: 'Upper Session Road, Baguio City',
-        landmark: 'Near Baguio Country Club',
-        entranceFee: 'N/A',
-        contact: '(074) 442-7890',
-        tags: ['Coffee Shop', 'Mountain Views', 'Cozy', 'WiFi'],
-        image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=400&q=80',
-          'https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400&q=80',
-          'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400&q=80',
-        ],
-      },
-      {
-        name: 'Oh My Gulay!',
-        category: 'Cafes & Restaurants',
-        shortDescription: 'Artistic vegetarian restaurant with rooftop dining',
-        description:
-          'Oh My Gulay! is an eccentric vegetarian restaurant located on the top floor of La Azotea Building. The quirky décor, which includes paintings and art installations, creates a bohemian atmosphere. The menu features creative vegetarian dishes using fresh, local ingredients. The rooftop setting offers a unique dining experience.',
-        area: 'Session Road',
-        hours: '11AM-7PM',
-        operatingHours: 'Open daily 11:00 AM - 7:00 PM',
-        address: '5th Floor, La Azotea Building, Session Road, Baguio City',
-        landmark: 'La Azotea Building',
-        entranceFee: 'N/A',
-        contact: '(074) 424-9573',
-        tags: ['Vegetarian', 'Artistic', 'Rooftop', 'Unique'],
-        image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80',
-          'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&q=80',
-          'https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?w=400&q=80',
-        ],
-      },
-
-      // Museums & Culture
-      {
-        name: 'BenCab Museum',
-        category: 'Museums & Culture',
-        shortDescription: 'Contemporary art museum showcasing Filipino artists',
-        description:
-          'The BenCab Museum houses the works of National Artist Benedicto Cabrera and other contemporary Filipino artists. The museum complex includes galleries, gardens, a café, and a souvenir shop. Set in a stunning location with mountain views, it\'s a must-visit for art enthusiasts.',
-        area: 'Tuba',
-        hours: '9AM-6PM',
-        operatingHours: 'Tuesday to Sunday: 9:00 AM - 6:00 PM',
-        specialHours: 'Closed on Mondays',
-        address: 'Km. 6 Asin Road, Tadiangan, Tuba, Benguet',
-        landmark: 'Near Asin Hot Springs',
-        entranceFee: '₱150 (adults), ₱80 (students/seniors)',
-        contact: '(074) 442-7165',
-        tags: ['Art', 'Museum', 'Contemporary', 'Cultural'],
-        image: 'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?w=400&q=80',
-          'https://images.unsplash.com/photo-1578926078261-dd5553a08c40?w=400&q=80',
-          'https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=400&q=80',
-        ],
-      },
-      {
-        name: 'Baguio Museum',
-        category: 'Museums & Culture',
-        shortDescription: 'Historical museum showcasing Cordillera heritage',
-        description:
-          'Located inside Baguio City Hall, this museum showcases the rich cultural heritage of the Cordillera region. Exhibits include traditional Igorot clothing, artifacts, historical photographs, and information about Baguio\'s development. Free admission makes it accessible to everyone.',
-        area: 'City Center',
-        hours: '8AM-5PM (weekdays)',
-        operatingHours: 'Monday to Friday: 8:00 AM - 5:00 PM',
-        specialHours: 'Closed on weekends and holidays',
-        address: 'Baguio City Hall Compound, Session Road, Baguio City',
-        landmark: 'Inside Baguio City Hall',
-        entranceFee: 'Free',
-        contact: '(074) 442-8931',
-        tags: ['History', 'Cultural', 'Indigenous', 'Educational'],
-        image: 'https://images.unsplash.com/photo-1565301660306-29e08751cc3b?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1565301660306-29e08751cc3b?w=400&q=80',
-          'https://images.unsplash.com/photo-1551191916-2a40a1b8aef3?w=400&q=80',
-          'https://images.unsplash.com/photo-1566127444979-b3d2b654e1d8?w=400&q=80',
-        ],
-      },
-
-      // Parks & Nature
-      {
-        name: 'Botanical Garden',
-        category: 'Parks & Nature',
-        shortDescription: 'Peaceful garden showcasing native plants and Igorot culture',
-        description:
-          'The Baguio Botanical Garden, also known as the Centennial Park, is a beautiful green space showcasing native plants and traditional Igorot houses. Walking paths wind through the gardens, and you can learn about indigenous culture through the displayed structures. It\'s a perfect spot for nature photography and peaceful walks.',
-        area: 'Leonard Wood Road',
-        hours: '6AM-6PM',
-        operatingHours: 'Open daily 6:00 AM - 6:00 PM',
-        address: 'Leonard Wood Road, Baguio City',
-        landmark: 'Near Camp John Hay',
-        entranceFee: 'Free',
-        contact: 'N/A',
-        tags: ['Gardens', 'Nature', 'Indigenous Culture', 'Educational'],
-        image: 'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400&q=80',
-          'https://images.unsplash.com/photo-1591958911259-bee2173bdccc?w=400&q=80',
-          'https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=400&q=80',
-        ],
-      },
-      {
-        name: 'Camp John Hay',
-        category: 'Parks & Nature',
-        shortDescription: 'Former US military base turned eco-tourism destination',
-        description:
-          'Camp John Hay is a sprawling eco-tourism estate featuring pine forests, hiking trails, hotels, restaurants, and recreational facilities. The cool mountain air, scenic trails, and variety of activities make it a favorite destination. Don\'t miss the Bell House, historical cemetery, and butterfly sanctuary.',
-        area: 'Loakan Road',
-        hours: '24 hours (facilities vary)',
-        operatingHours: 'Park grounds: Open 24 hours | Facilities: Various hours',
-        address: 'Loakan Road, Baguio City',
-        landmark: 'Near Manor Hotel',
-        entranceFee: 'Free (some facilities may charge)',
-        contact: '(074) 424-3030',
-        tags: ['Nature', 'Hiking', 'Historical', 'Recreation'],
-        image: 'https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1511593358241-7eea1f3c84e5?w=400&q=80',
-          'https://images.unsplash.com/photo-1426604966848-d7adac402bff?w=400&q=80',
-          'https://images.unsplash.com/photo-1551632811-561732d1e306?w=400&q=80',
-        ],
-      },
-      {
-        name: 'Mirador Jesuit Villa',
-        category: 'Parks & Nature',
-        shortDescription: 'Scenic spot with panoramic city views and sunset watching',
-        description:
-          'Mirador Hill offers one of the best panoramic views of Baguio City and the surrounding mountains. It\'s especially popular during sunset when the city lights begin to twinkle. The area includes a small chapel, well-maintained gardens, and viewing decks perfect for photography.',
-        area: 'Outlook Drive',
-        hours: '6AM-6PM',
-        operatingHours: 'Open daily 6:00 AM - 6:00 PM',
-        address: 'Dominican Hill, Mirador Hill, Baguio City',
-        landmark: 'Near Diplomat Hotel',
-        entranceFee: 'Free',
-        contact: 'N/A',
-        tags: ['Scenic Views', 'Sunset Spot', 'Photography', 'Peaceful'],
-        image: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=400&q=80',
-          'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80',
-          'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&q=80',
-        ],
-      },
-      {
-        name: 'Strawberry Farm (La Trinidad)',
-        category: 'Parks & Nature',
-        shortDescription: 'Pick-your-own strawberries with scenic views',
-        description:
-          'Located just outside Baguio in nearby La Trinidad, the strawberry farms offer a unique agricultural tourism experience. Pick your own fresh strawberries directly from the fields, enjoy strawberry-themed treats, and take in the beautiful terraced landscapes. Best visited from December to April during peak season.',
-        area: 'La Trinidad',
-        hours: '7AM-5PM',
-        operatingHours: 'Open daily 7:00 AM - 5:00 PM',
-        specialHours: 'Peak season: December to April',
-        address: 'La Trinidad, Benguet',
-        landmark: 'Various farms in La Trinidad Valley',
-        entranceFee: 'Free (strawberry picking: ₱400-500 per kilo)',
-        contact: 'Various per farm',
-        tags: ['Agriculture', 'Family-Friendly', 'Seasonal', 'Fresh Produce'],
-        image: 'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=400&q=80',
-          'https://images.unsplash.com/photo-1518843875459-f738682238a6?w=400&q=80',
-          'https://images.unsplash.com/photo-1601493700631-2b16ec4b4716?w=400&q=80',
-        ],
-      },
-
-      // Shopping
-      {
-        name: 'Baguio Public Market',
-        category: 'Shopping',
-        shortDescription: 'Bustling market for fresh produce, handicrafts, and souvenirs',
-        description:
-          'The Baguio Public Market is the heart of the city\'s commerce, offering fresh vegetables, fruits, flowers, handicrafts, woven products, and local delicacies. The upper floors feature shops selling ukay-ukay (secondhand clothes), bags, and various goods. Come early for the best selection of fresh produce.',
-        area: 'City Center',
-        hours: '6AM-7PM',
-        operatingHours: 'Open daily 6:00 AM - 7:00 PM',
-        address: 'Magsaysay Avenue, Baguio City',
-        landmark: 'Near Session Road',
-        entranceFee: 'Free',
-        contact: 'N/A',
-        tags: ['Market', 'Local Products', 'Fresh Produce', 'Handicrafts'],
-        image: 'https://images.unsplash.com/photo-1555982105-d25af4182e4e?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1555982105-d25af4182e4e?w=400&q=80',
-          'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400&q=80',
-          'https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400&q=80',
-        ],
-      },
-      {
-        name: 'Session Road',
-        category: 'Shopping',
-        shortDescription: "Baguio's main shopping and dining street",
-        description:
-          'Session Road is Baguio\'s iconic main street and commercial hub. Lined with shops, restaurants, cafes, and banks, it\'s the perfect place for strolling, shopping, and people-watching. During weekends, it transforms into a pedestrian-friendly area with street performers and vendors.',
-        area: 'City Center',
-        hours: '24 hours',
-        operatingHours: 'Open 24 hours (shops: typically 9:00 AM - 8:00 PM)',
-        specialHours: 'Pedestrian street: Saturday-Sunday',
-        address: 'Session Road, Baguio City',
-        landmark: 'From Burnham Park to Baguio Cathedral',
-        entranceFee: 'Free',
-        contact: 'N/A',
-        tags: ['Shopping', 'Dining', 'Iconic', 'City Center'],
-        image: 'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=400&q=80',
-          'https://images.unsplash.com/photo-1519995451813-39e29e054914?w=400&q=80',
-          'https://images.unsplash.com/photo-1520342868574-5fa3804e551c?w=400&q=80',
-        ],
-      },
-      {
-        name: 'SM City Baguio',
-        category: 'Shopping',
-        shortDescription: "Baguio's largest shopping mall",
-        description:
-          'SM City Baguio is the largest mall in Northern Luzon, offering a complete shopping and entertainment experience. With hundreds of stores, restaurants, a cinema, and a supermarket, it\'s a one-stop destination. The Sky Ranch on the top floor features an observation wheel with city views.',
-        area: 'Upper Session Road',
-        hours: '10AM-9PM',
-        operatingHours: 'Open daily 10:00 AM - 9:00 PM',
-        address: 'Luneta Hill, Upper Session Road, Baguio City',
-        landmark: 'Visible from various parts of the city',
-        entranceFee: 'Free (Sky Ranch rides: ₱50-150)',
-        contact: '(074) 446-9291',
-        tags: ['Mall', 'Shopping', 'Entertainment', 'Dining'],
-        image: 'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1519567241046-7f570eee3ce6?w=400&q=80',
-          'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400&q=80',
-          'https://images.unsplash.com/photo-1567721913486-6585f069b332?w=400&q=80',
-        ],
-      },
-      {
-        name: 'Night Market',
-        category: 'Shopping',
-        shortDescription: 'Vibrant evening market with street food and ukay-ukay',
-        description:
-          'The Baguio Night Market comes alive after sunset along Harrison Road. Browse through countless stalls selling affordable clothing, accessories, plants, and street food. It\'s a beloved local tradition where you can experience authentic Baguio nightlife and score great bargains on ukay-ukay finds.',
-        area: 'Harrison Road',
-        hours: '6PM-12AM',
-        operatingHours: 'Open daily 6:00 PM - 12:00 AM',
-        address: 'Harrison Road, Baguio City',
-        landmark: 'Near Maharlika Livelihood Center',
-        entranceFee: 'Free',
-        contact: 'N/A',
-        tags: ['Night Market', 'Street Food', 'Ukay-ukay', 'Local Culture'],
-        image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&q=80',
-        gallery: [
-          'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=400&q=80',
-          'https://images.unsplash.com/photo-1533900298318-6b8da08a523e?w=400&q=80',
-          'https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=80',
-        ],
-      },
+      { label: 'Tourist Spots', value: 'Tourist Spots' },
+      { label: 'Cafes & Restaurants', value: 'Cafes & Restaurants' },
+      { label: 'Parks & Nature', value: 'Parks & Nature' },
+      { label: 'Museums & Culture', value: 'Museums & Culture' },
+      { label: 'Shopping', value: 'Shopping' },
     ]
 
     const filteredPlaces = computed(() => {
       if (selectedCategory.value === 'all') {
-        return places
+        return places.value
       }
-      return places.filter((place) => {
-        const categoryMap = {
-          tourist: 'Tourist Spots',
-          cafe: 'Cafes & Restaurants',
-          park: 'Parks & Nature',
-          museum: 'Museums & Culture',
-          shopping: 'Shopping',
-        }
-        return place.category === categoryMap[selectedCategory.value]
-      })
+      return places.value.filter(place => place.category === selectedCategory.value)
     })
+
+    const fetchHeroImage = async () => {
+      try {
+        console.log('[MaykanPage] Fetching hero image from Firestore...')
+        const docRef = doc(db, 'pagePhotos', 'maykan')
+        const docSnap = await getDoc(docRef)
+        
+        if (docSnap.exists() && docSnap.data().imageUrl) {
+          heroImageUrl.value = docSnap.data().imageUrl
+          console.log('[MaykanPage] Hero image loaded:', heroImageUrl.value)
+        } else {
+          console.log('[MaykanPage] No hero image found')
+        }
+      } catch (error) {
+        console.error('[MaykanPage] Error fetching hero image:', error)
+      }
+    }
+
+    const fetchPlaces = async () => {
+      loading.value = true
+      try {
+        const q = query(collection(db, 'places'), orderBy('name', 'asc'))
+        const querySnapshot = await getDocs(q)
+        places.value = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+        console.log('[Maykan] Loaded places:', places.value.length)
+      } catch (error) {
+        console.error('[Maykan] Error loading places:', error)
+        $q.notify({
+          type: 'negative',
+          message: 'Failed to load places',
+          position: 'top'
+        })
+      } finally {
+        loading.value = false
+      }
+    }
+
+    const truncateText = (text, maxLength) => {
+      if (!text) return 'Discover this amazing place in Baguio City.'
+      if (text.length <= maxLength) return text
+      return text.substring(0, maxLength) + '...'
+    }
 
     const scrollToSection = (sectionId) => {
       const element = document.getElementById(sectionId)
@@ -955,18 +424,20 @@ export default defineComponent({
       const destinationData = {
         name: selectedPlace.value.name,
         address: selectedPlace.value.address,
-        landmark: selectedPlace.value.landmark,
         area: selectedPlace.value.area,
-        coordinates: selectedPlace.value.coordinates,
+        coordinates: {
+          latitude: selectedPlace.value.latitude,
+          longitude: selectedPlace.value.longitude
+        }
       }
 
       try {
         router.push({
-          name: 'apanam', 
+          name: 'apanam',
           query: {
             to: selectedPlace.value.name,
             toAddress: selectedPlace.value.address,
-            toLandmark: selectedPlace.value.landmark,
+            toArea: selectedPlace.value.area,
           },
           state: {
             destination: destinationData,
@@ -997,11 +468,13 @@ export default defineComponent({
     }
 
     const sharePlace = () => {
+      if (!selectedPlace.value) return
+
       if (navigator.share) {
         navigator
           .share({
-            title: selectedPlace.value?.name,
-            text: selectedPlace.value?.shortDescription,
+            title: selectedPlace.value.name,
+            text: selectedPlace.value.shortDescription || selectedPlace.value.description,
             url: window.location.href,
           })
           .then(() => {
@@ -1009,35 +482,156 @@ export default defineComponent({
               message: 'Place shared successfully!',
               color: 'positive',
               icon: 'share',
+              position: 'top',
             })
           })
           .catch((error) => {
             console.log('Error sharing:', error)
           })
       } else {
+        navigator.clipboard.writeText(window.location.href)
         $q.notify({
-          message: 'Share link copied to clipboard!',
+          message: 'Link copied to clipboard!',
           color: 'positive',
           icon: 'content_copy',
+          position: 'top',
         })
       }
     }
 
-    const savePlace = () => {
-      $q.notify({
-        message: `${selectedPlace.value?.name} saved to your favorites!`,
-        color: 'positive',
-        icon: 'bookmark',
-      })
+    const savePlace = async () => {
+  if (!selectedPlace.value) return
+  
+  const currentUser = auth.currentUser
+  const userId = currentUser?.uid || userStore.userId || userStore.user?.uid || userStore.id
+
+  console.log('[SavePlace] Debug:', {
+    authCurrentUser: currentUser?.uid,
+    storeUserId: userStore.userId,
+    storeUserUid: userStore.user?.uid,
+    storeId: userStore.id,
+    finalUserId: userId,
+    isPremium: userStore.isPremium
+  })
+
+  if (!userId) {
+    $q.notify({
+      message: 'Please login to save places',
+      color: 'warning',
+      icon: 'login',
+      position: 'top',
+      actions: [
+        {
+          label: 'Login',
+          color: 'white',
+          handler: () => {
+            router.push('/auth')
+          }
+        }
+      ]
+    })
+    return
+  }
+
+  if (!userStore.isPremium) {
+    $q.dialog({
+      title: 'Premium Feature',
+      message: 'Saving places is a premium feature. Upgrade to save unlimited places and routes!',
+      persistent: true,
+      ok: {
+        label: 'Upgrade to Premium',
+        color: 'primary'
+      },
+      cancel: {
+        label: 'Maybe Later',
+        color: 'grey',
+        flat: true
+      }
+    }).onOk(() => {
+      router.push('/account')
+    })
+    return
+  }
+
+  isSaving.value = true
+
+  try {
+    const savedPlaceData = {
+      placeId: selectedPlace.value.id,
+      name: selectedPlace.value.name,
+      category: selectedPlace.value.category,
+      address: selectedPlace.value.address,
+      area: selectedPlace.value.area,
+      imageUrl: selectedPlace.value.imageUrl || null,
+      description: selectedPlace.value.description,
+      shortDescription: selectedPlace.value.shortDescription,
+      coordinates: {
+        latitude: selectedPlace.value.latitude,
+        longitude: selectedPlace.value.longitude
+      },
+      operatingHours: selectedPlace.value.operatingHours,
+      entranceFee: selectedPlace.value.entranceFee,
+      phone: selectedPlace.value.phone,
+      website: selectedPlace.value.website,
+      tags: selectedPlace.value.tags || [],
+      savedAt: new Date().toISOString(),
+      userId: userId
     }
 
-    const loadMorePlaces = () => {
+    console.log('[SavePlace] Attempting to save to:', `users/${userId}/savedPlaces`)
+
+    const savedPlacesRef = collection(db, 'users', userId, 'savedPlaces')
+    
+    const q = query(savedPlacesRef, where('placeId', '==', selectedPlace.value.id))
+    const querySnapshot = await getDocs(q)
+    
+    if (!querySnapshot.empty) {
       $q.notify({
-        message: 'Loading more places...',
-        color: 'primary',
-        icon: 'refresh',
+        message: 'This place is already in your saves!',
+        color: 'info',
+        icon: 'info',
+        position: 'top',
       })
+      isSaving.value = false
+      return
     }
+
+    await addDoc(savedPlacesRef, savedPlaceData)
+    console.log('[SavePlace] Successfully saved to Firestore')
+
+    const savedPlacesData = localStorage.getItem('savedPlaces')
+    let savedPlaces = savedPlacesData ? JSON.parse(savedPlacesData) : []
+    
+    const alreadySavedLocally = savedPlaces.some(p => p.placeId === selectedPlace.value.id)
+    if (!alreadySavedLocally) {
+      savedPlaces.push(savedPlaceData)
+      localStorage.setItem('savedPlaces', JSON.stringify(savedPlaces))
+      console.log('[SavePlace] Saved to localStorage')
+    }
+
+    $q.notify({
+      message: `${selectedPlace.value.name} saved successfully!`,
+      color: 'positive',
+      icon: 'bookmark',
+      position: 'top',
+    })
+  } catch (error) {
+    console.error('[Maykan] Error saving place:', error)
+    console.error('[Maykan] Error details:', {
+      code: error.code,
+      message: error.message,
+      stack: error.stack
+    })
+    $q.notify({
+      message: 'Failed to save place. Please try again.',
+      color: 'negative',
+      icon: 'error',
+      position: 'top',
+    })
+  } finally {
+    isSaving.value = false
+  }
+}
 
     const observeElements = () => {
       const options = {
@@ -1062,6 +656,8 @@ export default defineComponent({
     let observer
 
     onMounted(() => {
+      fetchHeroImage()
+      fetchPlaces()
       setTimeout(() => {
         observer = observeElements()
       }, 100)
@@ -1082,7 +678,10 @@ export default defineComponent({
       showPlaceDetail,
       selectedPlace,
       selectedCategory,
-      hasMorePlaces,
+      loading,
+      heroImageUrl,
+      isSaving,
+      truncateText,
       scrollToSection,
       openSaBaguioGroup,
       filterByCategory,
@@ -1090,7 +689,6 @@ export default defineComponent({
       navigateToApanam,
       sharePlace,
       savePlace,
-      loadMorePlaces,
     }
   },
 })
@@ -1117,28 +715,6 @@ $text-light: #78909c;
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(50px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
   }
 }
 
@@ -1188,11 +764,13 @@ $text-light: #78909c;
   padding: 0 20px;
 }
 
-// Hero Section
 .hero-section {
   position: relative;
-  min-height: 650px;
+  min-height: 500px;
   background: linear-gradient(135deg, $pine-green-dark 0%, $pine-green 50%, $pine-green-light 100%);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -1204,122 +782,104 @@ $text-light: #78909c;
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80');
-    background-size: cover;
-    background-position: center;
-    opacity: 0.15;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.4) 100%);
     z-index: 0;
   }
 
   .hero-overlay {
     position: relative;
     width: 100%;
-    padding: 0 5%;
+    padding: 80px 5%;
     z-index: 1;
   }
 
   .hero-content {
-    max-width: 800px;
+    max-width: 700px;
     color: white;
 
     .hero-title {
-      font-size: 4rem;
+      font-size: 5rem;
       font-weight: 900;
-      line-height: 1.1;
+      line-height: 1;
       margin: 0 0 1.5rem 0;
-      letter-spacing: 2px;
+      letter-spacing: 3px;
       text-shadow: 2px 4px 8px rgba(0, 0, 0, 0.3);
 
       @media (max-width: 768px) {
-        font-size: 2.5rem;
+        font-size: 3rem;
       }
     }
 
     .hero-description {
-      font-size: 1.2rem;
-      line-height: 1.7;
-      margin-bottom: 2.5rem;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin: 0;
       opacity: 0.95;
       text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.2);
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-
-      .q-btn {
-        font-weight: 600;
-        letter-spacing: 0.5px;
-      }
+      max-width: 600px;
     }
   }
 }
 
-// About Section
-.about-section {
-  background: white;
-  padding: 100px 0;
+.explore-section {
+  background: linear-gradient(135deg, $pine-green-dark 0%, $pine-green 100%);
+  padding: 80px 0 100px 0;
+  color: white;
 
-  .section-header {
+  .explore-header {
     margin-bottom: 60px;
 
     .text-overline {
-      color: $pine-green;
-      font-weight: 700;
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 600;
+      font-size: 1rem;
+      letter-spacing: 2px;
+      margin-bottom: 1rem;
     }
 
-    .section-title {
+    .explore-title {
       font-size: 2.5rem;
       font-weight: 800;
       margin: 0 0 1.5rem 0;
-      color: $text-dark;
-      letter-spacing: 0.5px;
+      color: white;
+      letter-spacing: 1px;
+      line-height: 1.2;
 
       @media (max-width: 768px) {
-        font-size: 2rem;
+        font-size: 1.8rem;
       }
     }
 
-    .section-subtitle {
-      font-size: 1.1rem;
-      color: $text-medium;
-      max-width: 800px;
-      margin: 0 auto;
+    .explore-subtitle {
+      font-size: 1.05rem;
       line-height: 1.8;
+      max-width: 900px;
+      margin: 0 auto;
+      opacity: 0.95;
     }
   }
 
   .features-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 40px;
+    gap: 50px;
+    margin-top: 60px;
 
     @media (max-width: 960px) {
       grid-template-columns: 1fr;
-      gap: 30px;
+      gap: 40px;
     }
 
     .feature-card {
-      background: $cream-white;
-      border: 2px solid $warm-beige;
-      border-radius: 20px;
-      padding: 40px 30px;
       text-align: center;
+      padding: 0 20px;
 
       .feature-icon-wrapper {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, $pine-green 0%, $pine-green-light 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem auto;
-        box-shadow: 0 4px 15px rgba(45, 80, 22, 0.2);
+        margin-bottom: 1.5rem;
 
         .feature-icon {
           color: white;
+          filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
         }
       }
 
@@ -1327,22 +887,23 @@ $text-light: #78909c;
         font-size: 1.1rem;
         font-weight: 700;
         margin: 0 0 1rem 0;
-        color: $text-dark;
-        letter-spacing: 0.3px;
+        color: white;
+        letter-spacing: 0.5px;
+        line-height: 1.3;
+        text-transform: uppercase;
       }
 
       .feature-description {
         font-size: 0.95rem;
         line-height: 1.6;
-        color: $text-medium;
+        color: rgba(255, 255, 255, 0.9);
       }
     }
   }
 }
 
-// Community Ribbon
 .community-ribbon {
-  background: linear-gradient(135deg, $pine-green 0%, $pine-green-light 100%);
+  background: $cream-white;
   padding: 35px 0;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 
@@ -1369,9 +930,9 @@ $text-light: #78909c;
       }
 
       .ribbon-icon {
-        color: white;
+        color: $pine-green;
         flex-shrink: 0;
-        background: rgba(255, 255, 255, 0.15);
+        background: rgba(45, 80, 22, 0.1);
         padding: 12px;
         border-radius: 50%;
       }
@@ -1380,32 +941,33 @@ $text-light: #78909c;
         font-size: 1.3rem;
         font-weight: 700;
         margin: 0 0 0.5rem 0;
-        color: white;
+        color: $text-dark;
       }
 
       .ribbon-subtitle {
         font-size: 0.95rem;
-        color: rgba(255, 255, 255, 0.9);
+        color: $text-medium;
         margin: 0;
       }
     }
 
     .q-btn {
       background: white !important;
-      color: $pine-green !important;
+      color: $text-dark !important;
       font-weight: 700;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      border: 2px solid $pine-green;
 
       &:hover {
-        background: $cream-white !important;
+        background: $pine-green !important;
+        color: white !important;
       }
     }
   }
 }
 
-// Places Section
 .places-section {
-  background: $cream-white;
+  background: white;
   padding: 100px 0;
 
   .section-header {
@@ -1449,7 +1011,11 @@ $text-light: #78909c;
     }
   }
 
-  // Pinterest-style Masonry Grid
+  .no-places-state {
+    text-align: center;
+    padding: 80px 20px;
+  }
+
   .places-masonry {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -1576,7 +1142,6 @@ $text-light: #78909c;
   }
 }
 
-// Place Detail Modal
 .place-detail-card {
   background: white;
   height: 100%;
@@ -1586,7 +1151,7 @@ $text-light: #78909c;
     position: fixed;
     top: 20px;
     right: 20px;
-    z-index: 1000;
+    z-index: 2000;
     background: white;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
@@ -1596,81 +1161,70 @@ $text-light: #78909c;
   }
 
   .place-detail-content {
-    padding: 40px 20px;
-    background: $cream-white;
-
-    @media (min-width: 768px) {
-      padding: 60px 40px;
-    }
+    padding: 0;
+    background: white;
+    height: 100%;
 
     .detail-container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 40px;
+      display: flex;
+      gap: 0;
+      height: calc(100vh - 100px);
 
-      @media (min-width: 1024px) {
-        grid-template-columns: 1fr 1fr;
-        gap: 60px;
+      @media (max-width: 1023px) {
+        flex-direction: column;
+        height: auto;
       }
 
       .detail-image-section {
+        flex: 0 0 45%;
+        position: sticky;
+        top: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #fff;
+
+        @media (max-width: 1023px) {
+          position: relative;
+          height: 400px;
+          flex: none;
+        }
+
         .detail-image-wrapper {
           width: 100%;
-          border-radius: 24px;
-          overflow: hidden;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-          background: white;
-          margin-bottom: 20px;
-          border: 3px solid white;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
 
           .detail-image {
             width: 100%;
-            height: auto;
+            height: 100%;
             display: block;
-            aspect-ratio: 4/3;
             object-fit: cover;
           }
 
           .detail-image-placeholder {
             width: 100%;
-            aspect-ratio: 4/3;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             background: linear-gradient(135deg, $warm-beige 0%, $cream-white 100%);
           }
         }
-
-        .image-gallery {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 12px;
-
-          .gallery-thumb {
-            border-radius: 16px;
-            overflow: hidden;
-            cursor: pointer;
-            aspect-ratio: 1;
-            border: 3px solid white;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-
-            img {
-              width: 100%;
-              height: 100%;
-              object-fit: cover;
-              transition: transform 0.3s ease;
-
-              &:hover {
-                transform: scale(1.1);
-              }
-            }
-          }
-        }
       }
 
       .detail-info-section {
+        flex: 1;
+        overflow-y: auto;
+        padding: 40px 60px;
+        background: $cream-white;
+
+        @media (max-width: 1023px) {
+          padding: 30px 20px;
+        }
         .detail-header {
           margin-bottom: 30px;
 
@@ -1753,9 +1307,17 @@ $text-light: #78909c;
             .contact-text {
               font-size: 0.95rem;
               font-weight: 500;
+
+              a {
+                color: $pine-green;
+                text-decoration: none;
+
+                &:hover {
+                  text-decoration: underline;
+                }
+              }
             }
 
-            .special-hours,
             .landmark-text {
               font-size: 0.85rem;
               color: $text-medium;

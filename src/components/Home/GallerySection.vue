@@ -8,7 +8,7 @@
       </div>
 
       <!-- Carousel -->
-      <div class="carousel-wrapper">
+      <div v-if="galleryImages.length > 0" class="carousel-wrapper">
         <q-carousel
           v-model="slide"
           transition-prev="slide-right"
@@ -34,7 +34,13 @@
                 :key="imgIndex"
                 class="gallery-image-wrapper"
               >
-                <q-img :src="image.src" :alt="image.alt" class="gallery-image" fit="cover" />
+                <q-img :src="image.imageUrl" :alt="`Gallery ${imgIndex + 1}`" class="gallery-image" fit="cover">
+                  <template v-slot:loading>
+                    <div class="absolute-full flex flex-center">
+                      <q-spinner color="primary" size="30px" />
+                    </div>
+                  </template>
+                </q-img>
               </div>
             </div>
           </q-carousel-slide>
@@ -46,76 +52,89 @@
           <q-btn flat round icon="chevron_right" class="nav-btn nav-next" @click="nextSlide" />
         </div>
       </div>
+
+      <!-- Loading State -->
+      <div v-else-if="loading" class="loading-state">
+        <q-spinner color="primary" size="50px" />
+        <p>Loading gallery...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div v-else class="empty-state">
+        <q-icon name="photo_library" size="80px" color="grey-5" />
+        <p class="empty-text">No gallery images available yet</p>
+      </div>
     </div>
   </section>
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { db } from 'src/boot/firebase'
+import { doc, getDoc } from 'firebase/firestore'
 
 export default {
   name: 'GallerySection',
+  
   setup() {
     const slide = ref(0)
+    const galleryImages = ref([])
+    const loading = ref(true)
 
-    const imageGroups = [
-      [
-        {
-          src: 'https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=400&h=400&fit=crop',
-          alt: 'Baguio Cathedral',
-        },
-        {
-          src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop',
-          alt: 'Mountain View',
-        },
-        {
-          src: 'https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=400&h=400&fit=crop',
-          alt: 'Colorful Jeepney',
-        },
-        {
-          src: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?w=400&h=400&fit=crop',
-          alt: 'Sunset View',
-        },
-      ],
-      [
-        {
-          src: 'https://images.unsplash.com/photo-1464037866556-6812c9d1c72e?w=400&h=400&fit=crop',
-          alt: 'Nature',
-        },
-        {
-          src: 'https://images.unsplash.com/photo-1542202229-7d93c33f5d07?w=400&h=400&fit=crop',
-          alt: 'Street View',
-        },
-        {
-          src: 'https://images.unsplash.com/photo-1519904981063-b0cf448d479e?w=400&h=400&fit=crop',
-          alt: 'City Life',
-        },
-        {
-          src: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=400&h=400&fit=crop',
-          alt: 'Architecture',
-        },
-      ],
-    ]
+    // Split images into groups of 4 for carousel slides
+    const imageGroups = computed(() => {
+      const groups = []
+      for (let i = 0; i < galleryImages.value.length; i += 4) {
+        groups.push(galleryImages.value.slice(i, i + 4))
+      }
+      return groups
+    })
+
+    const loadGalleryImages = async () => {
+      try {
+        console.log('[GallerySection] Loading images from Firebase...')
+        const docRef = doc(db, 'pagePhotos', 'home-gallery')
+        const docSnap = await getDoc(docRef)
+        
+        if (docSnap.exists()) {
+          const data = docSnap.data()
+          if (data.images && Array.isArray(data.images)) {
+            galleryImages.value = data.images
+            console.log('[GallerySection] Loaded', data.images.length, 'images')
+          }
+        }
+      } catch (error) {
+        console.error('[GallerySection] Error loading images:', error)
+      } finally {
+        loading.value = false
+      }
+    }
 
     const previousSlide = () => {
       if (slide.value > 0) {
         slide.value--
       } else {
-        slide.value = imageGroups.length - 1
+        slide.value = imageGroups.value.length - 1
       }
     }
 
     const nextSlide = () => {
-      if (slide.value < imageGroups.length - 1) {
+      if (slide.value < imageGroups.value.length - 1) {
         slide.value++
       } else {
         slide.value = 0
       }
     }
 
+    onMounted(() => {
+      loadGalleryImages()
+    })
+
     return {
       slide,
+      galleryImages,
       imageGroups,
+      loading,
       previousSlide,
       nextSlide,
     }
@@ -240,6 +259,36 @@ export default {
 
 .nav-next {
   transform: translateX(50%);
+}
+
+// Loading State
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 0;
+  gap: 1rem;
+
+  p {
+    color: #666;
+    font-size: 0.95rem;
+  }
+}
+
+// Empty State
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 0;
+
+  .empty-text {
+    color: #666;
+    font-size: 0.95rem;
+    margin-top: 1rem;
+  }
 }
 
 // Responsive
