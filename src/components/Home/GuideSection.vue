@@ -79,10 +79,7 @@
 
       <!-- Action Buttons -->
       <div class="guide-actions">
-        <q-btn label="Start" unelevated rounded class="start-btn" size="md" />
-        <q-btn label="Learn More" flat class="learn-more-btn" size="md">
-          <q-icon name="arrow_forward" size="18px" class="q-ml-xs" />
-        </q-btn>
+        <q-btn label="Start" unelevated rounded class="start-btn" size="md" to="/pagnaam"/>
       </div>
     </div>
   </section>
