@@ -1,13 +1,14 @@
 <template>
   <q-page class="admin-login-page">
     <div class="main-container">
+      <!-- Branding Section -->
       <div class="branding-section">
         <div class="brand-container">
           <div class="logo-wrapper">
             <q-icon name="directions_bus" size="120px" color="white" />
           </div>
           <div class="brand-text">
-            <h1>BaguioBoost<span class="ph">PH</span></h1>
+            <h1>Boost<span class="text-accent">Baguio</span></h1>
             <div class="admin-badge">
               <q-icon name="shield" size="sm" />
               Admin Control Panel
@@ -32,11 +33,12 @@
         </div>
       </div>
 
+      <!-- Login Card -->
       <q-card class="login-card">
         <q-card-section>
           <div class="form-header">
             <div class="icon-wrapper">
-              <q-icon name="admin_panel_settings" size="42px" style="background: #2d6a4f; color: white" />
+              <q-icon name="admin_panel_settings" size="42px" color="white" class="icon-bg" />
             </div>
             <h3>Admin Login</h3>
             <p class="subtitle">Route Managers & Content Admins</p>
@@ -57,7 +59,7 @@
               bg-color="grey-1"
             >
               <template #prepend>
-                <q-icon name="mail" style="background: #2d6a4f; color: white" />
+                <q-icon name="mail" color="white" class="icon-bg" />
               </template>
             </q-input>
 
@@ -75,7 +77,7 @@
               bg-color="grey-1"
             >
               <template #prepend>
-                <q-icon name="lock" style="background: #2d6a4f; color: white" />
+                <q-icon name="lock" color="white" class="icon-bg" />
               </template>
               <template #append>
                 <q-icon
@@ -119,8 +121,12 @@
       </q-card>
     </div>
 
-    <div class="jeepney-illustration">
-      <q-icon name="directions_bus" size="180px" color="white" style="opacity: 0.1" />
+    <!-- Decorative Elements -->
+    <div class="decoration-elements">
+      <div class="circle circle-1"></div>
+      <div class="circle circle-2"></div>
+      <div class="circle circle-3"></div>
+      <div class="jeepney-icon">🚌</div>
     </div>
   </q-page>
 </template>
@@ -132,7 +138,7 @@ import { signInWithEmailAndPassword, signOut } from 'firebase/auth'
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
 
 export default {
-  name: 'BaguioBoostAdminLogin',
+  name: 'BoostBaguioAdminLogin',
 
   setup() {
     const $q = useQuasar()
@@ -194,7 +200,7 @@ export default {
           message: `Welcome back, ${adminData.name || 'Admin'}!`,
           icon: 'check_circle',
           position: 'top',
-          color: 'pine-green'
+          color: 'positive'
         })
 
         this.$router.push('/admin/dashboard')
@@ -269,7 +275,7 @@ export default {
 
 <style lang="sass" scoped>
 .admin-login-page
-  background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 50%, #40916c 100%)
+  background: linear-gradient(135deg, #2E5D3E 0%, #4A7D5D 100%)
   min-height: 100vh
   display: flex
   align-items: center
@@ -312,8 +318,8 @@ export default {
     margin: 0
     letter-spacing: -1px
     line-height: 1
-    .ph
-      color: #ffd60a
+    .text-accent
+      color: #FFD60A
       font-weight: 800
 
 .admin-badge
@@ -418,7 +424,7 @@ export default {
       padding: 16px
 
 .login-btn
-  background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%)
+  background: linear-gradient(135deg, #2E5D3E 0%, #4A7D5D 100%)
   color: white
   font-weight: 600
   font-size: 16px
@@ -443,7 +449,7 @@ export default {
     color: #6c757d
     
     a
-      color: #2d6a4f
+      color: #2E5D3E
       font-weight: 600
       cursor: pointer
       text-decoration: none
@@ -461,12 +467,62 @@ export default {
     padding: 0 10px
     line-height: 1.4
 
-.jeepney-illustration
+.icon-bg
+  background: #2E5D3E
+  border-radius: 50%
+  padding: 8px
+
+// Decorative Elements
+.decoration-elements
   position: absolute
-  bottom: -50px
-  right: -50px
-  z-index: 1
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%
   pointer-events: none
+  overflow: hidden
+  z-index: 1
+
+.circle
+  position: absolute
+  border-radius: 50%
+  background: rgba(255, 255, 255, 0.05)
+  filter: blur(1px)
+
+.circle-1
+  width: 200px
+  height: 200px
+  top: -50px
+  left: -50px
+
+.circle-2
+  width: 150px
+  height: 150px
+  bottom: -30px
+  right: -30px
+
+.circle-3
+  width: 100px
+  height: 100px
+  top: 40%
+  right: 10%
+
+.jeepney-icon
+  position: absolute
+  top: 20%
+  left: 15%
+  font-size: 2.5rem
+  opacity: 0.05
+  transform: rotate(-15deg)
+  animation: float 6s ease-in-out infinite
+
+@keyframes float
+  0%
+    transform: rotate(-15deg) translateY(0px)
+  50%
+    transform: rotate(-15deg) translateY(-10px)
+  100%
+    transform: rotate(-15deg) translateY(0px)
 
 @media (max-width: 1024px)
   .main-container
@@ -502,6 +558,6 @@ export default {
     .q-card__section
       padding: 35px 25px
       
-  .jeepney-illustration
+  .decoration-elements
     display: none
 </style>

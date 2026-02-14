@@ -1,233 +1,354 @@
 <template>
-  <q-page class="q-pa-md">
+  <q-page class="q-pa-md bg-grey-1">
     <div class="row justify-center">
-      <div class="col-12 col-md-8 col-lg-6">
-        <!-- User Info Card -->
-        <q-card class="q-mb-md">
-          <q-card-section class="bg-primary text-white">
-            <div class="text-h5">
-              <q-icon name="person" size="28px" class="q-mr-sm" />
-              {{ userStore.userName }}
-            </div>
-            <div class="text-caption">{{ userStore.userEmail }}</div>
-          </q-card-section>
-
-          <q-separator />
-
-          <q-card-section>
-            <div class="row items-center q-gutter-sm">
-              <q-icon 
-                :name="userStore.isPremium ? 'workspace_premium' : 'lock'"
-                :color="userStore.isPremium ? 'amber' : 'grey'"
-                size="24px"
-              />
-              <div>
-                <div class="text-subtitle1 text-weight-medium">
-                  {{ userStore.isPremium ? 'Premium Account' : 'Free Account' }}
+      <div class="col-12 col-md-10 col-lg-8">
+        <!-- Welcome Banner -->
+        <q-card class="bg-gradient-primary text-white q-mb-xl">
+          <q-card-section class="q-pa-xl">
+            <div class="row items-center">
+              <div class="col-12 col-sm-3 text-center q-mb-sm q-sm-mb-none">
+                <q-avatar size="100px" class="shadow-5">
+                  <img src="~assets/logo.png" alt="User Avatar">
+                  <q-badge color="green" text-color="white" floating>
+                    <q-icon name="check_circle" size="xs" />
+                  </q-badge>
+                </q-avatar>
+              </div>
+              <div class="col-12 col-sm-9 q-px-lg">
+                <div class="text-h4 text-weight-bold">Welcome, {{ userStore.userName }}!</div>
+                <div class="text-subtitle1 q-mt-sm">{{ userStore.userEmail }}</div>
+                
+                <div class="row items-center q-mt-md">
+                  <q-icon 
+                    :name="userStore.isPremium ? 'workspace_premium' : 'lock_open'" 
+                    :color="userStore.isPremium ? 'amber' : 'white'" 
+                    size="24px" 
+                    class="q-mr-sm"
+                  />
+                  <div class="text-h6 text-weight-bold">
+                    {{ userStore.isPremium ? 'Premium Member' : 'Free Account' }}
+                  </div>
                 </div>
-                <div v-if="userStore.isPremium && userStore.premiumExpiry" class="text-caption text-grey-7">
-                  Valid until {{ formatDate(userStore.premiumExpiry) }}
+                
+                <div v-if="userStore.isPremium && userStore.premiumExpiry" class="q-mt-sm">
+                  <q-chip 
+                    icon="schedule" 
+                    color="white" 
+                    text-color="primary" 
+                    class="text-weight-bold"
+                  >
+                    Valid until {{ formatDate(userStore.premiumExpiry) }}
+                  </q-chip>
                 </div>
               </div>
             </div>
           </q-card-section>
         </q-card>
 
-        <!-- Premium Features Card -->
-        <q-card v-if="userStore.isPremium" class="q-mb-md">
+        <!-- Account Features Grid -->
+        <div class="row q-col-gutter-lg q-mb-xl">
+          <!-- Stats Cards -->
+          <div class="col-12 col-md-6">
+            <q-card class="stats-card">
+              <q-card-section class="text-center">
+                <div class="stat-number text-primary text-h4 text-weight-bold">
+                  {{ savedItemsCount }}
+                </div>
+                <div class="stat-label text-grey-7 text-h6">Saved Items</div>
+                <q-icon name="bookmark" size="48px" color="primary" class="q-mt-md" />
+              </q-card-section>
+            </q-card>
+          </div>
+          
+          <div class="col-12 col-md-6">
+            <q-card class="stats-card">
+              <q-card-section class="text-center">
+                <div class="stat-number text-secondary text-h4 text-weight-bold">
+                  {{ userStore.isPremium ? 'Unlimited' : 'Limited' }}
+                </div>
+                <div class="stat-label text-grey-7 text-h6">Offline Maps</div>
+                <q-icon 
+                  :name="isOnline ? 'cloud_done' : 'cloud_off'" 
+                  :color="isOnline ? 'positive' : 'warning'" 
+                  size="48px" 
+                  class="q-mt-md"
+                />
+              </q-card-section>
+            </q-card>
+          </div>
+        </div>
+
+        <!-- Premium Features Section -->
+        <q-card v-if="userStore.isPremium" class="q-mb-xl">
+          <q-card-section class="bg-primary text-white">
+            <div class="text-h5">
+              <q-icon name="workspace_premium" size="28px" class="q-mr-sm" />
+              Premium Features
+            </div>
+          </q-card-section>
+
           <q-card-section>
-            <div class="text-h6 q-mb-md">Premium Features</div>
-            
-            <q-list>
-              <!-- Saved Items - ONLY FOR PREMIUM -->
-              <q-item>
-                <q-item-section avatar>
-                  <q-icon name="bookmark" color="primary" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>My Saves</q-item-label>
-                  <q-item-label caption>
-                    {{ savedItemsCount }} saved item(s)
-                  </q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-btn
-                    flat
-                    dense
-                    color="primary"
-                    label="View"
-                    @click="openSavedItems"
-                  />
-                </q-item-section>
-              </q-item>
+            <div class="row q-col-gutter-lg">
+              <div class="col-12 col-md-6">
+                <q-list separator>
+                  <!-- Saved Items -->
+                  <q-item clickable v-ripple @click="openSavedItems">
+                    <q-item-section avatar>
+                      <q-icon name="bookmark" color="primary" size="28px" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="text-weight-bold">My Saves</q-item-label>
+                      <q-item-label caption>
+                        {{ savedItemsCount }} saved item(s)
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-icon name="chevron_right" size="24px" color="grey" />
+                    </q-item-section>
+                  </q-item>
 
-              <!-- Offline Mode -->
-              <q-item>
-                <q-item-section avatar>
-                  <q-icon 
-                    :name="isOnline ? 'cloud_done' : 'cloud_off'"
-                    :color="isOnline ? 'positive' : 'warning'"
-                  />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>Offline Mode</q-item-label>
-                  <q-item-label caption>
-                    {{ isOnline ? 'Online - Data synced' : 'Offline - Using cached data' }}
-                  </q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-toggle
-                    v-model="offlineModeEnabled"
-                    color="primary"
-                    @update:model-value="toggleOfflineMode"
-                  />
-                </q-item-section>
-              </q-item>
+                  <!-- Offline Mode -->
+                  <q-item>
+                    <q-item-section avatar>
+                      <q-icon 
+                        :name="isOnline ? 'cloud_done' : 'cloud_off'" 
+                        :color="isOnline ? 'positive' : 'warning'" 
+                        size="28px"
+                      />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="text-weight-bold">Offline Mode</q-item-label>
+                      <q-item-label caption>
+                        {{ isOnline ? 'Online - Data synced' : 'Offline - Using cached data' }}
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-toggle
+                        v-model="offlineModeEnabled"
+                        color="primary"
+                        @update:model-value="toggleOfflineMode"
+                      />
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </div>
 
-              <!-- PWA Install -->
-              <q-item v-if="!isPWAInstalled">
-                <q-item-section avatar>
-                  <q-icon name="get_app" color="primary" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>Install PWA</q-item-label>
-                  <q-item-label caption>
-                    Install Baguio Boost on your device
-                  </q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-btn
-                    flat
-                    dense
-                    color="primary"
-                    label="Install"
-                    @click="installPWA"
-                  />
-                </q-item-section>
-              </q-item>
+              <div class="col-12 col-md-6">
+                <q-list separator>
+                  <!-- PWA Install -->
+                  <q-item v-if="!isPWAInstalled">
+                    <q-item-section avatar>
+                      <q-icon name="get_app" color="primary" size="28px" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="text-weight-bold">Install PWA</q-item-label>
+                      <q-item-label caption>
+                        Install Baguio Boost on your device
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-btn
+                        flat
+                        dense
+                        color="primary"
+                        label="Install"
+                        @click="installPWA"
+                      />
+                    </q-item-section>
+                  </q-item>
 
-              <!-- Cache Management -->
-              <q-item>
-                <q-item-section avatar>
-                  <q-icon name="storage" color="primary" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>Offline Data</q-item-label>
-                  <q-item-label caption>
-                    {{ cacheSize }} cached
-                  </q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-btn
-                    flat
-                    dense
-                    color="negative"
-                    label="Clear"
-                    @click="clearCache"
-                  />
-                </q-item-section>
-              </q-item>
-            </q-list>
+                  <!-- Cache Management -->
+                  <q-item>
+                    <q-item-section avatar>
+                      <q-icon name="storage" color="primary" size="28px" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="text-weight-bold">Offline Data</q-item-label>
+                      <q-item-label caption>
+                        {{ cacheSize }} cached
+                      </q-item-label>
+                    </q-item-section>
+                    <q-item-section side>
+                      <q-btn
+                        flat
+                        dense
+                        color="negative"
+                        label="Clear"
+                        @click="clearCache"
+                      />
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </div>
+            </div>
           </q-card-section>
         </q-card>
 
-        <!-- Upgrade to Premium Card (for free users) -->
-        <q-card v-else class="q-mb-md">
-          <q-card-section class="bg-amber-1">
-            <div class="text-h6 q-mb-sm">
-              <q-icon name="star" color="amber" size="24px" />
-              Upgrade to Premium
+        <!-- Upgrade to Premium Card -->
+        <q-card v-else class="q-mb-xl bg-gradient-premium">
+          <q-card-section class="text-white">
+            <div class="row items-center q-mb-md">
+              <q-icon name="star" color="amber" size="48px" class="q-mr-md" />
+              <div>
+                <div class="text-h5 text-weight-bold">Unlock Premium Features</div>
+                <div class="text-subtitle2">Enhance your navigation experience</div>
+              </div>
             </div>
-            <div class="text-body2 q-mb-md">
-              Unlock offline mode, PWA support, saved places & routes, and more!
+          </q-card-section>
+
+          <q-card-section class="q-pt-none">
+            <div class="row q-col-gutter-lg">
+              <div class="col-12 col-md-6">
+                <q-list>
+                  <q-item>
+                    <q-item-section avatar>
+                      <q-icon name="check_circle" color="positive" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label class="text-weight-medium">Save unlimited places & routes</q-item-label>
+                      <q-item-label caption>Bookmark your favorite spots and routes for quick access</q-item-label>
+                    </q-item-section>
+                  </q-item>
+
+                  <q-item>
+                    <q-item-section avatar>
+                      <q-icon name="check_circle" color="positive" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>Full offline navigation</q-item-label>
+                      <q-item-label caption>Access routes and places without internet</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <q-list>
+                  <q-item>
+                    <q-item-section avatar>
+                      <q-icon name="check_circle" color="positive" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>PWA installation</q-item-label>
+                      <q-item-label caption>Install as a native app on your device</q-item-label>
+                    </q-item-section>
+                  </q-item>
+
+                  <q-item>
+                    <q-item-section avatar>
+                      <q-icon name="check_circle" color="positive" />
+                    </q-item-section>
+                    <q-item-section>
+                      <q-item-label>Priority support</q-item-label>
+                      <q-item-label caption>Get help faster when you need it</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </div>
             </div>
 
-            <q-list>
-              <q-item>
-                <q-item-section avatar>
-                  <q-icon name="check_circle" color="positive" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label class="text-weight-medium">Save unlimited places & routes</q-item-label>
-                  <q-item-label caption>Bookmark your favorite spots and routes for quick access</q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item>
-                <q-item-section avatar>
-                  <q-icon name="check_circle" color="positive" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>Full offline navigation</q-item-label>
-                  <q-item-label caption>Access routes and places without internet</q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item>
-                <q-item-section avatar>
-                  <q-icon name="check_circle" color="positive" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>PWA installation</q-item-label>
-                  <q-item-label caption>Install as a native app on your device</q-item-label>
-                </q-item-section>
-              </q-item>
-
-              <q-item>
-                <q-item-section avatar>
-                  <q-icon name="check_circle" color="positive" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>Priority support</q-item-label>
-                  <q-item-label caption>Get help faster when you need it</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-
-            <q-btn
-              color="primary"
-              label="Upgrade Now"
-              icon="workspace_premium"
-              class="full-width q-mt-md"
-              size="lg"
-              unelevated
-              @click="showUpgradeDialog = true"
-            />
+            <div class="row justify-center q-mt-lg">
+              <q-btn
+                color="white"
+                text-color="primary"
+                label="Upgrade Now"
+                icon="workspace_premium"
+                size="lg"
+                class="full-width-md"
+                unelevated
+                @click="showUpgradeDialog = true"
+              />
+            </div>
           </q-card-section>
         </q-card>
 
-        <!-- Logout Button -->
+        <!-- Account Actions -->
+        <q-card class="q-mb-xl">
+          <q-card-section class="bg-grey-2">
+            <div class="text-h6 q-mb-md">Account Actions</div>
+          </q-card-section>
+          <q-card-section>
+            <div class="row q-col-gutter-lg">
+              <div class="col-12 col-md-6">
+                <q-btn
+                  color="primary"
+                  label="Manage Profile"
+                  icon="person"
+                  class="full-width"
+                  @click="openProfileEditor"
+                />
+              </div>
+              <div class="col-12 col-md-6">
+                <q-btn
+                  color="negative"
+                  label="Logout"
+                  icon="logout"
+                  class="full-width"
+                  @click="handleLogout"
+                />
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
+
+        <!-- Subscription Status -->
         <q-card>
+          <q-card-section class="bg-grey-2">
+            <div class="text-h6">Subscription Status</div>
+          </q-card-section>
           <q-card-section>
-            <q-btn
-              color="negative"
-              label="Logout"
-              icon="logout"
-              class="full-width"
-              @click="handleLogout"
-            />
+            <q-banner 
+              :class="userStore.isPremium ? 'bg-positive text-white' : 'bg-warning text-black'" 
+              rounded
+              class="q-mb-md"
+            >
+              <template v-slot:avatar>
+                <q-icon 
+                  :name="userStore.isPremium ? 'check_circle' : 'warning'" 
+                  size="28px" 
+                  :color="userStore.isPremium ? 'white' : 'black'" 
+                />
+              </template>
+              {{ userStore.isPremium ? 'You are a Premium Member' : 'Free account - Upgrade to unlock all features' }}
+            </q-banner>
+            
+            <div v-if="userStore.isPremium" class="text-center q-mt-lg">
+              <q-btn
+                label="Manage Subscription"
+                color="primary"
+                outline
+                @click="manageSubscription"
+              />
+            </div>
           </q-card-section>
         </q-card>
       </div>
     </div>
 
     <!-- Upgrade Dialog -->
-    <q-dialog v-model="showUpgradeDialog">
-      <q-card style="min-width: 350px">
-        <q-card-section>
+    <q-dialog v-model="showUpgradeDialog" persistent>
+      <q-card style="min-width: 350px; max-width: 500px">
+        <q-card-section class="row items-center bg-primary text-white">
+          <q-icon name="workspace_premium" size="28px" class="q-mr-sm" />
           <div class="text-h6">Choose Your Plan</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <q-list>
+          <q-list separator>
             <q-item 
               clickable
               v-ripple
               @click="activatePremium(1)"
+              class="plan-item"
             >
               <q-item-section>
-                <q-item-label>1 Month - ₱99</q-item-label>
-                <q-item-label caption>Billed monthly</q-item-label>
+                <q-item-label class="text-h6">1 Month</q-item-label>
+                <q-item-label caption>Perfect for a short trip</q-item-label>
+              </q-item-section>
+              <q-item-section side>
+                <div class="text-h5 text-weight-bold">₱99</div>
               </q-item-section>
             </q-item>
 
@@ -235,13 +356,14 @@
               clickable
               v-ripple
               @click="activatePremium(6)"
+              class="plan-item bg-amber-1"
             >
               <q-item-section>
-                <q-item-label>6 Months - ₱499</q-item-label>
-                <q-item-label caption>Save 15%</q-item-label>
+                <q-item-label class="text-h6">6 Months</q-item-label>
+                <q-item-label caption>Save 15% - Most Popular</q-item-label>
               </q-item-section>
               <q-item-section side>
-                <q-badge color="positive" label="Popular" />
+                <div class="text-h5 text-weight-bold">₱499</div>
               </q-item-section>
             </q-item>
 
@@ -249,13 +371,14 @@
               clickable
               v-ripple
               @click="activatePremium(12)"
+              class="plan-item bg-positive text-white"
             >
               <q-item-section>
-                <q-item-label>1 Year - ₱899</q-item-label>
-                <q-item-label caption>Save 25%</q-item-label>
+                <q-item-label class="text-h6">1 Year</q-item-label>
+                <q-item-label caption>Save 25% - Best Value</q-item-label>
               </q-item-section>
               <q-item-section side>
-                <q-badge color="amber" label="Best Value" />
+                <div class="text-h5 text-weight-bold">₱899</div>
               </q-item-section>
             </q-item>
           </q-list>
@@ -267,18 +390,17 @@
       </q-card>
     </q-dialog>
 
-    <!-- Saved Items List Dialog (First Modal) -->
+    <!-- Saved Items List Dialog -->
     <q-dialog v-model="showSavedItems" maximized>
       <q-card>
         <q-bar class="bg-primary text-white">
           <q-icon name="bookmark" />
           <div class="text-weight-bold q-ml-sm">My Saved Items</div>
           <q-space />
-          <q-btn dense flat icon="close" @click="showSavedItems = false" />
+          <q-btn dense flat icon="close" v-close-popup />
         </q-bar>
 
         <q-card-section>
-          <!-- Filter Tabs -->
           <q-tabs
             v-model="savedItemsTab"
             dense
@@ -295,7 +417,6 @@
           <q-separator />
 
           <q-tab-panels v-model="savedItemsTab" animated>
-            <!-- All Items -->
             <q-tab-panel name="all">
               <div v-if="loadingSavedItems" class="text-center q-pa-xl">
                 <q-spinner-hourglass color="primary" size="60px" />
@@ -309,90 +430,75 @@
               </div>
 
               <div v-else>
-                <!-- Saved Places -->
-                <div v-if="savedPlaces.length > 0" class="q-mb-lg">
-                  <div class="text-h6 q-mb-md">
-                    <q-icon name="place" color="primary" class="q-mr-sm" />
-                    Places ({{ savedPlaces.length }})
+                <div class="row q-col-gutter-lg">
+                  <div class="col-12 col-md-6" v-for="place in savedPlaces" :key="place.id">
+                    <q-card class="saved-place-card" @click="viewPlace(place)">
+                      <q-img v-if="place.imageUrl" :src="place.imageUrl" spinner-color="primary" style="height: 200px;" />
+                      <div v-else class="bg-grey-3" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                        <q-icon name="place" size="48px" color="grey-6" />
+                      </div>
+                      
+                      <q-card-section>
+                        <div class="row items-center justify-between">
+                          <div>
+                            <div class="text-h6 text-weight-bold">{{ place.name }}</div>
+                            <div class="text-caption text-grey-7">{{ place.category }}</div>
+                          </div>
+                          <q-btn
+                            flat
+                            round
+                            icon="delete"
+                            color="negative"
+                            @click.stop="removeSavedItem('place', place.id)"
+                          />
+                        </div>
+                        
+                        <div class="q-mt-md">
+                          <q-btn
+                            label="Get Directions"
+                            color="primary"
+                            size="sm"
+                            icon="navigation"
+                            @click.stop="navigateToPlace(place)"
+                          />
+                        </div>
+                      </q-card-section>
+                    </q-card>
                   </div>
-                  <q-list bordered separator>
-                    <q-item
-                      v-for="place in savedPlaces"
-                      :key="place.id"
-                      clickable
-                      v-ripple
-                      @click="viewPlace(place)"
-                    >
-                      <q-item-section avatar>
-                        <q-avatar square>
-                          <img v-if="place.imageUrl" :src="place.imageUrl" />
-                          <q-icon v-else name="place" size="32px" color="grey-5" />
-                        </q-avatar>
-                      </q-item-section>
 
-                      <q-item-section>
-                        <q-item-label>{{ place.name }}</q-item-label>
-                        <q-item-label caption>{{ place.category }}</q-item-label>
-                      </q-item-section>
-
-                      <q-item-section side>
-                        <q-btn
-                          flat
-                          dense
-                          round
-                          icon="delete"
-                          color="negative"
-                          @click.stop="removeSavedItem('place', place.id)"
-                        >
-                          <q-tooltip>Remove</q-tooltip>
-                        </q-btn>
-                      </q-item-section>
-                    </q-item>
-                  </q-list>
-                </div>
-
-                <!-- Saved Routes -->
-                <div v-if="savedRoutes.length > 0">
-                  <div class="text-h6 q-mb-md">
-                    <q-icon name="route" color="primary" class="q-mr-sm" />
-                    Routes ({{ savedRoutes.length }})
+                  <div class="col-12 col-md-6" v-for="route in savedRoutes" :key="route.id">
+                    <q-card class="saved-route-card" @click="viewRoute(route)">
+                      <q-card-section>
+                        <div class="row items-center justify-between">
+                          <div>
+                            <div class="text-h6 text-weight-bold">{{ route.from }} → {{ route.to }}</div>
+                            <div class="text-caption text-grey-7">Saved on {{ formatDate(route.savedAt) }}</div>
+                          </div>
+                          <q-btn
+                            flat
+                            round
+                            icon="delete"
+                            color="negative"
+                            @click.stop="removeSavedItem('route', route.id)"
+                          />
+                        </div>
+                        
+                        <div class="q-mt-md">
+                          <q-btn
+                            label="Use Route"
+                            color="primary"
+                            size="sm"
+                            icon="directions"
+                            @click.stop="useRoute(route)"
+                          />
+                        </div>
+                      </q-card-section>
+                    </q-card>
                   </div>
-                  <q-list bordered separator>
-                    <q-item
-                      v-for="route in savedRoutes"
-                      :key="route.id"
-                      clickable
-                      v-ripple
-                      @click="viewRoute(route)"
-                    >
-                      <q-item-section avatar>
-                        <q-icon name="directions" size="32px" color="primary" />
-                      </q-item-section>
-
-                      <q-item-section>
-                        <q-item-label>{{ route.from }} → {{ route.to }}</q-item-label>
-                        <q-item-label caption>Saved on {{ formatDate(route.savedAt) }}</q-item-label>
-                      </q-item-section>
-
-                      <q-item-section side>
-                        <q-btn
-                          flat
-                          dense
-                          round
-                          icon="delete"
-                          color="negative"
-                          @click.stop="removeSavedItem('route', route.id)"
-                        >
-                          <q-tooltip>Remove</q-tooltip>
-                        </q-btn>
-                      </q-item-section>
-                    </q-item>
-                  </q-list>
                 </div>
               </div>
             </q-tab-panel>
 
-            <!-- Places Only -->
             <q-tab-panel name="places">
               <div v-if="loadingSavedItems" class="text-center q-pa-xl">
                 <q-spinner-hourglass color="primary" size="60px" />
@@ -405,55 +511,44 @@
                 <p class="text-grey-6">Explore MAYKAN to discover and save places!</p>
               </div>
 
-              <q-list v-else bordered separator>
-                <q-item
-                  v-for="place in savedPlaces"
-                  :key="place.id"
-                  clickable
-                  v-ripple
-                  @click="viewPlace(place)"
-                >
-                  <q-item-section avatar>
-                    <q-avatar square>
-                      <img v-if="place.imageUrl" :src="place.imageUrl" />
-                      <q-icon v-else name="place" size="32px" color="grey-5" />
-                    </q-avatar>
-                  </q-item-section>
-
-                  <q-item-section>
-                    <q-item-label>{{ place.name }}</q-item-label>
-                    <q-item-label caption>{{ place.category }} • {{ place.area }}</q-item-label>
-                  </q-item-section>
-
-                  <q-item-section side>
-                    <div class="row q-gutter-xs">
-                      <q-btn
-                        flat
-                        dense
-                        round
-                        icon="navigation"
-                        color="primary"
-                        @click.stop="navigateToPlace(place)"
-                      >
-                        <q-tooltip>Get Directions</q-tooltip>
-                      </q-btn>
-                      <q-btn
-                        flat
-                        dense
-                        round
-                        icon="delete"
-                        color="negative"
-                        @click.stop="removeSavedItem('place', place.id)"
-                      >
-                        <q-tooltip>Remove</q-tooltip>
-                      </q-btn>
+              <div class="row q-col-gutter-lg">
+                <div class="col-12 col-md-6" v-for="place in savedPlaces" :key="place.id">
+                  <q-card class="saved-place-card" @click="viewPlace(place)">
+                    <q-img v-if="place.imageUrl" :src="place.imageUrl" spinner-color="primary" style="height: 200px;" />
+                    <div v-else class="bg-grey-3" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                      <q-icon name="place" size="48px" color="grey-6" />
                     </div>
-                  </q-item-section>
-                </q-item>
-              </q-list>
+                    
+                    <q-card-section>
+                      <div class="row items-center justify-between">
+                        <div>
+                          <div class="text-h6 text-weight-bold">{{ place.name }}</div>
+                          <div class="text-caption text-grey-7">{{ place.category }}</div>
+                        </div>
+                        <q-btn
+                          flat
+                          round
+                          icon="delete"
+                          color="negative"
+                          @click.stop="removeSavedItem('place', place.id)"
+                        />
+                      </div>
+                      
+                      <div class="q-mt-md">
+                        <q-btn
+                          label="Get Directions"
+                          color="primary"
+                          size="sm"
+                          icon="navigation"
+                          @click.stop="navigateToPlace(place)"
+                        />
+                      </div>
+                    </q-card-section>
+                  </q-card>
+                </div>
+              </div>
             </q-tab-panel>
 
-            <!-- Routes Only -->
             <q-tab-panel name="routes">
               <div v-if="loadingSavedItems" class="text-center q-pa-xl">
                 <q-spinner-hourglass color="primary" size="60px" />
@@ -466,59 +561,45 @@
                 <p class="text-grey-6">Use APANAM to find routes and save them for quick access!</p>
               </div>
 
-              <q-list v-else bordered separator>
-                <q-item
-                  v-for="route in savedRoutes"
-                  :key="route.id"
-                  clickable
-                  v-ripple
-                  @click="viewRoute(route)"
-                >
-                  <q-item-section avatar>
-                    <q-icon name="directions" size="32px" color="primary" />
-                  </q-item-section>
-
-                  <q-item-section>
-                    <q-item-label>{{ route.from }} → {{ route.to }}</q-item-label>
-                    <q-item-label caption>
-                      {{ route.routeName || 'Direct Route' }} • Saved on {{ formatDate(route.savedAt) }}
-                    </q-item-label>
-                  </q-item-section>
-
-                  <q-item-section side>
-                    <div class="row q-gutter-xs">
-                      <q-btn
-                        flat
-                        dense
-                        round
-                        icon="navigation"
-                        color="primary"
-                        @click.stop="useRoute(route)"
-                      >
-                        <q-tooltip>Use Route</q-tooltip>
-                      </q-btn>
-                      <q-btn
-                        flat
-                        dense
-                        round
-                        icon="delete"
-                        color="negative"
-                        @click.stop="removeSavedItem('route', route.id)"
-                      >
-                        <q-tooltip>Remove</q-tooltip>
-                      </q-btn>
-                    </div>
-                  </q-item-section>
-                </q-item>
-              </q-list>
+              <div class="row q-col-gutter-lg">
+                <div class="col-12 col-md-6" v-for="route in savedRoutes" :key="route.id">
+                  <q-card class="saved-route-card" @click="viewRoute(route)">
+                    <q-card-section>
+                      <div class="row items-center justify-between">
+                        <div>
+                          <div class="text-h6 text-weight-bold">{{ route.from }} → {{ route.to }}</div>
+                          <div class="text-caption text-grey-7">Saved on {{ formatDate(route.savedAt) }}</div>
+                        </div>
+                        <q-btn
+                          flat
+                          round
+                          icon="delete"
+                          color="negative"
+                          @click.stop="removeSavedItem('route', route.id)"
+                        />
+                      </div>
+                      
+                      <div class="q-mt-md">
+                        <q-btn
+                          label="Use Route"
+                          color="primary"
+                          size="sm"
+                          icon="directions"
+                          @click.stop="useRoute(route)"
+                        />
+                      </div>
+                    </q-card-section>
+                  </q-card>
+                </div>
+              </div>
             </q-tab-panel>
           </q-tab-panels>
         </q-card-section>
       </q-card>
     </q-dialog>
 
-    <!-- Dynamic Details Modal (Second Modal) -->
-    <q-dialog v-model="showDetailsModal">
+    <!-- Dynamic Details Modal -->
+    <q-dialog v-model="showDetailsModal" maximized>
       <q-card style="width: 100%; max-width: 800px; max-height: 90vh">
         <q-bar class="bg-primary text-white">
           <q-icon :name="selectedItemType === 'place' ? 'place' : 'directions'" />
@@ -529,11 +610,9 @@
           <q-btn dense flat icon="close" v-close-popup />
         </q-bar>
 
-        <!-- PLACE DETAILS -->
         <q-card-section class="q-pa-none" v-if="selectedItemType === 'place' && selectedItem">
           <q-scroll-area style="height: calc(90vh - 50px)">
-            <!-- Place Image -->
-            <div style="height: 250px; overflow: hidden;">
+            <div style="height: 300px; overflow: hidden;">
               <img 
                 v-if="selectedItem.imageUrl" 
                 :src="selectedItem.imageUrl" 
@@ -544,14 +623,12 @@
               </div>
             </div>
 
-            <!-- Place Info -->
             <div class="q-pa-lg">
               <q-chip :label="selectedItem.category" color="primary" text-color="white" class="q-mb-md" />
               
               <h4 class="text-h5 text-weight-bold q-mt-none q-mb-md">{{ selectedItem.name }}</h4>
               <p class="text-body1 q-mb-lg">{{ selectedItem.description }}</p>
 
-              <!-- Operating Hours -->
               <q-card flat bordered class="q-mb-md" v-if="selectedItem.operatingHours">
                 <q-card-section>
                   <div class="row items-center q-mb-sm">
@@ -562,7 +639,6 @@
                 </q-card-section>
               </q-card>
 
-              <!-- Location -->
               <q-card flat bordered class="q-mb-md">
                 <q-card-section>
                   <div class="row items-center q-mb-sm">
@@ -574,7 +650,6 @@
                 </q-card-section>
               </q-card>
 
-              <!-- Entrance Fee -->
               <q-card flat bordered class="q-mb-md" v-if="selectedItem.entranceFee">
                 <q-card-section>
                   <div class="row items-center q-mb-sm">
@@ -585,7 +660,6 @@
                 </q-card-section>
               </q-card>
 
-              <!-- Contact -->
               <q-card flat bordered class="q-mb-md" v-if="selectedItem.phone || selectedItem.website">
                 <q-card-section>
                   <div class="row items-center q-mb-sm">
@@ -602,7 +676,6 @@
                 </q-card-section>
               </q-card>
 
-              <!-- Tags -->
               <div class="q-mb-lg" v-if="selectedItem.tags && selectedItem.tags.length > 0">
                 <div class="text-weight-bold q-mb-sm">Tags</div>
                 <q-chip
@@ -616,12 +689,10 @@
                 />
               </div>
 
-              <!-- Saved Date -->
               <div class="text-caption text-grey-7 q-mb-md">
                 <q-icon name="bookmark" size="16px" /> Saved on {{ formatDate(selectedItem.savedAt) }}
               </div>
 
-              <!-- Action Button -->
               <q-btn
                 label="Get Directions via APANAM"
                 color="primary"
@@ -634,13 +705,11 @@
           </q-scroll-area>
         </q-card-section>
 
-        <!-- ROUTE DETAILS -->
         <q-card-section v-if="selectedItemType === 'route' && selectedItem">
           <q-scroll-area style="height: calc(90vh - 100px)">
             <div class="text-h5 q-mb-md">{{ selectedItem.from }} → {{ selectedItem.to }}</div>
             <div class="text-subtitle1 text-grey-7 q-mb-lg">{{ selectedItem.routeName || 'Direct Route' }}</div>
 
-            <!-- Starting Point -->
             <q-card flat bordered class="q-mb-md">
               <q-card-section>
                 <div class="row items-center q-mb-sm">
@@ -652,7 +721,6 @@
               </q-card-section>
             </q-card>
 
-            <!-- Destination -->
             <q-card flat bordered class="q-mb-md">
               <q-card-section>
                 <div class="row items-center q-mb-sm">
@@ -664,7 +732,6 @@
               </q-card-section>
             </q-card>
 
-            <!-- Fare -->
             <q-card flat bordered class="q-mb-md" v-if="selectedItem.fare">
               <q-card-section>
                 <div class="row items-center q-mb-sm">
@@ -675,7 +742,6 @@
               </q-card-section>
             </q-card>
 
-            <!-- Route Info -->
             <q-card flat bordered class="q-mb-lg" v-if="selectedItem.distance || selectedItem.duration">
               <q-card-section>
                 <div class="row items-center q-mb-sm">
@@ -691,12 +757,10 @@
               </q-card-section>
             </q-card>
 
-            <!-- Saved Date -->
             <div class="text-caption text-grey-7 q-mb-md">
               <q-icon name="bookmark" size="16px" /> Saved on {{ formatDate(selectedItem.savedAt) }}
             </div>
 
-            <!-- Action Button -->
             <q-btn
               label="Use This Route in APANAM"
               color="primary"
@@ -1051,4 +1115,86 @@ const clearCache = async () => {
     }
   })
 }
+
+// New methods added for enhanced UX
+const openProfileEditor = () => {
+  $q.notify({
+    type: 'info',
+    message: 'Profile editing feature coming soon!',
+    position: 'top'
+  });
+};
+
+const manageSubscription = () => {
+  $q.notify({
+    type: 'info',
+    message: 'Subscription management feature coming soon!',
+    position: 'top'
+  });
+};
 </script>
+
+<style scoped>
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #2E5D3E 0%, #4A7D5D 100%);
+}
+
+.bg-gradient-premium {
+  background: linear-gradient(135deg, #8D6E63 0%, #A1887F 100%);
+}
+
+.stats-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: transform 0.3s ease;
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 1rem;
+}
+
+.plan-item {
+  border-radius: 12px;
+  margin: 8px 0;
+  transition: all 0.3s ease;
+}
+
+.plan-item:hover {
+  background-color: rgba(45, 93, 62, 0.05);
+}
+
+.saved-place-card, .saved-route-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.saved-place-card:hover, .saved-route-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+}
+
+.q-card {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.q-btn {
+  border-radius: 8px;
+  text-transform: none;
+}
+
+.q-avatar {
+  border: 3px solid white;
+}
+</style>

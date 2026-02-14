@@ -1,13 +1,14 @@
 <template>
   <q-page class="admin-signup-page">
     <div class="main-container">
+      <!-- Branding Section -->
       <div class="branding-section">
         <div class="brand-container">
           <div class="logo-wrapper">
             <q-icon name="directions_bus" size="120px" color="white" />
           </div>
           <div class="brand-text">
-            <h1>BaguioBoost<span class="ph">PH</span></h1>
+            <h1>Boost<span class="text-accent">Baguio</span></h1>
             <div class="admin-badge">
               <q-icon name="person_add" size="sm" />
               Admin Registration
@@ -17,11 +18,12 @@
         </div>
       </div>
 
+      <!-- Signup Card -->
       <q-card class="signup-card">
         <q-card-section>
           <div class="form-header">
             <div class="icon-wrapper">
-              <q-icon name="person_add" size="42px" style="background: #2d6a4f; color: white" />
+              <q-icon name="person_add" size="42px" color="white" class="icon-bg" />
             </div>
             <h3>Create Admin Account</h3>
             <p class="subtitle">Register as Route Manager or Content Admin</p>
@@ -40,7 +42,7 @@
               bg-color="grey-1"
             >
               <template #prepend>
-                <q-icon name="person" style="background: #2d6a4f; color: white" />
+                <q-icon name="person" color="white" class="icon-bg" />
               </template>
             </q-input>
 
@@ -58,7 +60,7 @@
               bg-color="grey-1"
             >
               <template #prepend>
-                <q-icon name="mail" style="background: #2d6a4f; color: white" />
+                <q-icon name="mail" color="white" class="icon-bg" />
               </template>
             </q-input>
 
@@ -76,7 +78,7 @@
               bg-color="grey-1"
             >
               <template #prepend>
-                <q-icon name="badge" style="background: #2d6a4f; color: white" />
+                <q-icon name="badge" color="white" class="icon-bg" />
               </template>
             </q-select>
 
@@ -96,7 +98,7 @@
               bg-color="grey-1"
             >
               <template #prepend>
-                <q-icon name="lock" style="background: #2d6a4f; color: white" />
+                <q-icon name="lock" color="white" class="icon-bg" />
               </template>
               <template #append>
                 <q-icon
@@ -122,7 +124,7 @@
               bg-color="grey-1"
             >
               <template #prepend>
-                <q-icon name="lock_open" style="background: #2d6a4f; color: white" />
+                <q-icon name="lock_open" color="white" class="icon-bg" />
               </template>
               <template #append>
                 <q-icon
@@ -160,8 +162,12 @@
       </q-card>
     </div>
 
-    <div class="jeepney-illustration">
-      <q-icon name="directions_bus" size="180px" color="white" style="opacity: 0.1" />
+    <!-- Decorative Elements -->
+    <div class="decoration-elements">
+      <div class="circle circle-1"></div>
+      <div class="circle circle-2"></div>
+      <div class="circle circle-3"></div>
+      <div class="jeepney-icon">🚌</div>
     </div>
   </q-page>
 </template>
@@ -173,7 +179,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { doc, setDoc } from 'firebase/firestore'
 
 export default {
-  name: 'BaguioBoostAdminSignup',
+  name: 'BoostBaguioAdminSignup',
 
   setup() {
     const $q = useQuasar()
@@ -193,7 +199,7 @@ export default {
       showConfirmPassword: false,
       loading: false,
       roleOptions: [
-      {
+        {
           label: 'Super Admin - Full access to all features',
           value: 'super_admin'
         },
@@ -211,49 +217,49 @@ export default {
 
   methods: {
     async onSubmit() {
-  this.loading = true
-  
-  try {
-    const email = this.formData.email.trim().toLowerCase()
-    const password = this.formData.password
+      this.loading = true
+      
+      try {
+        const email = this.formData.email.trim().toLowerCase()
+        const password = this.formData.password
 
-    const { user } = await createUserWithEmailAndPassword(auth, email, password)
+        const { user } = await createUserWithEmailAndPassword(auth, email, password)
 
-    const adminData = {
-      uid: user.uid,
-      email: email,
-      name: this.formData.name.trim(),
-      role: this.formData.role,
-      isActive: true,
-      permissions: this.getDefaultPermissions(this.formData.role),
-      createdAt: new Date().toISOString(),
-      createdBy: user.uid,
-      lastLogin: null
-    }
+        const adminData = {
+          uid: user.uid,
+          email: email,
+          name: this.formData.name.trim(),
+          role: this.formData.role,
+          isActive: true,
+          permissions: this.getDefaultPermissions(this.formData.role),
+          createdAt: new Date().toISOString(),
+          createdBy: user.uid,
+          lastLogin: null
+        }
 
-    await setDoc(doc(db, 'admins', user.uid), adminData)
+        await setDoc(doc(db, 'admins', user.uid), adminData)
 
-    sessionStorage.setItem('adminRole', adminData.role)
-    sessionStorage.setItem('adminData', JSON.stringify(adminData))
-    sessionStorage.setItem('adminUid', user.uid)
+        sessionStorage.setItem('adminRole', adminData.role)
+        sessionStorage.setItem('adminData', JSON.stringify(adminData))
+        sessionStorage.setItem('adminUid', user.uid)
 
-    this.$q.notify({
-      type: 'positive',
-      message: `Welcome aboard, ${adminData.name}!`,
-      icon: 'check_circle',
-      position: 'top',
-      color: 'pine-green'
-    })
+        this.$q.notify({
+          type: 'positive',
+          message: `Welcome aboard, ${adminData.name}!`,
+          icon: 'check_circle',
+          position: 'top',
+          color: 'positive'
+        })
 
-    this.$router.push('/admin/dashboard')
-    
-  } catch (error) {
-    console.error('[Admin Signup] Error:', error)
-    this.handleError(error)
-  } finally {
-    this.loading = false
-  }
-},
+        this.$router.push('/admin/dashboard')
+        
+      } catch (error) {
+        console.error('[Admin Signup] Error:', error)
+        this.handleError(error)
+      } finally {
+        this.loading = false
+      }
+    },
 
     getDefaultPermissions(role) {
       switch (role) {
@@ -312,7 +318,7 @@ export default {
 
 <style lang="sass" scoped>
 .admin-signup-page
-  background: linear-gradient(135deg, #1b4332 0%, #2d6a4f 50%, #40916c 100%)
+  background: linear-gradient(135deg, #2E5D3E 0%, #4A7D5D 100%)
   min-height: 100vh
   display: flex
   align-items: center
@@ -355,8 +361,8 @@ export default {
     margin: 0
     letter-spacing: -1px
     line-height: 1
-    .ph
-      color: #ffd60a
+    .text-accent
+      color: #FFD60A
       font-weight: 800
 
 .admin-badge
@@ -430,7 +436,7 @@ export default {
       padding: 16px
 
 .signup-btn
-  background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%)
+  background: linear-gradient(135deg, #2E5D3E 0%, #4A7D5D 100%)
   color: white
   font-weight: 600
   font-size: 16px
@@ -450,7 +456,7 @@ export default {
     color: #6c757d
     
     a
-      color: #2d6a4f
+      color: #2E5D3E
       font-weight: 600
       cursor: pointer
       text-decoration: none
@@ -458,12 +464,62 @@ export default {
       &:hover
         text-decoration: underline
 
-.jeepney-illustration
+.icon-bg
+  background: #2E5D3E
+  border-radius: 50%
+  padding: 8px
+
+// Decorative Elements
+.decoration-elements
   position: absolute
-  bottom: -50px
-  right: -50px
-  z-index: 1
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%
   pointer-events: none
+  overflow: hidden
+  z-index: 1
+
+.circle
+  position: absolute
+  border-radius: 50%
+  background: rgba(255, 255, 255, 0.05)
+  filter: blur(1px)
+
+.circle-1
+  width: 200px
+  height: 200px
+  top: -50px
+  left: -50px
+
+.circle-2
+  width: 150px
+  height: 150px
+  bottom: -30px
+  right: -30px
+
+.circle-3
+  width: 100px
+  height: 100px
+  top: 40%
+  right: 10%
+
+.jeepney-icon
+  position: absolute
+  top: 20%
+  left: 15%
+  font-size: 2.5rem
+  opacity: 0.05
+  transform: rotate(-15deg)
+  animation: float 6s ease-in-out infinite
+
+@keyframes float
+  0%
+    transform: rotate(-15deg) translateY(0px)
+  50%
+    transform: rotate(-15deg) translateY(-10px)
+  100%
+    transform: rotate(-15deg) translateY(0px)
 
 @media (max-width: 1024px)
   .main-container
@@ -491,6 +547,6 @@ export default {
     .q-card__section
       padding: 35px 25px
       
-  .jeepney-illustration
+  .decoration-elements
     display: none
 </style>

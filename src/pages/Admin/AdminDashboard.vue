@@ -1,12 +1,13 @@
 <template>
   <q-layout view="hHh lpR fFf">
-    <q-header elevated class="bg-pine-green">
+    <!-- Header -->
+    <q-header elevated class="bg-primary text-white">
       <q-toolbar>
         <q-btn flat dense round icon="menu" @click="drawer = !drawer" class="q-mr-sm" />
         <q-toolbar-title class="flex items-center">
           <q-icon name="directions_bus" size="sm" class="q-mr-sm" />
-          <span>BaguioBoost<span class="text-yellow">PH</span></span>
-          <q-badge color="white" text-color="pine-green" class="q-ml-sm">Admin</q-badge>
+          <span class="text-weight-bold">Boost Baguio</span>
+          <q-badge color="yellow" text-color="black" class="q-ml-sm">Admin</q-badge>
         </q-toolbar-title>
 
         <q-btn flat round dense icon="notifications" class="q-mr-sm">
@@ -39,24 +40,25 @@
       </q-toolbar>
     </q-header>
 
+    <!-- Sidebar Navigation -->
     <q-drawer
       v-model="drawer"
       show-if-above
       :width="260"
       :breakpoint="700"
       bordered
-      class="bg-grey-1"
+      class="bg-grey-2"
     >
       <q-scroll-area class="fit">
         <q-list padding>
-          <q-item-label header class="text-weight-bold text-grey-8"> Navigation </q-item-label>
+          <q-item-label header class="text-weight-bold text-grey-8">Navigation</q-item-label>
 
           <q-item
             clickable
             v-ripple
             :active="activeMenu === 'dashboard'"
             @click="activeMenu = 'dashboard'"
-            active-class="bg-pine-green text-white"
+            active-class="bg-primary text-white"
           >
             <q-item-section avatar>
               <q-icon name="dashboard" />
@@ -72,7 +74,7 @@
             v-ripple
             :active="activeMenu === 'routes'"
             @click="activeMenu = 'routes'"
-            active-class="bg-pine-green text-white"
+            active-class="bg-primary text-white"
           >
             <q-item-section avatar>
               <q-icon name="route" />
@@ -88,7 +90,7 @@
             v-ripple
             :active="activeMenu === 'jeepney-options'"
             @click="activeMenu = 'jeepney-options'"
-            active-class="bg-pine-green text-white"
+            active-class="bg-primary text-white"
           >
             <q-item-section avatar>
               <q-icon name="directions_bus" />
@@ -104,7 +106,7 @@
             v-ripple
             :active="activeMenu === 'places'"
             @click="activeMenu = 'places'"
-            active-class="bg-pine-green text-white"
+            active-class="bg-primary text-white"
           >
             <q-item-section avatar>
               <q-icon name="place" />
@@ -120,7 +122,7 @@
             v-ripple
             :active="activeMenu === 'events'"
             @click="activeMenu = 'events'"
-            active-class="bg-pine-green text-white"
+            active-class="bg-primary text-white"
           >
             <q-item-section avatar>
               <q-icon name="event" />
@@ -135,7 +137,7 @@
             v-ripple
             :active="activeMenu === 'photos'"
             @click="activeMenu = 'photos'"
-            active-class="bg-pine-green text-white"
+            active-class="bg-primary text-white"
           >
             <q-item-section avatar>
               <q-icon name="photo_library" />
@@ -147,7 +149,7 @@
 
           <q-separator class="q-my-md" />
 
-          <q-item-label header class="text-weight-bold text-grey-8"> Management </q-item-label>
+          <q-item-label header class="text-weight-bold text-grey-8">Management</q-item-label>
 
           <q-item
             v-if="canManageAdmins"
@@ -155,7 +157,7 @@
             v-ripple
             :active="activeMenu === 'admins'"
             @click="activeMenu = 'admins'"
-            active-class="bg-pine-green text-white"
+            active-class="bg-primary text-white"
           >
             <q-item-section avatar>
               <q-icon name="admin_panel_settings" />
@@ -171,7 +173,7 @@
             v-ripple
             :active="activeMenu === 'analytics'"
             @click="activeMenu = 'analytics'"
-            active-class="bg-pine-green text-white"
+            active-class="bg-primary text-white"
           >
             <q-item-section avatar>
               <q-icon name="analytics" />
@@ -188,7 +190,7 @@
             v-ripple
             :active="activeMenu === 'settings'"
             @click="activeMenu = 'settings'"
-            active-class="bg-pine-green text-white"
+            active-class="bg-primary text-white"
           >
             <q-item-section avatar>
               <q-icon name="settings" />
@@ -204,22 +206,25 @@
         <q-card flat bordered>
           <q-card-section class="q-pa-sm">
             <div class="text-caption text-grey-7">Logged in as</div>
-            <div class="text-weight-bold text-pine-green">{{ roleName }}</div>
+            <div class="text-weight-bold text-primary">{{ roleName }}</div>
           </q-card-section>
         </q-card>
       </div>
     </q-drawer>
 
+    <!-- Main Content -->
     <q-page-container>
       <q-page class="q-pa-md">
         <div v-if="activeMenu === 'dashboard'">
+          <!-- Dashboard Header -->
           <div class="row q-mb-md">
             <div class="col">
-              <h4 class="q-my-none text-pine-green">Dashboard Overview</h4>
+              <h4 class="q-my-none text-primary">Dashboard Overview</h4>
               <p class="text-grey-7 q-mb-none">Welcome back, {{ adminData.name }}!</p>
             </div>
           </div>
 
+          <!-- Stats Cards -->
           <div class="row q-col-gutter-md q-mb-md">
             <div class="col-12 col-sm-6 col-md-3" v-if="canManageRoutes">
               <q-card class="stat-card">
@@ -312,11 +317,12 @@
             </div>
           </div>
 
+          <!-- Dashboard Content -->
           <div class="row q-col-gutter-md">
             <div class="col-12 col-md-6">
-              <q-card>
+              <q-card class="dashboard-card">
                 <q-card-section>
-                  <div class="text-h6 text-pine-green">Quick Actions</div>
+                  <div class="text-h6 text-primary">Quick Actions</div>
                 </q-card-section>
                 <q-separator />
                 <q-card-section class="q-pt-none">
@@ -324,48 +330,48 @@
                     <q-btn
                       v-if="canManageRoutes"
                       unelevated
-                      style="background: #2d6a4f; color: white"
+                      color="primary"
                       label="Add New Route"
                       icon="add"
                       no-caps
-                      class="full-width"
+                      class="full-width q-mb-sm"
                       @click="openAddRoute"
                     />
                     <q-btn
                       v-if="canManageRoutes"
                       unelevated
-                      style="background: #2d6a4f; color: white"
+                      color="primary"
                       label="Add Jeepney Option"
                       icon="directions_bus"
                       no-caps
-                      class="full-width"
+                      class="full-width q-mb-sm"
                       @click="openAddJeepneyOption"
                     />
                     <q-btn
                       v-if="canManagePlaces"
                       unelevated
-                      style="background: #2d6a4f; color: white"
+                      color="primary"
                       label="Add New Place"
                       icon="add"
                       no-caps
-                      class="full-width"
+                      class="full-width q-mb-sm"
                       @click="openAddPlace"
                     />
                     <q-btn
                       v-if="canManageEvents"
                       unelevated
-                      style="background: #2d6a4f; color: white"
+                      color="primary"
                       label="Add New Event"
                       icon="add"
                       no-caps
-                      class="full-width"
+                      class="full-width q-mb-sm"
                       @click="openAddEvent"
                     />
                     <q-btn
                       v-if="canManageAdmins"
                       unelevated
                       outline
-                      color="positive"
+                      color="primary"
                       label="Manage Admins"
                       icon="admin_panel_settings"
                       no-caps
@@ -378,9 +384,9 @@
             </div>
 
             <div class="col-12 col-md-6">
-              <q-card>
+              <q-card class="dashboard-card">
                 <q-card-section>
-                  <div class="text-h6 text-pine-green">Recent Activity</div>
+                  <div class="text-h6 text-primary">Recent Activity</div>
                 </q-card-section>
                 <q-separator />
                 <q-card-section class="q-pt-none">
@@ -406,6 +412,7 @@
           </div>
         </div>
 
+        <!-- Component Sections -->
         <RoutesManagement
           v-else-if="activeMenu === 'routes'"
           :open-dialog="triggerRouteDialog"
@@ -437,7 +444,7 @@
         <AnalyticsManagement v-else-if="activeMenu === 'analytics'" />
 
         <div v-else-if="activeMenu === 'settings'" class="content-section">
-          <h4 class="text-pine-green">Settings</h4>
+          <h4 class="text-primary">Settings</h4>
           <p class="text-grey-7">Configure system settings</p>
         </div>
       </q-page>
@@ -659,21 +666,24 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-.bg-pine-green
-  background: #2d6a4f !important
+.bg-primary
+  background: #2E5D3E !important
 
-.text-pine-green
-  color: #2d6a4f
+.text-primary
+  color: #2E5D3E
 
 .text-yellow
-  color: #ffd60a
+  color: #FFD60A
 
 .stat-card
+  border-radius: 12px
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08)
   transition: all 0.3s ease
+  height: 100%
 
   &:hover
     transform: translateY(-4px)
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1)
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12)
 
 .stat-icon
   width: 60px
@@ -686,7 +696,7 @@ export default {
 .stat-value
   font-size: 32px
   font-weight: 700
-  color: #2d6a4f
+  color: #2E5D3E
 
 .stat-label
   font-size: 14px
@@ -694,7 +704,39 @@ export default {
   text-transform: uppercase
   letter-spacing: 0.5px
 
+.dashboard-card
+  border-radius: 12px
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08)
+  overflow: hidden
+  height: 100%
+
 .content-section
   h4
     margin-top: 0
+
+// Active menu item styling
+.q-item.active-class
+  background: #2E5D3E
+  color: white
+  border-radius: 8px
+  margin: 0 8px
+
+// Drawer styling
+.q-drawer
+  border-right: 1px solid #e0e0e0
+
+// Responsive adjustments
+@media (max-width: 768px)
+  .q-toolbar-title
+    font-size: 1rem
+
+  .stat-card
+    margin-bottom: 1rem
+
+  .row.q-col-gutter-md
+    flex-direction: column
+
+  .col-12.col-md-6
+    width: 100%
+    margin-bottom: 1rem
 </style>
