@@ -33,11 +33,17 @@
                   rounded
                   class="learn-more-btn scroll-animate"
                   size="md"
+                  @click="scrollToFeatures"
                 />
               </div>
 
               <div class="right-content">
                 <div class="route-card scroll-animate">
+                  <div class="card-header">
+                    <q-icon name="navigation" size="24px" class="q-mr-sm" />
+                    <span class="card-title">APANAM - Point to Point Navigation</span>
+                  </div>
+                  
                   <div class="input-group">
                     <div class="input-label">FROM:</div>
                     <q-select
@@ -107,45 +113,15 @@
       </div>
     </section>
 
-    <section class="brands-section">
+    <section class="partners-section">
       <div class="container-custom">
-        <p class="brands-title scroll-animate">Trusted by top brands for sustainability efforts</p>
-        <div class="brands-row">
-          <div class="brand-item scroll-animate">
-            <svg class="brand-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M18.5 9.5c-1.2 0-2.1.9-2.4 2.1-.5-1.2-1.4-2.1-2.6-2.1-1.2 0-2.1.9-2.4 2.1-.5-1.2-1.4-2.1-2.6-2.1-1.7 0-3 1.3-3 3v6h2v-6c0-.6.4-1 1-1s1 .4 1 1v6h2v-6c0-.6.4-1 1-1s1 .4 1 1v6h2v-6c0-.6.4-1 1-1s1 .4 1 1v6h2v-6c0-1.7-1.3-3-3-3z"
-              />
-            </svg>
-            <span class="brand-name">Webflow</span>
-          </div>
-
-          <div class="brand-item scroll-animate">
-            <div class="brand-circle"></div>
-            <span class="brand-name">Relume</span>
-          </div>
-
-          <div class="brand-item scroll-animate">
-            <svg class="brand-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M18.5 9.5c-1.2 0-2.1.9-2.4 2.1-.5-1.2-1.4-2.1-2.6-2.1-1.2 0-2.1.9-2.4 2.1-.5-1.2-1.4-2.1-2.6-2.1-1.7 0-3 1.3-3 3v6h2v-6c0-.6.4-1 1-1s1 .4 1 1v6h2v-6c0-.6.4-1 1-1s1 .4 1 1v6h2v-6c0-.6.4-1 1-1s1 .4 1 1v6h2v-6c0-1.7-1.3-3-3-3z"
-              />
-            </svg>
-            <span class="brand-name">Webflow</span>
-          </div>
-
-          <div class="brand-item scroll-animate">
-            <div class="brand-circle"></div>
-            <span class="brand-name">Relume</span>
-          </div>
-
-          <div class="brand-item scroll-animate">
-            <svg class="brand-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path
-                d="M18.5 9.5c-1.2 0-2.1.9-2.4 2.1-.5-1.2-1.4-2.1-2.6-2.1-1.2 0-2.1.9-2.4 2.1-.5-1.2-1.4-2.1-2.6-2.1-1.7 0-3 1.3-3 3v6h2v-6c0-.6.4-1 1-1s1 .4 1 1v6h2v-6c0-.6.4-1 1-1s1 .4 1 1v6h2v-6c0-.6.4-1 1-1s1 .4 1 1v6h2v-6c0-1.7-1.3-3-3-3z"
-              />
-            </svg>
-            <span class="brand-name">Webflow</span>
+        <h2 class="partners-title scroll-animate">Our Partners</h2>
+        <div class="partners-grid">
+          <div class="partner-card scroll-animate" v-for="(partner, index) in partners" :key="index">
+            <div class="partner-icon">
+              <q-icon :name="partner.icon" size="48px" color="primary" />
+            </div>
+            <div class="partner-name">{{ partner.name }}</div>
           </div>
         </div>
       </div>
@@ -197,6 +173,14 @@ export default {
     const toLocationOptions = ref([])
     const heroImage = ref('')
     const defaultHeroImage = 'https://images.unsplash.com/photo-1511497584788-876760111969?w=1920&h=900&fit=crop'
+
+    const partners = [
+      { name: 'University of the Cordilleras', icon: 'school' },
+      { name: 'Baguio Tourism Office', icon: 'tour' },
+      { name: 'Baguio City Engineer\'s Office', icon: 'engineering' },
+      { name: 'Baguio City Hall', icon: 'domain' },
+      { name: 'Baguio MITD', icon: 'business' },
+    ]
 
     const baguioLocations = [
       { label: 'SM City Baguio', value: 'sm-baguio', coords: [16.4088516, 120.5972273] },
@@ -322,6 +306,13 @@ export default {
       }
     }
 
+    const scrollToFeatures = () => {
+      const featuresSection = document.querySelector('#features');
+      if (featuresSection) {
+        featuresSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+
     const observeElements = () => {
       const options = {
         threshold: 0.15,
@@ -377,6 +368,8 @@ export default {
       filterFromLocations,
       filterToLocations,
       startNavigation,
+      partners,
+      scrollToFeatures,
     }
   },
 }
@@ -384,7 +377,7 @@ export default {
 
 <style lang="scss" scoped>
 .page-wrapper {
-  background: #99928b;
+  background: #F5F5F5;
   min-height: 100vh;
   padding: 0;
 }
@@ -494,6 +487,7 @@ export default {
   display: flex;
   align-items: center;
   padding: 2rem 0;
+  background: linear-gradient(135deg, #2E5D3E 0%, #4A7D5D 100%);
 }
 
 .container-custom {
@@ -579,7 +573,7 @@ export default {
 
 .learn-more-btn {
   background: white !important;
-  color: #1a1a1a !important;
+  color: #2E5D3E !important;
   font-weight: 600;
   padding: 0.625rem 1.75rem;
   border-radius: 50px;
@@ -601,17 +595,32 @@ export default {
 }
 
 .route-card {
-  background: rgba(211, 211, 211, 0.85);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
   border-radius: 20px;
   padding: 2rem;
   width: 100%;
   max-width: 420px;
   transition: transform 0.3s ease;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
 
   &:hover {
     transform: translateY(-4px);
   }
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2E5D3E;
 }
 
 .input-group {
@@ -649,8 +658,8 @@ export default {
 }
 
 .start-nav-btn {
-  background: white !important;
-  color: #1a1a1a !important;
+  background: #2E5D3E !important;
+  color: white !important;
   font-weight: 600;
   border-radius: 10px;
   text-transform: none;
@@ -661,62 +670,57 @@ export default {
   transition: all 0.3s ease;
 
   &:hover {
-    background: #f5f5f5 !important;
+    background: #4A7D5D !important;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 }
 
-.brands-section {
-  background: #4a5f4a;
-  padding: 3rem 0;
+.partners-section {
+  background: white;
+  padding: 4rem 0;
 }
 
-.brands-title {
+.partners-title {
   text-align: center;
-  color: white;
-  font-size: 0.875rem;
-  font-weight: 500;
-  margin-bottom: 2rem;
-  letter-spacing: 0.05em;
+  color: #2E5D3E;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 3rem;
 }
 
-.brands-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3rem;
-  flex-wrap: wrap;
+.partners-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
-.brand-item {
+.partner-card {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  color: white;
-  transition: transform 0.3s ease;
+  padding: 2rem;
+  border-radius: 12px;
+  background: #F9F9F9;
+  transition: all 0.3s ease;
+  text-align: center;
 
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    background: #F5F5F5;
   }
 }
 
-.brand-icon {
-  width: 24px;
-  height: 24px;
+.partner-icon {
+  margin-bottom: 1rem;
 }
 
-.brand-circle {
-  width: 24px;
-  height: 24px;
-  background: white;
-  border-radius: 50%;
-}
-
-.brand-name {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: white;
+.partner-name {
+  font-weight: 600;
+  color: #212121;
 }
 
 @media (max-width: 1023px) {
@@ -788,8 +792,9 @@ export default {
     padding: 1.5rem;
   }
 
-  .brands-row {
-    gap: 2rem;
+  .partners-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1.5rem;
   }
 }
 </style>
