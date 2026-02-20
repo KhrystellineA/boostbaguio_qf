@@ -1,58 +1,5 @@
 <template>
   <q-page class="pagnaam-page">
-    <!-- NAVBAR (Same as MainLayout) -->
-    <q-header elevated class="bg-primary text-white" height-hint="98">
-      <q-toolbar>
-        <q-btn dense flat round icon="arrow_back" @click="$router.go(-1)" />
-
-        <q-toolbar-title>
-          <div class="flex items-center">
-            <img src="~assets/logo.png" alt="Boost Baguio" style="height: 32px; margin-right: 8px;">
-            <span class="text-weight-bold">Boost Baguio</span>
-          </div>
-        </q-toolbar-title>
-
-        <!-- Main Feature Shortcut (APANAM) -->
-        <q-btn flat label="APANAM" @click="$router.push('/apanam')" class="q-mr-sm" />
-
-        <!-- Dropdown for All Features -->
-        <q-btn-dropdown flat label="Features" class="q-mr-sm">
-          <q-list>
-            <q-item clickable v-close-popup @click="$router.push('/apanam')">
-              <q-item-section>
-                <q-item-label>APANAM (P2P Navigation)</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="$router.push('/pagnaam')">
-              <q-item-section>
-                <q-item-label>PAGNAAM (City Jeeps)</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="$router.push('/maykan')">
-              <q-item-section>
-                <q-item-label>MAYKAN (Places)</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="$router.push('/aramidem')">
-              <q-item-section>
-                <q-item-label>ARAMIDEM (Events)</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="$router.push('/ayanmo')">
-              <q-item-section>
-                <q-item-label>AYAN MO (Near Me)</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
-
-        <!-- Auth Buttons -->
-        <q-space />
-        <q-btn flat label="Login" @click="$router.push('/auth')" />
-        <q-btn flat label="Sign Up" @click="$router.push('/auth')" />
-      </q-toolbar>
-    </q-header>
-
     <!-- HERO SECTION (Section 1) -->
     <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
       <div class="hero-overlay">
@@ -487,7 +434,7 @@ export default defineComponent({
 
 <style scoped>
 .pagnaam-page {
-  background-color: #F5F5F5;
+  background-color: #F5F5F5 !important;
 }
 
 .hero-section {

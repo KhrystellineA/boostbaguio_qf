@@ -1,58 +1,5 @@
 <template>
   <q-page class="maykan-page">
-    <!-- NAVBAR (Same as MainLayout) -->
-    <q-header elevated class="bg-primary text-white" height-hint="98">
-      <q-toolbar>
-        <q-btn dense flat round icon="arrow_back" @click="$router.go(-1)" />
-
-        <q-toolbar-title>
-          <div class="flex items-center">
-            <img src="~assets/logo.png" alt="Boost Baguio" style="height: 32px; margin-right: 8px;">
-            <span class="text-weight-bold">Boost Baguio</span>
-          </div>
-        </q-toolbar-title>
-
-        <!-- Main Feature Shortcut (APANAM) -->
-        <q-btn flat label="APANAM" @click="$router.push('/apanam')" class="q-mr-sm" />
-
-        <!-- Dropdown for All Features -->
-        <q-btn-dropdown flat label="Features" class="q-mr-sm">
-          <q-list>
-            <q-item clickable v-close-popup @click="$router.push('/apanam')">
-              <q-item-section>
-                <q-item-label>APANAM (P2P Navigation)</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="$router.push('/pagnaam')">
-              <q-item-section>
-                <q-item-label>PAGNAAM (City Jeeps)</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="$router.push('/maykan')">
-              <q-item-section>
-                <q-item-label>MAYKAN (Places)</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="$router.push('/aramidem')">
-              <q-item-section>
-                <q-item-label>ARAMIDEM (Events)</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="$router.push('/ayanmo')">
-              <q-item-section>
-                <q-item-label>AYAN MO (Near Me)</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
-
-        <!-- Auth Buttons -->
-        <q-space />
-        <q-btn flat label="Login" @click="$router.push('/auth')" />
-        <q-btn flat label="Sign Up" @click="$router.push('/auth')" />
-      </q-toolbar>
-    </q-header>
-
     <!-- HERO SECTION (Section 1) -->
     <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
       <div class="hero-overlay">
@@ -72,18 +19,18 @@
           <div class="col-md-6 col-12 q-pa-xl">
             <h2 class="text-h4 text-weight-bold text-primary q-mb-lg">Baguio's Hidden Gems</h2>
             <p class="text-body1 q-mb-md">
-              Baguio City is filled with breathtaking sights and experiences waiting to be discovered. 
+              Baguio City is filled with breathtaking sights and experiences waiting to be discovered.
               Our curated list of tourist spots ensures you navigate the city effortlessly while enjoying its rich culture.
             </p>
             <p class="text-body1 q-mb-lg">
-              From iconic landmarks to hidden gems, MAYKAN provides comprehensive information about 
+              From iconic landmarks to hidden gems, MAYKAN provides comprehensive information about
               places to visit in Baguio City with integrated navigation instructions.
             </p>
             <div class="q-gutter-sm">
-              <q-chip square color="primary" text-color="white">Tourist Spots</q-chip>
-              <q-chip square color="secondary" text-color="white">Cafes & Restaurants</q-chip>
-              <q-chip square color="primary" text-color="white">Parks & Nature</q-chip>
-              <q-chip square color="secondary" text-color="white">Cultural Sites</q-chip>
+              <q-chip square color="primary" text-color="white" icon="location_on">Tourist Spots</q-chip>
+              <q-chip square color="secondary" text-color="white" icon="restaurant">Cafes & Restaurants</q-chip>
+              <q-chip square color="primary" text-color="white" icon="park">Parks & Nature</q-chip>
+              <q-chip square color="secondary" text-color="white" icon="museum">Cultural Sites</q-chip>
             </div>
           </div>
           <div class="col-md-6 col-12 q-pa-xl">
@@ -91,6 +38,120 @@
               <q-icon name="location_on" size="64px" color="grey-6"/>
               <div class="text-center q-mt-md">Place Discovery</div>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PHOTO CAROUSEL SECTION (Section 3) -->
+    <section class="carousel-section bg-white q-py-xl">
+      <div class="container">
+        <div class="text-center q-mb-lg">
+          <h2 class="text-h4 text-weight-bold text-primary">Top 30 Tourist Destinations</h2>
+          <p class="text-body2 text-grey-7">Swipe through Baguio's most visited places</p>
+        </div>
+
+        <div class="carousel-container">
+          <q-carousel
+            v-model="slide"
+            transition-prev="slide-right"
+            transition-next="slide-left"
+            swipeable
+            animated
+            control-color="primary"
+            height="450px"
+            class="rounded-borders shadow-2"
+            arrows
+            infinite
+            @update:model-value="onSlideChange"
+          >
+            <q-carousel-slide
+              v-for="(place, index) in topTouristPlaces"
+              :key="index"
+              :name="index"
+              class="carousel-slide"
+            >
+              <div class="slide-content">
+                <q-img
+                  :src="place.imageUrl || '~assets/place-default.jpg'"
+                  class="carousel-image"
+                  spinner-color="primary"
+                >
+                  <template v-slot:loading>
+                    <div class="absolute-full flex flex-center bg-grey-3">
+                      <q-spinner color="primary" size="50px" />
+                    </div>
+                  </template>
+                </q-img>
+                <div class="slide-overlay">
+                  <div class="slide-info">
+                    <h3 class="slide-title">{{ place.name }}</h3>
+                    <p class="slide-area">{{ place.area }}</p>
+                    <div class="slide-tags">
+                      <q-badge v-for="(tag, idx) in place.tags" :key="idx" color="white" text-color="primary" class="q-mr-xs q-mb-xs">
+                        {{ tag }}
+                      </q-badge>
+                    </div>
+                    <div class="slide-actions">
+                      <q-btn
+                        label="Set as Destination"
+                        color="primary"
+                        unelevated
+                        icon="navigation"
+                        @click="navigateToPlace(place)"
+                        class="q-mr-sm"
+                      />
+                      <q-btn
+                        label="View Details"
+                        color="white"
+                        outline
+                        @click="selectPlace(place)"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </q-carousel-slide>
+
+            <template v-slot:control>
+              <div class="custom-controls">
+                <q-carousel-control
+                  position="bottom-right"
+                  :offset="[10, 10]"
+                  class="q-gutter-xs"
+                >
+                  <q-btn
+                    round
+                    dense
+                    flat
+                    color="white"
+                    icon="arrow_left"
+                    @click="slide = slide > 0 ? slide - 1 : topTouristPlaces.length - 1"
+                  />
+                  <q-btn
+                    round
+                    dense
+                    flat
+                    color="white"
+                    icon="arrow_right"
+                    @click="slide = slide < topTouristPlaces.length - 1 ? slide + 1 : 0"
+                  />
+                </q-carousel-control>
+              </div>
+            </template>
+          </q-carousel>
+        </div>
+
+        <!-- Carousel Indicators with Thumbnails -->
+        <div class="carousel-indicators q-mt-md">
+          <div
+            v-for="(place, index) in topTouristPlaces"
+            :key="index"
+            class="indicator-item"
+            :class="{ 'active': slide === index }"
+            @click="slide = index"
+          >
+            <q-img :src="place.imageUrl || '~assets/place-default.jpg'" class="indicator-image" />
           </div>
         </div>
       </div>
@@ -171,125 +232,241 @@
               :src="place.imageUrl || '~assets/place-default.jpg'"
               spinner-color="primary"
               class="place-image"
-            />
-            <q-card-section>
-              <div class="row items-center justify-between">
-                <div>
-                  <div class="text-h6 text-primary">{{ place.name }}</div>
-                  <div class="text-subtitle2">{{ place.area }}</div>
+            >
+              <template v-slot:loading>
+                <div class="absolute-full flex flex-center bg-grey-3">
+                  <q-spinner color="primary" size="30px" />
                 </div>
-                <q-badge color="secondary" class="text-capitalize">
-                  {{ place.category }}
+              </template>
+              
+              <!-- Save Button Overlay -->
+              <div class="save-btn-overlay">
+                <q-btn
+                  round
+                  dense
+                  flat
+                  :icon="isPlaceSaved(place) ? 'bookmark' : 'bookmark_border'"
+                  :color="isPlaceSaved(place) ? 'positive' : 'white'"
+                  size="md"
+                  @click.stop="toggleSavePlace(place)"
+                  class="save-place-btn"
+                />
+              </div>
+            </q-img>
+            
+            <!-- Category Badge -->
+            <div class="category-badge">
+              <q-badge color="secondary" class="text-capitalize">
+                {{ place.category }}
+              </q-badge>
+            </div>
+
+            <q-card-section>
+              <div class="row items-center justify-between q-mb-sm">
+                <div>
+                  <div class="text-h6 text-primary text-weight-bold">{{ place.name }}</div>
+                  <div class="text-subtitle2 text-grey-7">
+                    <q-icon name="location_on" size="14px" class="q-mr-xs" />
+                    {{ place.area }}
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Tags -->
+              <div class="tags-container q-mb-sm" v-if="place.tags && place.tags.length">
+                <q-badge
+                  v-for="(tag, idx) in place.tags.slice(0, 3)"
+                  :key="idx"
+                  color="primary"
+                  text-color="white"
+                  class="q-mr-xs q-mb-xs tag-badge"
+                  outline
+                >
+                  {{ tag }}
+                </q-badge>
+                <q-badge
+                  v-if="place.tags.length > 3"
+                  color="grey-7"
+                  text-color="white"
+                  class="q-mb-xs tag-badge"
+                >
+                  +{{ place.tags.length - 3 }}
                 </q-badge>
               </div>
-              <p class="text-body2 q-mt-md">
+
+              <p class="text-body2 q-mt-md text-grey-8">
                 {{ truncateText(place.description, 80) }}
               </p>
             </q-card-section>
-            <q-card-actions>
-              <q-btn flat color="primary" @click.stop="selectPlace(place)">View Details</q-btn>
+
+            <q-card-actions align="right">
+              <q-btn 
+                flat 
+                color="primary" 
+                @click.stop="selectPlace(place)"
+                icon="visibility"
+              >
+                Details
+              </q-btn>
+              <q-btn 
+                flat 
+                color="secondary" 
+                @click.stop="navigateToPlace(place)"
+                icon="navigation"
+              >
+                Go There
+              </q-btn>
             </q-card-actions>
           </q-card>
         </div>
       </div>
     </section>
 
-    <!-- PLACE DETAILS MODAL (Section 5) -->
+    <!-- PLACE DETAILS MODAL (Section 6) -->
     <q-dialog
       v-model="showPlaceDetail"
       full-width
+      full-height
       transition-show="slide-up"
       transition-hide="slide-down"
     >
       <q-card v-if="selectedPlace" class="place-detail-card">
-        <q-card-section class="bg-primary text-white">
-          <div class="row items-center">
-            <div class="col">
-              <div class="text-h5 text-weight-bold">{{ selectedPlace.name }}</div>
-              <div class="text-subtitle1">{{ selectedPlace.area }}</div>
-            </div>
-            <div class="col-auto">
-              <q-badge color="white" text-color="primary" class="text-capitalize">
+        <!-- Header with Image -->
+        <div class="modal-header">
+          <q-img
+            :src="selectedPlace.imageUrl || '~assets/place-default.jpg'"
+            spinner-color="primary"
+            class="modal-image"
+          />
+          <q-btn
+            round
+            flat
+            dense
+            icon="close"
+            color="white"
+            v-close-popup
+            class="close-btn"
+          />
+        </div>
+
+        <q-card-section class="modal-content">
+          <!-- Title Section -->
+          <div class="title-section q-mb-lg">
+            <div class="row items-start justify-between">
+              <div class="col">
+                <h2 class="text-h4 text-weight-bold text-primary q-mb-xs">{{ selectedPlace.name }}</h2>
+                <div class="text-subtitle1 text-grey-7 q-mb-sm">
+                  <q-icon name="location_on" color="primary" size="18px" class="q-mr-xs" />
+                  {{ selectedPlace.area }}
+                </div>
+              </div>
+              <q-badge color="secondary" class="text-capitalize q-pa-md">
                 {{ selectedPlace.category }}
               </q-badge>
             </div>
-          </div>
-        </q-card-section>
 
-        <q-card-section>
-          <div class="row">
-            <div class="col-md-8 col-12">
-              <q-img
-                :src="selectedPlace.imageUrl || '~assets/place-default.jpg'"
-                spinner-color="primary"
-                class="detail-image"
+            <!-- Tags -->
+            <div class="tags-container q-mt-md" v-if="selectedPlace.tags && selectedPlace.tags.length">
+              <q-badge
+                v-for="(tag, idx) in selectedPlace.tags"
+                :key="idx"
+                color="primary"
+                text-color="white"
+                class="q-mr-sm q-mb-sm tag-badge-full"
+              >
+                {{ tag }}
+              </q-badge>
+            </div>
+          </div>
+
+          <q-separator class="q-mb-lg" />
+
+          <!-- Info Grid -->
+          <div class="info-grid q-mb-lg">
+            <div class="info-card" v-if="selectedPlace.address">
+              <div class="info-icon">
+                <q-icon name="location_on" color="primary" size="24px" />
+              </div>
+              <div class="info-content">
+                <div class="info-label text-weight-bold">Address</div>
+                <div class="info-value text-body2">{{ selectedPlace.address }}</div>
+              </div>
+            </div>
+
+            <div class="info-card" v-if="selectedPlace.operatingHours">
+              <div class="info-icon">
+                <q-icon name="schedule" color="primary" size="24px" />
+              </div>
+              <div class="info-content">
+                <div class="info-label text-weight-bold">Operating Hours</div>
+                <div class="info-value text-body2">{{ selectedPlace.operatingHours }}</div>
+              </div>
+            </div>
+
+            <div class="info-card" v-if="selectedPlace.entranceFee">
+              <div class="info-icon">
+                <q-icon name="payments" color="primary" size="24px" />
+              </div>
+              <div class="info-content">
+                <div class="info-label text-weight-bold">Entrance Fee</div>
+                <div class="info-value text-body2">{{ selectedPlace.entranceFee }}</div>
+              </div>
+            </div>
+
+            <div class="info-card" v-if="selectedPlace.phone">
+              <div class="info-icon">
+                <q-icon name="phone" color="primary" size="24px" />
+              </div>
+              <div class="info-content">
+                <div class="info-label text-weight-bold">Contact</div>
+                <div class="info-value text-body2">{{ selectedPlace.phone }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="description-section q-mb-lg">
+            <h4 class="text-h6 text-weight-bold text-primary q-mb-md">
+              <q-icon name="info" color="primary" class="q-mr-sm" />
+              About this Place
+            </h4>
+            <p class="text-body1 text-grey-8">{{ selectedPlace.description || 'No description available.' }}</p>
+          </div>
+
+          <!-- How to Get There -->
+          <div class="navigation-section bg-blue-1 q-pa-lg rounded-borders">
+            <h4 class="text-h6 text-weight-bold text-primary q-mb-md">
+              <q-icon name="directions_bus" color="primary" class="q-mr-sm" />
+              How to Get There
+            </h4>
+            <p class="text-body1 q-mb-md">
+              Use our <strong>APANAM</strong> navigation system to get step-by-step jeepney directions to {{ selectedPlace.name }}.
+            </p>
+            <div class="q-gutter-sm">
+              <q-btn
+                label="Get Directions"
+                color="primary"
+                unelevated
+                icon="navigation"
+                @click="navigateToPlace(selectedPlace)"
+              />
+              <q-btn
+                :label="isPlaceSaved(selectedPlace) ? 'Saved' : 'Save Place'"
+                :color="isPlaceSaved(selectedPlace) ? 'positive' : 'white'"
+                :outline="!isPlaceSaved(selectedPlace)"
+                :icon="isPlaceSaved(selectedPlace) ? 'bookmark' : 'bookmark_border'"
+                @click="toggleSavePlace(selectedPlace)"
+              />
+              <q-btn
+                label="Share"
+                color="white"
+                outline
+                icon="share"
+                @click="sharePlace"
               />
             </div>
-            <div class="col-md-4 col-12 q-pa-lg">
-              <h4 class="text-h6 text-weight-bold text-primary q-mb-md">Place Information</h4>
-              <q-list>
-                <q-item v-if="selectedPlace.address">
-                  <q-item-section avatar>
-                    <q-icon name="location_on" color="primary" />
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-weight-bold">Address</q-item-label>
-                    <q-item-label caption>{{ selectedPlace.address }}</q-item-label>
-                  </q-item-section>
-                </q-item>
-                <q-item v-if="selectedPlace.operatingHours">
-                  <q-item-section avatar>
-                    <q-icon name="schedule" color="primary" />
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-weight-bold">Operating Hours</q-item-label>
-                    <q-item-label caption>{{ selectedPlace.operatingHours }}</q-item-label>
-                  </q-item-section>
-                </q-item>
-                <q-item v-if="selectedPlace.entranceFee">
-                  <q-item-section avatar>
-                    <q-icon name="payments" color="primary" />
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-weight-bold">Entrance Fee</q-item-label>
-                    <q-item-label caption>{{ selectedPlace.entranceFee }}</q-item-label>
-                  </q-item-section>
-                </q-item>
-                <q-item v-if="selectedPlace.phone">
-                  <q-item-section avatar>
-                    <q-icon name="phone" color="primary" />
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="text-weight-bold">Contact</q-item-label>
-                    <q-item-label caption>{{ selectedPlace.phone }}</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </div>
           </div>
         </q-card-section>
-
-        <q-card-section>
-          <h4 class="text-h6 text-weight-bold text-primary q-mb-md">Description</h4>
-          <p class="text-body1">{{ selectedPlace.description || 'No description available.' }}</p>
-        </q-card-section>
-
-        <q-card-section>
-          <h4 class="text-h6 text-weight-bold text-primary q-mb-md">How to Get There</h4>
-          <p class="text-body1">
-            Use our navigation system to plan your route to {{ selectedPlace.name }}.
-          </p>
-          <q-btn
-            label="Go There"
-            color="primary"
-            @click="navigateToPlace(selectedPlace)"
-          />
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Close" color="primary" v-close-popup />
-          <q-btn flat label="Share" color="primary" @click="sharePlace" />
-        </q-card-actions>
       </q-card>
     </q-dialog>
 
@@ -394,8 +571,10 @@ import { defineComponent, ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import { db } from 'src/boot/firebase'
-import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore'
+import { collection, getDocs, query, orderBy, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore'
+import { useUserStore } from 'stores/user-store'
 import FooterSection from '../components/Home/FooterSection.vue'
+import { defaultBaguioPlaces } from 'src/composables/useBaguioPlaces'
 import fallbackImage from '../assets/456.png'
 
 export default defineComponent({
@@ -406,6 +585,7 @@ export default defineComponent({
   setup() {
     const $q = useQuasar()
     const router = useRouter()
+    const userStore = useUserStore()
     const places = ref([])
     const loading = ref(true)
     const showPlaceDetail = ref(false)
@@ -413,6 +593,7 @@ export default defineComponent({
     const selectedCategory = ref('all')
     const heroImageUrl = ref(fallbackImage)
     const isSubmitting = ref(false)
+    const savedPlacesIds = ref(new Set())
     const contactForm = ref({
       name: '',
       email: '',
@@ -420,18 +601,21 @@ export default defineComponent({
       acceptTerms: false
     })
 
+    // Carousel state
+    const slide = ref(0)
+
     const faqs = [
       {
         question: 'How do I get directions to a place?',
-        answer: 'Click on any place and use the "Go There" button to navigate to the location using APANAM navigation.'
+        answer: 'Click on any place and use the "Get Directions" button to navigate to the location using APANAM navigation.'
       },
       {
         question: 'Can I save places for later?',
-        answer: 'Yes, premium users can save favorite places and create custom itineraries.'
+        answer: 'Yes! Click the bookmark icon on any place card to save it. You can view all your saved places from your account page.'
       },
       {
         question: 'How do I share a place?',
-        answer: 'Click on a place, then click the "Share" button to share the place details with others.'
+        answer: 'Click on a place to open details, then click the "Share" button to share the place details with others.'
       },
       {
         question: 'What if a place is closed?',
@@ -447,6 +631,16 @@ export default defineComponent({
       { label: 'Museums & Culture', value: 'Museums & Culture' },
       { label: 'Shopping', value: 'Shopping' },
     ]
+
+    // Get top tourist places for carousel (filter by category or popularity)
+    const topTouristPlaces = computed(() => {
+      const touristSpots = places.value.filter(p => p.category === 'Tourist Spots')
+      return touristSpots.length > 0 ? touristSpots : places.value.slice(0, 10)
+    })
+
+    const onSlideChange = (newSlide) => {
+      slide.value = newSlide
+    }
 
     const filteredPlaces = computed(() => {
       if (selectedCategory.value === 'all') {
@@ -477,16 +671,33 @@ export default defineComponent({
         console.log('[MaykanPage] Fetching places from Firebase...')
         const q = query(collection(db, 'places'), orderBy('name', 'asc'))
         const querySnapshot = await getDocs(q)
-        places.value = querySnapshot.docs.map(doc => ({
+        const firebasePlaces = querySnapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data()
         }))
-        console.log('[MaykanPage] Loaded places:', places.value.length)
+        console.log('[MaykanPage] Loaded places from Firebase:', firebasePlaces.length)
+        
+        // Always use default data (30 tourist spots) - merge with Firebase if needed
+        if (firebasePlaces.length > 0 && firebasePlaces.length < 30) {
+          console.log('[MaykanPage] Firebase has fewer than 30 places, using default 30 tourist spots')
+          places.value = defaultBaguioPlaces
+        } else if (firebasePlaces.length >= 30) {
+          console.log('[MaykanPage] Using Firebase places')
+          places.value = firebasePlaces
+        } else {
+          console.log('[MaykanPage] No Firebase places, using default data')
+          places.value = defaultBaguioPlaces
+        }
+        
+        console.log('[MaykanPage] Total places to display:', places.value.length)
       } catch (error) {
         console.error('[MaykanPage] Error loading places:', error)
+        // Fallback to default data on error
+        console.log('[MaykanPage] Using default places data')
+        places.value = defaultBaguioPlaces
         $q.notify({
-          type: 'negative',
-          message: 'Failed to load places',
+          type: 'info',
+          message: 'Showing default Baguio places',
           position: 'top'
         })
       } finally {
@@ -515,8 +726,109 @@ export default defineComponent({
 
     const navigateToPlace = (place) => {
       // Navigate to APANAM with place as destination
-      router.push(`/apanam?start=${encodeURIComponent('Current Location')}&end=${encodeURIComponent(place.name)}`)
+      router.push({
+        path: '/apanam',
+        query: {
+          toName: place.name,
+          toLat: place.coords ? place.coords[0] : '',
+          toLng: place.coords ? place.coords[1] : '',
+        }
+      })
       showPlaceDetail.value = false
+    }
+
+    const toggleSavePlace = async (place) => {
+      if (!userStore.isAuthenticated) {
+        $q.notify({
+          type: 'info',
+          message: 'Please login to save places',
+          position: 'top',
+          actions: [
+            {
+              label: 'Login',
+              color: 'white',
+              handler: () => router.push('/auth')
+            }
+          ]
+        })
+        return
+      }
+
+      const isSaved = savedPlacesIds.value.has(place.id)
+      
+      try {
+        const savedPlaceRef = doc(db, 'savedPlaces', `${userStore.user.uid}_${place.id}`)
+        
+        if (isSaved) {
+          // Unsave place
+          await deleteDoc(savedPlaceRef)
+          savedPlacesIds.value.delete(place.id)
+          $q.notify({
+            type: 'info',
+            message: 'Place removed from saved',
+            position: 'top'
+          })
+        } else {
+          // Save place
+          await setDoc(savedPlaceRef, {
+            userId: userStore.user.uid,
+            placeId: place.id,
+            name: place.name,
+            area: place.area,
+            category: place.category,
+            tags: place.tags || [],
+            description: place.description,
+            address: place.address,
+            operatingHours: place.operatingHours,
+            entranceFee: place.entranceFee,
+            phone: place.phone,
+            imageUrl: place.imageUrl,
+            coords: place.coords,
+            savedAt: serverTimestamp()
+          })
+          savedPlacesIds.value.add(place.id)
+          $q.notify({
+            type: 'positive',
+            message: 'Place saved successfully!',
+            position: 'top'
+          })
+        }
+      } catch (error) {
+        console.error('[MaykanPage] Error toggling saved place:', error)
+        $q.notify({
+          type: 'negative',
+          message: 'Failed to save place',
+          position: 'top'
+        })
+      }
+    }
+
+    const loadSavedPlaces = async () => {
+      if (!userStore.isAuthenticated) {
+        savedPlacesIds.value.clear()
+        return
+      }
+
+      try {
+        const q = query(
+          collection(db, 'savedPlaces'),
+          orderBy('savedAt', 'desc')
+        )
+        const querySnapshot = await getDocs(q)
+        querySnapshot.docs.forEach(doc => {
+          const data = doc.data()
+          if (data.userId === userStore.user.uid) {
+            savedPlacesIds.value.add(data.placeId)
+          }
+        })
+        console.log('[MaykanPage] Loaded saved places:', savedPlacesIds.value.size)
+      } catch (error) {
+        console.error('[MaykanPage] Error loading saved places:', error)
+      }
+    }
+
+    const isPlaceSaved = (place) => {
+      return savedPlacesIds.value.has(place.id)
     }
 
     const sharePlace = () => {
@@ -574,6 +886,7 @@ export default defineComponent({
     onMounted(async () => {
       await fetchHeroImage()
       await fetchPlaces()
+      await loadSavedPlaces()
     })
 
     return {
@@ -588,6 +901,8 @@ export default defineComponent({
       faqs,
       categories,
       filteredPlaces,
+      topTouristPlaces,
+      slide,
       truncateText,
       openSaBaguioGroup,
       filterByCategory,
@@ -595,6 +910,10 @@ export default defineComponent({
       navigateToPlace,
       sharePlace,
       submitContact,
+      onSlideChange,
+      toggleSavePlace,
+      isPlaceSaved,
+      userStore,
     }
   },
 })
@@ -602,7 +921,7 @@ export default defineComponent({
 
 <style scoped>
 .maykan-page {
-  background-color: #F5F5F5;
+  background-color: #F5F5F5 !important;
 }
 
 .hero-section {
@@ -643,6 +962,114 @@ export default defineComponent({
 .hero-description {
   font-size: 1.2rem;
   margin: 0;
+}
+
+/* Carousel Section Styles */
+.carousel-section {
+  background: white;
+}
+
+.carousel-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.carousel-slide {
+  position: relative;
+  overflow: hidden;
+}
+
+.slide-content {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.carousel-image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.slide-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
+  padding: 60px 24px 24px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.slide-info {
+  color: white;
+  width: 100%;
+}
+
+.slide-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.slide-area {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+}
+
+.slide-tags {
+  margin-bottom: 1rem;
+}
+
+.slide-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.carousel-indicators {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 8px 0;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.indicator-item {
+  width: 80px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.indicator-item:hover {
+  opacity: 0.8;
+  transform: scale(1.05);
+}
+
+.indicator-item.active {
+  opacity: 1;
+  border-color: #2E5D3E;
+  transform: scale(1.1);
+}
+
+.indicator-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.custom-controls {
+  background: transparent;
 }
 
 .extended-hero {
@@ -738,23 +1165,238 @@ export default defineComponent({
   flex-direction: column;
 }
 
+/* Place Card Styles */
+.places-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.place-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 4px solid #2E5D3E;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.place-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+.place-image {
+  height: 220px;
+  object-fit: cover;
+  position: relative;
+}
+
+.save-btn-overlay {
+  position: absolute;
+  top: 12px;
+  right: 50px;
+  z-index: 10;
+}
+
+.save-place-btn {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+  }
+}
+
+.category-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.tag-badge {
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 16px;
+}
+
+.tag-badge-full {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+}
+
+/* Modal Styles */
+.place-detail-card {
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
+}
+
+.modal-header {
+  position: relative;
+  height: 350px;
+}
+
+.modal-image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.close-btn:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 350px);
+}
+
+.title-section {
+  padding: 24px 0;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.info-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: #F5F5F5;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.info-card:hover {
+  background: #E8F5E9;
+  transform: translateY(-2px);
+}
+
+.info-icon {
+  width: 40px;
+  height: 40px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.info-content {
+  flex: 1;
+}
+
+.info-label {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.info-value {
+  color: #333;
+  line-height: 1.5;
+}
+
+.description-section {
+  padding: 16px 0;
+}
+
+.navigation-section {
+  border-radius: 12px;
+  border-left: 4px solid #2E5D3E;
+}
+
+.bg-blue-1 {
+  background-color: #E3F2FD !important;
+}
+
+.rounded-borders {
+  border-radius: 8px !important;
+}
+
 @media (max-width: 768px) {
   .hero-title {
     font-size: 2rem;
   }
-  
+
   .hero-description {
     font-size: 1rem;
   }
-  
+
   .places-grid {
     grid-template-columns: 1fr;
   }
-  
+
+  .carousel-section {
+    padding: 1rem 0;
+  }
+
+  .carousel-image {
+    height: 300px;
+  }
+
+  .slide-title {
+    font-size: 1.25rem;
+  }
+
+  .slide-actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .slide-actions .q-btn {
+    width: 100%;
+  }
+
+  .carousel-indicators {
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
+
+  .indicator-item {
+    min-width: 60px;
+  }
+
+  .modal-header {
+    height: 250px;
+  }
+
+  .modal-content {
+    max-height: calc(100vh - 250px);
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
   .row {
     flex-direction: column;
   }
-  
+
   .col-md-6, .col-md-4, .col-md-8 {
     width: 100%;
     margin-bottom: 1rem;

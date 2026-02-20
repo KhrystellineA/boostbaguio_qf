@@ -5,7 +5,7 @@
       <q-btn
         label="Add New Route"
         icon="add"
-        style="background: #2d6a4f; color: white"
+        style="background: #4EA96D; color: white"
         unelevated
         @click="showDialog = true"
       />
@@ -263,7 +263,7 @@
     <!-- Main Form Dialog -->
     <q-dialog v-model="showDialog" persistent>
       <q-card style="min-width: 700px; max-width: 900px">
-        <q-card-section class="bg-pine-green text-white">
+        <q-card-section class="bg-primary text-white">
           <div class="text-h6">
             {{ editMode ? 'Edit Route' : 'Add New Route' }}
           </div>
@@ -461,7 +461,7 @@
           <q-btn
             label="Save Route"
             unelevated
-            style="background: #2d6a4f; color: white"
+            style="background: #4EA96D; color: white"
             @click="saveRoute"
             :loading="saving"
           />
@@ -1560,7 +1560,7 @@ export default {
     margin-bottom: 20px
 
 .text-pine-green
-  color: #2d6a4f
+  color: #4EA96D
 
 .coordinate-section
   background: #f5f5f5

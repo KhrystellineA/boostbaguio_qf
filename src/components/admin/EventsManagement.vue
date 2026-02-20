@@ -48,6 +48,20 @@
             </q-td>
           </template>
 
+          <template #body-cell-featured="props">
+            <q-td :props="props">
+              <q-icon 
+                v-if="props.value" 
+                name="star" 
+                color="amber" 
+                size="24px"
+              >
+                <q-tooltip>Featured Event</q-tooltip>
+              </q-icon>
+              <q-icon v-else name="star_border" color="grey-4" size="24px" />
+            </q-td>
+          </template>
+
           <template #body-cell-status="props">
             <q-td :props="props">
               <q-badge :color="getStatusColor(props.value)">
@@ -218,7 +232,18 @@
             type="textarea"
             label="Description"
             rows="3"
+            class="q-mb-md"
           />
+
+          <q-toggle
+            v-model="form.featured"
+            label="Feature this event (show in Top Events section)"
+            class="q-mb-md"
+          >
+            <template v-slot:before>
+              <q-icon name="star" color="amber" />
+            </template>
+          </q-toggle>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -273,11 +298,13 @@ export default {
         contactPhone: '',
         description: '',
         imageUrl: '',
-        imagePath: '' 
+        imagePath: '',
+        featured: false
       },
       statusOptions: ['Upcoming', 'Ongoing', 'Completed', 'Cancelled'],
       columns: [
         { name: 'image', label: 'Image', field: 'imageUrl', align: 'center' },
+        { name: 'featured', label: 'Featured', field: 'featured', align: 'center', sortable: true },
         { name: 'title', label: 'Event Title', field: 'title', align: 'left', sortable: true },
         { name: 'location', label: 'Location', field: 'location', align: 'left' },
         { name: 'startDate', label: 'Start Date', field: 'startDate', align: 'left', sortable: true },
@@ -441,6 +468,7 @@ export default {
           description: this.form.description || '',
           imageUrl: imageData.imageUrl,
           imagePath: imageData.imagePath,
+          featured: this.form.featured || false,
           updatedAt: serverTimestamp()
         }
 
@@ -534,7 +562,8 @@ export default {
         contactPhone: '',
         description: '',
         imageUrl: '',
-        imagePath: ''
+        imagePath: '',
+        featured: false
       }
       this.imageFile = null
       this.imagePreview = null

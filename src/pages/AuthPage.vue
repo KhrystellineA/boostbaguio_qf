@@ -216,6 +216,8 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { useUserStore } from 'stores/user-store'
+import { auth, db } from 'src/boot/firebase'
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
 
 const router = useRouter()
 const $q = useQuasar()
@@ -237,17 +239,64 @@ const signupForm = ref({
   confirmPassword: ''
 })
 
+const checkIfAdmin = async (user) => {
+  try {
+    const uidRef = doc(db, 'admins', user.uid)
+    const uidSnap = await getDoc(uidRef)
+
+    if (uidSnap.exists()) {
+      return uidSnap.data()
+    }
+
+    const q = query(
+      collection(db, 'admins'),
+      where('email', '==', user.email)
+    )
+    const querySnap = await getDocs(q)
+
+    if (!querySnap.empty) {
+      return querySnap.docs[0].data()
+    }
+
+    return null
+  } catch (error) {
+    console.error('[AuthPage] Error checking admin status:', error)
+    return null
+  }
+}
+
 const handleLogin = async () => {
   loading.value = true
-  
+
   try {
     sessionStorage.removeItem('adminRole')
     sessionStorage.removeItem('adminData')
     sessionStorage.removeItem('adminUid')
-    
+
     const result = await userStore.signIn(loginForm.value.email, loginForm.value.password)
-    
+
     if (result.success) {
+      const adminData = await checkIfAdmin(auth.currentUser)
+
+      if (adminData) {
+        const validRoles = ['super_admin', 'route_manager', 'content_admin']
+        if (validRoles.includes(adminData.role) && adminData.isActive !== false) {
+          sessionStorage.setItem('adminRole', adminData.role)
+          sessionStorage.setItem('adminData', JSON.stringify(adminData))
+          sessionStorage.setItem('adminUid', auth.currentUser.uid)
+
+          $q.notify({
+            type: 'positive',
+            message: `Welcome back, Admin ${adminData.name || auth.currentUser.email}!`,
+            icon: 'check_circle',
+            position: 'top',
+            timeout: 1500
+          })
+          router.push('/admin/dashboard')
+          return
+        }
+      }
+
       $q.notify({
         type: 'positive',
         message: 'Welcome back!',
