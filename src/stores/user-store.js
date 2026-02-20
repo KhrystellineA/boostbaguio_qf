@@ -1,10 +1,13 @@
 import { defineStore } from 'pinia'
-import { 
+import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential
 } from 'firebase/auth'
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { auth, db } from 'src/boot/firebase'
@@ -22,6 +25,7 @@ export const useUserStore = defineStore('user', {
     isAuthenticated: (state) => !!state.user,
     userEmail: (state) => state.user?.email || '',
     userName: (state) => state.user?.displayName || 'User',
+    userPhotoURL: (state) => state.user?.photoURL || null,
     canUseOffline: (state) => state.isPremium,
   },
 
@@ -246,6 +250,127 @@ export const useUserStore = defineStore('user', {
         message: `Premium activated until ${expiryDate.toLocaleDateString()}`,
         position: 'top'
       })
+    },
+
+    async updateProfileInfo({ displayName, photoURL }) {
+      if (!this.user) {
+        Notify.create({
+          type: 'negative',
+          message: 'User not authenticated',
+          position: 'top'
+        })
+        return { success: false }
+      }
+
+      try {
+        const updateData = {}
+        if (displayName !== undefined) updateData.displayName = displayName
+        if (photoURL !== undefined) updateData.photoURL = photoURL
+
+        await updateProfile(this.user, updateData)
+
+        await updateDoc(doc(db, 'users', this.user.uid), {
+          displayName: displayName !== undefined ? displayName : this.user.displayName,
+          photoURL: photoURL !== undefined ? photoURL : this.user.photoURL,
+          lastUpdated: new Date().toISOString()
+        })
+
+        // Refresh the user object to get the updated photoURL
+        const currentUser = auth.currentUser
+        if (currentUser) {
+          this.user = currentUser
+        }
+
+        Notify.create({
+          type: 'positive',
+          message: 'Profile updated successfully!',
+          position: 'top'
+        })
+
+        return { success: true }
+      } catch (error) {
+        console.error('[UserStore] Profile update error:', error)
+
+        let message = 'Failed to update profile'
+        if (error.code === 'auth/requires-recent-login') {
+          message = 'Please log in again to update your profile'
+        }
+
+        Notify.create({
+          type: 'negative',
+          message: message,
+          position: 'top'
+        })
+
+        return { success: false, error: message }
+      }
+    },
+
+    async updatePassword({ currentPassword, newPassword }) {
+      if (!this.user || !this.user.email) {
+        Notify.create({
+          type: 'negative',
+          message: 'User not authenticated',
+          position: 'top'
+        })
+        return { success: false }
+      }
+
+      if (!currentPassword || !newPassword) {
+        Notify.create({
+          type: 'warning',
+          message: 'Please fill in all password fields',
+          position: 'top'
+        })
+        return { success: false }
+      }
+
+      if (newPassword.length < 6) {
+        Notify.create({
+          type: 'warning',
+          message: 'New password must be at least 6 characters',
+          position: 'top'
+        })
+        return { success: false }
+      }
+
+      try {
+        const credential = EmailAuthProvider.credential(
+          this.user.email,
+          currentPassword
+        )
+
+        await reauthenticateWithCredential(this.user, credential)
+
+        await updatePassword(this.user, newPassword)
+
+        Notify.create({
+          type: 'positive',
+          message: 'Password changed successfully!',
+          position: 'top'
+        })
+
+        return { success: true }
+      } catch (error) {
+        console.error('[UserStore] Password update error:', error)
+
+        let message = 'Failed to change password'
+        if (error.code === 'auth/wrong-password') {
+          message = 'Current password is incorrect'
+        } else if (error.code === 'auth/requires-recent-login') {
+          message = 'Please log in again to change your password'
+        } else if (error.code === 'auth/weak-password') {
+          message = 'New password is too weak'
+        }
+
+        Notify.create({
+          type: 'negative',
+          message: message,
+          position: 'top'
+        })
+
+        return { success: false, error: message }
+      }
     }
   }
 })

@@ -1,7 +1,13 @@
 <template>
   <q-layout view="hHh lpR fFf">
-    <app-header />
+    <!-- Shared Navbar as q-header -->
+    <q-header elevated>
+      <q-toolbar class="main-toolbar">
+        <SharedNavbar />
+      </q-toolbar>
+    </q-header>
 
+    <!-- Page Content - MUST use q-page-container in Quasar v2 -->
     <q-page-container>
       <router-view />
     </q-page-container>
@@ -21,13 +27,13 @@
 
 <script>
 import { ref, onMounted, onUnmounted } from 'vue'
-import AppHeader from '../components/AppHeader.vue'
+import SharedNavbar from '../components/SharedNavbar.vue'
 
 export default {
   name: 'MainLayout',
 
   components: {
-    AppHeader,
+    SharedNavbar,
   },
 
   setup() {
@@ -60,11 +66,29 @@ export default {
 }
 </script>
 
-<style lang="sass">
+<style lang="scss">
 // Global styles
-*
-  scroll-behavior: smooth
+* {
+  scroll-behavior: smooth;
+}
 
-.q-page
-  background: white
+// Force q-header and q-toolbar to be transparent so our navbar shows
+.q-header {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.q-toolbar {
+  background: transparent !important;
+}
+
+// q-page-container should not override page backgrounds
+.q-page-container {
+  background: transparent !important;
+}
+
+// Ensure pages have proper backgrounds
+.q-page {
+  background: transparent !important;
+}
 </style>

@@ -90,7 +90,15 @@ export default defineConfig((/* ctx */) => {
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#framework
     framework: {
-      config: {},
+      config: {
+        notify: {
+          position: 'bottom-right',
+          timeout: 2500,
+          textColor: 'white',
+          classes: 'rounded-borders',
+          actions: [{ icon: 'close', color: 'white' }]
+        }
+      },
 
       // iconSet: 'material-icons', // Quasar icon set
       // lang: 'en-US', // Quasar language pack

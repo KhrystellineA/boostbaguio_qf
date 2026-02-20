@@ -1,57 +1,6 @@
 <template>
   <q-page class="ayan-mo-page">
-    <!-- NAVBAR (Same as MainLayout) -->
-    <q-header elevated class="bg-primary text-white" height-hint="98">
-      <q-toolbar>
-        <q-btn dense flat round icon="arrow_back" @click="$router.go(-1)" />
-
-        <q-toolbar-title>
-          <div class="flex items-center">
-            <img src="~assets/logo.png" alt="Boost Baguio" style="height: 32px; margin-right: 8px;">
-            <span class="text-weight-bold">Boost Baguio</span>
-          </div>
-        </q-toolbar-title>
-
-        <!-- Main Feature Shortcut (APANAM) -->
-        <q-btn flat label="APANAM" @click="$router.push('/apanam')" class="q-mr-sm" />
-
-        <!-- Dropdown for All Features -->
-        <q-btn-dropdown flat label="Features" class="q-mr-sm">
-          <q-list>
-            <q-item clickable v-close-popup @click="$router.push('/apanam')">
-              <q-item-section>
-                <q-item-label>APANAM (P2P Navigation)</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="$router.push('/pagnaam')">
-              <q-item-section>
-                <q-item-label>PAGNAAM (City Jeeps)</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="$router.push('/maykan')">
-              <q-item-section>
-                <q-item-label>MAYKAN (Places)</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="$router.push('/aramidem')">
-              <q-item-section>
-                <q-item-label>ARAMIDEM (Events)</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="$router.push('/ayanmo')">
-              <q-item-section>
-                <q-item-label>AYAN MO (Near Me)</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
-
-        <!-- Auth Buttons -->
-        <q-space />
-        <q-btn flat label="Login" @click="$router.push('/auth')" />
-        <q-btn flat label="Sign Up" @click="$router.push('/auth')" />
-      </q-toolbar>
-    </q-header>
+    <q-scroll-observer @scroll="onScroll" />
 
     <!-- HERO SECTION (Section 1) -->
     <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
@@ -204,7 +153,7 @@
           <q-card
             v-for="place in filteredPlaces"
             :key="place.id"
-            class="place-card q-ma-sm"
+            class="bento-card q-ma-sm"
             @click="selectPlace(place)"
           >
             <q-img
@@ -355,6 +304,7 @@ export default defineComponent({
     const heroImageUrl = ref(fallbackImage)
     const isLoadingLocation = ref(false)
     const isLoadingPlaces = ref(false)
+    const isScrolled = ref(false)
 
     const categories = [
       { label: 'All Categories', value: 'all' },
@@ -565,6 +515,10 @@ export default defineComponent({
       router.push(`/apanam?start=${encodeURIComponent('Current Location')}&end=${encodeURIComponent(place.name)}`)
     }
 
+    const onScroll = (info) => {
+      isScrolled.value = info.position.top > 50
+    }
+
     onMounted(async () => {
       await fetchHeroImage()
       await fetchPlaces()
@@ -607,6 +561,8 @@ export default defineComponent({
       navigateToPlace,
       calculateDistance,
       truncateText,
+      isScrolled,
+      onScroll
     }
   },
 })
@@ -614,7 +570,24 @@ export default defineComponent({
 
 <style scoped>
 .ayan-mo-page {
-  background-color: #F5F5F5;
+  background-color: #F5F5F5 !important;
+}
+
+/* Navbar Animation */
+.transition-all {
+  transition: all 0.3s ease;
+}
+
+.floating-nav {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
+  color: #212121 !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  width: calc(100% - 32px);
+  left: 16px;
+  right: 16px;
+  border-radius: 16px;
+  margin-top: 16px;
 }
 
 .hero-section {
@@ -703,13 +676,17 @@ export default defineComponent({
   gap: 1.5rem;
 }
 
-.place-card {
+/* Bento Card Style */
+.bento-card {
+  background: white;
+  border-radius: 16px;
+  border-left: 6px solid #4EA96D;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
-  border-left: 4px solid #2E5D3E;
 }
 
-.place-card:hover {
+.bento-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
@@ -744,11 +721,11 @@ export default defineComponent({
 }
 
 .bg-primary {
-  background-color: #2E5D3E !important;
+  background-color: #4EA96D !important;
 }
 
 .text-primary {
-  color: #2E5D3E !important;
+  color: #4EA96D !important;
 }
 
 .bg-secondary {
@@ -783,7 +760,7 @@ export default defineComponent({
   transition: all 0.3s ease;
 
   &:not(.q-btn--unelevated) {
-    border: 2px solid #2E5D3E;
+    border: 2px solid #4EA96D;
   }
 }
 

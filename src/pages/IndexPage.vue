@@ -377,9 +377,8 @@ export default {
 
 <style lang="scss" scoped>
 .page-wrapper {
-  background: #F5F5F5;
+  background: #F5F5F5 !important;
   min-height: 100vh;
-  padding: 0;
 }
 
 @keyframes fadeInUp {
@@ -483,11 +482,12 @@ export default {
 }
 
 .hero-section {
-  min-height: 100vh;
+  min-height: 100vh !important;
   display: flex;
   align-items: center;
   padding: 2rem 0;
-  background: linear-gradient(135deg, #2E5D3E 0%, #4A7D5D 100%);
+  background: linear-gradient(135deg, #2E5D3E 0%, #4A7D5D 100%) !important;
+  position: relative;
 }
 
 .container-custom {

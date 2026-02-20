@@ -8,7 +8,12 @@
             <div class="row items-center">
               <div class="col-12 col-sm-3 text-center q-mb-sm q-sm-mb-none">
                 <q-avatar size="100px" class="shadow-5">
-                  <img src="~assets/logo.png" alt="User Avatar">
+                  <img 
+                    v-if="userStore.userPhotoURL" 
+                    :src="userStore.userPhotoURL" 
+                    alt="User Avatar"
+                  >
+                  <q-icon v-else name="person" size="50px" color="white" />
                   <q-badge color="green" text-color="white" floating>
                     <q-icon name="check_circle" size="xs" />
                   </q-badge>
@@ -437,7 +442,7 @@
                       <div v-else class="bg-grey-3" style="height: 200px; display: flex; align-items: center; justify-content: center;">
                         <q-icon name="place" size="48px" color="grey-6" />
                       </div>
-                      
+
                       <q-card-section>
                         <div class="row items-center justify-between">
                           <div>
@@ -452,7 +457,7 @@
                             @click.stop="removeSavedItem('place', place.id)"
                           />
                         </div>
-                        
+
                         <div class="q-mt-md">
                           <q-btn
                             label="Get Directions"
@@ -482,7 +487,7 @@
                             @click.stop="removeSavedItem('route', route.id)"
                           />
                         </div>
-                        
+
                         <div class="q-mt-md">
                           <q-btn
                             label="Use Route"
@@ -518,7 +523,7 @@
                     <div v-else class="bg-grey-3" style="height: 200px; display: flex; align-items: center; justify-content: center;">
                       <q-icon name="place" size="48px" color="grey-6" />
                     </div>
-                    
+
                     <q-card-section>
                       <div class="row items-center justify-between">
                         <div>
@@ -533,7 +538,7 @@
                           @click.stop="removeSavedItem('place', place.id)"
                         />
                       </div>
-                      
+
                       <div class="q-mt-md">
                         <q-btn
                           label="Get Directions"
@@ -578,7 +583,7 @@
                           @click.stop="removeSavedItem('route', route.id)"
                         />
                       </div>
-                      
+
                       <div class="q-mt-md">
                         <q-btn
                           label="Use Route"
@@ -597,6 +602,9 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <!-- Profile Editor Dialog -->
+    <ProfileEditor v-model="showProfileEditor" />
 
     <!-- Dynamic Details Modal -->
     <q-dialog v-model="showDetailsModal" maximized>
@@ -781,8 +789,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from 'stores/user-store'
 import { useQuasar } from 'quasar'
-import { db, auth } from 'src/boot/firebase' 
+import { db, auth } from 'src/boot/firebase'
 import { collection, getDocs, deleteDoc, doc, query, orderBy } from 'firebase/firestore'
+import ProfileEditor from 'src/components/ProfileEditor.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -790,6 +799,7 @@ const $q = useQuasar()
 
 const showUpgradeDialog = ref(false)
 const showSavedItems = ref(false)
+const showProfileEditor = ref(false)
 const savedItemsTab = ref('all')
 const offlineModeEnabled = ref(false)
 const isOnline = ref(navigator.onLine)
@@ -1118,11 +1128,7 @@ const clearCache = async () => {
 
 // New methods added for enhanced UX
 const openProfileEditor = () => {
-  $q.notify({
-    type: 'info',
-    message: 'Profile editing feature coming soon!',
-    position: 'top'
-  });
+  showProfileEditor.value = true
 };
 
 const manageSubscription = () => {

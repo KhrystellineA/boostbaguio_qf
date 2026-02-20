@@ -1,179 +1,220 @@
 <template>
-  <q-header elevated class="app-header bg-white text-dark">
-    <q-toolbar class="toolbar-custom">
-      <div class="container-header">
-        <div class="row items-center full-width no-wrap">
-          <!-- Logo -->
-          <div class="col-auto">
-            <q-toolbar-title
-              class="row items-center cursor-pointer q-pa-none"
-              @click="$router.push('/')"
-            >
-              <div class="logo-wrapper">
-                <img src="../assets/logo.png" alt="Logo" class="logo-img" />
-              </div>
-            </q-toolbar-title>
-          </div>
-
-          <!-- Spacer -->
-          <div class="col"></div>
-
-          <!-- Desktop Navigation -->
-          <div class="col-auto gt-md">
-            <div class="row items-center q-gutter-md nav-menu">
-              <a v-for="link in navLinks" :key="link.label" :href="link.path" class="nav-link">
-                {{ link.label }}
-              </a>
-
-              <!-- More Options Dropdown -->
-              <q-btn-dropdown
-                flat
-                dense
-                no-caps
-                label="More Options"
-                class="more-options-btn"
-                dropdown-icon="expand_more"
-              >
-                <q-list>
-                  <q-item
-                    clickable
-                    v-close-popup
-                    :href="option.path"
-                    v-for="option in moreOptions"
-                    :key="option.label"
-                  >
-                    <q-item-section>
-                      <q-item-label>{{ option.label }}</q-item-label>
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </q-btn-dropdown>
-            </div>
-          </div>
-
-          <!-- Auth Section (Desktop) -->
-          <div class="col-auto gt-md">
-            <!-- Not Logged In -->
-            <div v-if="!userStore.isAuthenticated" class="row items-center q-gutter-sm">
-              <q-btn label="Log In" flat no-caps class="auth-btn login-btn" @click="handleLogin" />
-              <q-btn
-                label="Sign Up"
-                unelevated
-                no-caps
-                class="auth-btn signup-btn"
-                @click="handleSignup"
-              />
-            </div>
-
-            <!-- Logged In -->
-            <div v-else class="row items-center q-gutter-sm">
-              <!-- Premium Badge (if premium) -->
-              <q-chip
-                v-if="userStore.isPremium"
-                square
-                dense
-                icon="workspace_premium"
-                color="amber-7"
-                text-color="white"
-                size="sm"
-              >
-                Premium
-              </q-chip>
-
-              <!-- User Dropdown -->
-              <q-btn-dropdown flat no-caps class="user-dropdown-btn" dropdown-icon="expand_more">
-                <template v-slot:label>
-                  <div class="row items-center no-wrap">
-                    <q-avatar size="32px" color="primary" text-color="white">
-                      {{ userInitials }}
-                    </q-avatar>
-                    <div class="q-ml-sm text-left">
-                      <div class="text-caption text-weight-medium">{{ userStore.userName }}</div>
-                    </div>
-                  </div>
-                </template>
-
-                <q-list>
-                  <q-item clickable v-close-popup @click="handleMyAccount">
-                    <q-item-section avatar>
-                      <q-icon name="person_outline" />
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label>My Account</q-item-label>
-                    </q-item-section>
-                  </q-item>
-
-                  <q-separator />
-
-                  <q-item clickable v-close-popup @click="handleLogout">
-                    <q-item-section avatar>
-                      <q-icon name="logout" color="negative" />
-                    </q-item-section>
-                    <q-item-section>
-                      <q-item-label>Sign Out</q-item-label>
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </q-btn-dropdown>
-            </div>
-          </div>
-
-          <!-- Mobile Menu Button -->
-          <div class="col-auto lt-lg">
-            <q-btn flat dense round icon="menu" @click="drawer = !drawer" />
-          </div>
+  <header :class="['app-header', { 'scrolled': isScrolled }]">
+    <q-toolbar class="main-toolbar">
+      <!-- Logo Section -->
+      <div class="logo-section cursor-pointer" @click="$router.push('/')">
+        <div class="logo-bento">
+          <img src="../assets/logo.png" alt="Logo" />
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">Baguio <span class="text-accent">Boost</span></span>
+          <span class="brand-tagline">Navigate with ease</span>
         </div>
       </div>
+
+      <q-space />
+
+      <!-- Navigation Links - Bento Style -->
+      <div class="nav-bento desktop-only">
+        <q-btn
+          flat
+          class="nav-btn"
+          :class="{ 'active': isActiveRoute('/apanam') }"
+          @click="navigateTo('/apanam')"
+        >
+          <q-icon name="route" size="18px" class="q-mr-xs" />
+          Apanam
+        </q-btn>
+        <q-separator vertical class="nav-separator" />
+        <q-btn
+          flat
+          class="nav-btn"
+          :class="{ 'active': isActiveRoute('/pagnaam') }"
+          @click="navigateTo('/pagnaam')"
+        >
+          <q-icon name="directions_bus" size="18px" class="q-mr-xs" />
+          Pagnaam
+        </q-btn>
+        <q-separator vertical class="nav-separator" />
+        <q-btn
+          flat
+          class="nav-btn"
+          :class="{ 'active': isActiveRoute('/maykan') }"
+          @click="navigateTo('/maykan')"
+        >
+          <q-icon name="place" size="18px" class="q-mr-xs" />
+          Maykan
+        </q-btn>
+        <q-separator vertical class="nav-separator" />
+        <q-btn
+          flat
+          class="nav-btn"
+          :class="{ 'active': isActiveRoute('/aramidem') }"
+          @click="navigateTo('/aramidem')"
+        >
+          <q-icon name="event" size="18px" class="q-mr-xs" />
+          Aramidem
+        </q-btn>
+        <q-separator vertical class="nav-separator" />
+        <q-btn
+          flat
+          class="nav-btn"
+          :class="{ 'active': isActiveRoute('/ayanmo') }"
+          @click="navigateTo('/ayanmo')"
+        >
+          <q-icon name="my_location" size="18px" class="q-mr-xs" />
+          Ayan Mo
+        </q-btn>
+      </div>
+
+      <q-space />
+
+      <!-- Auth Section (Desktop) -->
+      <div class="auth-buttons desktop-only">
+        <!-- Not Logged In -->
+        <template v-if="!userStore.isAuthenticated">
+          <div class="auth-bento-group">
+            <q-btn
+              label="Log In"
+              flat
+              class="auth-btn login-btn"
+              @click="handleLogin"
+            />
+            <q-btn
+              label="Sign Up"
+              color="primary"
+              unelevated
+              class="auth-btn signup-btn"
+              @click="handleSignup"
+            />
+          </div>
+        </template>
+
+        <!-- Logged In -->
+        <template v-else>
+          <q-btn-dropdown
+            flat
+            class="profile-dropdown"
+            no-caps
+            :label="userInitials"
+          >
+            <template #label>
+              <div class="profile-label">
+                <div class="avatar-bento">
+                  {{ userInitials }}
+                </div>
+                <span class="user-name">{{ userStore.userName }}</span>
+                <q-icon name="keyboard_arrow_down" size="16px" />
+              </div>
+            </template>
+            <q-list class="profile-menu">
+              <q-item clickable v-close-popup @click="handleMyAccount" class="menu-item">
+                <q-item-section avatar class="menu-icon-section">
+                  <div class="icon-bento">
+                    <q-icon name="person_outline" size="18px" />
+                  </div>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="menu-label">My Account</q-item-label>
+                  <q-item-label caption class="menu-caption">Manage your settings</q-item-label>
+                </q-item-section>
+              </q-item>
+              <q-separator />
+              <q-item clickable v-close-popup @click="handleLogout" class="menu-item logout">
+                <q-item-section avatar class="menu-icon-section">
+                  <div class="icon-bento logout">
+                    <q-icon name="logout" size="18px" />
+                  </div>
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="menu-label">Sign Out</q-item-label>
+                  <q-item-label caption class="menu-caption">Log out of your account</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+        </template>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <q-btn
+        flat
+        dense
+        round
+        icon="menu"
+        class="mobile-menu-btn"
+        @click="drawer = !drawer"
+      />
     </q-toolbar>
-  </q-header>
+  </header>
 
   <!-- Mobile Drawer -->
-  <q-drawer v-model="drawer" overlay behavior="mobile" side="right" :width="280">
+  <q-drawer v-model="drawer" overlay behavior="mobile" side="right" :width="320">
+    <div class="mobile-drawer-header">
+      <div class="logo-section">
+        <div class="logo-bento">
+          <img src="../assets/logo.png" alt="Logo" />
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">Baguio <span class="text-accent">Boost</span></span>
+          <span class="brand-tagline">Navigate with ease</span>
+        </div>
+      </div>
+      <q-btn flat round dense icon="close" @click="drawer = !drawer" />
+    </div>
+    <q-separator />
     <q-scroll-area class="fit">
       <q-list padding>
-        <q-item-label header class="text-weight-bold">Navigation</q-item-label>
-        <q-item v-for="link in navLinks" :key="link.label" clickable v-ripple :href="link.path">
-          <q-item-section>
-            <q-item-label>{{ link.label }}</q-item-label>
-          </q-item-section>
-        </q-item>
-
-        <q-separator class="q-my-md" />
-
-        <q-item-label header class="text-weight-bold">More</q-item-label>
+        <!-- Navigation Items -->
+        <q-item-label header class="drawer-header">Navigation</q-item-label>
         <q-item
-          v-for="option in moreOptions"
-          :key="option.label"
+          v-for="link in navLinks"
+          :key="link.label"
           clickable
           v-ripple
-          :href="option.path"
+          :href="link.path"
+          class="mobile-nav-item"
+          :class="{ 'active': isActiveRoute(link.path) }"
+          @click="drawer = !drawer"
         >
+          <q-item-section avatar>
+            <div class="mobile-icon-bento">
+              <q-icon :name="getIconForRoute(link.path)" size="20px" />
+            </div>
+          </q-item-section>
           <q-item-section>
-            <q-item-label>{{ option.label }}</q-item-label>
+            <q-item-label class="mobile-nav-label">{{ link.label }}</q-item-label>
+            <q-item-label caption>{{ getCaptionForRoute(link.label) }}</q-item-label>
           </q-item-section>
         </q-item>
 
         <q-separator class="q-my-md" />
 
         <!-- Mobile Auth Section -->
-        <q-item-label header class="text-weight-bold">Account</q-item-label>
+        <q-item-label header class="drawer-header">Account</q-item-label>
 
         <!-- Not Logged In (Mobile) -->
         <template v-if="!userStore.isAuthenticated">
-          <q-item clickable v-ripple @click="handleLogin">
+          <q-item clickable v-ripple @click="handleLogin" class="mobile-nav-item">
             <q-item-section avatar>
-              <q-icon name="login" />
+              <div class="mobile-icon-bento">
+                <q-icon name="login" size="20px" />
+              </div>
             </q-item-section>
             <q-item-section>
-              <q-item-label>Log In</q-item-label>
+              <q-item-label class="mobile-nav-label">Log In</q-item-label>
+              <q-item-label caption>Access your account</q-item-label>
             </q-item-section>
           </q-item>
-          <q-item clickable v-ripple @click="handleSignup">
+          <q-item clickable v-ripple @click="handleSignup" class="mobile-nav-item">
             <q-item-section avatar>
-              <q-icon name="person_add" />
+              <div class="mobile-icon-bento signup">
+                <q-icon name="person_add" size="20px" />
+              </div>
             </q-item-section>
             <q-item-section>
-              <q-item-label>Sign Up</q-item-label>
+              <q-item-label class="mobile-nav-label">Sign Up</q-item-label>
+              <q-item-label caption>Create a new account</q-item-label>
             </q-item-section>
           </q-item>
         </template>
@@ -181,47 +222,56 @@
         <!-- Logged In (Mobile) -->
         <template v-else>
           <!-- User Info -->
-          <q-item>
+          <q-item class="user-info-card">
             <q-item-section avatar>
-              <q-avatar color="primary" text-color="white">
+              <div class="avatar-bento large">
                 {{ userInitials }}
-              </q-avatar>
+              </div>
             </q-item-section>
             <q-item-section>
-              <q-item-label>{{ userStore.userName }}</q-item-label>
-              <q-item-label caption>{{ userStore.userEmail }}</q-item-label>
+              <q-item-label class="user-name">{{ userStore.userName }}</q-item-label>
+              <q-item-label caption class="user-email">{{ userStore.userEmail }}</q-item-label>
             </q-item-section>
           </q-item>
 
           <!-- Premium Badge (Mobile) -->
-          <q-item v-if="userStore.isPremium">
+          <q-item v-if="userStore.isPremium" class="premium-card">
             <q-item-section avatar>
-              <q-icon name="workspace_premium" color="amber-7" />
+              <div class="mobile-icon-bento premium">
+                <q-icon name="workspace_premium" size="20px" />
+              </div>
             </q-item-section>
             <q-item-section>
-              <q-item-label>Premium Member</q-item-label>
+              <q-item-label class="mobile-nav-label">Premium Member</q-item-label>
+              <q-item-label caption>Enjoy premium features</q-item-label>
             </q-item-section>
           </q-item>
 
           <q-separator class="q-my-sm" />
 
           <!-- My Account -->
-          <q-item clickable v-ripple @click="handleMyAccount">
+          <q-item clickable v-ripple @click="handleMyAccount" class="mobile-nav-item">
             <q-item-section avatar>
-              <q-icon name="person_outline" />
+              <div class="mobile-icon-bento">
+                <q-icon name="person_outline" size="20px" />
+              </div>
             </q-item-section>
             <q-item-section>
-              <q-item-label>My Account</q-item-label>
+              <q-item-label class="mobile-nav-label">My Account</q-item-label>
+              <q-item-label caption>Manage your settings</q-item-label>
             </q-item-section>
           </q-item>
 
           <!-- Sign Out -->
-          <q-item clickable v-ripple @click="handleLogout">
+          <q-item clickable v-ripple @click="handleLogout" class="mobile-nav-item logout">
             <q-item-section avatar>
-              <q-icon name="logout" color="negative" />
+              <div class="mobile-icon-bento logout">
+                <q-icon name="logout" size="20px" />
+              </div>
             </q-item-section>
             <q-item-section>
-              <q-item-label>Sign Out</q-item-label>
+              <q-item-label class="mobile-nav-label">Sign Out</q-item-label>
+              <q-item-label caption>Log out of your account</q-item-label>
             </q-item-section>
           </q-item>
         </template>
@@ -231,29 +281,56 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from 'stores/user-store'
 import { useQuasar } from 'quasar'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 const $q = useQuasar()
 
 const drawer = ref(false)
+const isScrolled = ref(false)
 
 const navLinks = [
   { label: 'APANAM', path: 'apanam' },
   { label: 'PAGNAAM', path: 'pagnaam' },
-]
-
-const moreOptions = [
-  { label: 'APANAM', path: 'apanam' },
-  { label: 'PAGNAAM', path: 'pagnaam' },
-  { label: 'ARAMIDEM', path: 'aramidem' },
   { label: 'MAYKAN', path: 'maykan' },
+  { label: 'ARAMIDEM', path: 'aramidem' },
   { label: 'AYAN MO', path: 'ayanmo' },
 ]
+
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 20
+}
+
+const isActiveRoute = (path) => {
+  return route.path.startsWith('/' + path)
+}
+
+const getIconForRoute = (path) => {
+  const icons = {
+    apanam: 'route',
+    pagnaam: 'directions_bus',
+    maykan: 'place',
+    aramidem: 'event',
+    ayanmo: 'my_location'
+  }
+  return icons[path] || 'link'
+}
+
+const getCaptionForRoute = (label) => {
+  const captions = {
+    'APANAM': 'P2P Navigation',
+    'PAGNAAM': 'City Jeeps',
+    'MAYKAN': 'Places',
+    'ARAMIDEM': 'Events',
+    'AYAN MO': 'Near Me'
+  }
+  return captions[label] || ''
+}
 
 // Get user initials for avatar
 const userInitials = computed(() => {
@@ -267,32 +344,17 @@ const userInitials = computed(() => {
 
 const handleLogin = () => {
   drawer.value = false
-  router.push('/login')
+  router.push('/auth')
 }
 
 const handleSignup = () => {
   drawer.value = false
-  router.push('/login')
+  router.push('/auth')
 }
 
 const handleMyAccount = () => {
-  console.log('🔵 STEP 1: handleMyAccount called')
-  console.log('🔵 STEP 2: Current route:', router.currentRoute.value.path)
-  console.log('🔵 STEP 3: Drawer value:', drawer.value)
-  
   drawer.value = false
-  
-  console.log('🔵 STEP 4: About to push /account')
-  
-  const pushResult = router.push('/account')
-  console.log('🔵 STEP 5: Push returned:', pushResult)
-  
-  pushResult.then(() => {
-    console.log('🔵 STEP 6: Push completed')
-    console.log('🔵 STEP 7: New route:', router.currentRoute.value.path)
-  }).catch(err => {
-    console.error('🔵 STEP 6: Push error:', err)
-  })
+  router.push('/account')
 }
 
 const handleLogout = async () => {
@@ -308,158 +370,522 @@ const handleLogout = async () => {
     router.push('/')
   })
 }
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <style lang="scss" scoped>
+// Color Variables
+$primary: #2E5D3E;
+$primary-light: #4A7D5D;
+$accent: #FFD60A;
+$text-dark: #2D3436;
+$text-muted: #636E72;
+
 .app-header {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.9) 100%);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(46, 93, 62, 0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0 32px;
+
+  &.scrolled {
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 4px 20px rgba(46, 93, 62, 0.08);
+    border-bottom: none;
+
+    .main-toolbar {
+      height: 64px;
+    }
+
+    .logo-bento {
+      transform: scale(0.95);
+    }
+  }
 }
 
-.toolbar-custom {
-  padding: 0.5rem 1.5rem;
-  min-height: 80px;
+.main-toolbar {
+  height: 72px;
+  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 16px;
 }
 
-.container-header {
-  max-width: 1400px;
-  margin: 0 auto;
-  width: 100%;
-  padding: 0 1rem;
-}
-
-// Logo Section
-.logo-wrapper {
+// Logo Section with Bento Design
+.logo-section {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-}
-
-.logo-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-// Navigation Menu
-.nav-menu {
-  margin-right: 1.5rem;
-}
-
-.nav-link {
-  text-decoration: none;
-  color: #2c3e50;
-  font-size: 0.875rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  padding: 0.5rem 0;
-  position: relative;
-  transition: color 0.2s ease;
+  gap: 12px;
+  transition: transform 0.3s ease;
 
   &:hover {
-    color: #1976d2;
+    transform: translateX(4px);
   }
 
-  &::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: #1976d2;
-    transition: width 0.3s ease;
+  .logo-bento {
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(46, 93, 62, 0.2);
+    transition: all 0.3s ease;
+
+    img {
+      height: 24px;
+      width: 24px;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+    }
+
+    &:hover {
+      transform: scale(1.05) rotate(-5deg);
+      box-shadow: 0 6px 16px rgba(46, 93, 62, 0.3);
+    }
   }
 
-  &:hover::after {
-    width: 100%;
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .brand-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: $text-dark;
+      letter-spacing: -0.5px;
+
+      .text-accent {
+        color: $primary;
+        background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+
+    .brand-tagline {
+      font-size: 0.7rem;
+      color: $text-muted;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
   }
 }
 
-.more-options-btn {
-  color: #2c3e50;
-  font-size: 0.875rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  padding: 0.5rem 0.75rem;
+// Navigation Bento Box
+.nav-bento {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  padding: 6px 8px;
+  border: 1px solid rgba(46, 93, 62, 0.08);
+  gap: 4px;
 
-  &:hover {
-    color: #1976d2;
+  .nav-separator {
+    height: 24px;
+    opacity: 0.3;
+    margin: 0 4px;
   }
 
-  :deep(.q-icon) {
-    font-size: 1.25rem;
+  .nav-btn {
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: $text-muted;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-transform: none;
+    letter-spacing: 0.3px;
+
+    &:hover {
+      background: rgba(46, 93, 62, 0.08);
+      color: $primary;
+      transform: translateY(-2px);
+    }
+
+    &.active {
+      background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(46, 93, 62, 0.25);
+
+      .q-icon {
+        animation: bounce 0.5s ease;
+      }
+    }
   }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
 }
 
 // Auth Buttons
+.auth-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.auth-bento-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .auth-btn {
-  font-size: 0.875rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  padding: 0.5rem 1.25rem;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.3px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &.login-btn {
+    color: $primary;
+
+    &:hover {
+      background: rgba(46, 93, 62, 0.08);
+      transform: translateY(-2px);
+    }
+  }
+
+  &.signup-btn {
+    background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(46, 93, 62, 0.2);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(46, 93, 62, 0.3);
+    }
+  }
 }
 
-.login-btn {
-  color: #2c3e50;
+// Profile Dropdown
+.profile-dropdown {
+  text-transform: none;
+  padding: 6px 12px;
+  border-radius: 14px;
+  transition: all 0.3s ease;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: rgba(46, 93, 62, 0.08);
+  }
+
+  .profile-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .avatar-bento {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 700;
+    font-size: 0.85rem;
+    box-shadow: 0 2px 8px rgba(46, 93, 62, 0.2);
+
+    &.large {
+      width: 44px;
+      height: 44px;
+      font-size: 1rem;
+    }
+  }
+
+  .user-name {
+    font-weight: 600;
+    color: $text-dark;
+    font-size: 0.9rem;
   }
 }
 
-.signup-btn {
-  background: #f5f5f5;
-  color: #2c3e50;
-  border: 1px solid #e0e0e0;
+// Profile Menu
+.profile-menu {
+  padding: 8px;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(46, 93, 62, 0.1);
+
+  .menu-item {
+    border-radius: 12px;
+    padding: 12px;
+    margin: 4px 0;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: rgba(46, 93, 62, 0.05);
+      transform: translateX(4px);
+
+      .icon-bento {
+        transform: scale(1.1) rotate(5deg);
+      }
+    }
+
+    &.logout:hover {
+      background: rgba(211, 47, 47, 0.08);
+
+      .menu-label {
+        color: #D32F2F;
+      }
+    }
+
+    .menu-icon-section {
+      padding: 0;
+      margin-right: 12px;
+    }
+
+    .icon-bento {
+      width: 36px;
+      height: 36px;
+      background: rgba(46, 93, 62, 0.1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $primary;
+      transition: all 0.3s ease;
+
+      &.logout {
+        background: rgba(211, 47, 47, 0.1);
+        color: #D32F2F;
+      }
+    }
+
+    .menu-label {
+      font-weight: 600;
+      color: $text-dark;
+      font-size: 0.9rem;
+    }
+
+    .menu-caption {
+      font-size: 0.75rem;
+      color: $text-muted;
+    }
+  }
+}
+
+// Mobile Drawer Styles
+.mobile-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+
+  .logo-section {
+    .logo-bento {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+
+      img {
+        filter: brightness(0) invert(1);
+      }
+    }
+
+    .brand-text {
+      display: flex;
+
+      .brand-name {
+        color: white;
+
+        .text-accent {
+          color: $accent;
+          -webkit-text-fill-color: $accent;
+        }
+      }
+
+      .brand-tagline {
+        color: rgba(255, 255, 255, 0.8);
+      }
+    }
+  }
+}
+
+.drawer-header {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: $text-muted;
+  padding: 16px 16px 8px;
+}
+
+.mobile-nav-item {
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 4px 8px;
+  transition: all 0.3s ease;
 
   &:hover {
-    background: #ebebeb;
-    border-color: #d0d0d0;
+    background: rgba(46, 93, 62, 0.05);
+  }
+
+  &.active {
+    background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+
+    .mobile-nav-label {
+      color: white;
+    }
+
+    .mobile-icon-bento {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    q-item-label[caption] {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  &.logout {
+    .mobile-icon-bento {
+      background: rgba(211, 47, 47, 0.1);
+      color: #D32F2F;
+    }
+
+    &:hover {
+      background: rgba(211, 47, 47, 0.08);
+
+      .mobile-nav-label {
+        color: #D32F2F;
+      }
+    }
+  }
+
+  .mobile-icon-bento {
+    width: 40px;
+    height: 40px;
+    background: rgba(46, 93, 62, 0.1);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $primary;
+    transition: all 0.3s ease;
+
+    &.signup {
+      background: rgba(255, 193, 7, 0.15);
+      color: #FFC107;
+    }
+
+    &.premium {
+      background: rgba(255, 152, 0, 0.15);
+      color: #FF9800;
+    }
+
+    &.logout {
+      background: rgba(211, 47, 47, 0.1);
+      color: #D32F2F;
+    }
+  }
+
+  .mobile-nav-label {
+    font-weight: 600;
+    color: $text-dark;
+    font-size: 0.95rem;
+  }
+
+  q-item-label[caption] {
+    font-size: 0.75rem;
+    color: $text-muted;
   }
 }
 
-// User Dropdown
-.user-dropdown-btn {
-  padding: 0.25rem 0.75rem;
-  border-radius: 8px;
+.user-info-card {
+  background: rgba(46, 93, 62, 0.05);
+  border-radius: 12px;
+  margin: 8px;
+  padding: 12px;
 
-  &:hover {
-    background: rgba(0, 0, 0, 0.04);
+  .user-name {
+    font-weight: 600;
+    color: $text-dark;
+  }
+
+  .user-email {
+    font-size: 0.75rem;
+    color: $text-muted;
   }
 }
 
-// Mobile Responsive
-@media (max-width: 1023px) {
-  .toolbar-custom {
-    padding: 0.5rem 1rem;
-  }
+.premium-card {
+  background: rgba(255, 152, 0, 0.08);
+  border-radius: 12px;
+  margin: 8px;
 
-  .container-header {
-    padding: 0 0.5rem;
-  }
-}
-
-// Dropdown List Styling
-:deep(.q-list) {
-  min-width: 200px;
-  padding: 0.5rem 0;
-}
-
-:deep(.q-item) {
-  padding: 0.75rem 1rem;
-  min-height: auto;
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.04);
+  .mobile-nav-label {
+    color: #F57C00;
   }
 }
 
-:deep(.q-item__label) {
-  font-size: 0.875rem;
-  color: #2c3e50;
+// Responsive Design
+@media (max-width: 1024px) {
+  .app-header {
+    padding: 0 16px;
+  }
+
+  .nav-bento {
+    display: none;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+  }
+}
+
+@media (min-width: 1025px) {
+  .mobile-menu-btn {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .logo-section {
+    .brand-text {
+      display: none;
+    }
+
+    .logo-bento {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  .user-name {
+    display: none;
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 </style>
