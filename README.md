@@ -1,6 +1,7 @@
-# Baguio Boost (baguioboost)
+# Boost Baguio (boost-baguio)
 
-Baguio Boost
+Boost Baguio
+By BaguioBoosters
 
 ## Install the dependencies
 

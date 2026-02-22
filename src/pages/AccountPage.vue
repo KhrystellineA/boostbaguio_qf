@@ -148,7 +148,7 @@
                     <q-item-section>
                       <q-item-label class="text-weight-bold">Install PWA</q-item-label>
                       <q-item-label caption>
-                        Install Baguio Boost on your device
+                        Install Boost Baguio on your device
                       </q-item-label>
                     </q-item-section>
                     <q-item-section side>

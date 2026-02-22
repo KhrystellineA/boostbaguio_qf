@@ -1,35 +1,66 @@
-import { boot } from 'quasar/wrappers'
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
-import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from 'firebase/firestore'
+import {
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager
+} from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
 
+// Firebase configuration from environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyAllxHJVBHgH3P70gfCqV4494t4ssARbig",
-  authDomain: "baguioboost.firebaseapp.com",
-  projectId: "baguioboost",
-  storageBucket: "baguioboost.firebasestorage.app",
-  messagingSenderId: "851799020380",
-  appId: "1:851799020380:web:a89dc01ea4472b54a2e799",
-  measurementId: "G-CBC0ZZPBDX"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 }
 
-const app = initializeApp(firebaseConfig)
-const auth = getAuth(app)
-const storage = getStorage(app)
+// Validate required config
+const requiredConfigKeys = [
+  'VITE_FIREBASE_API_KEY',
+  'VITE_FIREBASE_AUTH_DOMAIN',
+  'VITE_FIREBASE_PROJECT_ID',
+  'VITE_FIREBASE_STORAGE_BUCKET',
+  'VITE_FIREBASE_MESSAGING_SENDER_ID',
+  'VITE_FIREBASE_APP_ID'
+]
 
-const db = initializeFirestore(app, {
+const missingConfig = requiredConfigKeys.filter(
+  (key) => !import.meta.env[key]
+)
+
+if (missingConfig.length > 0) {
+  console.error(
+    '[Firebase] Missing required environment variables:',
+    missingConfig.join(', ')
+  )
+  console.error(
+    '[Firebase] Please create a .env file based on .env.example'
+  )
+}
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig)
+
+// Initialize services
+export const auth = getAuth(app)
+
+export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({
-    cacheSizeBytes: 50 * 1024 * 1024, 
-    tabManager: persistentMultipleTabManager() 
+    cacheSizeBytes: 50 * 1024 * 1024, // 50MB cache
+    tabManager: persistentMultipleTabManager()
   })
 })
 
-console.log('[Firebase] ✅ Offline persistence enabled (modern method)')
+export const storage = getStorage(app)
 
-export default boot(({ app }) => {
-  app.config.globalProperties.$auth = auth
-  app.config.globalProperties.$db = db
-})
+// Export app for any advanced usage
+export { app }
 
-export { auth, db, storage }
+// Log initialization status
+console.log('[Firebase] ✅ Initialized successfully')
+console.log('[Firebase] 📦 Offline persistence enabled (50MB cache)')
+console.log('[Firebase] 🗄️ Project ID:', firebaseConfig.projectId || 'NOT CONFIGURED')

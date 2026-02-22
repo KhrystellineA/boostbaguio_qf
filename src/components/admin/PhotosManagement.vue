@@ -597,7 +597,7 @@
                 Use an image that represents guidance or navigation in Baguio. Consider maps or jeepney routes.
               </span>
               <span v-else-if="selectedPage === 'home-about'">
-                Use an image that represents the story behind BaguioBoostPH or team/community imagery.
+                Use an image that represents the story behind Boost Baguio or team/community imagery.
               </span>
               <span v-else-if="selectedPage === 'ayanmo-discovery'">
                 Use a vertical or square image (4:3 ratio) for the discovery section. This appears next to the text content.

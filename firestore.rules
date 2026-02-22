@@ -1,0 +1,157 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ========== HELPER FUNCTIONS ==========
+    
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Check if user is admin
+    function isAdmin() {
+      return isAuthenticated() && 
+             exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    
+    // Check if user is super-admin
+    function isSuperAdmin() {
+      return isAdmin() && 
+             get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.permissions.hasAny(['super-admin']);
+    }
+    
+    // Check if user owns the resource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Validate timestamp field
+    function isValidTimestamp() {
+      return request.resource.data is map ? 
+        (request.resource.data.keys().hasAll(['createdAt']) ? 
+          request.resource.data.createdAt is timestamp : true) : true;
+    }
+    
+    // Validate string field with max length
+    function isValidString(value, maxLength) {
+      return value is string && value.size() > 0 && value.size() <= maxLength;
+    }
+    
+    // ========== USERS COLLECTION ==========
+    
+    match /users/{userId} {
+      // Allow read if authenticated and it's the user's own doc or user is admin
+      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      
+      // Allow create during sign up (user creates their own doc)
+      allow create: if isOwner(userId) && 
+                       request.resource.data.keys().hasAll(['email', 'displayName', 'role']) &&
+                       request.resource.data.role == 'user' &&
+                       request.resource.data.email is string &&
+                       request.resource.data.displayName is string;
+      
+      // Allow update only by owner (can't change role) or admin
+      allow update: if (isOwner(userId) && 
+                          !request.resource.data.keys().hasAny(['role', 'isAdmin'])) ||
+                       isAdmin();
+      
+      // Only admins can delete users
+      allow delete: if isAdmin();
+    }
+    
+    // ========== ADMINS COLLECTION ==========
+    
+    match /admins/{adminId} {
+      // Only admins can read admin collection
+      allow read: if isAdmin();
+      
+      // Only super-admins can create admins
+      allow create: if isSuperAdmin() &&
+                       request.resource.data.keys().hasAll(['email', 'name', 'permissions']) &&
+                       request.resource.data.email is string &&
+                       request.resource.data.name is string &&
+                       request.resource.data.permissions is list;
+      
+      // Only super-admins can update admins
+      allow update: if isSuperAdmin();
+      
+      // Only super-admins can delete admins
+      allow delete: if isSuperAdmin();
+    }
+    
+    // ========== EVENTS COLLECTION ==========
+
+    match /events/{eventId} {
+      // Anyone can read published events
+      allow read: if true;
+
+      // Only authenticated users can create events (TEMP for setup)
+      allow create: if isAuthenticated() &&
+                       request.resource.data.keys().hasAll(['title', 'startDate', 'endDate']);
+
+      // Only authenticated users can update events (TEMP for setup)
+      allow update: if isAuthenticated();
+
+      // Only authenticated users can delete events (TEMP for setup)
+      allow delete: if isAuthenticated();
+    }
+
+    // ========== PLACES COLLECTION ==========
+
+    match /places/{placeId} {
+      // Anyone can read places
+      allow read: if true;
+
+      // Only authenticated users can create places (TEMP for setup)
+      allow create: if isAuthenticated() &&
+                       request.resource.data.keys().hasAll(['name', 'category']);
+
+      // Only authenticated users can update places (TEMP for setup)
+      allow update: if isAuthenticated();
+
+      // Only authenticated users can delete places (TEMP for setup)
+      allow delete: if isAuthenticated();
+    }
+
+    // ========== ROUTES COLLECTION ==========
+
+    match /routes/{routeId} {
+      // Anyone can read routes
+      allow read: if true;
+
+      // Only authenticated users can create routes (TEMP for setup)
+      allow create: if isAuthenticated() &&
+                       request.resource.data.keys().hasAll(['name', 'routeNumber']);
+
+      // Only authenticated users can update routes (TEMP for setup)
+      allow update: if isAuthenticated();
+
+      // Only authenticated users can delete routes (TEMP for setup)
+      allow delete: if isAuthenticated();
+    }
+
+    // ========== PHOTOS COLLECTION ==========
+
+    match /photos/{photoId} {
+      // Anyone can read photos
+      allow read: if true;
+
+      // Only authenticated users can create photos (TEMP for setup)
+      allow create: if isAuthenticated() &&
+                       request.resource.data.keys().hasAll(['title', 'imageUrl']);
+
+      // Only authenticated users can update photos (TEMP for setup)
+      allow update: if isAuthenticated();
+
+      // Only authenticated users can delete photos (TEMP for setup)
+      allow delete: if isAuthenticated();
+    }
+    
+    // ========== DEFAULT DENY ==========
+    // Deny all other access not explicitly allowed
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

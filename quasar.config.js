@@ -242,8 +242,8 @@ export default defineConfig((/* ctx */) => {
 
   // Manifest configuration
   extendManifestJson (json) {
-    json.name = 'Baguio Boost - Jeepney Navigation'
-    json.short_name = 'Baguio Boost'
+    json.name = 'Boost Baguio - Jeepney Navigation'
+    json.short_name = 'Boost Baguio'
     json.description = 'Premium jeepney navigation app for Baguio City'
     json.display = 'standalone'
     json.orientation = 'portrait'
@@ -292,7 +292,7 @@ export default defineConfig((/* ctx */) => {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'baguioboost',
+        appId: 'boost-baguio',
       },
     },
 

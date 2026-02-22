@@ -7,13 +7,13 @@ import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'App',
-  
+
   mounted() {
     // Set page title
-    document.title = 'BaguioBoost - Navigate Baguio\'s Jeepneys with Ease'
-    
+    document.title = 'Boost Baguio - Navigate Baguio\'s Jeepneys with Ease'
+
     // You can add global initialization here
-    console.log('BaguioBoostPH App initialized')
+    console.log('Boost Baguio App initialized')
   }
 })
 </script>

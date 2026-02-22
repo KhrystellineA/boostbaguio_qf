@@ -570,7 +570,7 @@ export default {
           {
             headers: {
               'Accept': 'application/json',
-              'User-Agent': 'BaguioBoostPH/1.0'
+              'User-Agent': 'BoostBaguioPH/1.0'
             }
           }
         )

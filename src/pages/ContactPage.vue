@@ -318,8 +318,8 @@
                   </div>
                   <div class="info-details">
                     <h3>EMAIL</h3>
-                    <a href="mailto:info@baguioboostph.com">info@baguioboostph.com</a>
-                    <a href="mailto:support@baguioboostph.com">support@baguioboostph.com</a>
+                    <a href="mailto:info@boostbaguioph.com">info@boostbaguioph.com</a>
+                    <a href="mailto:support@boostbaguioph.com">support@boostbaguioph.com</a>
                   </div>
                 </div>
 
@@ -386,7 +386,7 @@
                     ></textarea>
                   </div>
 
-                  <input type="hidden" name="to_email" value="reubencabrera1@gmail.com" />
+                  <input type="hidden" name="to_email" value="superadmin@baguioboosters.com" />
 
                   <div class="form-group checkbox-group">
                     <input type="checkbox" id="terms" v-model="formData.acceptTerms" required />
@@ -638,7 +638,7 @@ export default defineComponent({
       } catch (error) {
         console.error('Email error:', error)
         showError.value = true
-        errorMessage.value = 'Failed to send message. Please try again or email us directly at info@baguioboostph.com'
+        errorMessage.value = 'Failed to send message. Please try again or email us directly at info@boostbaguioph.com'
         
         $q.notify({
           message: 'Failed to send message. Please try again.',

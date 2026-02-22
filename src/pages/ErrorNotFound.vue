@@ -64,10 +64,10 @@ const $q = useQuasar();
 const contactSupport = () => {
   $q.dialog({
     title: 'Contact Support',
-    message: 'Send us an email at support@baguioboostph.com or call +63 912 345 6789',
+    message: 'Send us an email at support@boostbaguioph.com or call +63 912 345 6789',
     actions: [
       { label: 'Email', color: 'primary', handler: () => {
-        window.location.href = 'mailto:support@baguioboostph.com';
+        window.location.href = 'mailto:support@boostbaguioph.com';
       }},
       { label: 'Call', color: 'primary', handler: () => {
         window.location.href = 'tel:+639123456789';

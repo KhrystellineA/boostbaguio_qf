@@ -1,24 +1,42 @@
 /**
  * Panagbenga 2026 Events Seeder
  * Run this script to add all official Panagbenga Festival 2026 events to Firebase
- * 
+ *
  * Usage: node seed-panagbenga-events.js
+ *
+ * Before running:
+ * 1. Create .env file with your Firebase config (see .env.example)
+ * 2. Install dotenv: npm install dotenv
  */
 
 import { initializeApp } from 'firebase/app'
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 import { createInterface } from 'readline'
+import 'dotenv/config'
 
-// Firebase Configuration
+// Firebase Configuration from environment variables
 const firebaseConfig = {
-  apiKey: "AIzaSyAllxHJVBHgH3P70gfCqV4494t4ssARbig",
-  authDomain: "baguioboost.firebaseapp.com",
-  projectId: "baguioboost",
-  storageBucket: "baguioboost.firebasestorage.app",
-  messagingSenderId: "851799020380",
-  appId: "1:851799020380:web:a89dc01ea4472b54a2e799",
-  measurementId: "G-CBC0ZZPBDX"
+  apiKey: process.env.VITE_FIREBASE_API_KEY,
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.VITE_FIREBASE_APP_ID,
+  measurementId: process.env.VITE_FIREBASE_MEASUREMENT_ID
+}
+
+// Validate configuration
+const missingConfig = Object.entries(firebaseConfig)
+  .filter(([_, value]) => !value)
+  .map(([key]) => key)
+
+if (missingConfig.length > 0) {
+  console.error('❌ Missing Firebase configuration:')
+  console.error('   ', missingConfig.join(', '))
+  console.error('\n📝 Please create a .env file with your Firebase config.')
+  console.error('   Copy .env.example to .env and fill in the values.\n')
+  process.exit(1)
 }
 
 // Initialize Firebase
@@ -27,7 +45,7 @@ const db = getFirestore(app)
 const auth = getAuth(app)
 
 // Admin credentials
-const ADMIN_EMAIL = 'reubencabrera1@gmail.com'
+const ADMIN_EMAIL = process.env.VITE_ADMIN_EMAIL || 'superadmin@baguioboosters.com'
 
 // Panagbenga 2026 Events Data
 const panagbengaEvents = [
@@ -216,39 +234,40 @@ const panagbengaEvents = [
 // Main seeder function
 async function seedEvents() {
   console.log('🌸 Starting Panagbenga 2026 Events Seeder...\n')
-  
+  console.log(`📦 Connected to Firebase project: ${firebaseConfig.projectId}\n`)
+
   try {
     // Create readline interface for password input
     const rl = createInterface({
       input: process.stdin,
       output: process.stdout
     })
-    
+
     const question = (query) => new Promise((resolve) => rl.question(query, resolve))
-    
+
     // Authentication required for Firestore writes
     console.log('🔐 ADMIN AUTHENTICATION REQUIRED\n')
     console.log(`Email: ${ADMIN_EMAIL}`)
     const password = await question('Password: ')
-    
+
     console.log('\n🔑 Signing in...')
     await signInWithEmailAndPassword(auth, ADMIN_EMAIL, password)
     console.log('✅ Successfully authenticated!\n')
-    
+
     rl.close()
-    
+
     console.log('📝 Adding events to Firebase Firestore...\n')
-    
+
     let successCount = 0
     let errorCount = 0
-    
+
     for (const event of panagbengaEvents) {
       try {
         const docRef = await addDoc(collection(db, 'events'), {
           ...event,
           createdAt: serverTimestamp()
         })
-        
+
         successCount++
         console.log(`✅ Added: ${event.title}`)
         console.log(`   Document ID: ${docRef.id}`)
@@ -260,7 +279,7 @@ async function seedEvents() {
         console.log()
       }
     }
-    
+
     console.log('\n' + '='.repeat(70))
     console.log('🎉 Seeding Complete!')
     console.log('='.repeat(70))
@@ -270,7 +289,7 @@ async function seedEvents() {
     console.log('='.repeat(70))
     console.log('\n🌸 Visit the ARAMIDEM page to see all Panagbenga 2026 events!')
     console.log('📅 Events are scheduled from February 1 to March 8, 2026\n')
-    
+
   } catch (error) {
     console.error('\n❌ Fatal error:', error.message)
     if (error.code === 'auth/wrong-password') {

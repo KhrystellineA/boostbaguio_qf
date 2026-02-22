@@ -8,7 +8,7 @@
             <img src="~assets/logo.png" alt="Boost Baguio Logo" class="logo">
           </div>
           <div class="text-h3 text-weight-bold text-primary q-mb-sm">
-            Baguio Boost
+            Boost Baguio
           </div>
           <div class="text-subtitle1 text-grey-7">
             Premium Jeepney Navigation
