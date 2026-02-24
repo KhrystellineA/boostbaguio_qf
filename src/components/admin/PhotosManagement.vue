@@ -948,7 +948,7 @@
 <script>
 import { db } from 'src/boot/firebase'
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
+import { getStorage } from 'firebase/storage'
 import { useQuasar } from 'quasar'
 
 export default {
@@ -1177,73 +1177,66 @@ export default {
       this.uploading = true
 
       try {
-        const storage = getStorage()
-        const timestamp = Date.now()
-        const fileName = `${this.selectedPage}_${timestamp}_${this.imageFile.name}`
-        const storageRef = ref(storage, `pagePhotos/${fileName}`)
+        // Import Cloudinary utility
+        const { uploadOptimizedImage } = await import('src/utils/cloudinary')
 
-        let oldImagePath = ''
-        if (this.selectedPage === 'ayanmo-discovery') {
-          oldImagePath = this.pages.ayanmoDiscovery.imagePath
-        } else if (this.selectedPage === 'pagnaam-features') {
-          oldImagePath = this.pages.pagnaamFeatures.imagePath
-        } else if (this.selectedPage.startsWith('home-')) {
-          const camelCase = this.selectedPage.replace(/-([a-z])/g, (g) => g[1].toUpperCase())
-          oldImagePath = this.pages[camelCase]?.imagePath || ''
-        } else {
-          oldImagePath = this.pages[this.selectedPage]?.imagePath || ''
-        }
-
-        if (oldImagePath) {
-          try {
-            const oldImageRef = ref(storage, oldImagePath)
-            await deleteObject(oldImageRef)
-            console.log('[Photos] Old image deleted:', oldImagePath)
-          } catch (error) {
-            console.log('[Photos] No old image to delete or error:', error.message)
+        console.log('[Photos] Uploading to Cloudinary...')
+        
+        // Upload with automatic compression and optimization
+        const uploadResult = await uploadOptimizedImage(
+          this.imageFile,
+          'baguiboost/page-photos',
+          {
+            maxWidth: 1920,
+            maxHeight: 1080,
+            quality: 0.85,
+            format: 'image/webp'
           }
-        }
+        )
 
-        console.log('[Photos] Uploading new image...')
-        await uploadBytes(storageRef, this.imageFile)
-        const downloadURL = await getDownloadURL(storageRef)
+        console.log('[Photos] Upload successful:', uploadResult.url)
 
+        // Update Firestore
         const docRef = doc(db, 'pagePhotos', this.selectedPage)
         await setDoc(docRef, {
           pageName: this.selectedPage,
-          imageUrl: downloadURL,
-          imagePath: `pagePhotos/${fileName}`,
+          imageUrl: uploadResult.url,
+          imagePublicId: uploadResult.publicId,
+          imageWidth: uploadResult.width,
+          imageHeight: uploadResult.height,
           updatedAt: serverTimestamp(),
         })
 
+        // Update local state
         if (this.selectedPage === 'ayanmo-discovery') {
           this.pages.ayanmoDiscovery = {
-            imageUrl: downloadURL,
-            imagePath: `pagePhotos/${fileName}`,
+            imageUrl: uploadResult.url,
+            imagePublicId: uploadResult.publicId,
           }
         } else if (this.selectedPage === 'pagnaam-features') {
           this.pages.pagnaamFeatures = {
-            imageUrl: downloadURL,
-            imagePath: `pagePhotos/${fileName}`,
+            imageUrl: uploadResult.url,
+            imagePublicId: uploadResult.publicId,
           }
         } else if (this.selectedPage.startsWith('home-')) {
           const camelCase = this.selectedPage.replace(/-([a-z])/g, (g) => g[1].toUpperCase())
           this.pages[camelCase] = {
-            imageUrl: downloadURL,
-            imagePath: `pagePhotos/${fileName}`,
+            imageUrl: uploadResult.url,
+            imagePublicId: uploadResult.publicId,
           }
         } else {
           this.pages[this.selectedPage] = {
-            imageUrl: downloadURL,
-            imagePath: `pagePhotos/${fileName}`,
+            imageUrl: uploadResult.url,
+            imagePublicId: uploadResult.publicId,
           }
         }
 
         this.$q.notify({
           type: 'positive',
-          message: `${this.pageNames[this.selectedPage]} image updated successfully!`,
+          message: `${this.pageNames[this.selectedPage]} image uploaded successfully!`,
           position: 'top',
-          icon: 'check_circle'
+          icon: 'check_circle',
+          timeout: 2000
         })
 
         this.showUploadDialog = false
@@ -1254,7 +1247,8 @@ export default {
         this.$q.notify({
           type: 'negative',
           message: 'Failed to upload image: ' + error.message,
-          position: 'top'
+          position: 'top',
+          timeout: 5000
         })
       } finally {
         this.uploading = false
