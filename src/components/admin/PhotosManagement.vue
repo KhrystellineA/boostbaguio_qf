@@ -954,8 +954,8 @@ export default {
   name: 'PhotosManagement',
 
   setup() {
-    const $q = useQuasar()
-    return { $q }
+    const q = useQuasar()
+    return { q }
   },
 
   data() {
