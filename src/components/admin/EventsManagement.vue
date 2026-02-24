@@ -144,20 +144,34 @@
 
           <q-separator class="q-my-md" />
 
+          <!-- Event Name -->
           <q-input
             v-model="form.title"
             outlined
-            label="Event Title *"
+            label="Event Name *"
             class="q-mb-md"
+            :rules="[val => !!val || 'Event name is required']"
           />
 
+          <!-- Event Organizer -->
+          <q-input
+            v-model="form.organizer"
+            outlined
+            label="Event Organizer *"
+            class="q-mb-md"
+            :rules="[val => !!val || 'Event organizer is required']"
+          />
+
+          <!-- Event Location -->
           <q-input
             v-model="form.location"
             outlined
-            label="Location *"
+            label="Event Location *"
             class="q-mb-md"
+            :rules="[val => !!val || 'Event location is required']"
           />
 
+          <!-- Event Date -->
           <div class="row q-col-gutter-md q-mb-md">
             <div class="col-6">
               <q-input
@@ -165,6 +179,10 @@
                 outlined
                 type="date"
                 label="Start Date *"
+                :rules="[
+                  val => !!val || 'Start date is required',
+                  val => validateStartDate(val) || 'Start date cannot be in the past'
+                ]"
               />
             </div>
             <div class="col-6">
@@ -173,10 +191,15 @@
                 outlined
                 type="date"
                 label="End Date *"
+                :rules="[
+                  val => !!val || 'End date is required',
+                  val => validateEndDate(val) || 'End date must be on or after start date'
+                ]"
               />
             </div>
           </div>
 
+          <!-- Event Time -->
           <div class="row q-col-gutter-md q-mb-md">
             <div class="col-6">
               <q-input
@@ -192,52 +215,27 @@
                 outlined
                 type="time"
                 label="End Time"
+                :rules="[
+                  val => !val || !form.startTime || val >= form.startTime || 'End time must be on or after start time'
+                ]"
               />
             </div>
           </div>
 
-          <q-select
-            v-model="form.status"
-            outlined
-            label="Status *"
-            :options="statusOptions"
-            class="q-mb-md"
-          />
-
-          <q-input
-            v-model="form.organizer"
-            outlined
-            label="Organizer"
-            class="q-mb-md"
-          />
-
-          <q-input
-            v-model="form.contactEmail"
-            outlined
-            type="email"
-            label="Contact Email"
-            class="q-mb-md"
-          />
-
-          <q-input
-            v-model="form.contactPhone"
-            outlined
-            label="Contact Phone"
-            class="q-mb-md"
-          />
-
+          <!-- Description -->
           <q-input
             v-model="form.description"
             outlined
             type="textarea"
             label="Description"
-            rows="3"
+            rows="4"
             class="q-mb-md"
           />
 
+          <!-- Featured Toggle -->
           <q-toggle
             v-model="form.featured"
-            label="Feature this event (show in Top Events section)"
+            label="Featured Event (show on homepage)"
             class="q-mb-md"
           >
             <template v-slot:before>
@@ -264,7 +262,6 @@
 <script>
 import { db } from 'src/boot/firebase'
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore'
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { useQuasar } from 'quasar'
 
 export default {
@@ -292,20 +289,18 @@ export default {
         endDate: '',
         startTime: '',
         endTime: '',
-        status: 'Upcoming',
         organizer: '',
-        contactEmail: '',
-        contactPhone: '',
         description: '',
         imageUrl: '',
-        imagePath: '',
+        imagePublicId: '',
         featured: false
       },
       statusOptions: ['Upcoming', 'Ongoing', 'Completed', 'Cancelled'],
       columns: [
         { name: 'image', label: 'Image', field: 'imageUrl', align: 'center' },
         { name: 'featured', label: 'Featured', field: 'featured', align: 'center', sortable: true },
-        { name: 'title', label: 'Event Title', field: 'title', align: 'left', sortable: true },
+        { name: 'title', label: 'Event Name', field: 'title', align: 'left', sortable: true },
+        { name: 'organizer', label: 'Organizer', field: 'organizer', align: 'left' },
         { name: 'location', label: 'Location', field: 'location', align: 'left' },
         { name: 'startDate', label: 'Start Date', field: 'startDate', align: 'left', sortable: true },
         { name: 'endDate', label: 'End Date', field: 'endDate', align: 'left' },
@@ -333,6 +328,48 @@ export default {
   },
 
   methods: {
+    // Validate start date is not in the past
+    validateStartDate(dateStr) {
+      if (!dateStr) return false
+      const today = new Date()
+      today.setHours(0, 0, 0, 0)
+      const selectedDate = new Date(dateStr)
+      return selectedDate >= today
+    },
+
+    // Validate end date is on or after start date
+    validateEndDate(dateStr) {
+      if (!dateStr || !this.form.startDate) return false
+      const startDate = new Date(this.form.startDate)
+      const endDate = new Date(dateStr)
+      return endDate >= startDate
+    },
+
+    // Auto-calculate event status based on dates
+    calculateStatus(startDate, endDate, startTime, endTime) {
+      const now = new Date()
+      const start = new Date(startDate)
+      const end = new Date(endDate)
+
+      // Add time if provided
+      if (startTime) {
+        const [hours, minutes] = startTime.split(':')
+        start.setHours(parseInt(hours), parseInt(minutes))
+      }
+      if (endTime && endDate === startDate) {
+        const [hours, minutes] = endTime.split(':')
+        end.setHours(parseInt(hours), parseInt(minutes))
+      }
+
+      if (now < start) {
+        return 'Upcoming'
+      } else if (now >= start && now <= end) {
+        return 'Ongoing'
+      } else {
+        return 'Completed'
+      }
+    },
+
     async loadEvents() {
       this.loading = true
       try {
@@ -384,25 +421,48 @@ export default {
       this.imageFile = null
       this.imagePreview = null
       this.form.imageUrl = ''
-      this.form.imagePath = ''
+      this.form.imagePublicId = ''
+    },
+
+    resetForm() {
+      this.form = {
+        title: '',
+        location: '',
+        startDate: '',
+        endDate: '',
+        startTime: '',
+        endTime: '',
+        organizer: '',
+        description: '',
+        imageUrl: '',
+        imagePublicId: '',
+        featured: false
+      }
+      this.imageFile = null
+      this.imagePreview = null
+      this.editingEvent = null
     },
 
     async uploadImage(eventId) {
       if (!this.imageFile) return null
 
       try {
-        const storage = getStorage()
-        const timestamp = Date.now()
-        const fileName = `${eventId}_${timestamp}_${this.imageFile.name}`
-        const storageRef = ref(storage, `events/${fileName}`)
+        const { uploadOptimizedImage } = await import('src/utils/cloudinary')
+        
+        const uploadResult = await uploadOptimizedImage(
+          this.imageFile,
+          'baguiboost/events',
+          {
+            maxWidth: 1920,
+            maxHeight: 1080,
+            quality: 0.85,
+            format: 'image/webp'
+          }
+        )
 
-        await uploadBytes(storageRef, this.imageFile)
-        
-        const downloadURL = await getDownloadURL(storageRef)
-        
         return {
-          imageUrl: downloadURL,
-          imagePath: `events/${fileName}`
+          imageUrl: uploadResult.url,
+          imagePublicId: uploadResult.publicId
         }
       } catch (error) {
         console.error('[Events] Error uploading image:', error)
@@ -410,16 +470,11 @@ export default {
       }
     },
 
-    async deleteImage(imagePath) {
-      if (!imagePath) return
-
-      try {
-        const storage = getStorage()
-        const imageRef = ref(storage, imagePath)
-        await deleteObject(imageRef)
-      } catch (error) {
-        console.error('[Events] Error deleting image:', error)
-      }
+    async deleteImage(imagePublicId) {
+      if (!imagePublicId) return
+      // Note: Cloudinary deletion requires server-side API
+      // Image will remain in Cloudinary but won't be referenced
+      console.log('[Events] Image deletion skipped (requires server-side):', imagePublicId)
     },
 
     editEvent(event) {
@@ -429,7 +484,8 @@ export default {
     },
 
     async saveEvent() {
-      if (!this.form.title || !this.form.location || !this.form.startDate || !this.form.endDate || !this.form.status) {
+      // Validate required fields
+      if (!this.form.title || !this.form.organizer || !this.form.location || !this.form.startDate || !this.form.endDate) {
         this.$q.notify({
           type: 'warning',
           message: 'Please fill in all required fields',
@@ -438,16 +494,55 @@ export default {
         return
       }
 
+      // Validate dates
+      if (!this.validateStartDate(this.form.startDate)) {
+        this.$q.notify({
+          type: 'negative',
+          message: 'Start date cannot be in the past',
+          position: 'top'
+        })
+        return
+      }
+
+      if (!this.validateEndDate(this.form.endDate)) {
+        this.$q.notify({
+          type: 'negative',
+          message: 'End date must be on or after start date',
+          position: 'top'
+        })
+        return
+      }
+
+      // Validate times
+      if (this.form.startTime && this.form.endTime && this.form.endTime < this.form.startTime) {
+        this.$q.notify({
+          type: 'negative',
+          message: 'End time must be on or after start time',
+          position: 'top'
+        })
+        return
+      }
+
       this.saving = true
       try {
+        // Auto-calculate status based on dates and times
+        const status = this.calculateStatus(
+          this.form.startDate,
+          this.form.endDate,
+          this.form.startTime,
+          this.form.endTime
+        )
+
         let imageData = {
           imageUrl: this.form.imageUrl || '',
-          imagePath: this.form.imagePath || ''
+          imagePublicId: this.form.imagePublicId || ''
         }
 
         if (this.imageFile) {
-          if (this.editingEvent?.imagePath) {
-            await this.deleteImage(this.editingEvent.imagePath)
+          // Delete old image if editing
+          if (this.editingEvent?.imagePublicId) {
+            // Note: Cloudinary deletion requires server-side API
+            console.log('[Events] Old image will remain in Cloudinary:', this.editingEvent.imagePublicId)
           }
 
           const eventId = this.editingEvent?.id || `temp_${Date.now()}`
@@ -456,18 +551,16 @@ export default {
 
         const eventData = {
           title: this.form.title,
+          organizer: this.form.organizer,
           location: this.form.location,
           startDate: this.form.startDate,
           endDate: this.form.endDate,
           startTime: this.form.startTime || '',
           endTime: this.form.endTime || '',
-          status: this.form.status,
-          organizer: this.form.organizer || '',
-          contactEmail: this.form.contactEmail || '',
-          contactPhone: this.form.contactPhone || '',
+          status: status, // Auto-calculated
           description: this.form.description || '',
           imageUrl: imageData.imageUrl,
-          imagePath: imageData.imagePath,
+          imagePublicId: imageData.imagePublicId,
           featured: this.form.featured || false,
           updatedAt: serverTimestamp()
         }
@@ -478,7 +571,8 @@ export default {
             type: 'positive',
             message: 'Event updated successfully',
             position: 'top',
-            icon: 'check_circle'
+            icon: 'check_circle',
+            timeout: 2000
           })
         } else {
           eventData.createdAt = serverTimestamp()
@@ -487,7 +581,8 @@ export default {
             type: 'positive',
             message: 'Event created successfully',
             position: 'top',
-            icon: 'check_circle'
+            icon: 'check_circle',
+            timeout: 2000
           })
         }
 
@@ -498,8 +593,9 @@ export default {
         console.error('[Events] Error saving:', error)
         this.$q.notify({
           type: 'negative',
-          message: 'Failed to save event',
-          position: 'top'
+          message: 'Failed to save event: ' + error.message,
+          position: 'top',
+          timeout: 5000
         })
       } finally {
         this.saving = false
@@ -514,25 +610,27 @@ export default {
         persistent: true
       }).onOk(async () => {
         try {
-          if (event.imagePath) {
-            await this.deleteImage(event.imagePath)
+          if (event.imagePublicId) {
+            await this.deleteImage(event.imagePublicId)
           }
 
           await deleteDoc(doc(db, 'events', event.id))
-          
+
           this.$q.notify({
             type: 'positive',
             message: 'Event deleted successfully',
             position: 'top',
-            icon: 'delete'
+            icon: 'delete',
+            timeout: 2000
           })
           this.loadEvents()
         } catch (error) {
           console.error('[Events] Error deleting:', error)
           this.$q.notify({
             type: 'negative',
-            message: 'Failed to delete event',
-            position: 'top'
+            message: 'Failed to delete event: ' + error.message,
+            position: 'top',
+            timeout: 5000
           })
         }
       })
