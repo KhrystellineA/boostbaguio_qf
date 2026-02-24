@@ -1,218 +1,277 @@
 <template>
-  <q-page class="auth-page flex flex-center">
+  <q-page class="auth-page">
+    <!-- Background Elements -->
+    <div class="auth-background">
+      <div class="gradient-overlay"></div>
+      <div class="pattern-dots"></div>
+      <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+      </div>
+    </div>
+
     <div class="auth-container">
-      <div class="auth-card">
-        <!-- Brand Header -->
-        <div class="brand-header text-center q-pb-lg">
-          <div class="logo-container q-mb-md">
-            <img src="~assets/logo.png" alt="Boost Baguio Logo" class="logo">
-          </div>
-          <div class="text-h3 text-weight-bold text-primary q-mb-sm">
-            Boost Baguio
-          </div>
-          <div class="text-subtitle1 text-grey-7">
-            Premium Jeepney Navigation
-          </div>
+      <!-- Logo & Brand -->
+      <div class="brand-section">
+        <div class="logo-bento" @click="$router.push('/')">
+          <img src="/logo.svg" alt="Boost Baguio" />
         </div>
+        <div class="brand-text">
+          <h1 class="brand-title">Baguio <span class="text-accent">Boost</span></h1>
+          <p class="brand-tagline">Navigate with ease</p>
+        </div>
+      </div>
+
+      <!-- Auth Card -->
+      <q-card class="auth-card">
+        <q-card-section class="auth-header">
+          <div class="icon-bento">
+            <q-icon name="account_circle" size="40px" color="white" />
+          </div>
+          <h2 class="auth-title">{{ isLogin ? 'Welcome Back!' : 'Create Account' }}</h2>
+          <p class="auth-subtitle">{{ isLogin ? 'Sign in to continue your journey' : 'Join us and explore Baguio' }}</p>
+        </q-card-section>
+
+        <q-separator />
 
         <!-- Tab Navigation -->
         <q-tabs
-          v-model="tab"
-          class="auth-tabs q-mb-md"
+          v-model="activeTab"
+          class="auth-tabs"
           active-color="primary"
           indicator-color="primary"
           align="justify"
           dense
         >
-          <q-tab name="login" label="Login" no-caps />
-          <q-tab name="signup" label="Sign Up" no-caps />
+          <q-tab name="login" label="Login" />
+          <q-tab name="signup" label="Sign Up" />
         </q-tabs>
 
-        <q-separator class="q-mb-md" />
+        <q-card-section class="auth-form-section">
+          <!-- Login Form -->
+          <q-form v-if="isLogin" @submit="handleLogin" class="auth-form">
+            <q-input
+              v-model="loginForm.email"
+              type="email"
+              label="Email Address"
+              outlined
+              dense
+              :rules="[
+                val => !!val || 'Email is required',
+                val => /.+@.+\..+/.test(val) || 'Invalid email'
+              ]"
+              class="auth-input"
+            >
+              <template v-slot:prepend>
+                <div class="input-icon-bento">
+                  <q-icon name="mail" size="18px" />
+                </div>
+              </template>
+            </q-input>
 
-        <!-- Tab Panels -->
-        <q-tab-panels v-model="tab" animated transition-prev="fade" transition-next="fade">
-          <!-- Login Panel -->
-          <q-tab-panel name="login" class="q-px-none">
-            <q-form @submit="handleLogin" class="q-gutter-md">
-              <q-input
-                v-model="loginForm.email"
-                type="email"
-                label="Email Address"
-                outlined
-                dense
-                :rules="[
-                  val => !!val || 'Email is required',
-                  val => /.+@.+\..+/.test(val) || 'Invalid email'
-                ]"
-                class="auth-input"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="mail_outline" color="primary" />
-                </template>
-              </q-input>
-
-              <q-input
-                v-model="loginForm.password"
-                :type="showPassword ? 'text' : 'password'"
-                label="Password"
-                outlined
-                dense
-                :rules="[val => !!val || 'Password is required']"
-                class="auth-input"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="lock_outline" color="primary" />
-                </template>
-                <template v-slot:append>
-                  <q-icon
-                    :name="showPassword ? 'visibility' : 'visibility_off'"
-                    class="cursor-pointer"
-                    @click="showPassword = !showPassword"
-                    color="grey-6"
-                  />
-                </template>
-              </q-input>
-
-              <div class="q-pt-sm">
-                <q-btn
-                  type="submit"
-                  label="Login"
-                  color="primary"
-                  class="full-width auth-btn"
-                  :loading="loading"
-                  unelevated
-                  no-caps
-                  size="lg"
+            <q-input
+              v-model="loginForm.password"
+              :type="showPassword ? 'text' : 'password'"
+              label="Password"
+              outlined
+              dense
+              :rules="[val => !!val || 'Password is required']"
+              class="auth-input"
+            >
+              <template v-slot:prepend>
+                <div class="input-icon-bento">
+                  <q-icon name="lock" size="18px" />
+                </div>
+              </template>
+              <template v-slot:append>
+                <q-icon
+                  :name="showPassword ? 'visibility' : 'visibility_off'"
+                  class="cursor-pointer"
+                  @click="showPassword = !showPassword"
+                  color="grey-6"
                 />
-              </div>
-            </q-form>
-            
-            <div class="text-center q-mt-md">
-              <q-separator class="q-mb-sm" />
-              <div class="text-caption text-grey-7">
-                Admin? <a @click="$router.push('/admin/adminlogin')" class="text-primary cursor-pointer">Login here</a>
-              </div>
+              </template>
+            </q-input>
+
+            <div class="form-actions">
+              <q-checkbox v-model="rememberMe" label="Remember me" color="primary" />
             </div>
-          </q-tab-panel>
 
-          <!-- Sign Up Panel -->
-          <q-tab-panel name="signup" class="q-px-none">
-            <q-form @submit="handleSignup" class="q-gutter-md">
-              <q-input
-                v-model="signupForm.displayName"
-                label="Full Name"
-                outlined
-                dense
-                :rules="[val => !!val || 'Name is required']"
-                class="auth-input"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="person_outline" color="primary" />
-                </template>
-              </q-input>
+            <q-btn
+              type="submit"
+              label="Sign In"
+              color="primary"
+              class="auth-btn full-width"
+              :loading="loading"
+              unelevated
+              no-caps
+              size="lg"
+            >
+              <template #loading>
+                <q-spinner-dots color="white" size="24px" />
+              </template>
+            </q-btn>
 
-              <q-input
-                v-model="signupForm.email"
-                type="email"
-                label="Email Address"
-                outlined
-                dense
-                :rules="[
-                  val => !!val || 'Email is required',
-                  val => /.+@.+\..+/.test(val) || 'Invalid email'
-                ]"
-                class="auth-input"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="mail_outline" color="primary" />
-                </template>
-              </q-input>
+            <div class="divider-text">
+              <span>OR</span>
+            </div>
 
-              <q-input
-                v-model="signupForm.password"
-                :type="showPassword ? 'text' : 'password'"
-                label="Password"
-                outlined
-                dense
-                :rules="[
-                  val => !!val || 'Password is required',
-                  val => val.length >= 6 || 'Password must be at least 6 characters'
-                ]"
-                class="auth-input"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="lock_outline" color="primary" />
-                </template>
-                <template v-slot:append>
-                  <q-icon
-                    :name="showPassword ? 'visibility' : 'visibility_off'"
-                    class="cursor-pointer"
-                    @click="showPassword = !showPassword"
-                    color="grey-6"
-                  />
-                </template>
-              </q-input>
+            <q-btn
+              flat
+              label="Continue as Guest"
+              class="guest-btn full-width"
+              @click="$router.push('/')"
+              no-caps
+            />
+          </q-form>
 
-              <q-input
-                v-model="signupForm.confirmPassword"
-                :type="showPassword ? 'text' : 'password'"
-                label="Confirm Password"
-                outlined
-                dense
-                :rules="[
-                  val => !!val || 'Please confirm password',
-                  val => val === signupForm.password || 'Passwords do not match'
-                ]"
-                class="auth-input"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="lock_outline" color="primary" />
-                </template>
-              </q-input>
+          <!-- Signup Form -->
+          <q-form v-else @submit="handleSignup" class="auth-form">
+            <q-input
+              v-model="signupForm.displayName"
+              label="Full Name"
+              outlined
+              dense
+              :rules="[val => !!val || 'Name is required']"
+              class="auth-input"
+            >
+              <template v-slot:prepend>
+                <div class="input-icon-bento">
+                  <q-icon name="person" size="18px" />
+                </div>
+              </template>
+            </q-input>
 
-              <div class="q-pt-sm">
-                <q-btn
-                  type="submit"
-                  label="Create Account"
-                  color="primary"
-                  class="full-width auth-btn"
-                  :loading="loading"
-                  unelevated
-                  no-caps
-                  size="lg"
+            <q-input
+              v-model="signupForm.email"
+              type="email"
+              label="Email Address"
+              outlined
+              dense
+              :rules="[
+                val => !!val || 'Email is required',
+                val => /.+@.+\..+/.test(val) || 'Invalid email'
+              ]"
+              class="auth-input"
+            >
+              <template v-slot:prepend>
+                <div class="input-icon-bento">
+                  <q-icon name="mail" size="18px" />
+                </div>
+              </template>
+            </q-input>
+
+            <q-input
+              v-model="signupForm.password"
+              :type="showPassword ? 'text' : 'password'"
+              label="Password"
+              outlined
+              dense
+              :rules="[
+                val => !!val || 'Password is required',
+                val => val.length >= 6 || 'Min 6 characters'
+              ]"
+              class="auth-input"
+            >
+              <template v-slot:prepend>
+                <div class="input-icon-bento">
+                  <q-icon name="lock" size="18px" />
+                </div>
+              </template>
+              <template v-slot:append>
+                <q-icon
+                  :name="showPassword ? 'visibility' : 'visibility_off'"
+                  class="cursor-pointer"
+                  @click="showPassword = !showPassword"
+                  color="grey-6"
                 />
-              </div>
-            </q-form>
-          </q-tab-panel>
-        </q-tab-panels>
+              </template>
+            </q-input>
 
-        <q-separator class="q-my-md" />
-        
-        <!-- Premium Features -->
-        <q-card-section class="q-py-md">
-          <div class="premium-features text-center">
-            <q-icon name="workspace_premium" color="amber-7" size="24px" class="q-mb-xs" />
-            <div class="text-body2 text-grey-7">
-              Premium features include offline mode & PWA support
+            <q-input
+              v-model="signupForm.confirmPassword"
+              :type="showPassword ? 'text' : 'password'"
+              label="Confirm Password"
+              outlined
+              dense
+              :rules="[
+                val => !!val || 'Required',
+                val => val === signupForm.password || 'Passwords must match'
+              ]"
+              class="auth-input"
+            >
+              <template v-slot:prepend>
+                <div class="input-icon-bento">
+                  <q-icon name="lock" size="18px" />
+                </div>
+              </template>
+            </q-input>
+
+            <div class="terms-text">
+              By signing up, you agree to our
+              <a href="#" class="text-primary">Terms of Service</a> and
+              <a href="#" class="text-primary">Privacy Policy</a>
             </div>
+
+            <q-btn
+              type="submit"
+              label="Create Account"
+              color="primary"
+              class="auth-btn full-width"
+              :loading="loading"
+              unelevated
+              no-caps
+              size="lg"
+            >
+              <template #loading>
+                <q-spinner-dots color="white" size="24px" />
+              </template>
+            </q-btn>
+          </q-form>
+        </q-card-section>
+
+        <!-- Admin Link -->
+        <q-card-section class="admin-link-section">
+          <q-separator />
+          <div class="admin-link">
+            <span>Admin access?</span>
+            <a @click="$router.push('/admin/adminlogin')" class="text-primary cursor-pointer">
+              Login here
+            </a>
           </div>
         </q-card-section>
-      </div>
+      </q-card>
 
-      <!-- Decorative Elements -->
-      <div class="decorative-elements">
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
-        <div class="circle circle-3"></div>
-        <div class="jeepney-icon">🚌</div>
+      <!-- Features -->
+      <div class="features-section">
+        <div class="feature-bento">
+          <div class="feature-item">
+            <div class="feature-icon-bento">
+              <q-icon name="route" size="20px" color="white" />
+            </div>
+            <span>Point-to-Point Navigation</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon-bento">
+              <q-icon name="directions_bus" size="20px" color="white" />
+            </div>
+            <span>Jeepney Routes</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon-bento">
+              <q-icon name="place" size="20px" color="white" />
+            </div>
+            <span>Discover Places</span>
+          </div>
+        </div>
       </div>
     </div>
   </q-page>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { useUserStore } from 'stores/user-store'
@@ -223,9 +282,10 @@ const router = useRouter()
 const $q = useQuasar()
 const userStore = useUserStore()
 
-const tab = ref('login')
+const activeTab = ref('login')
 const loading = ref(false)
 const showPassword = ref(false)
+const rememberMe = ref(false)
 
 const loginForm = ref({
   email: '',
@@ -238,6 +298,8 @@ const signupForm = ref({
   password: '',
   confirmPassword: ''
 })
+
+const isLogin = computed(() => activeTab.value === 'login')
 
 const checkIfAdmin = async (user) => {
   try {
@@ -292,8 +354,6 @@ const handleLogin = async () => {
             position: 'top',
             timeout: 1500
           })
-
-          // All admins go to admin dashboard
           router.push('/admin/dashboard')
           return
         }
@@ -330,12 +390,12 @@ const handleLogin = async () => {
 
 const handleSignup = async () => {
   loading.value = true
-  
+
   try {
     sessionStorage.removeItem('adminRole')
     sessionStorage.removeItem('adminData')
     sessionStorage.removeItem('adminUid')
-    
+
     const result = await userStore.signUp(
       signupForm.value.email,
       signupForm.value.password,
@@ -373,187 +433,567 @@ const handleSignup = async () => {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+// Color Variables
+$primary: #2E5D3E;
+$primary-light: #4A7D5D;
+$primary-dark: #1B4332;
+$accent: #FFD60A;
+$bg-light: #F8F9FA;
+$text-dark: #2D3436;
+$text-muted: #636E72;
+$border-color: #E0E0E0;
+
 .auth-page {
-  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
   min-height: 100vh;
   position: relative;
   overflow: hidden;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
 }
 
-.auth-container {
-  position: relative;
-  z-index: 2;
-  width: 100%;
-  max-width: 450px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-}
-
-.auth-card {
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgba(45, 93, 62, 0.1);
-}
-
-.brand-header {
-  margin-bottom: 1.5rem;
-}
-
-.logo-container {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1rem;
-}
-
-.logo {
-  height: 80px;
-  object-fit: contain;
-}
-
-.auth-tabs {
-  background: #f8f9fa;
-  border-radius: 50px;
-  padding: 2px;
-}
-
-.auth-input {
-  border-radius: 12px;
-  border: 1px solid #e0e0e0;
-}
-
-.auth-input ::v-deep(.q-field__control) {
-  border-radius: 12px !important;
-}
-
-.auth-btn {
-  border-radius: 12px;
-  padding: 14px 24px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-transform: none;
-  box-shadow: 0 4px 12px rgba(45, 93, 62, 0.2);
-}
-
-.auth-btn:hover {
-  box-shadow: 0 6px 16px rgba(45, 93, 62, 0.3);
-}
-
-.cursor-pointer {
-  cursor: pointer;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.cursor-pointer:hover {
-  text-decoration: underline;
-  color: #4A7D5D !important;
-}
-
-.premium-features {
-  padding: 1rem 0;
-}
-
-/* Decorative Elements */
-.decorative-elements {
+// Background Design
+.auth-background {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
+  right: 0;
+  bottom: 0;
   overflow: hidden;
-  z-index: 1;
-}
+  z-index: 0;
 
-.circle {
-  position: absolute;
-  border-radius: 50%;
-  background: linear-gradient(135deg, rgba(45, 93, 62, 0.1) 0%, rgba(141, 110, 99, 0.1) 100%);
-}
+  .gradient-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba($primary, 0.05) 0%, rgba($primary-light, 0.08) 100%);
+  }
 
-.circle-1 {
-  width: 200px;
-  height: 200px;
-  top: -50px;
-  left: -50px;
-}
+  .pattern-dots {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(circle, rgba($primary, 0.1) 1px, transparent 1px);
+    background-size: 30px 30px;
+    background-position: 0 0;
+    opacity: 0.5;
+  }
 
-.circle-2 {
-  width: 150px;
-  height: 150px;
-  bottom: -30px;
-  right: -30px;
-}
+  .floating-shapes {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 
-.circle-3 {
-  width: 100px;
-  height: 100px;
-  top: 40%;
-  right: 10%;
-}
+    .shape {
+      position: absolute;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba($primary, 0.08) 0%, rgba($primary-light, 0.1) 100%);
+      animation: float 20s infinite ease-in-out;
 
-.jeepney-icon {
-  position: absolute;
-  top: 20%;
-  left: 15%;
-  font-size: 2.5rem;
-  opacity: 0.1;
-  transform: rotate(-15deg);
-  animation: float 6s ease-in-out infinite;
+      &.shape-1 {
+        width: 300px;
+        height: 300px;
+        top: -100px;
+        right: -100px;
+        animation-delay: 0s;
+      }
+
+      &.shape-2 {
+        width: 200px;
+        height: 200px;
+        bottom: -50px;
+        left: -50px;
+        animation-delay: 5s;
+      }
+
+      &.shape-3 {
+        width: 150px;
+        height: 150px;
+        top: 50%;
+        left: 10%;
+        animation-delay: 10s;
+      }
+    }
+  }
 }
 
 @keyframes float {
-  0% { transform: rotate(-15deg) translateY(0px); }
-  50% { transform: rotate(-15deg) translateY(-10px); }
-  100% { transform: rotate(-15deg) translateY(0px); }
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(20px, 20px) rotate(5deg); }
+  50% { transform: translate(-10px, 30px) rotate(-5deg); }
+  75% { transform: translate(15px, -15px) rotate(3deg); }
 }
 
-/* Responsive Design */
+// Main Container
+.auth-container {
+  position: relative;
+  z-index: 2;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
+}
+
+// Brand Section
+.brand-section {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+
+  .logo-bento {
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba($primary, 0.25);
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05) rotate(-5deg);
+      box-shadow: 0 12px 32px rgba($primary, 0.35);
+    }
+
+    img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+    }
+  }
+
+  .brand-text {
+    .brand-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: $text-dark;
+      margin: 0;
+      letter-spacing: -0.5px;
+
+      .text-accent {
+        color: $primary;
+        background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+
+    .brand-tagline {
+      font-size: 0.9rem;
+      color: $text-muted;
+      margin: 0.25rem 0 0 0;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+  }
+}
+
+// Auth Card
+.auth-card {
+  border-radius: 24px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  background: white;
+  border: 1px solid rgba($primary, 0.08);
+
+  .auth-header {
+    padding: 2rem 2rem 1rem;
+    text-align: center;
+
+    .icon-bento {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 6px 20px rgba($primary, 0.2);
+    }
+
+    .auth-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: $text-dark;
+      margin: 0 0 0.5rem 0;
+      letter-spacing: -0.5px;
+    }
+
+    .auth-subtitle {
+      font-size: 0.95rem;
+      color: $text-muted;
+      margin: 0;
+      font-weight: 400;
+    }
+  }
+
+  .auth-tabs {
+    background: rgba($primary, 0.04);
+    margin: 0 2rem;
+    border-radius: 14px;
+    padding: 4px;
+
+    :deep(.q-tab) {
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-transform: none;
+      min-height: 44px;
+
+      &.q-tab--active {
+        background: white;
+        box-shadow: 0 2px 8px rgba($primary, 0.15);
+      }
+    }
+  }
+
+  .auth-form-section {
+    padding: 1.5rem 2rem;
+  }
+}
+
+// Form Styles
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .auth-input {
+    border-radius: 14px;
+
+    :deep(.q-field__control) {
+      border-radius: 14px !important;
+      background: $bg-light;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: darken($bg-light, 2%);
+      }
+    }
+
+    :deep(.q-field__label) {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: $text-muted;
+    }
+  }
+
+  .input-icon-bento {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 8px;
+    box-shadow: 0 2px 8px rgba($primary, 0.15);
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+  }
+
+  .auth-btn {
+    border-radius: 14px;
+    padding: 14px 24px;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.3px;
+    text-transform: none;
+    box-shadow: 0 4px 16px rgba($primary, 0.25);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba($primary, 0.35);
+    }
+  }
+
+  .guest-btn {
+    border-radius: 14px;
+    padding: 12px 24px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: none;
+    color: $text-muted;
+  }
+
+  .divider-text {
+    position: relative;
+    text-align: center;
+    margin: 0.5rem 0;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: $border-color;
+    }
+
+    span {
+      position: relative;
+      background: white;
+      padding: 0 1rem;
+      font-size: 0.8rem;
+      color: $text-muted;
+      font-weight: 500;
+    }
+  }
+
+  .terms-text {
+    font-size: 0.8rem;
+    color: $text-muted;
+    text-align: center;
+    line-height: 1.5;
+    margin: 0.5rem 0;
+
+    a {
+      color: $primary;
+      text-decoration: none;
+      font-weight: 600;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Admin Link Section
+.admin-link-section {
+  padding: 1rem 2rem;
+  background: rgba($primary, 0.02);
+
+  .admin-link {
+    text-align: center;
+    font-size: 0.9rem;
+    color: $text-muted;
+
+    span {
+      margin-right: 0.5rem;
+    }
+
+    a {
+      color: $primary;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// Features Section
+.features-section {
+  margin-top: 1rem;
+
+  .features-bento {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 0.75rem 1.25rem;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    span {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: $text-dark;
+    }
+  }
+
+  .feature-icon-bento {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba($primary, 0.2);
+  }
+}
+
+// Cursor Pointer
+.cursor-pointer {
+  cursor: pointer;
+}
+
+// Responsive Design
 @media (max-width: 768px) {
   .auth-container {
-    margin: 1rem auto;
-    padding: 0 0.5rem;
+    padding: 1.5rem 1rem;
+    gap: 1.5rem;
   }
-  
+
+  .brand-section {
+    .logo-bento {
+      width: 64px;
+      height: 64px;
+
+      img {
+        width: 36px;
+        height: 36px;
+      }
+    }
+
+    .brand-title {
+      font-size: 1.5rem;
+    }
+  }
+
   .auth-card {
-    padding: 1.5rem;
+    .auth-header {
+      padding: 1.5rem 1.5rem 1rem;
+
+      .icon-bento {
+        width: 64px;
+        height: 64px;
+      }
+
+      .auth-title {
+        font-size: 1.5rem;
+      }
+    }
+
+    .auth-tabs {
+      margin: 0 1.5rem;
+    }
+
+    .auth-form-section {
+      padding: 1.5rem 1.5rem;
+    }
+
+    .admin-link-section {
+      padding: 1rem 1.5rem;
+    }
   }
-  
-  .logo {
-    height: 60px;
-  }
-  
-  .text-h3 {
-    font-size: 1.5rem;
-  }
-  
-  .circle-1 {
-    width: 150px;
-    height: 150px;
-  }
-  
-  .circle-2 {
-    width: 100px;
-    height: 100px;
+
+  .features-section {
+    .feature-item {
+      padding: 0.6rem 1rem;
+
+      span {
+        font-size: 0.8rem;
+      }
+    }
   }
 }
 
 @media (max-width: 480px) {
+  .auth-container {
+    padding: 1rem 0.75rem;
+  }
+
+  .brand-section {
+    .logo-bento {
+      width: 56px;
+      height: 56px;
+
+      img {
+        width: 32px;
+        height: 32px;
+      }
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+    }
+
+    .brand-tagline {
+      font-size: 0.8rem;
+    }
+  }
+
   .auth-card {
-    padding: 1.25rem;
+    .auth-header {
+      padding: 1.25rem 1.25rem 0.75rem;
+
+      .icon-bento {
+        width: 56px;
+        height: 56px;
+      }
+
+      .auth-title {
+        font-size: 1.25rem;
+      }
+
+      .auth-subtitle {
+        font-size: 0.85rem;
+      }
+    }
+
+    .auth-tabs {
+      margin: 0 1.25rem;
+
+      :deep(.q-tab) {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+      }
+    }
+
+    .auth-form-section {
+      padding: 1.25rem 1.25rem;
+    }
+
+    .admin-link-section {
+      padding: 0.75rem 1.25rem;
+    }
   }
-  
-  .auth-btn {
-    padding: 12px 20px;
-  }
-  
-  .text-h3 {
-    font-size: 1.3rem;
+
+  .features-section {
+    .feature-bento {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .feature-item {
+      width: 100%;
+      justify-content: center;
+    }
   }
 }
 </style>
