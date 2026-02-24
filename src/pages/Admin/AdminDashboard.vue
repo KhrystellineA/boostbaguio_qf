@@ -573,9 +573,30 @@ export default {
     this.loadAdminData()
     this.loadStats()
     this.loadRecentActivity()
+    
+    // Check for hash in URL and navigate to specific section
+    this.handleHashNavigation()
   },
 
   methods: {
+    handleHashNavigation() {
+      const hash = window.location.hash
+      if (hash) {
+        const section = hash.replace('#', '')
+        // Map hash to menu items
+        const sectionMap = {
+          'places': 'places',
+          'routes': 'routes',
+          'events': 'events',
+          'jeepney-options': 'jeepney-options'
+        }
+        
+        if (sectionMap[section] && this[sectionMap[section]]) {
+          this.activeMenu = sectionMap[section]
+        }
+      }
+    },
+    
     loadAdminData() {
       const adminDataStr = sessionStorage.getItem('adminData')
       if (adminDataStr) {

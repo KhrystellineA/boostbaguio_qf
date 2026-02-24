@@ -203,8 +203,19 @@ export default {
           color: 'positive'
         })
 
-        this.$router.push('/admin/dashboard')
-        
+        // Redirect to specific dashboard section based on role
+        if (adminData.role === 'super_admin') {
+          this.$router.push('/admin/dashboard')
+        } else if (adminData.role === 'places_admin') {
+          this.$router.push('/admin/dashboard#places')
+        } else if (adminData.role === 'routes_admin') {
+          this.$router.push('/admin/dashboard#routes')
+        } else if (adminData.role === 'events_admin') {
+          this.$router.push('/admin/dashboard#events')
+        } else {
+          this.$router.push('/admin/dashboard')
+        }
+
       } catch (error) {
         console.error('[Admin Login] Error:', error)
         this.handleError(error)

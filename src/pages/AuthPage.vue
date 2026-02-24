@@ -101,18 +101,6 @@
                 <q-spinner-dots color="white" size="24px" />
               </template>
             </q-btn>
-
-            <div class="divider-text">
-              <span>OR</span>
-            </div>
-
-            <q-btn
-              flat
-              label="Continue as Guest"
-              class="guest-btn full-width"
-              @click="$router.push('/')"
-              no-caps
-            />
           </q-form>
 
           <!-- Signup Form -->
@@ -343,7 +331,19 @@ const handleLogin = async () => {
             position: 'top',
             timeout: 1500
           })
-          router.push('/admin/dashboard')
+          
+          // Redirect to specific dashboard section based on role
+          if (adminData.role === 'super_admin') {
+            router.push('/admin/dashboard')
+          } else if (adminData.role === 'places_admin') {
+            router.push('/admin/dashboard#places')
+          } else if (adminData.role === 'routes_admin') {
+            router.push('/admin/dashboard#routes')
+          } else if (adminData.role === 'events_admin') {
+            router.push('/admin/dashboard#events')
+          } else {
+            router.push('/admin/dashboard')
+          }
           return
         }
       }
@@ -657,15 +657,6 @@ $border-color: #E0E0E0;
       transform: translateY(-2px);
       box-shadow: 0 8px 24px rgba($primary, 0.35);
     }
-  }
-
-  .guest-btn {
-    border-radius: 14px;
-    padding: 12px 24px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    text-transform: none;
-    color: $text-muted;
   }
 
   .divider-text {
