@@ -280,13 +280,18 @@ const isLogin = computed(() => activeTab.value === 'login')
 
 const checkIfAdmin = async (user) => {
   try {
+    console.log('[AuthPage] Checking if user is admin:', user.email)
+    
+    // First try by UID
     const uidRef = doc(db, 'admins', user.uid)
     const uidSnap = await getDoc(uidRef)
 
     if (uidSnap.exists()) {
+      console.log('[AuthPage] Admin found by UID')
       return uidSnap.data()
     }
 
+    // Then try by email query
     const q = query(
       collection(db, 'admins'),
       where('email', '==', user.email)
@@ -294,9 +299,11 @@ const checkIfAdmin = async (user) => {
     const querySnap = await getDocs(q)
 
     if (!querySnap.empty) {
+      console.log('[AuthPage] Admin found by email query')
       return querySnap.docs[0].data()
     }
 
+    console.log('[AuthPage] No admin document found for:', user.email)
     return null
   } catch (error) {
     console.error('[AuthPage] Error checking admin status:', error)
@@ -315,14 +322,18 @@ const handleLogin = async () => {
     const result = await userStore.signIn(loginForm.value.email, loginForm.value.password)
 
     if (result.success) {
+      console.log('[AuthPage] Login successful, checking admin status...')
       const adminData = await checkIfAdmin(auth.currentUser)
 
       if (adminData) {
+        console.log('[AuthPage] Admin data found:', adminData)
         const validRoles = ['super_admin', 'route_manager', 'content_admin', 'routes_admin', 'places_admin', 'events_admin']
         if (validRoles.includes(adminData.role) && adminData.isActive !== false) {
           sessionStorage.setItem('adminRole', adminData.role)
           sessionStorage.setItem('adminData', JSON.stringify(adminData))
           sessionStorage.setItem('adminUid', auth.currentUser.uid)
+
+          console.log('[AuthPage] Admin role set:', adminData.role)
 
           $q.notify({
             type: 'positive',
@@ -331,7 +342,7 @@ const handleLogin = async () => {
             position: 'top',
             timeout: 1500
           })
-          
+
           // Redirect to specific dashboard section based on role
           if (adminData.role === 'super_admin') {
             router.push('/admin/dashboard')
@@ -345,7 +356,11 @@ const handleLogin = async () => {
             router.push('/admin/dashboard')
           }
           return
+        } else {
+          console.log('[AuthPage] Invalid admin role or inactive:', adminData.role)
         }
+      } else {
+        console.log('[AuthPage] Not an admin, redirecting to home')
       }
 
       $q.notify({
