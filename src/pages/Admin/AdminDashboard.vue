@@ -77,26 +77,10 @@
             active-class="bg-primary text-white"
           >
             <q-item-section avatar>
-              <q-icon name="route" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>Routes</q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-item
-            v-if="canManageRoutes"
-            clickable
-            v-ripple
-            :active="activeMenu === 'jeepney-options'"
-            @click="activeMenu = 'jeepney-options'"
-            active-class="bg-primary text-white"
-          >
-            <q-item-section avatar>
               <q-icon name="directions_bus" />
             </q-item-section>
             <q-item-section>
-              <q-item-label>Jeepney Options</q-item-label>
+              <q-item-label>Routes / Jeepney</q-item-label>
             </q-item-section>
           </q-item>
 
@@ -238,30 +222,12 @@
                   <div class="row items-center">
                     <div class="col">
                       <div class="stat-icon bg-blue-1">
-                        <q-icon name="route" size="md" color="blue" />
+                        <q-icon name="directions_bus" size="md" color="blue" />
                       </div>
                     </div>
                     <div class="col text-right">
                       <div class="stat-value">{{ stats.routes }}</div>
-                      <div class="stat-label">Routes</div>
-                    </div>
-                  </div>
-                </q-card-section>
-              </q-card>
-            </div>
-
-            <div class="col-12 col-sm-6 col-md-3" v-if="canManageRoutes">
-              <q-card class="stat-card">
-                <q-card-section>
-                  <div class="row items-center">
-                    <div class="col">
-                      <div class="stat-icon bg-teal-1">
-                        <q-icon name="directions_bus" size="md" color="teal" />
-                      </div>
-                    </div>
-                    <div class="col text-right">
-                      <div class="stat-value">{{ stats.jeepneyOptions }}</div>
-                      <div class="stat-label">Jeepney Options</div>
+                      <div class="stat-label">Routes / Jeepneys</div>
                     </div>
                   </div>
                 </q-card-section>
@@ -337,21 +303,11 @@
                       v-if="canManageRoutes"
                       unelevated
                       color="primary"
-                      label="Add New Route"
-                      icon="add"
-                      no-caps
-                      class="full-width q-mb-sm"
-                      @click="openAddRoute"
-                    />
-                    <q-btn
-                      v-if="canManageRoutes"
-                      unelevated
-                      color="primary"
-                      label="Add Jeepney Option"
+                      label="Add New Route / Jeepney"
                       icon="directions_bus"
                       no-caps
                       class="full-width q-mb-sm"
-                      @click="openAddJeepneyOption"
+                      @click="openAddRoute"
                     />
                     <q-btn
                       v-if="canManagePlaces"
@@ -419,14 +375,8 @@
         </div>
 
         <!-- Component Sections -->
-        <RoutesManagement
-          v-else-if="activeMenu === 'routes'"
-          :open-dialog="triggerRouteDialog"
-          @dialog-opened="onDialogOpened('route')"
-        />
-
         <JeepneyManagement
-          v-else-if="activeMenu === 'jeepney-options'"
+          v-else-if="activeMenu === 'routes'"
         />
 
         <PlacesManagement
@@ -464,9 +414,6 @@ import { collection, getDocs } from 'firebase/firestore'
 import RoutesManagement from 'src/components/admin/RoutesManagement.vue'
 import JeepneyManagement from 'src/components/admin/JeepneyManagement.vue'
 import PlacesManagement from 'src/components/admin/PlacesManagement.vue'
-import EventsManagement from 'src/components/admin/EventsManagement.vue'
-import AdminsManagement from 'src/components/admin/AdminsManagement.vue'
-import JeepneyOptionsManagement from 'src/components/admin/JeepneyOptionsManagement.vue'
 import PhotosManagement from 'src/components/admin/PhotosManagement.vue'
 import AnalyticsManagement from 'src/components/admin/AnalyticsManagement.vue'
 
@@ -479,7 +426,6 @@ export default {
     PlacesManagement,
     EventsManagement,
     AdminsManagement,
-    JeepneyOptionsManagement,
     PhotosManagement,
     AnalyticsManagement,
   },
@@ -499,14 +445,12 @@ export default {
         places: 0,
         events: 0,
         admins: 0,
-        jeepneyOptions: 0,
       },
       recentActivities: [],
       notifications: [],
       triggerRouteDialog: false,
       triggerPlaceDialog: false,
       triggerEventDialog: false,
-      triggerJeepneyDialog: false,
     }
   },
 
@@ -588,7 +532,6 @@ export default {
           'places': 'places',
           'routes': 'routes',
           'events': 'events',
-          'jeepney-options': 'jeepney-options'
         }
         
         if (sectionMap[section] && this[sectionMap[section]]) {
@@ -608,12 +551,11 @@ export default {
 
     async loadStats() {
       try {
-        const [routesSnap, placesSnap, eventsSnap, adminsSnap, jeepneySnap] = await Promise.all([
+        const [routesSnap, placesSnap, eventsSnap, adminsSnap] = await Promise.all([
           getDocs(collection(db, 'routes')),
           getDocs(collection(db, 'places')),
           getDocs(collection(db, 'events')),
           getDocs(collection(db, 'admins')),
-          getDocs(collection(db, 'jeepneyOptions')),
         ])
 
         this.stats = {
@@ -621,7 +563,6 @@ export default {
           places: placesSnap.size,
           events: eventsSnap.size,
           admins: adminsSnap.size,
-          jeepneyOptions: jeepneySnap.size,
         }
 
         console.log('[Dashboard] Stats loaded:', this.stats)
@@ -647,14 +588,6 @@ export default {
       })
     },
 
-    openAddJeepneyOption() {
-      this.activeMenu = 'jeepney-options'
-      this.triggerJeepneyDialog = false
-      this.$nextTick(() => {
-        this.triggerJeepneyDialog = true
-      })
-    },
-
     openAddPlace() {
       this.activeMenu = 'places'
       this.triggerPlaceDialog = false
@@ -675,7 +608,6 @@ export default {
       if (type === 'route') this.triggerRouteDialog = false
       if (type === 'place') this.triggerPlaceDialog = false
       if (type === 'event') this.triggerEventDialog = false
-      if (type === 'jeepney') this.triggerJeepneyDialog = false
     },
 
     viewProfile() {
