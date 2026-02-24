@@ -246,15 +246,14 @@
 
 <script>
 import { db } from 'src/boot/firebase'
-import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore'
+import { collection, getDocs, query, where } from 'firebase/firestore'
 import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import {
   getAnalyticsSummary,
   getRealTimeTraffic,
-  getPopularPlaces,
-  getPopularTimes
+  getPopularPlaces
 } from 'src/utils/analytics'
 
 export default {
