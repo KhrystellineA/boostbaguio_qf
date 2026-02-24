@@ -167,23 +167,6 @@
               <q-item-label>Analytics</q-item-label>
             </q-item-section>
           </q-item>
-
-          <q-separator class="q-my-md" />
-
-          <q-item
-            clickable
-            v-ripple
-            :active="activeMenu === 'settings'"
-            @click="activeMenu = 'settings'"
-            active-class="bg-primary text-white"
-          >
-            <q-item-section avatar>
-              <q-icon name="settings" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>Settings</q-item-label>
-            </q-item-section>
-          </q-item>
         </q-list>
       </q-scroll-area>
 
@@ -397,11 +380,6 @@
         <AdminsManagement v-else-if="activeMenu === 'admins'" />
 
         <AnalyticsManagement v-else-if="activeMenu === 'analytics'" />
-
-        <div v-else-if="activeMenu === 'settings'" class="content-section">
-          <h4 class="text-primary">Settings</h4>
-          <p class="text-grey-7">Configure system settings</p>
-        </div>
       </q-page>
     </q-page-container>
   </q-layout>
