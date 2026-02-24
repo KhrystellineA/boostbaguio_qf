@@ -280,30 +280,40 @@ const isLogin = computed(() => activeTab.value === 'login')
 
 const checkIfAdmin = async (user) => {
   try {
-    console.log('[AuthPage] Checking if user is admin:', user.email)
+    console.log('[AuthPage] Checking if user is admin:', user.email, 'UID:', user.uid)
     
-    // First try by UID
+    // First try by UID - most reliable method
     const uidRef = doc(db, 'admins', user.uid)
+    console.log('[AuthPage] Checking admin doc by UID:', user.uid)
     const uidSnap = await getDoc(uidRef)
 
     if (uidSnap.exists()) {
-      console.log('[AuthPage] Admin found by UID')
-      return uidSnap.data()
+      console.log('[AuthPage] ✅ Admin found by UID')
+      const adminData = uidSnap.data()
+      console.log('[AuthPage] Admin data:', adminData)
+      return adminData
+    }
+    console.log('[AuthPage] No admin doc found for UID:', user.uid)
+
+    // Fallback: Try querying by email (may fail due to permissions)
+    try {
+      console.log('[AuthPage] Trying email query as fallback...')
+      const q = query(
+        collection(db, 'admins'),
+        where('email', '==', user.email)
+      )
+      const querySnap = await getDocs(q)
+
+      if (!querySnap.empty) {
+        console.log('[AuthPage] ✅ Admin found by email query')
+        return querySnap.docs[0].data()
+      }
+      console.log('[AuthPage] Email query returned no results')
+    } catch (queryError) {
+      console.log('[AuthPage] Email query failed (permissions?):', queryError.message)
     }
 
-    // Then try by email query
-    const q = query(
-      collection(db, 'admins'),
-      where('email', '==', user.email)
-    )
-    const querySnap = await getDocs(q)
-
-    if (!querySnap.empty) {
-      console.log('[AuthPage] Admin found by email query')
-      return querySnap.docs[0].data()
-    }
-
-    console.log('[AuthPage] No admin document found for:', user.email)
+    console.log('[AuthPage] ❌ No admin document found for:', user.email)
     return null
   } catch (error) {
     console.error('[AuthPage] Error checking admin status:', error)

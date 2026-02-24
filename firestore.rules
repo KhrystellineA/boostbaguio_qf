@@ -65,11 +65,12 @@ service cloud.firestore {
     match /admins/{adminId} {
       // Allow read if:
       // 1. User is reading their own admin doc, OR
-      // 2. User is querying to find their admin doc by email during login
+      // 2. User is a super admin, OR  
+      // 3. Authenticated user querying to find their admin doc by email
       allow read: if isAuthenticated() && 
-                     (isOwner(adminId) || 
-                      (isAdmin()) ||
-                      (request.query.keys().hasAll([]))); // Allow queries
+                     (isOwner(adminId) ||
+                      isSuperAdmin() ||
+                      (request.resource.data == null || request.resource.data.email == resource.data.email));
 
       // Allow create only by super-admins
       allow create: if isSuperAdmin() &&
