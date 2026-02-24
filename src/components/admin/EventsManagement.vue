@@ -443,7 +443,7 @@ export default {
       this.editingEvent = null
     },
 
-    async uploadImage(_eventId) {
+    async uploadImage() {
       if (!this.imageFile) return null
 
       try {
