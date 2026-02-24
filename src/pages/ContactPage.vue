@@ -48,8 +48,8 @@
 
         <!-- Auth Buttons -->
         <q-space />
-        <q-btn flat label="Login" @click="$router.push('/auth')" />
-        <q-btn flat label="Sign Up" @click="$router.push('/auth')" />
+        <q-btn flat label="Login" @click="$router.push('/login')" />
+        <q-btn flat label="Sign Up" @click="$router.push('/login')" />
       </q-toolbar>
     </q-header>
 

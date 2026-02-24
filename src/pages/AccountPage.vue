@@ -1049,7 +1049,7 @@ const handleLogout = async () => {
     persistent: true
   }).onOk(async () => {
     await userStore.logout()
-    router.push('/auth')
+    router.push('/login')
   })
 }
 
