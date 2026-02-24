@@ -337,7 +337,7 @@ const handleLogin = async () => {
 
       if (adminData) {
         console.log('[AuthPage] Admin data found:', adminData)
-        const validRoles = ['super_admin', 'route_manager', 'content_admin', 'routes_admin', 'places_admin', 'events_admin']
+        const validRoles = ['super_admin', 'routes_admin', 'places_admin', 'events_admin']
         if (validRoles.includes(adminData.role) && adminData.isActive !== false) {
           sessionStorage.setItem('adminRole', adminData.role)
           sessionStorage.setItem('adminData', JSON.stringify(adminData))
