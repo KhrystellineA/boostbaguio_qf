@@ -129,14 +129,14 @@
               flat
               label="Login"
               class="auth-btn login-btn"
-              @click="navigateTo('/auth')"
+              @click="navigateTo('/login')"
             />
             <q-btn
               color="primary"
               unelevated
               label="Sign Up"
               class="auth-btn signup-btn"
-              @click="navigateTo('/auth')"
+              @click="navigateTo('/login')"
             />
           </div>
         </template>
@@ -307,7 +307,7 @@
               <q-btn
                 flat
                 label="Login"
-                to="/auth"
+                to="/login"
                 class="mobile-auth-btn"
                 @click="toggleMobileMenu"
               />
@@ -315,7 +315,7 @@
                 color="primary"
                 unelevated
                 label="Sign Up"
-                to="/auth"
+                to="/login"
                 class="mobile-auth-btn"
                 @click="toggleMobileMenu"
               />

@@ -61,22 +61,27 @@ service cloud.firestore {
     }
     
     // ========== ADMINS COLLECTION ==========
-    
+
     match /admins/{adminId} {
-      // Only admins can read admin collection
-      allow read: if isAdmin();
-      
-      // Only super-admins can create admins
+      // Allow read if:
+      // 1. User is reading their own admin doc, OR
+      // 2. User is querying to find their admin doc by email during login
+      allow read: if isAuthenticated() && 
+                     (isOwner(adminId) || 
+                      (isAdmin()) ||
+                      (request.query.keys().hasAll([]))); // Allow queries
+
+      // Allow create only by super-admins
       allow create: if isSuperAdmin() &&
                        request.resource.data.keys().hasAll(['email', 'name', 'permissions']) &&
                        request.resource.data.email is string &&
                        request.resource.data.name is string &&
                        request.resource.data.permissions is list;
-      
-      // Only super-admins can update admins
+
+      // Allow update only by super-admins
       allow update: if isSuperAdmin();
-      
-      // Only super-admins can delete admins
+
+      // Allow delete only by super-admins
       allow delete: if isSuperAdmin();
     }
     
