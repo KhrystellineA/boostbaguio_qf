@@ -425,10 +425,8 @@
           @dialog-opened="onDialogOpened('route')"
         />
 
-        <JeepneyOptionsManagement
+        <JeepneyManagement
           v-else-if="activeMenu === 'jeepney-options'"
-          :open-dialog="triggerJeepneyDialog"
-          @dialog-opened="onDialogOpened('jeepney')"
         />
 
         <PlacesManagement
@@ -464,6 +462,7 @@ import { auth, db } from 'src/boot/firebase'
 import { signOut } from 'firebase/auth'
 import { collection, getDocs } from 'firebase/firestore'
 import RoutesManagement from 'src/components/admin/RoutesManagement.vue'
+import JeepneyManagement from 'src/components/admin/JeepneyManagement.vue'
 import PlacesManagement from 'src/components/admin/PlacesManagement.vue'
 import EventsManagement from 'src/components/admin/EventsManagement.vue'
 import AdminsManagement from 'src/components/admin/AdminsManagement.vue'
@@ -476,6 +475,7 @@ export default {
 
   components: {
     RoutesManagement,
+    JeepneyManagement,
     PlacesManagement,
     EventsManagement,
     AdminsManagement,
