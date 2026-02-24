@@ -1,716 +1,552 @@
 <template>
-  <div class="analytics-container">
-    <div class="row items-center q-mb-md">
+  <div>
+    <div class="row q-mb-md items-center">
       <div class="col">
         <h4 class="q-my-none text-pine-green">Analytics Dashboard</h4>
-        <p class="text-grey-7 q-mb-none">Track performance and user behavior</p>
+        <p class="text-grey-7 q-mb-none">Real-time foot traffic and popularity metrics</p>
       </div>
       <div class="col-auto">
         <q-btn
           unelevated
           color="primary"
-          label="Refresh Data"
+          label="Refresh"
           icon="refresh"
           no-caps
-          @click="loadAnalytics"
+          @click="loadAllData"
           :loading="loading"
         />
       </div>
     </div>
 
+    <!-- Summary Cards -->
+    <div class="row q-col-gutter-md q-mb-md">
+      <div class="col-12 col-md-3">
+        <q-card class="stat-card">
+          <q-card-section>
+            <div class="row items-center">
+              <div class="col">
+                <div class="stat-icon bg-blue-1">
+                  <q-icon name="search" size="md" color="blue" />
+                </div>
+              </div>
+              <div class="col text-right">
+                <div class="stat-value">{{ stats.todaySearches }}</div>
+                <div class="stat-label">Searches Today</div>
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <q-card class="stat-card">
+          <q-card-section>
+            <div class="row items-center">
+              <div class="col">
+                <div class="stat-icon bg-green-1">
+                  <q-icon name="bookmark" size="md" color="green" />
+                </div>
+              </div>
+              <div class="col text-right">
+                <div class="stat-value">{{ stats.todaySaves }}</div>
+                <div class="stat-label">Saves Today</div>
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <q-card class="stat-card">
+          <q-card-section>
+            <div class="row items-center">
+              <div class="col">
+                <div class="stat-icon bg-orange-1">
+                  <q-icon name="directions_walk" size="md" color="orange" />
+                </div>
+              </div>
+              <div class="col text-right">
+                <div class="stat-value">{{ stats.todayVisits }}</div>
+                <div class="stat-label">Visits Today</div>
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <q-card class="stat-card">
+          <q-card-section>
+            <div class="row items-center">
+              <div class="col">
+                <div class="stat-icon bg-purple-1">
+                  <q-icon name="people" size="md" color="purple" />
+                </div>
+              </div>
+              <div class="col text-right">
+                <div class="stat-value">{{ realTimeTraffic.length }}</div>
+                <div class="stat-label">Active Users Now</div>
+              </div>
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
+
+    <!-- Real-Time Foot Traffic Map -->
     <q-card class="q-mb-md">
       <q-card-section>
-        <div class="row q-col-gutter-md items-center">
-          <div class="col-12 col-md-auto">
-            <div class="text-subtitle2 q-mb-sm">Time Period</div>
-            <q-btn-toggle
-              v-model="timeRange"
-              unelevated
-              toggle-color="primary"
-              :options="[
-                {label: 'Today', value: 'today'},
-                {label: '7 Days', value: '7days'},
-                {label: '30 Days', value: '30days'},
-                {label: 'All Time', value: 'all'},
-              ]"
-              @update:model-value="loadAnalytics"
-            />
-          </div>
-          
-          <div class="col-12 col-md">
-            <div class="text-subtitle2 q-mb-sm">Custom Range</div>
+        <div class="text-h6 text-primary q-mb-sm">
+          <q-icon name="radar" class="q-mr-xs" />
+          Real-Time Foot Traffic (Last 30 min)
+        </div>
+        <div id="traffic-map" style="height: 400px; border-radius: 8px;"></div>
+        <div class="text-caption text-grey-7 q-mt-sm">
+          Shows user locations in the last 30 minutes. Larger circles = more activity.
+        </div>
+      </q-card-section>
+    </q-card>
+
+    <!-- Most Popular Places -->
+    <div class="row q-col-gutter-md">
+      <div class="col-12 col-md-6">
+        <q-card>
+          <q-card-section>
+            <div class="text-h6 text-primary q-mb-sm">
+              <q-icon name="trending_up" class="q-mr-xs" />
+              Most Visited Places
+            </div>
+            <q-list separator>
+              <q-item v-for="(place, index) in popularByVisits" :key="place.placeId">
+                <q-item-section avatar>
+                  <q-avatar color="primary" text-color="white" :label="`${index + 1}`" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-weight-bold">{{ place.name || 'Loading...' }}</q-item-label>
+                  <q-item-label caption>{{ place.count }} visits</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-badge color="green">👣 {{ place.count }}</q-badge>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <q-card>
+          <q-card-section>
+            <div class="text-h6 text-primary q-mb-sm">
+              <q-icon name="star" class="q-mr-xs" />
+              Most Saved Places
+            </div>
+            <q-list separator>
+              <q-item v-for="(place, index) in popularBySaves" :key="place.placeId">
+                <q-item-section avatar>
+                  <q-avatar color="amber" text-color="white" :label="`${index + 1}`" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-weight-bold">{{ place.name || 'Loading...' }}</q-item-label>
+                  <q-item-label caption>{{ place.count }} saves</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-badge color="amber">⭐ {{ place.count }}</q-badge>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <q-card>
+          <q-card-section>
+            <div class="text-h6 text-primary q-mb-sm">
+              <q-icon name="search" class="q-mr-xs" />
+              Most Searched Places
+            </div>
+            <q-list separator>
+              <q-item v-for="(place, index) in popularBySearches" :key="place.placeId">
+                <q-item-section avatar>
+                  <q-avatar color="blue" text-color="white" :label="`${index + 1}`" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label class="text-weight-bold">{{ place.name || 'Loading...' }}</q-item-label>
+                  <q-item-label caption>{{ place.count }} searches</q-item-label>
+                </q-item-section>
+                <q-item-section side>
+                  <q-badge color="blue">🔍 {{ place.count }}</q-badge>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-card-section>
+        </q-card>
+      </div>
+
+      <div class="col-12 col-md-6">
+        <q-card>
+          <q-card-section>
+            <div class="text-h6 text-primary q-mb-sm">
+              <q-icon name="schedule" class="q-mr-xs" />
+              Peak Hours Today
+            </div>
             <div class="row q-col-gutter-sm">
-              <div class="col">
-                <q-input
-                  v-model="customDateRange.from"
-                  filled
-                  dense
-                  type="date"
-                  label="From"
-                />
+              <div class="col-4" v-for="hour in peakHours" :key="hour.hour">
+                <q-card flat bordered class="text-center q-pa-sm">
+                  <div class="text-h6 text-primary">{{ formatHour(hour.hour) }}</div>
+                  <q-linear-progress :value="hour.intensity" color="primary" class="q-mt-xs" />
+                  <div class="text-caption text-grey-7">{{ hour.count }} users</div>
+                </q-card>
               </div>
-              <div class="col">
-                <q-input
-                  v-model="customDateRange.to"
-                  filled
-                  dense
-                  type="date"
-                  label="To"
-                />
-              </div>
-              <div class="col-auto">
-                <q-btn
-                  unelevated
-                  color="primary"
-                  label="Apply"
-                  @click="applyCustomRange"
-                />
+            </div>
+          </q-card-section>
+        </q-card>
+      </div>
+    </div>
+
+    <!-- Popular Times by Day -->
+    <q-card class="q-mt-md">
+      <q-card-section>
+        <div class="text-h6 text-primary q-mb-sm">
+          <q-icon name="calendar_today" class="q-mr-xs" />
+          Popular Times by Day of Week
+        </div>
+        <q-tabs v-model="selectedDay" class="bg-grey-2 q-mb-md" align="left">
+          <q-tab name="0" label="Sunday" />
+          <q-tab name="1" label="Monday" />
+          <q-tab name="2" label="Tuesday" />
+          <q-tab name="3" label="Wednesday" />
+          <q-tab name="4" label="Thursday" />
+          <q-tab name="5" label="Friday" />
+          <q-tab name="6" label="Saturday" />
+        </q-tabs>
+
+        <div class="row q-col-gutter-xs">
+          <div class="col-12">
+            <div class="row q-col-gutter-xs items-end" style="height: 200px;">
+              <div class="col" v-for="hour in hours24" :key="hour" style="height: 100%;">
+                <div class="column items-center full-height">
+                  <q-linear-progress
+                    :value="getPopularTimeIntensity(selectedDay, hour)"
+                    color="primary"
+                    style="height: 100%; width: 100%;"
+                    class="rounded-borders"
+                  />
+                  <div class="text-caption text-grey-7 q-mt-xs">{{ hour }}</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </q-card-section>
     </q-card>
-
-    <div v-if="loading" class="text-center q-py-xl">
-      <q-spinner color="primary" size="50px" />
-      <div class="q-mt-md text-grey-7">Loading analytics...</div>
-    </div>
-
-    <div v-else>
-      <div class="row q-col-gutter-md q-mb-md">
-        <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="metric-card">
-            <q-card-section>
-              <div class="metric-icon bg-blue-1">
-                <q-icon name="people" size="32px" color="blue-8" />
-              </div>
-              <div class="metric-value">{{ formatNumber(metrics.totalUsers) }}</div>
-              <div class="metric-label">Total Users</div>
-              <div 
-                class="metric-change" 
-                :class="metrics.userGrowth >= 0 ? 'positive' : 'negative'"
-                v-if="metrics.userGrowth !== null"
-              >
-                <q-icon :name="metrics.userGrowth >= 0 ? 'trending_up' : 'trending_down'" size="16px" />
-                {{ metrics.userGrowth >= 0 ? '+' : '' }}{{ metrics.userGrowth }}% vs last period
-              </div>
-            </q-card-section>
-          </q-card>
-        </div>
-
-        <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="metric-card">
-            <q-card-section>
-              <div class="metric-icon bg-green-1">
-                <q-icon name="person_add" size="32px" color="green-8" />
-              </div>
-              <div class="metric-value">{{ metrics.newUsers }}</div>
-              <div class="metric-label">New Signups</div>
-              <div class="metric-subtitle">In selected period</div>
-            </q-card-section>
-          </q-card>
-        </div>
-
-        <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="metric-card">
-            <q-card-section>
-              <div class="metric-icon bg-purple-1">
-                <q-icon name="workspace_premium" size="32px" color="purple-8" />
-              </div>
-              <div class="metric-value">{{ metrics.premiumUsers }}</div>
-              <div class="metric-label">Premium Users</div>
-              <div class="metric-subtitle">{{ metrics.conversionRate }}% conversion rate</div>
-            </q-card-section>
-          </q-card>
-        </div>
-
-        <div class="col-12 col-sm-6 col-md-3">
-          <q-card class="metric-card">
-            <q-card-section>
-              <div class="metric-icon bg-orange-1">
-                <q-icon name="route" size="32px" color="orange-8" />
-              </div>
-              <div class="metric-value">{{ metrics.totalRoutes }}</div>
-              <div class="metric-label">Total Routes</div>
-              <div class="metric-subtitle">Available in system</div>
-            </q-card-section>
-          </q-card>
-        </div>
-      </div>
-
-      <div class="row q-col-gutter-md q-mb-md">
-        <div class="col-12 col-md-8">
-          <q-card>
-            <q-card-section>
-              <div class="text-h6 text-pine-green q-mb-md">
-                User Signups Over Time
-                <q-chip size="sm" color="grey-3" class="q-ml-sm">{{ userGrowthData.length }} days</q-chip>
-              </div>
-              <div style="height: 300px">
-                <canvas ref="userGrowthChart"></canvas>
-              </div>
-            </q-card-section>
-          </q-card>
-        </div>
-
-        <div class="col-12 col-md-4">
-          <q-card>
-            <q-card-section>
-              <div class="text-h6 text-pine-green q-mb-md">User Distribution</div>
-              <div style="height: 300px" class="flex flex-center">
-                <canvas ref="userDistributionChart"></canvas>
-              </div>
-            </q-card-section>
-          </q-card>
-        </div>
-      </div>
-
-      <div class="row q-col-gutter-md q-mb-md">
-        <div class="col-12 col-md-6">
-          <q-card>
-            <q-card-section>
-              <div class="text-h6 text-pine-green q-mb-md">Cumulative User Growth</div>
-              <div style="height: 250px">
-                <canvas ref="cumulativeUsersChart"></canvas>
-              </div>
-            </q-card-section>
-          </q-card>
-        </div>
-
-        <div class="col-12 col-md-6">
-          <q-card>
-            <q-card-section>
-              <div class="text-h6 text-pine-green q-mb-md">Signup Trends</div>
-              <div class="q-pa-md">
-                <div class="row q-col-gutter-md">
-                  <div class="col-12">
-                    <div class="text-subtitle2 text-grey-7">Average signups per day</div>
-                    <div class="text-h5 text-pine-green">{{ metrics.avgSignupsPerDay }}</div>
-                  </div>
-                  <div class="col-6">
-                    <div class="text-caption text-grey-7">Busiest Day</div>
-                    <div class="text-subtitle1">{{ metrics.busiestDay }}</div>
-                  </div>
-                  <div class="col-6">
-                    <div class="text-caption text-grey-7">Peak Signups</div>
-                    <div class="text-subtitle1">{{ metrics.peakSignups }} users</div>
-                  </div>
-                  <div class="col-6">
-                    <div class="text-caption text-grey-7">This Week</div>
-                    <div class="text-subtitle1">{{ metrics.thisWeekSignups }} users</div>
-                  </div>
-                  <div class="col-6">
-                    <div class="text-caption text-grey-7">Last Week</div>
-                    <div class="text-subtitle1">{{ metrics.lastWeekSignups }} users</div>
-                  </div>
-                </div>
-              </div>
-            </q-card-section>
-          </q-card>
-        </div>
-      </div>
-
-      <div class="row q-col-gutter-md q-mb-md">
-        <div class="col-12 col-md-6">
-          <q-card>
-            <q-card-section>
-              <div class="text-h6 text-pine-green">Available Routes</div>
-            </q-card-section>
-            <q-separator />
-            <q-list padding v-if="topRoutes.length > 0">
-              <q-item v-for="(route, index) in topRoutes" :key="index">
-                <q-item-section avatar>
-                  <q-avatar color="primary" text-color="white">{{ index + 1 }}</q-avatar>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>{{ route.name }}</q-item-label>
-                  <q-item-label caption>{{ route.description || 'No description' }}</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-            <q-card-section v-else>
-              <div class="text-center text-grey-6">No routes available</div>
-            </q-card-section>
-          </q-card>
-        </div>
-
-        <div class="col-12 col-md-6">
-          <q-card>
-            <q-card-section>
-              <div class="text-h6 text-pine-green">Recent Signups</div>
-            </q-card-section>
-            <q-separator />
-            <q-list padding>
-              <q-item v-for="user in recentUsers" :key="user.id">
-                <q-item-section avatar>
-                  <q-avatar color="blue-8" text-color="white">{{ user.initials }}</q-avatar>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label>{{ user.displayName }}</q-item-label>
-                  <q-item-label caption>{{ user.email }}</q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-item-label caption>{{ user.timeAgo }}</q-item-label>
-                  <q-badge v-if="user.isPremium" color="amber-7" label="Premium" />
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-card>
-        </div>
-      </div>
-
-      <div class="row q-col-gutter-md">
-        <div class="col-12">
-          <q-card>
-            <q-card-section>
-              <div class="text-h6 text-pine-green q-mb-md">Premium Subscription Status</div>
-              <div class="row q-col-gutter-md">
-                <div class="col-12 col-md-3">
-                  <div class="stat-box">
-                    <div class="stat-number">{{ metrics.premiumUsers }}</div>
-                    <div class="stat-label">Active Premium</div>
-                  </div>
-                </div>
-                <div class="col-12 col-md-3">
-                  <div class="stat-box">
-                    <div class="stat-number">{{ metrics.freeUsers }}</div>
-                    <div class="stat-label">Free Users</div>
-                  </div>
-                </div>
-                <div class="col-12 col-md-3">
-                  <div class="stat-box">
-                    <div class="stat-number">{{ metrics.conversionRate }}%</div>
-                    <div class="stat-label">Conversion Rate</div>
-                  </div>
-                </div>
-                <div class="col-12 col-md-3">
-                  <div class="stat-box">
-                    <div class="stat-number">{{ metrics.premiumExpiring }}</div>
-                    <div class="stat-label">Expiring Soon</div>
-                  </div>
-                </div>
-              </div>
-            </q-card-section>
-          </q-card>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
 import { db } from 'src/boot/firebase'
-import { collection, getDocs } from 'firebase/firestore'
-import Chart from 'chart.js/auto'
+import { collection, getDocs, query, where, orderBy, limit } from 'firebase/firestore'
+import { useQuasar } from 'quasar'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+import {
+  getAnalyticsSummary,
+  getRealTimeTraffic,
+  getPopularPlaces,
+  getPopularTimes
+} from 'src/utils/analytics'
 
 export default {
   name: 'AnalyticsManagement',
 
+  setup() {
+    const $q = useQuasar()
+    return { $q }
+  },
+
   data() {
     return {
-      loading: true,
-      timeRange: '30days',
-      customDateRange: { from: null, to: null },
-      metrics: {
-        totalUsers: 0,
-        newUsers: 0,
-        userGrowth: null,
-        premiumUsers: 0,
-        freeUsers: 0,
-        conversionRate: 0,
-        premiumExpiring: 0,
-        totalRoutes: 0,
-        avgSignupsPerDay: 0,
-        busiestDay: '-',
-        peakSignups: 0,
-        thisWeekSignups: 0,
-        lastWeekSignups: 0,
+      loading: false,
+      stats: {
+        totalSearches: 0,
+        totalSaves: 0,
+        totalVisits: 0,
+        todaySearches: 0,
+        todaySaves: 0,
+        todayVisits: 0
       },
-      userGrowthData: [],
-      topRoutes: [],
-      recentUsers: [],
-      charts: {},
-      allUsers: [],
+      realTimeTraffic: [],
+      popularByVisits: [],
+      popularBySaves: [],
+      popularBySearches: [],
+      peakHours: [],
+      popularTimes: {},
+      selectedDay: new Date().getDay().toString(),
+      hours24: Array.from({ length: 24 }, (_, i) => i),
+      trafficMap: null,
+      trafficMarkers: []
     }
   },
 
   mounted() {
-    this.loadAnalytics()
+    this.loadAllData()
+    // Refresh real-time traffic every minute
+    this.refreshInterval = setInterval(() => {
+      this.loadRealTimeTraffic()
+    }, 60000)
   },
 
   beforeUnmount() {
-    Object.values(this.charts).forEach(chart => {
-      if (chart) chart.destroy()
-    })
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval)
+    }
+    if (this.trafficMap) {
+      this.trafficMap.remove()
+    }
   },
 
   methods: {
-    async loadAnalytics() {
+    async loadAllData() {
       this.loading = true
       try {
-        await Promise.all([this.loadUserMetrics(), this.loadRouteMetrics()])
-        await this.$nextTick()
-        this.createCharts()
+        await Promise.all([
+          this.loadStats(),
+          this.loadRealTimeTraffic(),
+          this.loadPopularPlaces(),
+          this.loadPeakHours(),
+          this.loadPopularTimes()
+        ])
+        this.$q.notify({
+          type: 'positive',
+          message: 'Analytics data refreshed',
+          position: 'top',
+          timeout: 2000
+        })
       } catch (error) {
-        console.error('[Analytics] Error:', error)
-        this.$q.notify({ type: 'negative', message: 'Failed to load analytics', position: 'top' })
+        console.error('[Analytics] Error loading data:', error)
+        this.$q.notify({
+          type: 'negative',
+          message: 'Failed to load analytics data',
+          position: 'top'
+        })
       } finally {
         this.loading = false
       }
     },
 
-    async loadUserMetrics() {
-      const usersSnapshot = await getDocs(collection(db, 'users'))
-      this.allUsers = usersSnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAtDate: doc.data().createdAt ? new Date(doc.data().createdAt) : null
-      }))
-
-      const dateRange = this.getDateRange()
-      const filteredUsers = this.allUsers.filter(user => {
-        if (!user.createdAtDate) return false
-        return user.createdAtDate >= dateRange.start && user.createdAtDate <= dateRange.end
-      })
-
-      this.metrics.totalUsers = this.allUsers.length
-      this.metrics.newUsers = filteredUsers.length
-      this.metrics.premiumUsers = this.allUsers.filter(u => u.isPremium === true).length
-      this.metrics.freeUsers = this.metrics.totalUsers - this.metrics.premiumUsers
-      this.metrics.conversionRate = this.metrics.totalUsers > 0
-        ? ((this.metrics.premiumUsers / this.metrics.totalUsers) * 100).toFixed(1)
-        : 0
-
-      const now = new Date()
-      const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-      this.metrics.premiumExpiring = this.allUsers.filter(u => {
-        if (!u.isPremium || !u.premiumExpiry) return false
-        const expiryDate = new Date(u.premiumExpiry)
-        return expiryDate >= now && expiryDate <= sevenDaysFromNow
-      }).length
-
-      this.calculateUserGrowth()
-      this.buildUserGrowthData()
-      this.calculateSignupTrends()
-
-      this.recentUsers = this.allUsers
-        .sort((a, b) => (b.createdAtDate || 0) - (a.createdAtDate || 0))
-        .slice(0, 5)
-        .map(user => ({
-          ...user,
-          initials: this.getInitials(user.displayName),
-          timeAgo: this.getTimeAgo(user.createdAtDate)
-        }))
+    async loadStats() {
+      const summary = await getAnalyticsSummary()
+      this.stats = summary
     },
 
-    async loadRouteMetrics() {
-      const routesSnapshot = await getDocs(collection(db, 'routes'))
-      this.topRoutes = routesSnapshot.docs
-        .map(doc => ({
-          id: doc.id,
-          name: doc.data().name || 'Unknown Route',
-          description: doc.data().description
-        }))
-        .slice(0, 5)
-      this.metrics.totalRoutes = routesSnapshot.size
+    async loadRealTimeTraffic() {
+      this.realTimeTraffic = await getRealTimeTraffic()
+      this.renderTrafficMap()
     },
 
-    getDateRange() {
-      const end = new Date()
-      let start = new Date()
-
-      switch (this.timeRange) {
-        case 'today':
-          start.setHours(0, 0, 0, 0)
-          break
-        case '7days':
-          start.setDate(start.getDate() - 7)
-          break
-        case '30days':
-          start.setDate(start.getDate() - 30)
-          break
-        case 'all':
-          start = new Date(0)
-          break
-        case 'custom':
-          start = new Date(this.customDateRange.from)
-          return { start, end: new Date(this.customDateRange.to) }
+    renderTrafficMap() {
+      // Initialize map if not exists
+      if (!this.trafficMap) {
+        this.trafficMap = L.map('traffic-map').setView([16.4023, 120.5960], 13)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(this.trafficMap)
       }
-      return { start, end }
-    },
 
-    calculateUserGrowth() {
-      const currentRange = this.getDateRange()
-      const currentUsers = this.allUsers.filter(u => 
-        u.createdAtDate && u.createdAtDate >= currentRange.start && u.createdAtDate <= currentRange.end
-      ).length
+      // Clear existing markers
+      this.trafficMarkers.forEach(marker => this.trafficMap.removeLayer(marker))
+      this.trafficMarkers = []
 
-      const periodLength = currentRange.end - currentRange.start
-      const previousStart = new Date(currentRange.start.getTime() - periodLength)
-      const previousEnd = currentRange.start
-      const previousUsers = this.allUsers.filter(u =>
-        u.createdAtDate && u.createdAtDate >= previousStart && u.createdAtDate < previousEnd
-      ).length
-
-      if (previousUsers === 0) {
-        this.metrics.userGrowth = currentUsers > 0 ? 100 : 0
-      } else {
-        this.metrics.userGrowth = (((currentUsers - previousUsers) / previousUsers) * 100).toFixed(1)
-      }
-    },
-
-    buildUserGrowthData() {
-      const dateRange = this.getDateRange()
-      const days = Math.ceil((dateRange.end - dateRange.start) / (1000 * 60 * 60 * 24))
-      this.userGrowthData = []
-
-      for (let i = 0; i < days; i++) {
-        const date = new Date(dateRange.start)
-        date.setDate(date.getDate() + i)
-        const nextDate = new Date(date)
-        nextDate.setDate(nextDate.getDate() + 1)
-
-        const count = this.allUsers.filter(u => 
-          u.createdAtDate && u.createdAtDate >= date && u.createdAtDate < nextDate
-        ).length
-
-        this.userGrowthData.push({
-          date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          count
-        })
-      }
-    },
-
-    calculateSignupTrends() {
-      if (this.userGrowthData.length === 0) return
-
-      const totalSignups = this.userGrowthData.reduce((sum, day) => sum + day.count, 0)
-      this.metrics.avgSignupsPerDay = (totalSignups / this.userGrowthData.length).toFixed(1)
-
-      const busiestDay = this.userGrowthData.reduce((max, day) => 
-        day.count > max.count ? day : max, this.userGrowthData[0]
-      )
-      this.metrics.busiestDay = busiestDay.date
-      this.metrics.peakSignups = busiestDay.count
-
-      const now = new Date()
-      const thisWeekStart = new Date(now)
-      thisWeekStart.setDate(now.getDate() - now.getDay())
-      const lastWeekStart = new Date(thisWeekStart)
-      lastWeekStart.setDate(lastWeekStart.getDate() - 7)
-      const lastWeekEnd = thisWeekStart
-
-      this.metrics.thisWeekSignups = this.allUsers.filter(u =>
-        u.createdAtDate && u.createdAtDate >= thisWeekStart
-      ).length
-
-      this.metrics.lastWeekSignups = this.allUsers.filter(u =>
-        u.createdAtDate && u.createdAtDate >= lastWeekStart && u.createdAtDate < lastWeekEnd
-      ).length
-    },
-
-    createCharts() {
-      this.createUserGrowthChart()
-      this.createUserDistributionChart()
-      this.createCumulativeUsersChart()
-    },
-
-    createUserGrowthChart() {
-      const ctx = this.$refs.userGrowthChart
-      if (!ctx) return
-      if (this.charts.userGrowth) this.charts.userGrowth.destroy()
-
-      this.charts.userGrowth = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: this.userGrowthData.map(d => d.date),
-          datasets: [{
-            label: 'New Signups',
-            data: this.userGrowthData.map(d => d.count),
-            backgroundColor: '#2d6a4f',
-            borderRadius: 6,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: { callbacks: { label: (ctx) => `${ctx.parsed.y} new signups` } }
-          },
-          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+      // Group traffic by location
+      const locationGroups = {}
+      this.realTimeTraffic.forEach(point => {
+        const key = `${point.lat.toFixed(3)},${point.lng.toFixed(3)}`
+        if (!locationGroups[key]) {
+          locationGroups[key] = { lat: point.lat, lng: point.lng, count: 0 }
         }
+        locationGroups[key].count++
+      })
+
+      // Add markers with circle size based on count
+      Object.values(locationGroups).forEach(loc => {
+        const radius = Math.min(50, 10 + (loc.count * 5))
+        const circle = L.circleMarker([loc.lat, loc.lng], {
+          radius: radius,
+          color: '#FF5722',
+          fillColor: '#FF5722',
+          fillOpacity: 0.5
+        }).addTo(this.trafficMap)
+
+        circle.bindPopup(`
+          <b>Active Users</b><br>
+          ${loc.count} users in last 30 min<br>
+          Lat: ${loc.lat.toFixed(4)}<br>
+          Lng: ${loc.lng.toFixed(4)}
+        `)
+
+        this.trafficMarkers.push(circle)
       })
     },
 
-    createUserDistributionChart() {
-      const ctx = this.$refs.userDistributionChart
-      if (!ctx) return
-      if (this.charts.userDistribution) this.charts.userDistribution.destroy()
+    async loadPopularPlaces() {
+      const [visits, saves, searches] = await Promise.all([
+        getPopularPlaces('visits', 10),
+        getPopularPlaces('saves', 10),
+        getPopularPlaces('searches', 10)
+      ])
 
-      this.charts.userDistribution = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Free Users', 'Premium Users'],
-          datasets: [{
-            data: [this.metrics.freeUsers, this.metrics.premiumUsers],
-            backgroundColor: ['#e0e0e0', '#ffd60a'],
-            borderWidth: 0,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom' },
-            tooltip: {
-              callbacks: {
-                label: (context) => {
-                  const label = context.label || ''
-                  const value = context.parsed
-                  const total = context.dataset.data.reduce((a, b) => a + b, 0)
-                  const percentage = ((value / total) * 100).toFixed(1)
-                  return `${label}: ${value} (${percentage}%)`
-                }
-              }
-            }
+      // Get place details
+      this.popularByVisits = await this.getPlaceDetails(visits)
+      this.popularBySaves = await this.getPlaceDetails(saves)
+      this.popularBySearches = await this.getPlaceDetails(searches)
+    },
+
+    async getPlaceDetails(placeList) {
+      const details = []
+      for (const item of placeList) {
+        try {
+          const placeRef = await getDocs(query(collection(db, 'places'), where('__name__', '==', item.placeId)))
+          if (!placeRef.empty) {
+            const placeData = placeRef.docs[0].data()
+            details.push({
+              placeId: item.placeId,
+              name: placeData.name || 'Unknown Place',
+              count: item.count
+            })
+          } else {
+            details.push({
+              placeId: item.placeId,
+              name: 'Deleted Place',
+              count: item.count
+            })
           }
+        } catch (error) {
+          console.error('[Analytics] Error getting place details:', error)
+          details.push({
+            placeId: item.placeId,
+            name: 'Error Loading',
+            count: item.count
+          })
         }
-      })
-    },
-
-    createCumulativeUsersChart() {
-      const ctx = this.$refs.cumulativeUsersChart
-      if (!ctx) return
-      if (this.charts.cumulativeUsers) this.charts.cumulativeUsers.destroy()
-
-      let cumulative = 0
-      const cumulativeData = this.userGrowthData.map(d => {
-        cumulative += d.count
-        return cumulative
-      })
-
-      this.charts.cumulativeUsers = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: this.userGrowthData.map(d => d.date),
-          datasets: [{
-            label: 'Total Users',
-            data: cumulativeData,
-            borderColor: '#2d6a4f',
-            backgroundColor: 'rgba(45, 106, 79, 0.1)',
-            tension: 0.4,
-            fill: true,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true } }
-        }
-      })
-    },
-
-    getInitials(name) {
-      if (!name) return 'U'
-      const parts = name.split(' ')
-      if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase()
-      return name.substring(0, 2).toUpperCase()
-    },
-
-    getTimeAgo(date) {
-      if (!date) return 'Unknown'
-      const now = new Date()
-      const diff = now - date
-      const minutes = Math.floor(diff / 60000)
-      const hours = Math.floor(minutes / 60)
-      const days = Math.floor(hours / 24)
-      if (days > 0) return `${days}d ago`
-      if (hours > 0) return `${hours}h ago`
-      if (minutes > 0) return `${minutes}m ago`
-      return 'Just now'
-    },
-
-    formatNumber(num) {
-      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M'
-      if (num >= 1000) return (num / 1000).toFixed(1) + 'K'
-      return num.toString()
-    },
-
-    applyCustomRange() {
-      if (this.customDateRange.from && this.customDateRange.to) {
-        this.timeRange = 'custom'
-        this.loadAnalytics()
-      } else {
-        this.$q.notify({ type: 'warning', message: 'Please select both dates', position: 'top' })
       }
+      return details
     },
+
+    async loadPeakHours() {
+      const traffic = await getRealTimeTraffic()
+      const hourCounts = {}
+
+      traffic.forEach(point => {
+        const hour = point.timestamp?.getHours()
+        if (hour !== undefined) {
+          hourCounts[hour] = (hourCounts[hour] || 0) + 1
+        }
+      })
+
+      const maxCount = Math.max(...Object.values(hourCounts), 1)
+
+      this.peakHours = Object.entries(hourCounts)
+        .map(([hour, count]) => ({
+          hour: parseInt(hour),
+          count,
+          intensity: count / maxCount
+        }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 4)
+    },
+
+    async loadPopularTimes() {
+      // Get all foot traffic
+      const snapshot = await getDocs(collection(db, 'analytics_foot_traffic'))
+      const traffic = snapshot.docs.map(doc => doc.data())
+
+      // Group by day and hour
+      const popularTimes = {}
+      for (let day = 0; day < 7; day++) {
+        popularTimes[day] = {}
+        for (let hour = 0; hour < 24; hour++) {
+          popularTimes[day][hour] = 0
+        }
+      }
+
+      traffic.forEach(point => {
+        if (point.dayOfWeek !== undefined && point.hour !== undefined) {
+          popularTimes[point.dayOfWeek][point.hour]++
+        }
+      })
+
+      this.popularTimes = popularTimes
+    },
+
+    getPopularTimeIntensity(day, hour) {
+      const dayData = this.popularTimes[day]
+      if (!dayData || dayData[hour] === undefined) return 0
+
+      const maxInDay = Math.max(...Object.values(dayData), 1)
+      return dayData[hour] / maxInDay
+    },
+
+    formatHour(hour) {
+      const period = hour >= 12 ? 'PM' : 'AM'
+      const displayHour = hour % 12 || 12
+      return `${displayHour}${period}`
+    }
   }
 }
 </script>
 
-<style lang="sass" scoped>
-.analytics-container
-  .metric-card
-    transition: all 0.3s ease
-    &:hover
-      transform: translateY(-4px)
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1)
+<style lang="scss" scoped>
+.text-pine-green {
+  color: #2d6a4f;
+}
 
-  .metric-icon
-    width: 60px
-    height: 60px
-    border-radius: 12px
-    display: flex
-    align-items: center
-    justify-content: center
-    margin-bottom: 12px
+.stat-card {
+  border-radius: 12px;
+  transition: transform 0.3s;
 
-  .metric-value
-    font-size: 32px
-    font-weight: 700
-    color: #2d6a4f
-    margin-bottom: 4px
+  &:hover {
+    transform: translateY(-2px);
+  }
 
-  .metric-label
-    font-size: 14px
-    color: #6c757d
-    text-transform: uppercase
-    letter-spacing: 0.5px
-    margin-bottom: 8px
+  .stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-  .metric-subtitle
-    font-size: 12px
-    color: #9e9e9e
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d6a4f;
+  }
 
-  .metric-change
-    font-size: 12px
-    display: flex
-    align-items: center
-    gap: 4px
-    &.positive
-      color: #52b788
-    &.negative
-      color: #e63946
+  .stat-label {
+    font-size: 0.875rem;
+    color: #6c757d;
+  }
+}
 
-  .stat-box
-    text-align: center
-    padding: 20px
-    background: #f5f5f5
-    border-radius: 8px
-    .stat-number
-      font-size: 28px
-      font-weight: 700
-      color: #2d6a4f
-      margin-bottom: 8px
-    .stat-label
-      font-size: 12px
-      color: #6c757d
-      text-transform: uppercase
-      letter-spacing: 0.5px
+.bg-blue-1 {
+  background: rgba(33, 150, 243, 0.1);
+}
 
-.text-pine-green
-  color: #2d6a4f
+.bg-green-1 {
+  background: rgba(76, 175, 80, 0.1);
+}
+
+.bg-orange-1 {
+  background: rgba(255, 152, 0, 0.1);
+}
+
+.bg-purple-1 {
+  background: rgba(156, 39, 176, 0.1);
+}
+
+.rounded-borders {
+  border-radius: 4px;
+}
 </style>
