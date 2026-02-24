@@ -228,12 +228,21 @@ export default {
     async loadAdmins() {
       this.loading = true
       try {
+        console.log('[Admins] Loading admins from Firestore...')
         const querySnapshot = await getDocs(collection(db, 'admins'))
-        this.admins = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          uid: doc.id,
-          ...doc.data()
-        }))
+        console.log('[Admins] Found', querySnapshot.size, 'documents')
+        
+        this.admins = querySnapshot.docs.map(doc => {
+          const data = doc.data()
+          console.log('[Admins] Document:', doc.id, data)
+          return {
+            id: doc.id,
+            uid: doc.id,
+            ...data
+          }
+        })
+        
+        console.log('[Admins] Loaded admins:', this.admins)
       } catch (error) {
         console.error('[Admins] Error loading:', error)
         this.$q.notify({
