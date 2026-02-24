@@ -947,8 +947,7 @@
 
 <script>
 import { db } from 'src/boot/firebase'
-import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
-import { getStorage } from 'firebase/storage'
+import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore'
 import { useQuasar } from 'quasar'
 
 export default {
@@ -1303,21 +1302,27 @@ export default {
       this.uploadingGallery = true
 
       try {
-        const storage = getStorage()
+        const { uploadOptimizedImage } = await import('src/utils/cloudinary')
         const uploadedImages = []
 
         for (let i = 0; i < this.galleryFiles.length; i++) {
           const file = this.galleryFiles[i]
-          const timestamp = Date.now()
-          const fileName = `home-gallery_${timestamp}_${i}_${file.name}`
-          const storageRef = ref(storage, `pagePhotos/gallery/${fileName}`)
-
-          await uploadBytes(storageRef, file)
-          const downloadURL = await getDownloadURL(storageRef)
+          
+          // Upload with compression
+          const uploadResult = await uploadOptimizedImage(
+            file,
+            'baguiboost/gallery',
+            {
+              maxWidth: 1920,
+              maxHeight: 1080,
+              quality: 0.85,
+              format: 'image/webp'
+            }
+          )
 
           uploadedImages.push({
-            imageUrl: downloadURL,
-            imagePath: `pagePhotos/gallery/${fileName}`,
+            imageUrl: uploadResult.url,
+            imagePublicId: uploadResult.publicId,
           })
         }
 
@@ -1334,7 +1339,8 @@ export default {
           type: 'positive',
           message: `${uploadedImages.length} image(s) uploaded successfully!`,
           position: 'top',
-          icon: 'check_circle'
+          icon: 'check_circle',
+          timeout: 2000
         })
 
         this.galleryFiles = null
@@ -1345,7 +1351,8 @@ export default {
         this.$q.notify({
           type: 'negative',
           message: 'Failed to upload images: ' + error.message,
-          position: 'top'
+          position: 'top',
+          timeout: 5000
         })
       } finally {
         this.uploadingGallery = false
@@ -1360,17 +1367,9 @@ export default {
         persistent: false
       }).onOk(async () => {
         try {
-          const storage = getStorage()
-          const image = this.pages.homeGallery[index]
-
-          if (image.imagePath) {
-            try {
-              const imageRef = ref(storage, image.imagePath)
-              await deleteObject(imageRef)
-            } catch (error) {
-              console.log('[Gallery] Could not delete storage file:', error.message)
-            }
-          }
+          // Note: Cloudinary deletion requires server-side API
+          // For now, we just remove from Firestore
+          // Image will remain in Cloudinary but won't be displayed
 
           this.pages.homeGallery.splice(index, 1)
 
@@ -1384,7 +1383,8 @@ export default {
           this.$q.notify({
             type: 'positive',
             message: 'Image deleted successfully',
-            position: 'top'
+            position: 'top',
+            timeout: 2000
           })
 
         } catch (error) {
@@ -1392,7 +1392,8 @@ export default {
           this.$q.notify({
             type: 'negative',
             message: 'Failed to delete image: ' + error.message,
-            position: 'top'
+            position: 'top',
+            timeout: 5000
           })
         }
       })
