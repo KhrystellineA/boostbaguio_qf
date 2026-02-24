@@ -132,143 +132,104 @@
 
           <q-separator class="q-my-md" />
 
+          <!-- Place Name -->
           <q-input
             v-model="form.name"
             outlined
             label="Place Name *"
             class="q-mb-md"
+            :rules="[val => !!val || 'Place name is required']"
           />
 
+          <!-- Category -->
           <q-select
             v-model="form.category"
             outlined
             label="Category *"
             :options="categories"
             class="q-mb-md"
+            :rules="[val => !!val || 'Category is required']"
+            hint="Used for filtering in Ayan Mo feature"
           />
 
+          <!-- Address/Location -->
           <q-input
             v-model="form.address"
             outlined
-            label="Address *"
+            label="Address/Location *"
             class="q-mb-md"
-          />
-
-          <q-input
-            v-model="form.area"
-            outlined
-            label="Area/District"
-            placeholder="e.g., City Center, Session Road"
-            class="q-mb-md"
-          />
-
-          <!-- Location Picker Section -->
-          <div class="q-mb-md">
-            <div class="text-subtitle2 q-mb-sm">Location on Map *</div>
-            
-            <!-- Search Location -->
-            <q-input
-              v-model="locationSearch"
-              outlined
-              placeholder="Search for a location..."
-              class="q-mb-sm"
-              @keyup.enter="searchLocation"
-            >
-              <template #prepend>
-                <q-icon name="search" />
-              </template>
-              <template #append>
-                <q-btn
-                  flat
-                  dense
-                  icon="search"
-                  color="primary"
-                  @click="searchLocation"
-                  :loading="searchingLocation"
-                />
-              </template>
-              <template #hint>
-                Search by place name or address, then click on the map to set the exact location
-              </template>
-            </q-input>
-
-            <!-- Map Container -->
-            <div class="map-container" ref="mapContainer" id="place-map"></div>
-
-            <!-- Coordinates Display -->
-            <div v-if="form.latitude && form.longitude" class="coordinates-display q-mt-sm">
-              <q-chip icon="location_on" color="primary" text-color="white" size="sm">
-                {{ form.latitude.toFixed(6) }}, {{ form.longitude.toFixed(6) }}
-              </q-chip>
+            :rules="[val => !!val || 'Address is required']"
+          >
+            <template #append>
               <q-btn
                 flat
                 dense
-                size="sm"
                 icon="my_location"
                 color="primary"
-                label="Use Current Location"
                 @click="useCurrentLocation"
-                class="q-ml-sm"
-              />
+              >
+                <q-tooltip>Use Current Location</q-tooltip>
+              </q-btn>
+            </template>
+          </q-input>
+
+          <!-- Map for Pinpoint -->
+          <div class="q-mb-md">
+            <div class="text-subtitle2 q-mb-sm">Pinpoint on Map</div>
+            <div class="map-container" ref="mapContainer" id="place-map" style="height: 300px;"></div>
+            <div v-if="form.latitude && form.longitude" class="q-mt-sm text-caption text-grey-7">
+              Coordinates: {{ form.latitude.toFixed(6) }}, {{ form.longitude.toFixed(6) }}
             </div>
           </div>
 
-          <q-separator class="q-my-md" />
-
-          <q-input
-            v-model="form.phone"
-            outlined
-            label="Phone Number"
-            class="q-mb-md"
-          />
-
-          <q-input
-            v-model="form.website"
-            outlined
-            label="Website"
-            class="q-mb-md"
-          />
-
-          <q-input
-            v-model="form.operatingHours"
-            outlined
-            label="Operating Hours"
-            placeholder="e.g., 9AM-6PM daily"
-            class="q-mb-md"
-          />
-
-          <q-input
-            v-model="form.entranceFee"
-            outlined
-            label="Entrance Fee"
-            placeholder="e.g., Free or ₱100"
-            class="q-mb-md"
-          />
-
-          <q-input
-            v-model="form.shortDescription"
-            outlined
-            label="Short Description"
-            placeholder="Brief one-line description"
-            class="q-mb-md"
-          />
-
+          <!-- Description -->
           <q-input
             v-model="form.description"
             outlined
             type="textarea"
-            label="Full Description"
+            label="Description *"
             rows="4"
+            class="q-mb-md"
+            :rules="[val => !!val || 'Description is required']"
+          />
+
+          <!-- Operating Hours -->
+          <div class="row q-col-gutter-md q-mb-md">
+            <div class="col-6">
+              <q-input
+                v-model="form.operatingHours.open"
+                outlined
+                type="time"
+                label="Open Time"
+              />
+            </div>
+            <div class="col-6">
+              <q-input
+                v-model="form.operatingHours.close"
+                outlined
+                type="time"
+                label="Close Time"
+              />
+            </div>
+          </div>
+          <q-input
+            v-model="form.operatingHours.days"
+            outlined
+            label="Operating Days"
+            placeholder="e.g., Daily, Mon-Fri, Weekends only"
             class="q-mb-md"
           />
 
-          <q-input
-            v-model="form.tags"
-            outlined
-            label="Tags"
-            placeholder="Comma-separated tags (e.g., Family-Friendly, Photo Spot)"
-            hint="Enter tags separated by commas"
-          />
+          <!-- Featured Toggle -->
+          <q-toggle
+            v-model="form.featured"
+            label="Featured Place (show on homepage)"
+            class="q-mb-md"
+          >
+            <template v-slot:before>
+              <q-icon name="star" color="amber" />
+            </template>
+          </q-toggle>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -289,7 +250,6 @@
 <script>
 import { db } from 'src/boot/firebase'
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore'
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'
 import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -328,18 +288,17 @@ export default {
         name: '',
         category: '',
         address: '',
-        area: '',
         latitude: null,
         longitude: null,
-        phone: '',
-        website: '',
-        operatingHours: '',
-        entranceFee: '',
-        shortDescription: '',
         description: '',
-        tags: '',
+        operatingHours: {
+          open: '',
+          close: '',
+          days: ''
+        },
         imageUrl: '',
-        imagePath: ''
+        imagePublicId: '',
+        featured: false
       },
       categories: [
         'Tourist Spots',
@@ -355,9 +314,9 @@ export default {
       ],
       columns: [
         { name: 'image', label: 'Image', field: 'imageUrl', align: 'center' },
+        { name: 'featured', label: 'Featured', field: 'featured', align: 'center', sortable: true },
         { name: 'name', label: 'Place Name', field: 'name', align: 'left', sortable: true },
         { name: 'category', label: 'Category', field: 'category', align: 'left', sortable: true },
-        { name: 'area', label: 'Area', field: 'area', align: 'left' },
         { name: 'address', label: 'Address', field: 'address', align: 'left' },
         { name: 'actions', label: 'Actions', field: 'actions', align: 'center' }
       ]
@@ -585,21 +544,26 @@ export default {
       this.form.imagePath = ''
     },
 
-    async uploadImage(placeId) {
+    async uploadImage() {
       if (!this.imageFile) return null
 
       try {
-        const storage = getStorage()
-        const timestamp = Date.now()
-        const fileName = `${placeId}_${timestamp}_${this.imageFile.name}`
-        const storageRef = ref(storage, `places/${fileName}`)
-
-        await uploadBytes(storageRef, this.imageFile)
-        const downloadURL = await getDownloadURL(storageRef)
+        const { uploadOptimizedImage } = await import('src/utils/cloudinary')
         
+        const uploadResult = await uploadOptimizedImage(
+          this.imageFile,
+          'baguiboost/places',
+          {
+            maxWidth: 1920,
+            maxHeight: 1080,
+            quality: 0.85,
+            format: 'image/webp'
+          }
+        )
+
         return {
-          imageUrl: downloadURL,
-          imagePath: `places/${fileName}`
+          imageUrl: uploadResult.url,
+          imagePublicId: uploadResult.publicId
         }
       } catch (error) {
         console.error('[Places] Error uploading image:', error)
@@ -607,38 +571,42 @@ export default {
       }
     },
 
-    async deleteImage(imagePath) {
-      if (!imagePath) return
-
-      try {
-        const storage = getStorage()
-        const imageRef = ref(storage, imagePath)
-        await deleteObject(imageRef)
-      } catch (error) {
-        console.error('[Places] Error deleting image:', error)
-      }
+    async deleteImage(imagePublicId) {
+      if (!imagePublicId) return
+      // Note: Cloudinary deletion requires server-side API
+      console.log('[Places] Image deletion skipped (requires server-side):', imagePublicId)
     },
 
     editPlace(place) {
       this.editingPlace = place
       this.form = {
-        ...place,
-        tags: Array.isArray(place.tags) ? place.tags.join(', ') : (place.tags || '')
+        name: place.name || '',
+        category: place.category || '',
+        address: place.address || '',
+        latitude: place.latitude || null,
+        longitude: place.longitude || null,
+        description: place.description || '',
+        operatingHours: place.operatingHours || { open: '', close: '', days: '' },
+        imageUrl: place.imageUrl || '',
+        imagePublicId: place.imagePublicId || '',
+        featured: place.featured || false
       }
       this.showAddDialog = true
       this.initMap()
     },
 
     async savePlace() {
-      if (!this.form.name || !this.form.category || !this.form.address) {
+      // Validate required fields
+      if (!this.form.name || !this.form.category || !this.form.address || !this.form.description) {
         this.$q.notify({
           type: 'warning',
-          message: 'Please fill in all required fields (Name, Category, Address)',
+          message: 'Please fill in all required fields',
           position: 'top'
         })
         return
       }
 
+      // Validate location
       if (!this.form.latitude || !this.form.longitude) {
         this.$q.notify({
           type: 'warning',
@@ -652,40 +620,30 @@ export default {
       try {
         let imageData = {
           imageUrl: this.form.imageUrl || '',
-          imagePath: this.form.imagePath || ''
+          imagePublicId: this.form.imagePublicId || ''
         }
 
         // Handle image upload
         if (this.imageFile) {
-          if (this.editingPlace?.imagePath) {
-            await this.deleteImage(this.editingPlace.imagePath)
+          if (this.editingPlace?.imagePublicId) {
+            // Note: Cloudinary deletion requires server-side API
+            console.log('[Places] Old image will remain in Cloudinary:', this.editingPlace.imagePublicId)
           }
 
-          const placeId = this.editingPlace?.id || `temp_${Date.now()}`
-          imageData = await this.uploadImage(placeId)
+          imageData = await this.uploadImage()
         }
-
-        // Parse tags
-        const tagsArray = this.form.tags
-          ? this.form.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
-          : []
 
         const placeData = {
           name: this.form.name,
           category: this.form.category,
           address: this.form.address,
-          area: this.form.area || '',
           latitude: this.form.latitude,
           longitude: this.form.longitude,
-          phone: this.form.phone || '',
-          website: this.form.website || '',
-          operatingHours: this.form.operatingHours || '',
-          entranceFee: this.form.entranceFee || '',
-          shortDescription: this.form.shortDescription || '',
-          description: this.form.description || '',
-          tags: tagsArray,
+          description: this.form.description,
+          operatingHours: this.form.operatingHours,
           imageUrl: imageData.imageUrl,
-          imagePath: imageData.imagePath,
+          imagePublicId: imageData.imagePublicId,
+          featured: this.form.featured || false,
           updatedAt: serverTimestamp()
         }
 
@@ -695,7 +653,8 @@ export default {
             type: 'positive',
             message: 'Place updated successfully',
             position: 'top',
-            icon: 'check_circle'
+            icon: 'check_circle',
+            timeout: 2000
           })
         } else {
           placeData.createdAt = serverTimestamp()
@@ -704,7 +663,8 @@ export default {
             type: 'positive',
             message: 'Place created successfully',
             position: 'top',
-            icon: 'check_circle'
+            icon: 'check_circle',
+            timeout: 2000
           })
         }
 
@@ -715,8 +675,9 @@ export default {
         console.error('[Places] Error saving:', error)
         this.$q.notify({
           type: 'negative',
-          message: 'Failed to save place',
-          position: 'top'
+          message: 'Failed to save place: ' + error.message,
+          position: 'top',
+          timeout: 5000
         })
       } finally {
         this.saving = false
@@ -776,24 +737,22 @@ export default {
         name: '',
         category: '',
         address: '',
-        area: '',
         latitude: null,
         longitude: null,
-        phone: '',
-        website: '',
-        operatingHours: '',
-        entranceFee: '',
-        shortDescription: '',
         description: '',
-        tags: '',
+        operatingHours: {
+          open: '',
+          close: '',
+          days: ''
+        },
         imageUrl: '',
-        imagePath: ''
+        imagePublicId: '',
+        featured: false
       }
       this.imageFile = null
       this.imagePreview = null
       this.editingPlace = null
-      this.locationSearch = ''
-      
+
       if (this.map) {
         this.map.remove()
         this.map = null
