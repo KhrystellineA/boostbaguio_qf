@@ -214,14 +214,6 @@ export default {
         {
           label: 'Events Administrator - Manage events & festivals',
           value: 'events_admin'
-        },
-        {
-          label: 'Route Manager - Legacy route management',
-          value: 'route_manager'
-        },
-        {
-          label: 'Content Admin - Legacy places & events',
-          value: 'content_admin'
         }
       ]
     }
@@ -278,15 +270,11 @@ export default {
         case 'super_admin':
           return ['super_admin:all']
         case 'routes_admin':
-          return ['routes:read', 'routes:write', 'routes:delete', 'routes:update', 'jeepneyOptions:all']
+          return ['routes:read', 'routes:write', 'routes:delete', 'routes:update', 'jeepneyOptions:all', 'analytics:read']
         case 'places_admin':
-          return ['places:read', 'places:write', 'places:delete', 'places:update']
+          return ['places:read', 'places:write', 'places:delete', 'places:update', 'analytics:read']
         case 'events_admin':
-          return ['events:read', 'events:write', 'events:delete', 'events:update']
-        case 'route_manager':
-          return ['routes:read', 'routes:write', 'routes:delete', 'routes:update']
-        case 'content_admin':
-          return ['places:read', 'places:write', 'places:delete', 'places:update', 'events:read', 'events:write', 'events:delete', 'events:update']
+          return ['events:read', 'events:write', 'events:delete', 'events:update', 'analytics:read']
         default:
           return []
       }

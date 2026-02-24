@@ -338,7 +338,7 @@ export default {
     onMounted(() => {
       // Check if admin - redirect to admin dashboard
       const adminRole = sessionStorage.getItem('adminRole')
-      const adminRoles = ['super_admin', 'routes_admin', 'places_admin', 'events_admin', 'route_manager', 'content_admin']
+      const adminRoles = ['super_admin', 'routes_admin', 'places_admin', 'events_admin']
       if (adminRoles.includes(adminRole)) {
         router.push('/admin/dashboard')
         return

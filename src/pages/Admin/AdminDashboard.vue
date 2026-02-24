@@ -458,11 +458,9 @@ export default {
     roleName() {
       const roles = {
         super_admin: 'Super Admin',
-        route_manager: 'Route Manager',
         routes_admin: 'Routes Administrator',
         places_admin: 'Places Administrator',
         events_admin: 'Events Administrator',
-        content_admin: 'Content Admin',
       }
       return roles[this.adminData.role] || 'Admin'
     },
@@ -472,7 +470,8 @@ export default {
       return this.adminData.role === 'super_admin' || 
              this.adminData.role === 'routes_admin' ||
              this.adminData.permissions?.includes('routes:write') ||
-             this.adminData.permissions?.manageRoutes || false
+             this.adminData.permissions?.includes('super_admin:all') ||
+             false
     },
 
     canManagePlaces() {
@@ -480,7 +479,8 @@ export default {
       return this.adminData.role === 'super_admin' || 
              this.adminData.role === 'places_admin' ||
              this.adminData.permissions?.includes('places:write') ||
-             this.adminData.permissions?.managePlaces || false
+             this.adminData.permissions?.includes('super_admin:all') ||
+             false
     },
 
     canManageEvents() {
@@ -488,18 +488,21 @@ export default {
       return this.adminData.role === 'super_admin' || 
              this.adminData.role === 'events_admin' ||
              this.adminData.permissions?.includes('events:write') ||
-             this.adminData.permissions?.manageEvents || false
+             this.adminData.permissions?.includes('super_admin:all') ||
+             false
     },
 
     canManageAdmins() {
       // Only super admin can manage admins
       return this.adminData.role === 'super_admin' ||
-             this.adminData.permissions?.manageAdmins || false
+             this.adminData.permissions?.includes('super_admin:all') ||
+             false
     },
 
     canViewAnalytics() {
       // All admins can view analytics
-      return this.adminData.permissions?.viewAnalytics || 
+      return this.adminData.permissions?.includes('analytics:read') ||
+             this.adminData.permissions?.includes('super_admin:all') ||
              ['super_admin', 'routes_admin', 'places_admin', 'events_admin'].includes(this.adminData.role) ||
              false
     },

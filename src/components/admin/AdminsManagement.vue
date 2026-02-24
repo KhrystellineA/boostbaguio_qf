@@ -188,13 +188,14 @@ export default {
         name: '',
         email: '',
         password: '',
-        role: 'route_manager',
+        role: 'routes_admin',
         isActive: true
       },
       roleOptions: [
         { label: 'Super Admin', value: 'super_admin' },
-        { label: 'Route Manager', value: 'route_manager' },
-        { label: 'Content Admin', value: 'content_admin' }
+        { label: 'Routes Administrator', value: 'routes_admin' },
+        { label: 'Places Administrator', value: 'places_admin' },
+        { label: 'Events Administrator', value: 'events_admin' }
       ],
       columns: [
         { name: 'name', label: 'Name', field: 'name', align: 'left', sortable: true },
@@ -393,39 +394,24 @@ export default {
     getDefaultPermissions(role) {
       switch (role) {
         case 'super_admin':
-          return {
-            manageAdmins: true,
-            manageRoutes: true,
-            managePlaces: true,
-            manageEvents: true,
-            viewAnalytics: true
-          }
-        case 'route_manager':
-          return {
-            manageAdmins: false,
-            manageRoutes: true,
-            managePlaces: false,
-            manageEvents: false,
-            viewAnalytics: false
-          }
-        case 'content_admin':
-          return {
-            manageAdmins: false,
-            manageRoutes: false,
-            managePlaces: true,
-            manageEvents: true,
-            viewAnalytics: false
-          }
+          return ['super_admin:all']
+        case 'routes_admin':
+          return ['routes:read', 'routes:write', 'routes:delete', 'routes:update', 'jeepneyOptions:all', 'analytics:read']
+        case 'places_admin':
+          return ['places:read', 'places:write', 'places:delete', 'places:update', 'analytics:read']
+        case 'events_admin':
+          return ['events:read', 'events:write', 'events:delete', 'events:update', 'analytics:read']
         default:
-          return {}
+          return []
       }
     },
 
     getRoleLabel(role) {
       const labels = {
         super_admin: 'Super Admin',
-        route_manager: 'Route Manager',
-        content_admin: 'Content Admin'
+        routes_admin: 'Routes Administrator',
+        places_admin: 'Places Administrator',
+        events_admin: 'Events Administrator'
       }
       return labels[role] || role
     },
@@ -433,8 +419,9 @@ export default {
     getRoleColor(role) {
       const colors = {
         super_admin: 'red',
-        route_manager: 'blue',
-        content_admin: 'green'
+        routes_admin: 'blue',
+        places_admin: 'green',
+        events_admin: 'orange'
       }
       return colors[role] || 'grey'
     },
