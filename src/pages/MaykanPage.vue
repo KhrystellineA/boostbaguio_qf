@@ -747,7 +747,7 @@ export default defineComponent({
             {
               label: 'Login',
               color: 'white',
-              handler: () => router.push('/auth')
+              handler: () => router.push('/login')
             }
           ]
         })

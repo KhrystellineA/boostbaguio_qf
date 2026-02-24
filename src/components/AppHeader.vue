@@ -344,12 +344,12 @@ const userInitials = computed(() => {
 
 const handleLogin = () => {
   drawer.value = false
-  router.push('/auth')
+  router.push('/login')
 }
 
 const handleSignup = () => {
   drawer.value = false
-  router.push('/auth')
+  router.push('/login')
 }
 
 const handleMyAccount = () => {

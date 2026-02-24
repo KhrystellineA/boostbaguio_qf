@@ -30,7 +30,7 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     }
 
     if (to.meta.requiresAuth && !userStore.isAuthenticated) {
-      next('/auth')
+      next('/login')
       return
     }
 
@@ -39,7 +39,7 @@ export default defineRouter(function (/* { store, ssrContext } */) {
       return
     }
 
-    if (to.path === '/auth' && userStore.isAuthenticated) {
+    if (to.path === '/login' && userStore.isAuthenticated) {
       next('/')
       return
     }
