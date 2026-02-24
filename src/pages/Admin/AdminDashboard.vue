@@ -117,6 +117,7 @@
           </q-item>
 
           <q-item
+            v-if="adminData.role === 'super_admin'"
             clickable
             v-ripple
             :active="activeMenu === 'photos'"
