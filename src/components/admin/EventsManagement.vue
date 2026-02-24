@@ -443,7 +443,7 @@ export default {
       this.editingEvent = null
     },
 
-    async uploadImage(eventId) {
+    async uploadImage(_eventId) {
       if (!this.imageFile) return null
 
       try {
@@ -644,28 +644,6 @@ export default {
         'Cancelled': 'red'
       }
       return colors[status] || 'grey'
-    },
-
-    resetForm() {
-      this.form = {
-        title: '',
-        location: '',
-        startDate: '',
-        endDate: '',
-        startTime: '',
-        endTime: '',
-        status: 'Upcoming',
-        organizer: '',
-        contactEmail: '',
-        contactPhone: '',
-        description: '',
-        imageUrl: '',
-        imagePath: '',
-        featured: false
-      }
-      this.imageFile = null
-      this.imagePreview = null
-      this.editingEvent = null
     },
 
     onDialogHide() {

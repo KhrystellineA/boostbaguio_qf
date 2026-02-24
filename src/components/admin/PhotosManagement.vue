@@ -947,7 +947,7 @@
 
 <script>
 import { db } from 'src/boot/firebase'
-import { doc, getDoc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore'
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { useQuasar } from 'quasar'
 
 export default {
