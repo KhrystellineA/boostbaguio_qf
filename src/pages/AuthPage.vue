@@ -12,17 +12,6 @@
     </div>
 
     <div class="auth-container">
-      <!-- Logo & Brand -->
-      <div class="brand-section">
-        <div class="logo-bento" @click="$router.push('/')">
-          <img src="/logo.svg" alt="Boost Baguio" />
-        </div>
-        <div class="brand-text">
-          <h1 class="brand-title">Baguio <span class="text-accent">Boost</span></h1>
-          <p class="brand-tagline">Navigate with ease</p>
-        </div>
-      </div>
-
       <!-- Auth Card -->
       <q-card class="auth-card">
         <q-card-section class="auth-header">
@@ -543,67 +532,6 @@ $border-color: #E0E0E0;
   gap: 2rem;
 }
 
-// Brand Section
-.brand-section {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-
-  .logo-bento {
-    width: 72px;
-    height: 72px;
-    background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 8px 24px rgba($primary, 0.25);
-    cursor: pointer;
-    transition: all 0.3s ease;
-
-    &:hover {
-      transform: scale(1.05) rotate(-5deg);
-      box-shadow: 0 12px 32px rgba($primary, 0.35);
-    }
-
-    img {
-      width: 40px;
-      height: 40px;
-      object-fit: contain;
-      filter: brightness(0) invert(1);
-    }
-  }
-
-  .brand-text {
-    .brand-title {
-      font-size: 2rem;
-      font-weight: 700;
-      color: $text-dark;
-      margin: 0;
-      letter-spacing: -0.5px;
-
-      .text-accent {
-        color: $primary;
-        background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-    }
-
-    .brand-tagline {
-      font-size: 0.9rem;
-      color: $text-muted;
-      margin: 0.25rem 0 0 0;
-      font-weight: 500;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-  }
-}
-
 // Auth Card
 .auth-card {
   border-radius: 24px;
@@ -869,22 +797,6 @@ $border-color: #E0E0E0;
     gap: 1.5rem;
   }
 
-  .brand-section {
-    .logo-bento {
-      width: 64px;
-      height: 64px;
-
-      img {
-        width: 36px;
-        height: 36px;
-      }
-    }
-
-    .brand-title {
-      font-size: 1.5rem;
-    }
-  }
-
   .auth-card {
     .auth-header {
       padding: 1.5rem 1.5rem 1rem;
@@ -926,26 +838,6 @@ $border-color: #E0E0E0;
 @media (max-width: 480px) {
   .auth-container {
     padding: 1rem 0.75rem;
-  }
-
-  .brand-section {
-    .logo-bento {
-      width: 56px;
-      height: 56px;
-
-      img {
-        width: 32px;
-        height: 32px;
-      }
-    }
-
-    .brand-title {
-      font-size: 1.25rem;
-    }
-
-    .brand-tagline {
-      font-size: 0.8rem;
-    }
   }
 
   .auth-card {
