@@ -348,6 +348,7 @@ export default {
       map: null,
       marker: null,
       routeLine: null,
+      routeMarkers: [],
       form: {
         jeepName: '',
         terminalLocation: '',
@@ -412,6 +413,16 @@ export default {
 
   mounted() {
     this.loadJeepneys()
+  },
+
+  watch: {
+    showAddDialog(val) {
+      if (val) {
+        this.$nextTick(() => {
+          this.initMap()
+        })
+      }
+    }
   },
 
   methods: {
@@ -529,10 +540,17 @@ export default {
     },
 
     initMap() {
-      if (this.map) return
+      // Wait for DOM to be ready
+      if (!document.getElementById('jeepney-map')) return
+      
+      // Destroy existing map if any
+      if (this.map) {
+        this.map.remove()
+        this.map = null
+      }
 
       // Initialize map centered on Baguio
-      this.map = L.map('jeepney-map').setView([16.4023, 120.5960], 13)
+      this.map = L.map('jeepney-map').setView([16.4023, 120.5960], 14)
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
@@ -549,17 +567,44 @@ export default {
         })
         this.updateRouteLine()
       })
+
+      // Invalidate size after map is fully loaded
+      setTimeout(() => {
+        if (this.map) {
+          this.map.invalidateSize()
+        }
+      }, 100)
     },
 
     updateRouteLine() {
       if (!this.map || !this.form.routePoints || this.form.routePoints.length === 0) return
 
+      // Remove existing layers
       if (this.routeLine) {
         this.map.removeLayer(this.routeLine)
       }
+      if (this.routeMarkers) {
+        this.routeMarkers.forEach(marker => this.map.removeLayer(marker))
+      }
+      this.routeMarkers = []
 
+      // Draw polyline
       const latlngs = this.form.routePoints.map(point => [point.lat, point.lng])
-      this.routeLine = L.polyline(latlngs, { color: 'red', weight: 4 }).addTo(this.map)
+      this.routeLine = L.polyline(latlngs, { 
+        color: 'red', 
+        weight: 4,
+        opacity: 0.8
+      }).addTo(this.map)
+
+      // Add markers for each point
+      this.form.routePoints.forEach((point, index) => {
+        const marker = L.marker([point.lat, point.lng])
+          .addTo(this.map)
+          .bindPopup(`<b>Route Point ${index + 1}</b><br>Click chip below to remove`)
+        this.routeMarkers.push(marker)
+      })
+
+      // Fit map to show all points
       this.map.fitBounds(L.latLngBounds(latlngs))
     },
 
@@ -589,6 +634,8 @@ export default {
         imagePublicId: jeepney.imagePublicId || ''
       }
       this.showAddDialog = true
+      
+      // Initialize map after dialog is shown
       this.$nextTick(() => {
         this.initMap()
         if (this.form.routePoints && this.form.routePoints.length > 0) {
@@ -747,6 +794,7 @@ export default {
         this.map = null
         this.marker = null
         this.routeLine = null
+        this.routeMarkers = []
       }
     },
 
