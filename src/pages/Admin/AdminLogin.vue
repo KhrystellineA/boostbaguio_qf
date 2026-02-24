@@ -329,8 +329,9 @@ export default {
     margin: 0
     letter-spacing: -1px
     line-height: 1
+    
     .text-accent
-      color: #FFD60A
+      color: #FFD60A !important
       font-weight: 800
 
 .admin-badge
