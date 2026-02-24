@@ -204,11 +204,23 @@ export default {
           value: 'super_admin'
         },
         {
-          label: 'Route Manager - Manage jeepney routes',
+          label: 'Routes Administrator - Manage jeepney routes',
+          value: 'routes_admin'
+        },
+        {
+          label: 'Places Administrator - Manage tourist spots & places',
+          value: 'places_admin'
+        },
+        {
+          label: 'Events Administrator - Manage events & festivals',
+          value: 'events_admin'
+        },
+        {
+          label: 'Route Manager - Legacy route management',
           value: 'route_manager'
         },
         {
-          label: 'Content Admin - Manage places & events',
+          label: 'Content Admin - Legacy places & events',
           value: 'content_admin'
         }
       ]
@@ -264,31 +276,19 @@ export default {
     getDefaultPermissions(role) {
       switch (role) {
         case 'super_admin':
-          return {
-            manageAdmins: true,
-            manageRoutes: true,
-            managePlaces: true,
-            manageEvents: true,
-            viewAnalytics: true
-          }
+          return ['super_admin:all']
+        case 'routes_admin':
+          return ['routes:read', 'routes:write', 'routes:delete', 'routes:update', 'jeepneyOptions:all']
+        case 'places_admin':
+          return ['places:read', 'places:write', 'places:delete', 'places:update']
+        case 'events_admin':
+          return ['events:read', 'events:write', 'events:delete', 'events:update']
         case 'route_manager':
-          return {
-            manageAdmins: false,
-            manageRoutes: true,
-            managePlaces: false,
-            manageEvents: false,
-            viewAnalytics: false
-          }
+          return ['routes:read', 'routes:write', 'routes:delete', 'routes:update']
         case 'content_admin':
-          return {
-            manageAdmins: false,
-            manageRoutes: false,
-            managePlaces: true,
-            manageEvents: true,
-            viewAnalytics: false
-          }
+          return ['places:read', 'places:write', 'places:delete', 'places:update', 'events:read', 'events:write', 'events:delete', 'events:update']
         default:
-          return {}
+          return []
       }
     },
 

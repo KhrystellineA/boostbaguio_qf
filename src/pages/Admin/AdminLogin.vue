@@ -174,7 +174,7 @@ export default {
           )
         }
 
-        const validRoles = ['super_admin', 'route_manager', 'content_admin']
+        const validRoles = ['super_admin', 'route_manager', 'content_admin', 'routes_admin', 'places_admin', 'events_admin']
         if (!validRoles.includes(adminData.role)) {
           await signOut(auth)
           throw this.createError(

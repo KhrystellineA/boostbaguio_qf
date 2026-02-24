@@ -279,7 +279,7 @@ const handleLogin = async () => {
       const adminData = await checkIfAdmin(auth.currentUser)
 
       if (adminData) {
-        const validRoles = ['super_admin', 'route_manager', 'content_admin']
+        const validRoles = ['super_admin', 'route_manager', 'content_admin', 'routes_admin', 'places_admin', 'events_admin']
         if (validRoles.includes(adminData.role) && adminData.isActive !== false) {
           sessionStorage.setItem('adminRole', adminData.role)
           sessionStorage.setItem('adminData', JSON.stringify(adminData))
@@ -292,6 +292,8 @@ const handleLogin = async () => {
             position: 'top',
             timeout: 1500
           })
+
+          // All admins go to admin dashboard
           router.push('/admin/dashboard')
           return
         }

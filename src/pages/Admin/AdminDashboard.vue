@@ -220,7 +220,13 @@
           <div class="row q-mb-md">
             <div class="col">
               <h4 class="q-my-none text-primary">Dashboard Overview</h4>
-              <p class="text-grey-7 q-mb-none">Welcome back, {{ adminData.name }}!</p>
+              <p class="text-grey-7 q-mb-none">
+                <span v-if="adminData.role === 'super_admin'">Full system access - Manage all aspects</span>
+                <span v-else-if="adminData.role === 'places_admin'">Manage tourist spots, restaurants, hotels, and other places</span>
+                <span v-else-if="adminData.role === 'routes_admin'">Manage jeepney routes and options</span>
+                <span v-else-if="adminData.role === 'events_admin'">Manage events and festivals</span>
+                <span v-else>Welcome back, {{ adminData.name }}!</span>
+              </p>
             </div>
           </div>
 
@@ -509,29 +515,49 @@ export default {
       const roles = {
         super_admin: 'Super Admin',
         route_manager: 'Route Manager',
+        routes_admin: 'Routes Administrator',
+        places_admin: 'Places Administrator',
+        events_admin: 'Events Administrator',
         content_admin: 'Content Admin',
       }
       return roles[this.adminData.role] || 'Admin'
     },
 
     canManageRoutes() {
-      return this.adminData.permissions?.manageRoutes || false
+      // Super admin and routes admin can manage routes
+      return this.adminData.role === 'super_admin' || 
+             this.adminData.role === 'routes_admin' ||
+             this.adminData.permissions?.includes('routes:write') ||
+             this.adminData.permissions?.manageRoutes || false
     },
 
     canManagePlaces() {
-      return this.adminData.permissions?.managePlaces || false
+      // Super admin and places admin can manage places
+      return this.adminData.role === 'super_admin' || 
+             this.adminData.role === 'places_admin' ||
+             this.adminData.permissions?.includes('places:write') ||
+             this.adminData.permissions?.managePlaces || false
     },
 
     canManageEvents() {
-      return this.adminData.permissions?.manageEvents || false
+      // Super admin and events admin can manage events
+      return this.adminData.role === 'super_admin' || 
+             this.adminData.role === 'events_admin' ||
+             this.adminData.permissions?.includes('events:write') ||
+             this.adminData.permissions?.manageEvents || false
     },
 
     canManageAdmins() {
-      return this.adminData.permissions?.manageAdmins || false
+      // Only super admin can manage admins
+      return this.adminData.role === 'super_admin' ||
+             this.adminData.permissions?.manageAdmins || false
     },
 
     canViewAnalytics() {
-      return this.adminData.permissions?.viewAnalytics || false
+      // All admins can view analytics
+      return this.adminData.permissions?.viewAnalytics || 
+             ['super_admin', 'routes_admin', 'places_admin', 'events_admin'].includes(this.adminData.role) ||
+             false
     },
   },
 

@@ -54,6 +54,16 @@ export default ({ router }) => {
       }
     }
 
+    // ADMIN REDIRECT: If admin tries to access home page, redirect to admin dashboard
+    if (to.path === '/' && isAdmin && !requiresGuest) {
+      const adminRole = sessionStorage.getItem('adminRole')
+      // All admins (super_admin, routes_admin, places_admin, events_admin, route_manager, content_admin)
+      if (['super_admin', 'routes_admin', 'places_admin', 'events_admin', 'route_manager', 'content_admin'].includes(adminRole)) {
+        console.log('[Router Guard] Admin on homepage, redirect to admin dashboard')
+        return next('/admin/dashboard')
+      }
+    }
+
     // ROUTES REQUIRING AUTHENTICATION
     if (requiresAuth && !currentUser) {
       console.log('[Router Guard] Auth required but no user, redirect to login')
