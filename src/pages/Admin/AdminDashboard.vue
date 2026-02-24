@@ -411,9 +411,10 @@ import { useQuasar } from 'quasar'
 import { auth, db } from 'src/boot/firebase'
 import { signOut } from 'firebase/auth'
 import { collection, getDocs } from 'firebase/firestore'
-import RoutesManagement from 'src/components/admin/RoutesManagement.vue'
 import JeepneyManagement from 'src/components/admin/JeepneyManagement.vue'
 import PlacesManagement from 'src/components/admin/PlacesManagement.vue'
+import EventsManagement from 'src/components/admin/EventsManagement.vue'
+import AdminsManagement from 'src/components/admin/AdminsManagement.vue'
 import PhotosManagement from 'src/components/admin/PhotosManagement.vue'
 import AnalyticsManagement from 'src/components/admin/AnalyticsManagement.vue'
 
@@ -421,7 +422,6 @@ export default {
   name: 'AdminDashboard',
 
   components: {
-    RoutesManagement,
     JeepneyManagement,
     PlacesManagement,
     EventsManagement,
