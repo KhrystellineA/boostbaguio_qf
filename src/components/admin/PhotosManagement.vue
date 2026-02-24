@@ -1411,18 +1411,9 @@ export default {
         }
       }).onOk(async () => {
         try {
-          const storage = getStorage()
-
-          for (const image of this.pages.homeGallery) {
-            if (image.imagePath) {
-              try {
-                const imageRef = ref(storage, image.imagePath)
-                await deleteObject(imageRef)
-              } catch (error) {
-                console.log('[Gallery] Could not delete:', error.message)
-              }
-            }
-          }
+          // Note: Cloudinary deletion requires server-side API
+          // For now, we just remove from Firestore
+          // Images will remain in Cloudinary but won't be displayed
 
           this.pages.homeGallery = []
 
@@ -1461,38 +1452,44 @@ export default {
       this.uploadingGuideStep = true
 
       try {
-        const storage = getStorage()
-        const timestamp = Date.now()
-        const fileName = `home-guide_step${stepIndex + 1}_${timestamp}_${file.name}`
-        const storageRef = ref(storage, `pagePhotos/guide/${fileName}`)
+        const { uploadOptimizedImage } = await import('src/utils/cloudinary')
 
-        await uploadBytes(storageRef, file)
-        const downloadURL = await getDownloadURL(storageRef)
+        console.log('[Guide] Uploading to Cloudinary...')
 
-        if (this.pages.homeGuide[stepIndex] && this.pages.homeGuide[stepIndex].imagePath) {
-          try {
-            const oldImageRef = ref(storage, this.pages.homeGuide[stepIndex].imagePath)
-            await deleteObject(oldImageRef)
-          } catch (error) {
-            console.log('[Guide] Could not delete old step image:', error.message)
+        // Upload with automatic compression and optimization
+        const uploadResult = await uploadOptimizedImage(
+          file,
+          'baguiboost/page-photos/guide',
+          {
+            maxWidth: 1920,
+            maxHeight: 1080,
+            quality: 0.85,
+            format: 'image/webp'
           }
-        }
+        )
+
+        console.log('[Guide] Upload successful:', uploadResult.url)
+
+        // Note: Cloudinary deletion requires server-side API
+        // Old images will remain in Cloudinary but won't be referenced
 
         const newImage = {
-          imageUrl: downloadURL,
-          imagePath: `pagePhotos/guide/${fileName}`,
+          imageUrl: uploadResult.url,
+          imagePublicId: uploadResult.publicId,
+          imageWidth: uploadResult.width,
+          imageHeight: uploadResult.height,
         }
 
         while (this.pages.homeGuide.length < 3) {
           this.pages.homeGuide.push(null)
         }
-        
+
         this.pages.homeGuide[stepIndex] = newImage
 
         const docRef = doc(db, 'pagePhotos', 'home-guide')
         await setDoc(docRef, {
           pageName: 'home-guide',
-          images: this.pages.homeGuide.filter(img => img !== null), 
+          images: this.pages.homeGuide.filter(img => img !== null),
           updatedAt: serverTimestamp(),
         })
 
@@ -1525,24 +1522,16 @@ export default {
         persistent: false
       }).onOk(async () => {
         try {
-          const storage = getStorage()
-          const image = this.pages.homeGuide[stepIndex]
-
-          if (image && image.imagePath) {
-            try {
-              const imageRef = ref(storage, image.imagePath)
-              await deleteObject(imageRef)
-            } catch (error) {
-              console.log('[Guide] Could not delete storage file:', error.message)
-            }
-          }
+          // Note: Cloudinary deletion requires server-side API
+          // For now, we just remove from Firestore
+          // Image will remain in Cloudinary but won't be displayed
 
           this.pages.homeGuide[stepIndex] = null
 
           const docRef = doc(db, 'pagePhotos', 'home-guide')
           await setDoc(docRef, {
             pageName: 'home-guide',
-            images: this.pages.homeGuide.filter(img => img !== null), 
+            images: this.pages.homeGuide.filter(img => img !== null),
             updatedAt: serverTimestamp(),
           })
 
@@ -1575,18 +1564,9 @@ export default {
         }
       }).onOk(async () => {
         try {
-          const storage = getStorage()
-
-          for (const image of this.pages.homeGuide) {
-            if (image && image.imagePath) {
-              try {
-                const imageRef = ref(storage, image.imagePath)
-                await deleteObject(imageRef)
-              } catch (error) {
-                console.log('[Guide] Could not delete:', error.message)
-              }
-            }
-          }
+          // Note: Cloudinary deletion requires server-side API
+          // For now, we just remove from Firestore
+          // Images will remain in Cloudinary but won't be displayed
 
           this.pages.homeGuide = []
 
