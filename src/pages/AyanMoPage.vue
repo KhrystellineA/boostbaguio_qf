@@ -46,8 +46,8 @@
       </div>
     </section>
 
-    <!-- AYAN MO FEATURE SECTION (Section 3) -->
-    <section class="feature-section bg-grey-1 q-py-xl">
+    <!-- AYAN MO SECTION (Section 3) -->
+    <section class="ayan-mo-section bg-grey-1 q-py-xl">
       <div class="container">
         <div class="text-center q-mb-xl">
           <h2 class="text-h3 text-weight-bold text-primary">Find Places Near You</h2>
@@ -122,63 +122,61 @@
             </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- RESULTS SECTION (Section 4) -->
-    <section class="results-section bg-white q-py-xl">
-      <div class="container">
-        <div class="text-center q-mb-xl">
-          <h2 class="text-h3 text-weight-bold text-primary">Nearby Places</h2>
-          <p class="text-body1" v-if="userLocation">
-            Showing results near your location ({{ userLocation.latitude.toFixed(4) }}, {{ userLocation.longitude.toFixed(4) }})
-          </p>
-          <p class="text-body1" v-else>Select a location to see nearby places</p>
-        </div>
+        <!-- Results Section - Combined -->
+        <div class="results-section q-mt-xl">
+          <div class="text-center q-mb-xl">
+            <h3 class="text-h4 text-weight-bold text-primary">Nearby Places</h3>
+            <p class="text-body1" v-if="userLocation">
+              Showing results near your location ({{ userLocation.latitude.toFixed(4) }}, {{ userLocation.longitude.toFixed(4) }})
+            </p>
+            <p class="text-body1" v-else>Select a location to see nearby places</p>
+          </div>
 
-        <div v-if="isLoadingPlaces" class="text-center q-py-xl">
-          <q-spinner-hourglass color="primary" size="60px" />
-          <p class="q-mt-md text-grey-7">Finding nearby places...</p>
-        </div>
+          <div v-if="isLoadingPlaces" class="text-center q-py-xl">
+            <q-spinner-hourglass color="primary" size="60px" />
+            <p class="q-mt-md text-grey-7">Finding nearby places...</p>
+          </div>
 
-        <div v-else-if="filteredPlaces.length === 0" class="text-center q-py-xl">
-          <q-icon name="place" size="80px" color="grey-5" />
-          <h3 class="text-grey-7 q-mt-md">No Places Found</h3>
-          <p class="text-grey-6">
-            {{ userLocation ? 'No places found near your current location' : 'Please select a location to find nearby places' }}
-          </p>
-        </div>
+          <div v-else-if="filteredPlaces.length === 0" class="text-center q-py-xl">
+            <q-icon name="place" size="80px" color="grey-5" />
+            <h3 class="text-grey-7 q-mt-md">No Places Found</h3>
+            <p class="text-grey-6">
+              {{ userLocation ? 'No places found near your current location' : 'Please select a location to find nearby places' }}
+            </p>
+          </div>
 
-        <div v-else class="places-grid">
-          <q-card
-            v-for="place in filteredPlaces"
-            :key="place.id"
-            class="bento-card q-ma-sm"
-            @click="selectPlace(place)"
-          >
-            <q-img
-              :src="place.imageUrl || '~assets/place-default.jpg'"
-              spinner-color="primary"
-              class="place-image"
-            />
-            <q-card-section>
-              <div class="row items-center justify-between">
-                <div>
-                  <div class="text-h6 text-primary">{{ place.name }}</div>
-                  <div class="text-subtitle2">{{ place.category }}</div>
+          <div v-else class="places-grid">
+            <q-card
+              v-for="place in filteredPlaces"
+              :key="place.id"
+              class="bento-card q-ma-sm"
+              @click="selectPlace(place)"
+            >
+              <q-img
+                :src="place.imageUrl || '~assets/place-default.jpg'"
+                spinner-color="primary"
+                class="place-image"
+              />
+              <q-card-section>
+                <div class="row items-center justify-between">
+                  <div>
+                    <div class="text-h6 text-primary">{{ place.name }}</div>
+                    <div class="text-subtitle2">{{ place.category }}</div>
+                  </div>
+                  <q-badge color="secondary" class="text-capitalize">
+                    {{ calculateDistance(place) }} km
+                  </q-badge>
                 </div>
-                <q-badge color="secondary" class="text-capitalize">
-                  {{ calculateDistance(place) }} km
-                </q-badge>
-              </div>
-              <p class="text-body2 q-mt-md">
-                {{ truncateText(place.description, 80) }}
-              </p>
-            </q-card-section>
-            <q-card-actions>
-              <q-btn flat color="primary" @click.stop="selectPlace(place)">View Details</q-btn>
-            </q-card-actions>
-          </q-card>
+                <p class="text-body2 q-mt-md">
+                  {{ truncateText(place.description, 80) }}
+                </p>
+              </q-card-section>
+              <q-card-actions>
+                <q-btn flat color="primary" @click.stop="selectPlace(place)">View Details</q-btn>
+              </q-card-actions>
+            </q-card>
+          </div>
         </div>
       </div>
     </section>
@@ -666,7 +664,7 @@ export default defineComponent({
   padding: 0 20px;
 }
 
-.feature-section {
+.ayan-mo-section {
   background-color: #F5F5F5;
 }
 
