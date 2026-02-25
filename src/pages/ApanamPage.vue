@@ -422,11 +422,7 @@
     </section>
 
     <!-- FAQS SECTION (Section 5) -->
-    <section class="faqs-section bg-white q-py-xl">
-      <div class="container">
-        <FAQSection />
-      </div>
-    </section>
+    <FAQSection />
 
     <!-- FOOTER SECTION (Section 6) -->
     <FooterSection />
@@ -435,6 +431,7 @@
 
 <script>
 import { defineComponent, ref, onMounted, onUnmounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -452,6 +449,7 @@ export default defineComponent({
   },
   setup() {
     const $q = useQuasar()
+    const route = useRoute()
     const optionsSection = ref(null)
     const fromLocation = ref(null)
     const toLocation = ref(null)
@@ -466,17 +464,41 @@ export default defineComponent({
     const map = ref(null)
     const isScrolled = ref(false)
 
-    // Location options
+    // Location options - All 33 destinations from Maykan
     const locationOptions = [
-      { label: 'SM Baguio', value: 'sm', coords: [16.4122, 120.5948] },
-      { label: 'Burnham Park', value: 'burnham', coords: [16.4178, 120.6012] },
-      { label: 'Session Road', value: 'session', coords: [16.4145, 120.5972] },
+      { label: 'SM City Baguio', value: 'sm-baguio', coords: [16.4088516, 120.5972273] },
+      { label: 'Burnham Park', value: 'burnham-park', coords: [16.40954, 120.594808] },
+      { label: 'Session Road', value: 'session-road', coords: [16.4091098, 120.597576] },
+      { label: 'Baguio Cathedral', value: 'baguio-cathedral', coords: [16.412766, 120.598469] },
+      { label: 'Baguio City Market', value: 'baguio-market', coords: [16.4149596, 120.5929984] },
+      { label: 'Camp John Hay', value: 'camp-john-hay', coords: [16.397029, 120.608785] },
+      { label: 'Mines View Park', value: 'mines-view', coords: [16.4240885, 120.6212975] },
+      { label: 'Wright Park', value: 'wright-park', coords: [16.4156996, 120.6123524] },
+      { label: 'The Mansion', value: 'the-mansion', coords: [16.4123678, 120.6188978] },
+      { label: "Teacher's Camp", value: 'teachers-camp', coords: [16.4130217, 120.6072952] },
+      { label: 'Botanical Garden', value: 'botanical-garden', coords: [16.4176, 120.597] },
+      { label: 'Baguio Convention Center', value: 'convention-center', coords: [16.409, 120.594] },
+      { label: 'Baguio General Hospital', value: 'bgh', coords: [16.4068, 120.5995] },
       { label: 'University of Baguio', value: 'ub', coords: [16.4111, 120.6005] },
       { label: 'Saint Louis University', value: 'slu', coords: [16.4133, 120.5967] },
       { label: 'Good Shepherd Convent', value: 'good-shepherd', coords: [16.4196, 120.604] },
       { label: 'Tam-awan Village', value: 'tam-awan', coords: [16.4231, 120.5889] },
       { label: 'Lourdes Grotto', value: 'lourdes-grotto', coords: [16.4253, 120.5972] },
       { label: 'PMA (Philippine Military Academy)', value: 'pma', coords: [16.3928, 120.5962] },
+      { label: 'BenCab Museum', value: 'bencab-museum', coords: [16.3989, 120.5756] },
+      { label: 'Strawberry Farm', value: 'strawberry-farm', coords: [16.3989, 120.5989] },
+      { label: 'Igorot Stone Kingdom', value: 'igorot-stone-kingdom', coords: [16.4589, 120.5889] },
+      { label: 'Baguio National Museum', value: 'national-museum', coords: [16.4156, 120.5989] },
+      { label: 'Mirador Park', value: 'mirador-park', coords: [16.4267, 120.5956] },
+      { label: 'Baguio Craft Brewery', value: 'craft-brewery', coords: [16.4056, 120.5989] },
+      { label: 'Café by the Ruins', value: 'cafe-ruins', coords: [16.4145, 120.6012] },
+      { label: 'Volcano Island Coffee', value: 'volcano-coffee', coords: [16.4145, 120.5972] },
+      { label: 'Pinecone House', value: 'pinecone-house', coords: [16.4123, 120.5967] },
+      { label: 'Baguio Country Club', value: 'country-club', coords: [16.4089, 120.6123] },
+      { label: 'La Trinidad Fish Market', value: 'fish-market', coords: [16.3989, 120.5956] },
+      { label: 'Baguio Sunset Point', value: 'sunset-point', coords: [16.4189, 120.5856] },
+      { label: 'Baguio Heritage Park', value: 'heritage-park', coords: [16.4112, 120.5945] },
+      { label: 'Baguio Arts Village', value: 'arts-village', coords: [16.4245, 120.5878] },
       { label: 'Other', value: 'other' },
     ]
 
@@ -864,11 +886,47 @@ export default defineComponent({
     onMounted(async () => {
       await fetchHeroImage()
       await fetchJeepneyOptions()
-      
+
+      // Handle query parameters from IndexPage (hero section inputs)
+      if (route.query.toName) {
+        // Set destination from query
+        const toCoords = [parseFloat(route.query.toLat), parseFloat(route.query.toLng)]
+        toLocation.value = {
+          label: route.query.toName,
+          value: 'custom-from-query',
+          coords: toCoords
+        }
+
+        // Set starting point if provided
+        if (route.query.fromName) {
+          const fromCoords = [parseFloat(route.query.fromLat), parseFloat(route.query.fromLng)]
+          fromLocation.value = {
+            label: route.query.fromName,
+            value: 'custom-from-query',
+            coords: fromCoords
+          }
+        } else if (route.query.fromLat && route.query.fromLng) {
+          // Using current location
+          fromLocation.value = {
+            label: '📍 Current Location',
+            value: 'current-location',
+            coords: [parseFloat(route.query.fromLat), parseFloat(route.query.fromLng)]
+          }
+        }
+
+        // Scroll to navigation section
+        setTimeout(() => {
+          const navSection = document.querySelector('.navigation-section')
+          if (navSection) {
+            navSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }
+        }, 500)
+      }
+
       // Initialize map if there's a selected option
       if (selectedOption.value && document.getElementById('map')) {
         map.value = L.map('map').setView([16.4122, 120.5948], 13)
-        
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map.value)
@@ -1032,10 +1090,6 @@ export default defineComponent({
 
 .tutorial-section {
   background-color: #F5F5F5;
-}
-
-.faqs-section {
-  background-color: white;
 }
 
 .bg-primary {

@@ -10,7 +10,7 @@
  */
 
 import { db } from 'src/boot/firebase'
-import { collection, addDoc, serverTimestamp, doc, updateDoc, arrayUnion, query, where, getDocs, increment } from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp, doc, updateDoc, query, where, getDocs, increment } from 'firebase/firestore'
 
 /**
  * Track a place search

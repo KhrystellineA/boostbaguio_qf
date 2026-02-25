@@ -386,10 +386,13 @@ $accent: #FFD60A;
 $bg-light: #F8F9FA;
 $text-dark: #2D3436;
 $text-muted: #636E72;
+$white: #FFFFFF;
+$dark-green: #1B4332;
+$light-green: #9EC98F;
+$brown: #6B5344;
 
 .main-toolbar {
-  background: rgba(255, 255, 255, 0.95) !important;
-  backdrop-filter: blur(20px);
+  background: $white !important;
   border-bottom: 1px solid rgba(46, 93, 62, 0.1);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 0 32px;
@@ -397,8 +400,7 @@ $text-muted: #636E72;
   gap: 16px;
 
   &.scrolled {
-    background: rgba(255, 255, 255, 0.98) !important;
-    backdrop-filter: blur(20px);
+    background: $white !important;
     box-shadow: 0 4px 20px rgba(46, 93, 62, 0.08);
     border-bottom: none;
     height: 64px;

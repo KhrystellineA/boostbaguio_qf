@@ -77,21 +77,29 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// Color Palette Variables
+$dark-green: #1B4332;
+$primary-green: #2E5D3E;
+$light-green: #9EC98F;
+$brown: #6B5344;
+$white: #FFFFFF;
+
 .about-section {
-  background: #9ec98f;
-  padding: 5rem 0;
+  background: $light-green;
+  padding: 6rem 0;
+  position: relative;
 }
 
 .container-about {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 3rem;
 }
 
 .about-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4rem;
+  gap: 5rem;
   align-items: center;
 }
 
@@ -105,33 +113,49 @@ export default {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   margin-bottom: 1.5rem;
-  color: #2c3e50;
+  color: $white;
+  background: rgba($white, 0.2);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba($white, 0.3);
+    transform: scale(1.05);
+  }
 }
 
 .about-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 1.25rem;
+  font-size: 2rem;
+  font-weight: 800;
+  color: $white;
+  margin-bottom: 1.5rem;
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 
 .about-description {
-  font-size: 0.95rem;
-  color: #2c3e50;
-  line-height: 1.7;
-  max-width: 500px;
+  font-size: 1.05rem;
+  color: rgba($white, 0.95);
+  line-height: 1.8;
+  max-width: 550px;
+  font-weight: 300;
 }
 
 // Right Image
 .about-image {
-  border-radius: 12px;
+  border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba($white, 0.2);
+  transition: transform 0.4s ease;
+
+  &:hover {
+    transform: scale(1.02);
+  }
 }
 
 .about-img {
@@ -143,16 +167,20 @@ export default {
 // Responsive
 @media (max-width: 1023px) {
   .about-section {
-    padding: 4rem 0;
+    padding: 5rem 0;
+  }
+
+  .container-about {
+    padding: 0 2rem;
   }
 
   .about-grid {
     grid-template-columns: 1fr;
-    gap: 2.5rem;
+    gap: 3rem;
   }
 
   .about-title {
-    font-size: 1.5rem;
+    font-size: 1.75rem;
   }
 
   .about-description {
@@ -162,29 +190,28 @@ export default {
 
 @media (max-width: 599px) {
   .about-section {
-    padding: 3rem 0;
+    padding: 4rem 0;
+  }
+
+  .container-about {
+    padding: 0 1.5rem;
   }
 
   .about-grid {
-    gap: 2rem;
+    gap: 2.5rem;
   }
 
   .about-title {
-    font-size: 1.35rem;
+    font-size: 1.5rem;
   }
 
   .about-description {
-    font-size: 0.875rem;
+    font-size: 0.95rem;
   }
 
   .about-icon {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 1rem;
-
-    .q-icon {
-      font-size: 40px;
-    }
+    width: 56px;
+    height: 56px;
   }
 }
 </style>

@@ -21,20 +21,12 @@
           <div class="hero-content">
             <div class="content-grid">
               <div class="left-content">
-                <h1 class="hero-title scroll-animate">NAVIGATE BAGUIO'S<br />JEEPNEYS WITH EASE</h1>
+                <h1 class="hero-title scroll-animate">BOOST BAGUIO</h1>
                 <p class="hero-description scroll-animate">
-                  Boost Baguio is your go-to app for seamless jeepney navigation in Baguio City.
-                  Discover curated tourist spots, real-time updates, and eco-friendly routes — all
-                  at your fingertips!
+                  Commute like a local in Baguio with ease. Discover tourist spots, events, and nearby attractions
+                  right at the palm of your hand!
                 </p>
-                <q-btn
-                  label="Learn More"
-                  unelevated
-                  rounded
-                  class="learn-more-btn scroll-animate"
-                  size="md"
-                  @click="scrollToFeatures"
-                />
+                <p class="hero-tagline scroll-animate">Navigate. Connect. Sustain.</p>
               </div>
 
               <div class="right-content">
@@ -114,22 +106,34 @@
     </section>
 
     <section class="partners-section">
-      <div class="container-custom">
+      <div class="partners-wrapper">
         <h2 class="partners-title scroll-animate">Our Partners</h2>
-        <div class="partners-grid">
-          <div class="partner-card scroll-animate" v-for="(partner, index) in partners" :key="index">
-            <div class="partner-icon">
-              <q-icon :name="partner.icon" size="48px" color="primary" />
+        <div class="partners-marquee">
+          <div class="partners-track">
+            <!-- First set of partners -->
+            <div class="partners-row">
+              <div class="partner-card" v-for="(partner, index) in partners" :key="index">
+                <div class="partner-icon">
+                  <q-icon :name="partner.icon" size="48px" color="primary" />
+                </div>
+                <div class="partner-name">{{ partner.name }}</div>
+              </div>
             </div>
-            <div class="partner-name">{{ partner.name }}</div>
+            <!-- Duplicate set for seamless loop -->
+            <div class="partners-row" aria-hidden="true">
+              <div class="partner-card" v-for="(partner, index) in partners" :key="`dup-${index}`">
+                <div class="partner-icon">
+                  <q-icon :name="partner.icon" size="48px" color="primary" />
+                </div>
+                <div class="partner-name">{{ partner.name }}</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <FeaturesSection />
-
-    <GuideSection />
 
     <AboutSection />
 
@@ -148,7 +152,6 @@ import { useQuasar } from 'quasar'
 import { db } from 'src/boot/firebase'
 import { doc, getDoc } from 'firebase/firestore'
 import FeaturesSection from '../components/Home/FeaturesSection.vue'
-import GuideSection from '../components/Home/GuideSection.vue'
 import AboutSection from '../components/Home/AboutSection.vue'
 import GallerySection from '../components/Home/GallerySection.vue'
 import FAQSection from '../components/Home/FAQSection.vue'
@@ -158,7 +161,6 @@ export default {
   name: 'BaguioHero',
   components: {
     FeaturesSection,
-    GuideSection,
     AboutSection,
     GallerySection,
     FAQSection,
@@ -202,6 +204,20 @@ export default {
       { label: 'Tam-awan Village', value: 'tam-awan', coords: [16.4231, 120.5889] },
       { label: 'Lourdes Grotto', value: 'lourdes-grotto', coords: [16.4253, 120.5972] },
       { label: 'PMA (Philippine Military Academy)', value: 'pma', coords: [16.3928, 120.5962] },
+      { label: 'BenCab Museum', value: 'bencab-museum', coords: [16.3989, 120.5756] },
+      { label: 'Strawberry Farm', value: 'strawberry-farm', coords: [16.3989, 120.5989] },
+      { label: 'Igorot Stone Kingdom', value: 'igorot-stone-kingdom', coords: [16.4589, 120.5889] },
+      { label: 'Baguio National Museum', value: 'national-museum', coords: [16.4156, 120.5989] },
+      { label: 'Mirador Park', value: 'mirador-park', coords: [16.4267, 120.5956] },
+      { label: 'Baguio Craft Brewery', value: 'craft-brewery', coords: [16.4056, 120.5989] },
+      { label: 'Café by the Ruins', value: 'cafe-ruins', coords: [16.4145, 120.6012] },
+      { label: 'Volcano Island Coffee', value: 'volcano-coffee', coords: [16.4145, 120.5972] },
+      { label: 'Pinecone House', value: 'pinecone-house', coords: [16.4123, 120.5967] },
+      { label: 'Baguio Country Club', value: 'country-club', coords: [16.4089, 120.6123] },
+      { label: 'La Trinidad Fish Market', value: 'fish-market', coords: [16.3989, 120.5956] },
+      { label: 'Baguio Sunset Point', value: 'sunset-point', coords: [16.4189, 120.5856] },
+      { label: 'Baguio Heritage Park', value: 'heritage-park', coords: [16.4112, 120.5945] },
+      { label: 'Baguio Arts Village', value: 'arts-village', coords: [16.4245, 120.5878] },
     ]
 
     const loadHeroImage = async () => {
@@ -384,8 +400,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// Color Palette Variables
+$dark-green: #1B4332;
+$primary-green: #2E5D3E;
+$light-green: #9EC98F;
+$brown: #6B5344;
+$white: #FFFFFF;
+
 .page-wrapper {
-  background: #F5F5F5 !important;
+  background: $white !important;
   min-height: 100vh;
 }
 
@@ -493,25 +516,27 @@ export default {
   min-height: 100vh !important;
   display: flex;
   align-items: center;
-  padding: 2rem 0;
-  background: linear-gradient(135deg, #2E5D3E 0%, #4A7D5D 100%) !important;
+  padding: 3rem 0;
+  background: $dark-green !important;
   position: relative;
 }
 
 .container-custom {
-  max-width: 1280px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 3rem;
   width: 100%;
+  position: relative;
+  z-index: 1;
 }
 
 .hero-box {
   position: relative;
   width: 100%;
-  height: 600px;
-  border-radius: 24px;
+  height: 650px;
+  border-radius: 32px;
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 .hero-bg-wrapper {
@@ -544,13 +569,13 @@ export default {
   height: 100%;
   display: flex;
   align-items: center;
-  padding: 3rem;
+  padding: 4rem;
 }
 
 .content-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 4rem;
   width: 100%;
   align-items: center;
 }
@@ -562,21 +587,34 @@ export default {
 }
 
 .hero-title {
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-size: 3.5rem;
+  font-weight: 800;
   color: white;
-  line-height: 1.2;
-  margin-bottom: 1.25rem;
-  letter-spacing: 0.03em;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
 
 .hero-description {
-  font-size: 0.95rem;
-  color: white;
-  line-height: 1.6;
-  margin-bottom: 1.75rem;
-  opacity: 0.95;
+  font-size: 1.1rem;
+  color: rgba($white, 0.95);
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+  font-weight: 300;
+  max-width: 540px;
+}
+
+.hero-tagline {
+  font-size: 1.25rem;
+  color: rgba($white, 0.85);
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba($white, 0.2);
 }
 
 .learn-more-btn {
@@ -603,137 +641,249 @@ export default {
 }
 
 .route-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(12px);
-  border-radius: 20px;
-  padding: 2rem;
+  background: rgba($white, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 2.5rem;
   width: 100%;
-  max-width: 420px;
-  transition: transform 0.3s ease;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  max-width: 460px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba($white, 0.2);
 
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-8px);
+    box-shadow: 
+      0 30px 80px rgba(0, 0, 0, 0.25),
+      0 0 0 1px rgba($white, 0.3);
   }
 }
 
 .card-header {
   display: flex;
   align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid rgba($primary-green, 0.1);
 }
 
 .card-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #2E5D3E;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: $primary-green;
+  letter-spacing: 0.02em;
 }
 
 .input-group {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 
   &:last-of-type {
-    margin-bottom: 1.75rem;
+    margin-bottom: 2rem;
   }
 }
 
 .input-label {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  color: #4a4a4a;
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.08em;
+  color: $brown;
+  margin-bottom: 0.625rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .custom-input {
   :deep(.q-field__control) {
-    border-radius: 10px;
-    min-height: 48px;
-    background: white;
+    border-radius: 12px;
+    min-height: 52px;
+    background: $white;
     transition: all 0.3s ease;
+    border: 1px solid rgba($primary-green, 0.15);
 
     &:hover {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 12px rgba($primary-green, 0.1);
+      border-color: $primary-green;
+    }
+
+    &.q-field--focused {
+      border-color: $primary-green;
+      box-shadow: 0 4px 16px rgba($primary-green, 0.15);
     }
   }
 
   :deep(.q-field__native) {
     font-size: 0.95rem;
+    color: $dark-green;
+  }
+
+  :deep(.q-field__label) {
+    color: #999;
   }
 }
 
 .start-nav-btn {
-  background: #2E5D3E !important;
+  background: $primary-green !important;
   color: white !important;
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: 12px;
   text-transform: none;
-  font-size: 0.9rem;
+  font-size: 1rem;
   width: 100%;
-  height: 48px;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  transition: all 0.3s ease;
+  height: 52px;
+  letter-spacing: 0.02em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba($primary-green, 0.3);
 
   &:hover {
-    background: #4A7D5D !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba($primary-green, 0.4);
+    background: $dark-green !important;
+  }
+
+  &:active {
+    transform: translateY(-1px);
   }
 }
 
 .partners-section {
-  background: white;
-  padding: 4rem 0;
+  background: $white;
+  padding: 5rem 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.partners-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 3rem;
+  width: 100%;
 }
 
 .partners-title {
   text-align: center;
-  color: #2E5D3E;
-  font-size: 1.8rem;
+  color: $primary-green;
+  font-size: 2rem;
   font-weight: 700;
-  margin-bottom: 3rem;
+  margin-bottom: 3.5rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, $primary-green, $light-green);
+    border-radius: 2px;
+  }
 }
 
-.partners-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2rem;
-  max-width: 1000px;
-  margin: 0 auto;
+.partners-marquee {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding: 1rem 0;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 150px;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  &::before {
+    left: 0;
+    background: linear-gradient(90deg, $white 0%, transparent 100%);
+  }
+
+  &::after {
+    right: 0;
+    background: linear-gradient(-90deg, $white 0%, transparent 100%);
+  }
+}
+
+.partners-track {
+  display: flex;
+  width: max-content;
+  animation: scrollPartners 35s linear infinite;
+}
+
+.partners-row {
+  display: flex;
+  gap: 3rem;
+  padding-right: 3rem;
+}
+
+@keyframes scrollPartners {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
 .partner-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem;
-  border-radius: 12px;
-  background: #F9F9F9;
-  transition: all 0.3s ease;
+  padding: 2.5rem 2rem;
+  border-radius: 20px;
+  background: $white;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   text-align: center;
+  min-width: 220px;
+  border: 1px solid rgba($primary-green, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 
   &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    background: #F5F5F5;
+    transform: translateY(-10px);
+    box-shadow: 0 12px 40px rgba($primary-green, 0.15);
+    background: rgba($light-green, 0.05);
+    border-color: rgba($primary-green, 0.2);
   }
 }
 
 .partner-icon {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 16px;
+  background: rgba($light-green, 0.1);
+  transition: all 0.3s ease;
+
+  .partner-card:hover & {
+    background: rgba($light-green, 0.2);
+    transform: scale(1.1);
+  }
 }
 
 .partner-name {
   font-weight: 600;
-  color: #212121;
+  color: $dark-green;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  transition: color 0.3s ease;
+
+  .partner-card:hover & {
+    color: $primary-green;
+  }
 }
 
 @media (max-width: 1023px) {
   .hero-section {
-    padding: 1rem 0;
+    padding: 2rem 0;
   }
 
   .hero-box {
@@ -742,16 +892,21 @@ export default {
   }
 
   .hero-content {
-    padding: 2rem;
+    padding: 2.5rem;
   }
 
   .content-grid {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 3rem;
   }
 
   .hero-title {
-    font-size: 2rem;
+    font-size: 2.5rem;
+  }
+
+  .hero-description {
+    font-size: 1rem;
+    max-width: 100%;
   }
 
   .right-content {
@@ -768,41 +923,89 @@ export default {
       animation-delay: 0.4s;
     }
   }
+
+  .partners-section {
+    padding: 4rem 0;
+  }
+
+  .partners-wrapper {
+    padding: 0 2rem;
+  }
+
+  .partners-title {
+    font-size: 1.75rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .partner-card {
+    min-width: 180px;
+    padding: 2rem 1.5rem;
+  }
 }
 
 @media (max-width: 599px) {
-  .hero-section {
-    padding: 0.5rem;
+  .container-custom {
+    padding: 0 1.5rem;
   }
 
-  .container-custom {
-    padding: 0 0.5rem;
+  .hero-section {
+    padding: 1rem 0;
   }
 
   .hero-box {
-    border-radius: 16px;
+    border-radius: 20px;
     min-height: calc(100vh - 1rem);
   }
 
   .hero-content {
-    padding: 1.5rem;
+    padding: 2rem;
   }
 
   .hero-title {
-    font-size: 1.75rem;
+    font-size: 2rem;
+    margin-bottom: 1rem;
   }
 
   .hero-description {
-    font-size: 0.875rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .hero-tagline {
+    font-size: 1rem;
+    letter-spacing: 0.1em;
   }
 
   .route-card {
-    padding: 1.5rem;
+    padding: 1.75rem;
   }
 
-  .partners-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  .card-title {
+    font-size: 1.1rem;
+  }
+
+  .partners-section {
+    padding: 3rem 0;
+  }
+
+  .partners-title {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .partners-row {
     gap: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .partner-card {
+    min-width: 150px;
+    padding: 1.5rem 1rem;
+  }
+
+  .partner-icon {
+    width: 60px;
+    height: 60px;
   }
 }
 </style>

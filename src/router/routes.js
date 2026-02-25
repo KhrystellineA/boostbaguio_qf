@@ -20,10 +20,6 @@ const routes = [
         meta: { requiresAuth: true } // ✅ REMOVED userOnly - admins can access too
       },
       {
-        path: '/contact',
-        component: () => import('pages/ContactPage.vue'),
-      },
-      {
         path: '/saved-routes',
         component: () => import('pages/SavedRoutesPage.vue'),
         meta: { requiresAuth: true, requiresPremium: true } // ✅ REMOVED userOnly

@@ -150,10 +150,11 @@ service cloud.firestore {
     }
 
     // ========== PAGE PHOTOS COLLECTION ==========
-    
+
     match /pagePhotos/{photoId} {
-      // Only admins can read/write page photos
-      allow read: if isAuthenticated() && isAdmin();
+      // Anyone can read page photos (for public pages)
+      // Only admins can write/delete page photos
+      allow read: if true;
       allow create: if isAuthenticated() && isAdmin();
       allow update: if isAuthenticated() && isAdmin();
       allow delete: if isAuthenticated() && isAdmin();

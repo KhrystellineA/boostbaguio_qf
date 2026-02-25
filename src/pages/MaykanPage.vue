@@ -470,94 +470,45 @@
       </q-card>
     </q-dialog>
 
-    <!-- CONTACT US SECTION (Section 6) -->
-    <section class="contact-section bg-white q-py-xl">
-      <div class="container">
-        <div class="text-center q-mb-xl">
-          <h2 class="text-h3 text-weight-bold text-primary">Contact Us</h2>
-          <p class="text-body1">Have questions or suggestions? Reach out to us!</p>
+    <!-- FAQS SECTION (Section 7) -->
+    <section class="faqs-section">
+      <div class="container-faqs">
+        <div class="faqs-header">
+          <h2 class="faqs-title">MAYKAN FAQs</h2>
+          <p class="faqs-description">Common questions about discovering places in Baguio</p>
         </div>
-
-        <div class="row justify-center">
-          <div class="col-md-6 col-12">
-            <q-form @submit="submitContact" class="contact-form">
-              <div class="row q-col-gutter-lg">
-                <div class="col-12">
-                  <q-input
-                    v-model="contactForm.name"
-                    filled
-                    label="Name"
-                    required
-                    class="q-mb-sm"
-                  />
-                </div>
-                <div class="col-12">
-                  <q-input
-                    v-model="contactForm.email"
-                    filled
-                    label="Email"
-                    type="email"
-                    required
-                    class="q-mb-sm"
-                  />
-                </div>
-                <div class="col-12">
-                  <q-input
-                    v-model="contactForm.message"
-                    filled
-                    label="Message"
-                    type="textarea"
-                    rows="4"
-                    required
-                    class="q-mb-sm"
-                  />
-                </div>
-                <div class="col-12">
-                  <q-checkbox
-                    v-model="contactForm.acceptTerms"
-                    label="I accept the terms and conditions"
-                    class="q-mb-sm"
-                  />
-                </div>
-                <div class="col-12 text-center">
-                  <q-btn
-                    label="Submit"
-                    type="submit"
-                    color="primary"
-                    class="full-width"
-                    :loading="isSubmitting"
-                  >
-                    <template v-slot:loading>
-                      <q-spinner-facebook />
-                      Sending...
-                    </template>
-                  </q-btn>
-                </div>
-              </div>
-            </q-form>
+        <div class="faqs-grid">
+          <div class="faqs-column">
+            <q-expansion-item
+              v-for="(faq, index) in leftFaqs"
+              :key="index"
+              :label="faq.question"
+              header-class="text-weight-bold"
+              class="faq-item"
+            >
+              <q-card class="bg-transparent">
+                <q-card-section>
+                  {{ faq.answer }}
+                </q-card-section>
+              </q-card>
+            </q-expansion-item>
+          </div>
+          <div class="faqs-column">
+            <q-expansion-item
+              v-for="(faq, index) in rightFaqs"
+              :key="index"
+              :label="faq.question"
+              header-class="text-weight-bold"
+              class="faq-item"
+            >
+              <q-card class="bg-transparent">
+                <q-card-section>
+                  {{ faq.answer }}
+                </q-card-section>
+              </q-card>
+            </q-expansion-item>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- FAQS SECTION (Section 7) -->
-    <section class="faqs-section bg-white q-py-xl">
-      <div class="container">
-        <h3 class="text-h4 text-weight-bold text-primary text-center q-mb-xl">MAYKAN FAQs</h3>
-        <q-list>
-          <q-expansion-item
-            v-for="(faq, index) in faqs"
-            :key="index"
-            :label="faq.question"
-            header-class="text-weight-bold"
-          >
-            <q-card>
-              <q-card-section>
-                {{ faq.answer }}
-              </q-card-section>
-            </q-card>
-          </q-expansion-item>
-        </q-list>
       </div>
     </section>
 
@@ -592,14 +543,7 @@ export default defineComponent({
     const selectedPlace = ref(null)
     const selectedCategory = ref('all')
     const heroImageUrl = ref(fallbackImage)
-    const isSubmitting = ref(false)
     const savedPlacesIds = ref(new Set())
-    const contactForm = ref({
-      name: '',
-      email: '',
-      message: '',
-      acceptTerms: false
-    })
 
     // Carousel state
     const slide = ref(0)
@@ -622,6 +566,9 @@ export default defineComponent({
         answer: 'Place information is regularly updated. We recommend checking the operating hours before visiting.'
       }
     ]
+
+    const leftFaqs = computed(() => faqs.slice(0, 2))
+    const rightFaqs = computed(() => faqs.slice(2))
 
     const categories = [
       { label: 'All Places', value: 'all' },
@@ -851,38 +798,6 @@ export default defineComponent({
       }
     }
 
-    const submitContact = () => {
-      if (!contactForm.value.acceptTerms) {
-        $q.notify({
-          message: 'Please accept the terms and conditions',
-          color: 'warning',
-          position: 'top'
-        })
-        return
-      }
-
-      isSubmitting.value = true
-      
-      // Simulate API call
-      setTimeout(() => {
-        $q.notify({
-          message: 'Thank you for your message! We will get back to you soon.',
-          color: 'positive',
-          position: 'top'
-        })
-        
-        // Reset form
-        contactForm.value = {
-          name: '',
-          email: '',
-          message: '',
-          acceptTerms: false
-        }
-        
-        isSubmitting.value = false
-      }, 1500)
-    }
-
     onMounted(async () => {
       await fetchHeroImage()
       await fetchPlaces()
@@ -896,9 +811,9 @@ export default defineComponent({
       selectedPlace,
       selectedCategory,
       heroImageUrl,
-      isSubmitting,
-      contactForm,
       faqs,
+      leftFaqs,
+      rightFaqs,
       categories,
       filteredPlaces,
       topTouristPlaces,
@@ -909,7 +824,6 @@ export default defineComponent({
       selectPlace,
       navigateToPlace,
       sharePlace,
-      submitContact,
       onSlideChange,
       toggleSavePlace,
       isPlaceSaved,
@@ -1117,19 +1031,61 @@ export default defineComponent({
   object-fit: cover;
 }
 
-.contact-section {
-  background-color: white;
-}
-
-.contact-form {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
 .faqs-section {
-  background-color: white;
+  background: #6B5344;
+  padding: 6rem 0;
+  color: white;
+}
+
+.container-faqs {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 3rem;
+}
+
+.faqs-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.faqs-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.faqs-description {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.faqs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2.5rem;
+}
+
+.faqs-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.faq-item {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  transition: all 0.3s;
+}
+
+.faq-item:hover {
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .bg-primary {

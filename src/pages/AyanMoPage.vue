@@ -251,23 +251,44 @@
     </section>
 
     <!-- FAQS SECTION (Section 6) -->
-    <section class="faqs-section bg-white q-py-xl">
-      <div class="container">
-        <h3 class="text-h4 text-weight-bold text-primary text-center q-mb-xl">AYAN MO FAQs</h3>
-        <q-list>
-          <q-expansion-item
-            v-for="(faq, index) in faqs"
-            :key="index"
-            :label="faq.question"
-            header-class="text-weight-bold"
-          >
-            <q-card>
-              <q-card-section>
-                {{ faq.answer }}
-              </q-card-section>
-            </q-card>
-          </q-expansion-item>
-        </q-list>
+    <section class="faqs-section">
+      <div class="container-faqs">
+        <div class="faqs-header">
+          <h2 class="faqs-title">AYAN MO FAQs</h2>
+          <p class="faqs-description">Common questions about discovering nearby places</p>
+        </div>
+        <div class="faqs-grid">
+          <div class="faqs-column">
+            <q-expansion-item
+              v-for="(faq, index) in leftFaqs"
+              :key="index"
+              :label="faq.question"
+              header-class="text-weight-bold"
+              class="faq-item"
+            >
+              <q-card class="bg-transparent">
+                <q-card-section>
+                  {{ faq.answer }}
+                </q-card-section>
+              </q-card>
+            </q-expansion-item>
+          </div>
+          <div class="faqs-column">
+            <q-expansion-item
+              v-for="(faq, index) in rightFaqs"
+              :key="index"
+              :label="faq.question"
+              header-class="text-weight-bold"
+              class="faq-item"
+            >
+              <q-card class="bg-transparent">
+                <q-card-section>
+                  {{ faq.answer }}
+                </q-card-section>
+              </q-card>
+            </q-expansion-item>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -333,6 +354,9 @@ export default defineComponent({
         answer: 'Click on any place in the results list, then use the "Get Directions via APANAM" button to navigate to the location.'
       }
     ]
+
+    const leftFaqs = computed(() => faqs.slice(0, 2))
+    const rightFaqs = computed(() => faqs.slice(2))
 
     // Filter places based on search query and category
     const filteredPlaces = computed(() => {
@@ -553,6 +577,8 @@ export default defineComponent({
       isLoadingPlaces,
       categories,
       faqs,
+      leftFaqs,
+      rightFaqs,
       filteredPlaces,
       getCurrentLocation,
       filterByCategory,
@@ -717,7 +743,60 @@ export default defineComponent({
 }
 
 .faqs-section {
-  background-color: white;
+  background: #6B5344;
+  padding: 6rem 0;
+  color: white;
+}
+
+.container-faqs {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 3rem;
+}
+
+.faqs-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.faqs-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.faqs-description {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.faqs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2.5rem;
+}
+
+.faqs-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.faq-item {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  transition: all 0.3s;
+}
+
+.faq-item:hover {
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .bg-primary {

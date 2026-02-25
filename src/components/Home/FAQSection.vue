@@ -51,13 +51,6 @@
           </q-expansion-item>
         </div>
       </div>
-
-      <!-- Bottom CTA -->
-      <div class="faqs-cta">
-        <h3 class="cta-title">STILL HAVE QUESTIONS?</h3>
-        <p class="cta-description">We're here to help you!</p>
-        <q-btn label="Contact" unelevated rounded class="contact-btn" size="md" to="/contact" />
-      </div>
     </div>
   </section>
 </template>
@@ -133,78 +126,98 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// Color Palette Variables
+$dark-green: #1B4332;
+$primary-green: #2E5D3E;
+$light-green: #9EC98F;
+$brown: #6B5344;
+$white: #FFFFFF;
+
 .faqs-section {
-  background: #6b5344;
-  padding: 5rem 0;
-  color: white;
+  background: $brown;
+  padding: 6rem 0;
+  color: $white;
+  position: relative;
 }
 
 .container-faqs {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 3rem;
 }
 
 // Header
 .faqs-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
 }
 
 .faqs-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: white;
-  margin-bottom: 0.75rem;
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: $white;
+  margin-bottom: 1rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
 }
 
 .faqs-description {
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1.6;
+  font-size: 1.05rem;
+  color: rgba($white, 0.9);
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 // FAQs Grid
 .faqs-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
+  gap: 2.5rem;
   margin-bottom: 4rem;
 }
 
 .faqs-column {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .faq-item {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  transition: background 0.3s ease;
+  background: rgba($white, 0.1);
+  border: 1px solid rgba($white, 0.2);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba($white, 0.15);
+    border-color: rgba($white, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   }
 
   :deep(.q-item) {
-    padding: 1rem 1.25rem;
+    padding: 1.25rem 1.5rem;
   }
 
   :deep(.q-item__label) {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: white;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: $white;
     text-transform: uppercase;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.05em;
   }
 
   :deep(.q-icon) {
-    color: white;
+    color: $light-green;
     font-size: 20px;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover :deep(.q-icon) {
+    transform: scale(1.1);
   }
 }
 
@@ -214,44 +227,10 @@ export default {
 }
 
 .faq-answer {
-  padding: 0 1.25rem 1.25rem;
-  font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.6;
-}
-
-// Bottom CTA
-.faqs-cta {
-  text-align: center;
-  padding-top: 2rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.cta-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: white;
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.cta-description {
+  padding: 0 1.5rem 1.5rem;
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 1.5rem;
-}
-
-.contact-btn {
-  background: white !important;
-  color: #6b5344 !important;
-  font-weight: 600;
-  padding: 0.625rem 2.5rem;
-  text-transform: none;
-
-  &:hover {
-    background: #f5f5f5 !important;
-  }
+  color: rgba($white, 0.85);
+  line-height: 1.7;
 }
 
 // Responsive

@@ -143,36 +143,45 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+// Color Palette Variables
+$dark-green: #1B4332;
+$primary-green: #2E5D3E;
+$light-green: #9EC98F;
+$brown: #6B5344;
+$white: #FFFFFF;
+
 .gallery-section {
-  background: #f5f5f5;
-  padding: 5rem 0;
+  background: $white;
+  padding: 6rem 0;
 }
 
 .container-gallery {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 3rem;
 }
 
 // Header
 .gallery-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 4rem;
 }
 
 .gallery-title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 0.75rem;
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: $primary-green;
+  margin-bottom: 1rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .gallery-description {
-  font-size: 0.95rem;
-  color: #4a4a4a;
-  line-height: 1.6;
+  font-size: 1.05rem;
+  color: $brown;
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 // Carousel
@@ -183,15 +192,25 @@ export default {
 }
 
 .gallery-carousel {
-  border-radius: 12px;
+  border-radius: 20px;
   overflow: visible;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba($primary-green, 0.1);
+  background: $white;
 
   :deep(.q-carousel__navigation) {
-    bottom: -40px;
-  }
+    bottom: -50px;
 
-  :deep(.q-carousel__navigation-icon) {
-    font-size: 10px;
+    .q-carousel__control {
+      .q-btn {
+        color: $primary-green;
+
+        &.q-btn--active {
+          background: $primary-green;
+        }
+      }
+    }
   }
 }
 
@@ -208,17 +227,17 @@ export default {
 }
 
 .gallery-image-wrapper {
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
   }
 }
 
@@ -244,12 +263,16 @@ export default {
 
 .nav-btn {
   pointer-events: all;
-  background: white;
-  color: #1a1a1a;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: $white;
+  color: $primary-green;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border-radius: 50%;
+  transition: all 0.3s ease;
 
   &:hover {
-    background: #f5f5f5;
+    background: $white;
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
   }
 }
 
