@@ -5,7 +5,23 @@
         <h4 class="q-my-none text-pine-green">Jeepney Management</h4>
         <p class="text-grey-7 q-mb-none">Manage jeepney routes and information</p>
       </div>
-      <div class="col-auto">
+      <div class="col-auto q-gutter-sm">
+        <q-btn
+          outline
+          style="border-color: #2d6a4f; color: #2d6a4f"
+          label="Download CSV Template"
+          icon="download"
+          no-caps
+          @click="downloadCsvTemplate"
+        />
+        <q-btn
+          unelevated
+          style="background: #2d6a4f; color: white"
+          label="Import CSV"
+          icon="upload_file"
+          no-caps
+          @click="showCsvImportDialog = true"
+        />
         <q-btn
           unelevated
           style="background: #2d6a4f; color: white"
@@ -317,6 +333,169 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <!-- CSV Import Dialog -->
+    <q-dialog v-model="showCsvImportDialog" persistent>
+      <q-card style="min-width: 800px; max-width: 1000px">
+        <q-card-section class="bg-primary text-white">
+          <div class="text-h6">
+            <q-icon name="upload_file" class="q-mr-sm" />
+            Import Jeepneys from CSV
+          </div>
+        </q-card-section>
+
+        <q-card-section>
+          <!-- Step 1: File Upload -->
+          <div v-if="importStep === 1">
+            <div class="text-body2 q-mb-md">
+              Upload a CSV file containing jeepney data. Make sure to follow the template format.
+            </div>
+            
+            <q-file
+              v-model="csvFile"
+              outlined
+              label="Select CSV File"
+              accept=".csv"
+              class="q-mb-md"
+              @update:model-value="onCsvFileSelected"
+            >
+              <template #prepend>
+                <q-icon name="attach_file" />
+              </template>
+              <template #hint>
+                Only .csv files are accepted
+              </template>
+            </q-file>
+
+            <q-banner 
+              v-if="csvError" 
+              class="bg-negative text-white q-mb-md"
+              rounded
+            >
+              <q-icon name="error" size="md" />
+              {{ csvError }}
+            </q-banner>
+
+            <q-banner 
+              class="bg-info text-white q-mb-md"
+              rounded
+            >
+              <q-icon name="info" size="md" />
+              <div class="text-body2">
+                <strong>Required CSV columns:</strong><br>
+                jeep_name, terminal_location, terminal_lat, terminal_lng, fare_regular, fare_student, fare_senior, fare_pwd, end_point<br><br>
+                <strong>Optional columns:</strong><br>
+                operating_hours_open, operating_hours_close, tourist_spots_serviced (comma-separated list)
+              </div>
+            </q-banner>
+          </div>
+
+          <!-- Step 2: Preview Data -->
+          <div v-if="importStep === 2">
+            <div class="text-body2 q-mb-md">
+              Preview of {{ parsedJeepneys.length }} jeepney(s) to be imported:
+            </div>
+
+            <q-table
+              :rows="parsedJeepneys"
+              :columns="previewColumns"
+              row-key="index"
+              flat
+              bordered
+              :rows-per-page-options="[10, 25, 50]"
+              style="max-height: 400px"
+            >
+              <template #body-cell-valid="props">
+                <q-td :props="props">
+                  <q-badge :color="props.value ? 'positive' : 'negative'">
+                    {{ props.value ? 'Valid' : 'Invalid' }}
+                  </q-badge>
+                </q-td>
+              </template>
+              <template #body-cell-error="props">
+                <q-td :props="props">
+                  <span class="text-negative text-caption">{{ props.value || '-' }}</span>
+                </q-td>
+              </template>
+            </q-table>
+
+            <div v-if="invalidCount > 0" class="q-mt-md">
+              <q-banner class="bg-warning text-white" rounded>
+                <q-icon name="warning" size="md" />
+                <strong>{{ invalidCount }} invalid row(s) detected.</strong> These will be skipped during import.
+              </q-banner>
+            </div>
+          </div>
+
+          <!-- Step 3: Progress -->
+          <div v-if="importStep === 3">
+            <div class="text-body2 q-mb-md text-center">
+              Importing jeepneys... Please wait.
+            </div>
+
+            <q-linear-progress :value="importProgress" color="primary" class="q-mb-md" />
+
+            <div class="text-center">
+              <q-badge color="primary" class="q-pa-sm">
+                {{ importedCount }} / {{ parsedJeepneys.length }} imported
+              </q-badge>
+            </div>
+
+            <q-list class="q-mt-md" style="max-height: 300px; overflow-y: auto">
+              <q-item v-for="(log, index) in importLogs" :key="index">
+                <q-item-section avatar>
+                  <q-icon :name="log.success ? 'check_circle' : 'error'" :color="log.success ? 'positive' : 'negative'" />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ log.message }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn 
+            v-if="importStep === 1" 
+            flat 
+            label="Cancel" 
+            color="grey-7" 
+            @click="closeCsvImportDialog" 
+          />
+          <q-btn 
+            v-if="importStep === 1" 
+            unelevated 
+            label="Preview Import" 
+            color="primary" 
+            @click="parseCsvFile"
+            :disable="!csvFile"
+          />
+          <q-btn 
+            v-if="importStep === 2" 
+            flat 
+            label="Back" 
+            color="grey-7" 
+            @click="importStep = 1" 
+          />
+          <q-btn 
+            v-if="importStep === 2" 
+            unelevated 
+            label="Start Import" 
+            color="primary" 
+            @click="startImport"
+            :disable="validCount === 0"
+          />
+          <q-btn 
+            v-if="importStep === 3" 
+            flat 
+            label="Close" 
+            color="grey-7" 
+            @click="closeCsvImportDialog"
+            :disable="isImporting"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -394,6 +573,25 @@ export default {
         { name: 'terminalLocation', label: 'Terminal', field: 'terminalLocation', align: 'left' },
         { name: 'endPoint', label: 'End Point', field: 'endPoint', align: 'left' },
         { name: 'actions', label: 'Actions', field: 'actions', align: 'center' }
+      ],
+
+      // CSV Import
+      showCsvImportDialog: false,
+      importStep: 1,
+      csvFile: null,
+      csvError: '',
+      parsedJeepneys: [],
+      importProgress: 0,
+      importedCount: 0,
+      isImporting: false,
+      importLogs: [],
+      previewColumns: [
+        { name: 'jeepName', label: 'Jeepney Name', field: 'jeepName', align: 'left', sortable: true },
+        { name: 'terminalLocation', label: 'Terminal', field: 'terminalLocation', align: 'left' },
+        { name: 'endPoint', label: 'End Point', field: 'endPoint', align: 'left' },
+        { name: 'fareRegular', label: 'Regular Fare', field: 'fareRegular', align: 'center' },
+        { name: 'valid', label: 'Status', field: 'valid', align: 'center' },
+        { name: 'error', label: 'Error', field: 'error', align: 'left' }
       ]
     }
   },
@@ -408,6 +606,14 @@ export default {
         jeepney.terminalLocation?.toLowerCase().includes(searchLower) ||
         jeepney.endPoint?.toLowerCase().includes(searchLower)
       )
+    },
+
+    validCount() {
+      return this.parsedJeepneys.filter(j => j.valid).length
+    },
+
+    invalidCount() {
+      return this.parsedJeepneys.filter(j => !j.valid).length
     }
   },
 
@@ -800,6 +1006,283 @@ export default {
 
     onDialogHide() {
       this.resetForm()
+    },
+
+    // CSV Import Methods
+    downloadCsvTemplate() {
+      const headers = [
+        'jeep_name',
+        'terminal_location',
+        'terminal_lat',
+        'terminal_lng',
+        'fare_regular',
+        'fare_student',
+        'fare_senior',
+        'fare_pwd',
+        'end_point',
+        'operating_hours_open',
+        'operating_hours_close',
+        'tourist_spots_serviced'
+      ]
+
+      const sampleData = [
+        'J-001',
+        'Baguio City Market Terminal',
+        '16.4109',
+        '120.5964',
+        '13',
+        '10',
+        '10.40',
+        '10.40',
+        'SM City Baguio',
+        '06:00',
+        '22:00',
+        'Burnham Park;Session Road;SM City Baguio'
+      ]
+
+      const csvContent = [
+        headers.join(','),
+        sampleData.join(',')
+      ].join('\n')
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      const url = URL.createObjectURL(blob)
+      
+      link.setAttribute('href', url)
+      link.setAttribute('download', 'jeepney_import_template.csv')
+      link.style.visibility = 'hidden'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      this.$q.notify({
+        type: 'positive',
+        message: 'CSV template downloaded',
+        position: 'top'
+      })
+    },
+
+    onCsvFileSelected(file) {
+      this.csvError = ''
+      if (file && file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+        this.csvError = 'Please select a valid CSV file'
+        this.csvFile = null
+      }
+    },
+
+    parseCsvFile() {
+      if (!this.csvFile) return
+
+      this.csvError = ''
+      const reader = new FileReader()
+
+      reader.onload = (e) => {
+        try {
+          const csvText = e.target.result
+          const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== '')
+          
+          if (lines.length < 2) {
+            this.csvError = 'CSV file is empty or invalid'
+            return
+          }
+
+          const headers = this.parseCsvLine(lines[0])
+          const requiredHeaders = ['jeep_name', 'terminal_location', 'fare_regular', 'fare_student', 'fare_senior', 'fare_pwd', 'end_point']
+          
+          const missingHeaders = requiredHeaders.filter(h => !headers.includes(h))
+          if (missingHeaders.length > 0) {
+            this.csvError = `Missing required columns: ${missingHeaders.join(', ')}`
+            return
+          }
+
+          const parsed = []
+          for (let i = 1; i < lines.length; i++) {
+            const values = this.parseCsvLine(lines[i])
+            const jeepney = this.mapCsvRow(headers, values, i)
+            parsed.push(jeepney)
+          }
+
+          this.parsedJeepneys = parsed
+          this.importStep = 2
+
+          this.$q.notify({
+            type: 'positive',
+            message: `Parsed ${parsed.length} jeepney(s)`,
+            position: 'top'
+          })
+        } catch (error) {
+          console.error('[CSV] Parse error:', error)
+          this.csvError = 'Failed to parse CSV: ' + error.message
+        }
+      }
+
+      reader.onerror = () => {
+        this.csvError = 'Failed to read CSV file'
+      }
+
+      reader.readAsText(this.csvFile)
+    },
+
+    parseCsvLine(line) {
+      const result = []
+      let current = ''
+      let inQuotes = false
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i]
+        
+        if (char === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"'
+            i++
+          } else {
+            inQuotes = !inQuotes
+          }
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim())
+          current = ''
+        } else {
+          current += char
+        }
+      }
+
+      result.push(current.trim())
+      return result
+    },
+
+    mapCsvRow(headers, values, rowIndex) {
+      const getValue = (key) => {
+        const index = headers.indexOf(key)
+        return index !== -1 ? values[index] : ''
+      }
+
+      const jeepney = {
+        index: rowIndex,
+        jeepName: getValue('jeep_name'),
+        terminalLocation: getValue('terminal_location'),
+        terminalLat: parseFloat(getValue('terminal_lat')) || null,
+        terminalLng: parseFloat(getValue('terminal_lng')) || null,
+        fareRegular: parseFloat(getValue('fare_regular')) || null,
+        fareStudent: parseFloat(getValue('fare_student')) || null,
+        fareSenior: parseFloat(getValue('fare_senior')) || null,
+        farePWD: parseFloat(getValue('fare_pwd')) || null,
+        endPoint: getValue('end_point'),
+        operatingHours: {
+          open: getValue('operating_hours_open') || '',
+          close: getValue('operating_hours_close') || ''
+        },
+        touristSpotsServiced: [],
+        valid: true,
+        error: ''
+      }
+
+      // Parse tourist spots (semicolon or comma separated)
+      const touristSpotsStr = getValue('tourist_spots_serviced')
+      if (touristSpotsStr) {
+        const separator = touristSpotsStr.includes(';') ? ';' : ','
+        jeepney.touristSpotsServiced = touristSpotsStr
+          .split(separator)
+          .map(s => s.trim())
+          .filter(s => s !== '')
+      }
+
+      // Validate
+      if (!jeepney.jeepName) {
+        jeepney.valid = false
+        jeepney.error = 'Missing jeep name'
+      } else if (!jeepney.terminalLocation) {
+        jeepney.valid = false
+        jeepney.error = 'Missing terminal location'
+      } else if (!jeepney.endPoint) {
+        jeepney.valid = false
+        jeepney.error = 'Missing end point'
+      } else if (jeepney.fareRegular === null || jeepney.fareStudent === null ||
+                 jeepney.fareSenior === null || jeepney.farePWD === null) {
+        jeepney.valid = false
+        jeepney.error = 'Missing fare values'
+      }
+
+      return jeepney
+    },
+
+    async startImport() {
+      this.isImporting = true
+      this.importStep = 3
+      this.importedCount = 0
+      this.importProgress = 0
+      this.importLogs = []
+
+      const validJeepneys = this.parsedJeepneys.filter(j => j.valid)
+      const total = validJeepneys.length
+
+      for (let i = 0; i < validJeepneys.length; i++) {
+        const jeepney = validJeepneys[i]
+        
+        try {
+          const uniqueId = `JEEP-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
+          
+          const jeepneyData = {
+            uniqueId: uniqueId,
+            jeepName: jeepney.jeepName,
+            terminalLocation: jeepney.terminalLocation,
+            terminalLat: jeepney.terminalLat,
+            terminalLng: jeepney.terminalLng,
+            fareRegular: jeepney.fareRegular,
+            fareStudent: jeepney.fareStudent,
+            fareSenior: jeepney.fareSenior,
+            farePWD: jeepney.farePWD,
+            operatingHours: jeepney.operatingHours,
+            touristSpotsServiced: jeepney.touristSpotsServiced,
+            routePoints: [],
+            endPoint: jeepney.endPoint,
+            imageUrl: '',
+            imagePublicId: '',
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+          }
+
+          await addDoc(collection(db, 'jeepneys'), jeepneyData)
+          
+          this.importLogs.push({
+            success: true,
+            message: `Imported: ${jeepney.jeepName}`
+          })
+          
+          this.importedCount++
+        } catch (error) {
+          console.error('[CSV Import] Error:', error)
+          this.importLogs.push({
+            success: false,
+            message: `Failed to import ${jeepney.jeepName}: ${error.message}`
+          })
+        }
+
+        this.importProgress = (i + 1) / total
+      }
+
+      this.isImporting = false
+
+      this.$q.notify({
+        type: 'positive',
+        message: `Import completed: ${this.importedCount}/${total} jeepneys added`,
+        position: 'top',
+        timeout: 5000
+      })
+
+      this.loadJeepneys()
+    },
+
+    closeCsvImportDialog() {
+      this.showCsvImportDialog = false
+      this.importStep = 1
+      this.csvFile = null
+      this.csvError = ''
+      this.parsedJeepneys = []
+      this.importProgress = 0
+      this.importedCount = 0
+      this.isImporting = false
+      this.importLogs = []
     }
   }
 }
