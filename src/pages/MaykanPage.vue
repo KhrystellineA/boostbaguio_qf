@@ -1373,6 +1373,22 @@ export default defineComponent({
 
   .places-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0 1rem;
+  }
+
+  .place-card {
+    min-height: 280px;
+  }
+
+  .place-image {
+    height: 180px;
+  }
+
+  /* Touch-friendly buttons */
+  .q-btn {
+    min-height: 44px !important;
+    min-width: 44px !important;
   }
 
   .carousel-section {
@@ -1389,11 +1405,12 @@ export default defineComponent({
 
   .slide-actions {
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
   }
 
   .slide-actions .q-btn {
     width: 100%;
+    min-height: 48px !important;
   }
 
   .carousel-indicators {
@@ -1421,9 +1438,13 @@ export default defineComponent({
     flex-direction: column;
   }
 
-  .col-md-6, .col-md-4, .col-md-8 {
+  .col-md-6, .col-md-8, .col-md-4 {
     width: 100%;
-    margin-bottom: 1rem;
+  }
+
+  /* Category buttons - scrollable on mobile */
+  .category-btn {
+    min-width: 120px;
   }
 }
 </style>

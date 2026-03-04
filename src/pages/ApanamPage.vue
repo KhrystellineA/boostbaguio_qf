@@ -143,7 +143,46 @@
           <h3 class="text-h4 text-weight-bold text-primary">Available Jeepney Options</h3>
           <p class="text-body1">Choose from the available routes that connect your start and end points</p>
         </div>
-        
+
+        <!-- Route Map Visualization -->
+        <div class="route-map-container q-mb-xl" v-if="selectedOption">
+          <q-card class="map-card">
+            <div class="row items-center justify-between q-pa-md">
+              <div class="text-h6 text-weight-bold text-primary">
+                <q-icon name="map" class="q-mr-sm" />
+                Route Map: {{ selectedOption.routeName }}
+              </div>
+              <q-badge color="primary" text-color="white">
+                <q-icon name="directions_bus" class="q-mr-xs" />
+                {{ selectedOption.estimatedDuration }} min
+              </q-badge>
+            </div>
+            <div id="route-map" style="height: 400px; width: 100%; border-radius: 12px;"></div>
+            <q-card-section class="q-pt-md">
+              <div class="row q-col-gutter-md">
+                <div class="col-md-6 col-12">
+                  <div class="route-info">
+                    <div class="info-label">Starting Point</div>
+                    <div class="info-value">
+                      <q-icon name="location_on" color="primary" class="q-mr-xs" />
+                      {{ fromLocation?.label || customFromLocation || 'Selected location' }}
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 col-12">
+                  <div class="route-info">
+                    <div class="info-label">Destination</div>
+                    <div class="info-value">
+                      <q-icon name="flag" color="secondary" class="q-mr-xs" />
+                      {{ toLocation?.label || customToLocation || 'Selected location' }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+
         <div ref="optionsSection" class="options-grid">
           <q-card
             v-for="option in filteredOptions"
@@ -462,6 +501,7 @@ export default defineComponent({
     const currentStep = ref(1)
     const heroImageUrl = ref(fallbackImage)
     const map = ref(null)
+    const routeMap = ref(null)
     const isScrolled = ref(false)
 
     // Location options - All 33 destinations from Maykan
@@ -714,34 +754,113 @@ export default defineComponent({
       }
     }
 
+    // Helper function to calculate distance between two coordinates
+    const calculateDistance = (coords1, coords2) => {
+      const R = 6371 // Earth's radius in km
+      const dLat = deg2rad(coords2[0] - coords1[0])
+      const dLon = deg2rad(coords2[1] - coords1[1])
+      const a =
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(deg2rad(coords1[0])) * Math.cos(deg2rad(coords2[0])) *
+        Math.sin(dLon/2) * Math.sin(dLon/2)
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+      return R * c
+    }
+
+    const deg2rad = (deg) => {
+      return deg * (Math.PI/180)
+    }
+
     const selectOption = (option) => {
       selectedOption.value = option
       currentStep.value = 1
-      
-      // Initialize map
+
+      // Initialize main map
       setTimeout(() => {
         if (document.getElementById('map')) {
           if (map.value) {
             map.value.remove()
           }
           map.value = L.map('map').setView([16.4122, 120.5948], 13)
-          
+
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           }).addTo(map.value)
-          
+
           // Add markers for start and end locations
           if (selectedFromLocation.value?.coords) {
             L.marker(selectedFromLocation.value.coords).addTo(map.value)
               .bindPopup(selectedFromLocation.value.label)
           }
-          
+
           if (selectedToLocation.value?.coords) {
             L.marker(selectedToLocation.value.coords).addTo(map.value)
               .bindPopup(selectedToLocation.value.label)
           }
         }
       }, 100)
+
+      // Initialize route map
+      setTimeout(() => {
+        if (document.getElementById('route-map')) {
+          if (routeMap.value) {
+            routeMap.value.remove()
+          }
+          
+          // Get coordinates for terminal start and end
+          const terminalStart = option.terminalStart
+          const terminalEnd = option.terminalEnd
+          
+          // Default to Baguio center
+          routeMap.value = L.map('route-map').setView([16.4122, 120.5948], 14)
+          
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          }).addTo(routeMap.value)
+          
+          // Add custom icons
+          const startIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: "<div style='background-color:#2196F3;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+          })
+          
+          const endIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: "<div style='background-color:#FF5722;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
+            iconSize: [20, 20],
+            iconAnchor: [10, 10]
+          })
+          
+          // Get approximate coordinates for terminals (centered on Baguio for now)
+          const startCoords = option.terminalStartCoords || [16.4122, 120.5948]
+          const endCoords = option.terminalEndCoords || [16.4200, 120.6000]
+          
+          // Calculate distance
+          const distance = calculateDistance(startCoords, endCoords)
+          
+          // Add markers
+          L.marker(startCoords, { icon: startIcon }).addTo(routeMap.value)
+            .bindPopup(`<strong>Start:</strong> ${terminalStart}<br>Distance: ${distance.toFixed(2)} km`)
+            .openPopup()
+          
+          L.marker(endCoords, { icon: endIcon }).addTo(routeMap.value)
+            .bindPopup(`<strong>Destination:</strong> ${terminalEnd}`)
+          
+          // Draw route line (polyline)
+          const routeLine = L.polyline([startCoords, endCoords], {
+            color: '#2196F3',
+            weight: 4,
+            opacity: 0.7,
+            dashArray: '10, 10',
+            lineCap: 'round'
+          }).addTo(routeMap.value)
+          
+          // Fit map to show both markers
+          routeMap.value.fitBounds(routeLine.getBounds(), { padding: [50, 50] })
+        }
+      }, 200)
     }
 
     const nextStep = () => {
@@ -1059,6 +1178,46 @@ export default defineComponent({
 
 .options-section {
   background-color: #F5F5F5;
+}
+
+/* Route Map Container */
+.route-map-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.map-card {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+#route-map {
+  border-radius: 12px;
+  z-index: 1;
+}
+
+.route-info {
+  background: #F5F5F5;
+  padding: 16px;
+  border-radius: 12px;
+  border-left: 4px solid #2196F3;
+}
+
+.route-info .info-label {
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.route-info .info-value {
+  font-size: 0.95rem;
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
 }
 
 .options-grid {
