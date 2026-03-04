@@ -407,6 +407,54 @@
       </q-card>
     </q-dialog>
 
+    <!-- FAQS SECTION -->
+    <section class="faqs-section">
+      <div class="container-faqs">
+        <div class="faqs-header">
+          <h2 class="faqs-title">ARAMIDEM FAQs</h2>
+          <p class="faqs-description">Common questions about events and festivals in Baguio</p>
+        </div>
+        <div class="faqs-grid">
+          <div class="faqs-column">
+            <q-expansion-item
+              v-for="(faq, index) in leftFaqs"
+              :key="index"
+              :label="faq.question"
+              class="faq-item"
+              dark
+              expand-icon="add"
+              expanded-icon="close"
+              header-class="faq-header"
+            >
+              <q-card dark class="faq-card">
+                <q-card-section class="faq-answer">
+                  {{ faq.answer }}
+                </q-card-section>
+              </q-card>
+            </q-expansion-item>
+          </div>
+          <div class="faqs-column">
+            <q-expansion-item
+              v-for="(faq, index) in rightFaqs"
+              :key="index"
+              :label="faq.question"
+              class="faq-item"
+              dark
+              expand-icon="add"
+              expanded-icon="close"
+              header-class="faq-header"
+            >
+              <q-card dark class="faq-card">
+                <q-card-section class="faq-answer">
+                  {{ faq.answer }}
+                </q-card-section>
+              </q-card>
+            </q-expansion-item>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- FOOTER -->
     <FooterSection />
   </q-page>
@@ -695,6 +743,32 @@ export default defineComponent({
       })
     }
 
+    const faqs = [
+      {
+        question: 'How do I find events in Baguio?',
+        answer: 'Browse the event calendar or scroll through the list of all events. You can filter by date and see featured events at the top.'
+      },
+      {
+        question: 'Are events free to attend?',
+        answer: 'Many events are free, but some may require tickets or registration. Check the event details for specific information about fees or registration requirements.'
+      },
+      {
+        question: 'How do I get directions to an event?',
+        answer: 'Click on any event and use the "Get Directions" button. This will open APANAM navigation to guide you to the event location.'
+      },
+      {
+        question: 'Can I share events with friends?',
+        answer: 'Yes! Click the "Share" button on any event to share via Facebook, Twitter, Messenger, or copy the link.'
+      },
+      {
+        question: 'How do I stay updated on events?',
+        answer: 'Check back regularly or follow event organizers. Event information is regularly updated with new festivals, concerts, and cultural activities.'
+      }
+    ]
+
+    const leftFaqs = computed(() => faqs.slice(0, 3))
+    const rightFaqs = computed(() => faqs.slice(3))
+
     const getDay = (dateStr) => {
       if (!dateStr) return '00'
       const date = new Date(dateStr)
@@ -741,13 +815,16 @@ export default defineComponent({
       formatDateFull,
       formatTime,
       getDay,
-      getMonth
+      getMonth,
+      faqs,
+      leftFaqs,
+      rightFaqs
     }
   },
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .aramidem-page {
   background-color: #F5F5F5 !important;
 }
@@ -990,6 +1067,112 @@ export default defineComponent({
   animation: fadeIn 0.5s ease-in;
 }
 
+/* FAQ Section Styles */
+// Color Palette Variables
+$dark-green: #1B4332;
+$primary-green: #2E5D3E;
+$light-green: #9EC98F;
+$brown: #6B5344;
+$white: #FFFFFF;
+
+.faqs-section {
+  background: $brown;
+  padding: 6rem 0;
+  color: $white;
+  position: relative;
+}
+
+.container-faqs {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 3rem;
+}
+
+.faqs-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.faqs-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: $white;
+  margin-bottom: 1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+}
+
+.faqs-description {
+  font-size: 1.05rem;
+  color: rgba($white, 0.9);
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.faqs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2.5rem;
+  margin-bottom: 4rem;
+}
+
+.faqs-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.faq-item {
+  background: rgba($white, 0.1);
+  border: 1px solid rgba($white, 0.2);
+  border-radius: 16px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+
+  &:hover {
+    background: rgba($white, 0.15);
+    border-color: rgba($white, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  :deep(.q-item) {
+    padding: 1.25rem 1.5rem;
+  }
+
+  :deep(.q-item__label) {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: $white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  :deep(.q-icon) {
+    color: $light-green;
+    font-size: 20px;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover :deep(.q-icon) {
+    transform: scale(1.1);
+  }
+}
+
+.faq-card {
+  background: transparent;
+  box-shadow: none;
+}
+
+.faq-answer {
+  padding: 0 1.5rem 1.5rem;
+  font-size: 0.95rem;
+  color: rgba($white, 0.85);
+  line-height: 1.7;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -1010,6 +1193,18 @@ export default defineComponent({
 
   .events-grid {
     grid-template-columns: 1fr;
+  }
+
+  .faqs-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .container-faqs {
+    padding: 0 1.5rem;
+  }
+
+  .faqs-title {
+    font-size: 1.75rem;
   }
 }
 </style>

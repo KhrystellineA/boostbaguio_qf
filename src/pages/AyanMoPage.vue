@@ -272,11 +272,14 @@
               v-for="(faq, index) in leftFaqs"
               :key="index"
               :label="faq.question"
-              header-class="text-weight-bold"
               class="faq-item"
+              dark
+              expand-icon="add"
+              expanded-icon="close"
+              header-class="faq-header"
             >
-              <q-card class="bg-transparent">
-                <q-card-section>
+              <q-card dark class="faq-card">
+                <q-card-section class="faq-answer">
                   {{ faq.answer }}
                 </q-card-section>
               </q-card>
@@ -287,11 +290,14 @@
               v-for="(faq, index) in rightFaqs"
               :key="index"
               :label="faq.question"
-              header-class="text-weight-bold"
               class="faq-item"
+              dark
+              expand-icon="add"
+              expanded-icon="close"
+              header-class="faq-header"
             >
-              <q-card class="bg-transparent">
-                <q-card-section>
+              <q-card dark class="faq-card">
+                <q-card-section class="faq-answer">
                   {{ faq.answer }}
                 </q-card-section>
               </q-card>
@@ -857,7 +863,7 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .ayan-mo-page {
   background-color: #F5F5F5 !important;
 }
@@ -1062,10 +1068,18 @@ export default defineComponent({
   gap: 0.5rem;
 }
 
+// Color Palette Variables
+$dark-green: #1B4332;
+$primary-green: #2E5D3E;
+$light-green: #9EC98F;
+$brown: #6B5344;
+$white: #FFFFFF;
+
 .faqs-section {
-  background: #6B5344;
+  background: $brown;
   padding: 6rem 0;
-  color: white;
+  color: $white;
+  position: relative;
 }
 
 .container-faqs {
@@ -1082,15 +1096,16 @@ export default defineComponent({
 .faqs-title {
   font-size: 2.25rem;
   font-weight: 800;
-  color: white;
+  color: $white;
   margin-bottom: 1rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
 }
 
 .faqs-description {
   font-size: 1.05rem;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba($white, 0.9);
   line-height: 1.7;
   max-width: 600px;
   margin: 0 auto;
@@ -1100,6 +1115,7 @@ export default defineComponent({
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 2.5rem;
+  margin-bottom: 4rem;
 }
 
 .faqs-column {
@@ -1109,14 +1125,52 @@ export default defineComponent({
 }
 
 .faq-item {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba($white, 0.1);
+  border: 1px solid rgba($white, 0.2);
   border-radius: 16px;
-  transition: all 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+
+  &:hover {
+    background: rgba($white, 0.15);
+    border-color: rgba($white, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  :deep(.q-item) {
+    padding: 1.25rem 1.5rem;
+  }
+
+  :deep(.q-item__label) {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: $white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  :deep(.q-icon) {
+    color: $light-green;
+    font-size: 20px;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover :deep(.q-icon) {
+    transform: scale(1.1);
+  }
 }
 
-.faq-item:hover {
-  background: rgba(255, 255, 255, 0.15);
+.faq-card {
+  background: transparent;
+  box-shadow: none;
+}
+
+.faq-answer {
+  padding: 0 1.5rem 1.5rem;
+  font-size: 0.95rem;
+  color: rgba($white, 0.85);
+  line-height: 1.7;
 }
 
 .bg-primary {
