@@ -656,7 +656,8 @@ export default {
           imageUrl: imageData.imageUrl,
           imagePublicId: imageData.imagePublicId,
           featured: this.form.featured || false,
-          updatedAt: serverTimestamp()
+          updatedAt: serverTimestamp(),
+          createdAt: this.editingPlace?.createdAt || serverTimestamp()
         }
 
         if (this.editingPlace) {

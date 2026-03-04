@@ -344,6 +344,15 @@
                         <q-item-label caption>{{ selectedEvent.organizer }}</q-item-label>
                       </q-item-section>
                     </q-item>
+                    <q-item v-if="selectedEvent.updatedAt">
+                      <q-item-section avatar>
+                        <q-icon name="update" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="text-weight-bold">Last Updated</q-item-label>
+                        <q-item-label caption>{{ formatDate(selectedEvent.updatedAt) }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
                     <q-item v-if="selectedEvent.contactEmail || selectedEvent.contactPhone">
                       <q-item-section avatar>
                         <q-icon name="contact_phone" color="primary" />
@@ -621,20 +630,40 @@ export default defineComponent({
     }
 
     const shareEvent = (event) => {
-      if (navigator.share) {
-        navigator.share({
-          title: event.name,
-          text: `Check out this event in Baguio: ${event.name}`,
-          url: window.location.href
-        }).catch(console.error)
-      } else {
-        navigator.clipboard.writeText(window.location.href)
-        $q.notify({
-          message: 'Event link copied to clipboard!',
-          color: 'positive',
-          position: 'top'
-        })
-      }
+      const eventUrl = window.location.href.split('?')[0] + '?event=' + event.id
+      const eventText = 'Check out ' + event.name + ' in Baguio City! ' + eventUrl
+
+      $q.dialog({
+        title: 'Share ' + event.name,
+        message: 'Choose how you want to share this event:',
+        options: {
+          type: 'list',
+          options: [
+            { label: 'Copy Link', icon: 'content_copy', value: 'copy' },
+            { label: 'Facebook', icon: 'facebook', value: 'facebook' },
+            { label: 'Twitter', icon: 'rss_feed', value: 'twitter' },
+            { label: 'Messenger', icon: 'chat', value: 'messenger' }
+          ]
+        },
+        cancel: true,
+        persistent: true
+      }).onOk(async (data) => {
+        if (data === 'copy') {
+          await navigator.clipboard.writeText(eventUrl)
+          $q.notify({
+            message: 'Event link copied to clipboard!',
+            color: 'positive',
+            position: 'top',
+            icon: 'check'
+          })
+        } else if (data === 'facebook') {
+          window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(eventUrl), '_blank', 'width=600,height=400')
+        } else if (data === 'twitter') {
+          window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(eventText), '_blank', 'width=600,height=400')
+        } else if (data === 'messenger') {
+          window.open('fb-messenger://share?link=' + encodeURIComponent(eventUrl), '_blank')
+        }
+      })
     }
 
     const formatDate = (dateString) => {
