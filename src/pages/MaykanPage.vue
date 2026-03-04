@@ -328,166 +328,114 @@
     </section>
 
     <!-- PLACE DETAILS MODAL (Section 6) -->
-    <q-dialog
-      v-model="showPlaceDetail"
-      transition-show="fade"
-      transition-hide="fade"
-    >
-      <q-card v-if="selectedPlace" class="place-detail-card" style="width: 90%; max-width: 800px;">
-        <!-- Header with Image -->
-        <div class="modal-header">
-          <q-img
-            :src="selectedPlace.imageUrl || '~assets/place-default.jpg'"
-            spinner-color="primary"
-            class="modal-image"
-          />
-          <q-btn
-            round
-            flat
-            dense
-            icon="close"
-            color="white"
-            v-close-popup
-            class="close-btn"
-          />
-        </div>
+    <q-dialog v-model="showPlaceDetail" transition-show="fade" transition-hide="fade">
+      <q-card class="place-detail-card" style="width: 90%; max-width: 900px;">
+        <q-card-section class="bg-primary text-white">
+          <div class="row items-center">
+            <div class="col">
+              <div class="text-h5 text-weight-bold">{{ selectedPlace?.name }}</div>
+              <div class="text-subtitle2">
+                <q-icon name="location_on" size="16px" class="q-mr-xs" />
+                {{ selectedPlace?.area }}
+              </div>
+            </div>
+            <q-btn icon="close" flat round dense v-close-popup />
+          </div>
+        </q-card-section>
 
-        <q-scroll-area class="modal-content" style="height: 60vh;">
-          <!-- Title Section -->
-          <div class="title-section q-mb-lg">
-            <div class="row items-start justify-between">
-              <div class="col">
-                <h2 class="text-h4 text-weight-bold text-primary q-mb-xs">{{ selectedPlace.name }}</h2>
-                <div class="text-subtitle1 text-grey-7 q-mb-sm">
-                  <q-icon name="location_on" color="primary" size="18px" class="q-mr-xs" />
-                  {{ selectedPlace.area }}
+        <q-card-section class="q-pa-none" v-if="selectedPlace">
+          <q-scroll-area style="height: 65vh">
+            <q-img
+              :src="selectedPlace.imageUrl || '~assets/place-default.jpg'"
+              spinner-color="primary"
+              class="modal-image"
+            />
+
+            <q-card-section class="q-pa-lg">
+              <div class="row q-col-gutter-lg">
+                <div class="col-12 col-md-8">
+                  <h4 class="text-h6 text-weight-bold text-primary q-mb-md">About this Place</h4>
+                  <p class="text-body1 q-mb-lg">{{ selectedPlace.description || 'No description available.' }}</p>
+
+                  <h4 class="text-h6 text-weight-bold text-primary q-mb-md">Place Details</h4>
+                  <q-list bordered separator>
+                    <q-item v-if="selectedPlace.address">
+                      <q-item-section avatar>
+                        <q-icon name="location_on" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="text-weight-bold">Address</q-item-label>
+                        <q-item-label caption>{{ selectedPlace.address }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                    <q-item v-if="selectedPlace.operatingHours">
+                      <q-item-section avatar>
+                        <q-icon name="schedule" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="text-weight-bold">Operating Hours</q-item-label>
+                        <q-item-label caption>{{ formatOperatingHours(selectedPlace.operatingHours) }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                    <q-item v-if="selectedPlace.phone">
+                      <q-item-section avatar>
+                        <q-icon name="phone" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="text-weight-bold">Contact</q-item-label>
+                        <q-item-label caption>{{ selectedPlace.phone }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <h4 class="text-h6 text-weight-bold text-primary q-mb-md">Actions</h4>
+                  
+                  <q-card flat bordered class="q-mb-lg">
+                    <q-card-section>
+                      <p class="text-body2 q-mb-md">
+                        Use our APANAM navigation to get directions to {{ selectedPlace.name }}.
+                      </p>
+                      <q-btn
+                        label="Get Directions"
+                        color="primary"
+                        unelevated
+                        icon="navigation"
+                        class="full-width"
+                        @click="navigateToPlace(selectedPlace)"
+                      />
+                      <q-btn
+                        :label="isPlaceSaved(selectedPlace) ? 'Saved' : 'Save Place'"
+                        :color="isPlaceSaved(selectedPlace) ? 'positive' : 'secondary'"
+                        :icon="isPlaceSaved(selectedPlace) ? 'bookmark' : 'bookmark_border'"
+                        class="full-width q-mt-md"
+                        unelevated
+                        @click="toggleSavePlace(selectedPlace)"
+                      />
+                      <q-btn
+                        label="Share"
+                        color="secondary"
+                        unelevated
+                        icon="share"
+                        class="full-width q-mt-md"
+                        @click="sharePlace"
+                      />
+                      <q-btn
+                        label="Report Issue"
+                        color="negative"
+                        unelevated
+                        icon="report_problem"
+                        class="full-width q-mt-md"
+                        @click="reportIssue(selectedPlace)"
+                      />
+                    </q-card-section>
+                  </q-card>
                 </div>
               </div>
-              <div class="row q-gutter-xs items-center">
-                <q-badge
-                  v-for="(cat, idx) in (Array.isArray(selectedPlace.categories) ? selectedPlace.categories : [selectedPlace.category].filter(Boolean))"
-                  :key="idx"
-                  color="secondary"
-                  class="text-capitalize q-pa-md"
-                >
-                  {{ getCategoryLabel(cat) }}
-                </q-badge>
-              </div>
-            </div>
-
-            <!-- Tags -->
-            <div class="tags-container q-mt-md" v-if="selectedPlace.tags && selectedPlace.tags.length">
-              <q-badge
-                v-for="(tag, idx) in selectedPlace.tags"
-                :key="idx"
-                color="primary"
-                text-color="white"
-                class="q-mr-sm q-mb-sm tag-badge-full"
-              >
-                {{ tag }}
-              </q-badge>
-            </div>
-          </div>
-
-          <q-separator class="q-mb-lg" />
-
-          <!-- Info Grid -->
-          <div class="info-grid q-mb-lg">
-            <div class="info-card" v-if="selectedPlace.address">
-              <div class="info-icon">
-                <q-icon name="location_on" color="primary" size="24px" />
-              </div>
-              <div class="info-content">
-                <div class="info-label text-weight-bold">Address</div>
-                <div class="info-value text-body2">{{ selectedPlace.address }}</div>
-              </div>
-            </div>
-
-            <div class="info-card" v-if="selectedPlace.operatingHours">
-              <div class="info-icon">
-                <q-icon name="schedule" color="primary" size="24px" />
-              </div>
-              <div class="info-content">
-                <div class="info-label text-weight-bold">Operating Hours</div>
-                <div class="info-value text-body2">{{ formatOperatingHours(selectedPlace.operatingHours) }}</div>
-              </div>
-            </div>
-
-            <div class="info-card" v-if="selectedPlace.entranceFee">
-              <div class="info-icon">
-                <q-icon name="payments" color="primary" size="24px" />
-              </div>
-              <div class="info-content">
-                <div class="info-label text-weight-bold">Entrance Fee</div>
-                <div class="info-value text-body2">{{ selectedPlace.entranceFee }}</div>
-              </div>
-            </div>
-
-            <div class="info-card" v-if="selectedPlace.phone">
-              <div class="info-icon">
-                <q-icon name="phone" color="primary" size="24px" />
-              </div>
-              <div class="info-content">
-                <div class="info-label text-weight-bold">Contact</div>
-                <div class="info-value text-body2">{{ selectedPlace.phone }}</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Description -->
-          <div class="description-section q-mb-lg">
-            <h4 class="text-h6 text-weight-bold text-primary q-mb-md">
-              <q-icon name="info" color="primary" class="q-mr-sm" />
-              About this Place
-            </h4>
-            <p class="text-body1 text-grey-8">{{ selectedPlace.description || 'No description available.' }}</p>
-          </div>
-
-          <!-- How to Get There -->
-          <div class="navigation-section bg-blue-1 q-pa-lg rounded-borders">
-            <h4 class="text-h6 text-weight-bold text-primary q-mb-md">
-              <q-icon name="directions_bus" color="primary" class="q-mr-sm" />
-              How to Get There
-            </h4>
-            <p class="text-body1 q-mb-md">
-              Use our <strong>APANAM</strong> navigation system to get step-by-step jeepney directions to {{ selectedPlace.name }}.
-            </p>
-            <div class="q-gutter-sm">
-              <q-btn
-                label="Get Directions"
-                color="primary"
-                unelevated
-                icon="navigation"
-                @click="navigateToPlace(selectedPlace)"
-              />
-              <q-btn
-                :label="isPlaceSaved(selectedPlace) ? 'Saved' : 'Save Place'"
-                :color="isPlaceSaved(selectedPlace) ? 'positive' : 'secondary'"
-                :icon="isPlaceSaved(selectedPlace) ? 'bookmark' : 'bookmark_border'"
-                @click="toggleSavePlace(selectedPlace)"
-                unelevated
-              />
-              <q-btn
-                label="Share"
-                color="secondary"
-                unelevated
-                icon="share"
-                @click="sharePlace"
-              />
-              <q-btn
-                label="Report Issue"
-                color="negative"
-                unelevated
-                icon="report_problem"
-                @click="reportIssue(selectedPlace)"
-              />
-            </div>
-            <div class="text-caption text-grey-7 q-mt-md" v-if="selectedPlace.updatedAt">
-              <q-icon name="update" size="xs" class="q-mr-xs" />
-              Last updated: {{ formatDate(selectedPlace.updatedAt) }}
-            </div>
-          </div>
-        </q-scroll-area>
+            </q-card-section>
+          </q-scroll-area>
+        </q-card-section>
       </q-card>
     </q-dialog>
 
@@ -1331,11 +1279,11 @@ $white: #FFFFFF;
 }
 
 .bg-primary {
-  background-color: #2E5D3E !important;
+  background-color: #4EA96D !important;
 }
 
 .text-primary {
-  color: #2E5D3E !important;
+  color: #4EA96D !important;
 }
 
 .bg-secondary {
@@ -1438,94 +1386,10 @@ $white: #FFFFFF;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
-.modal-header {
-  position: relative;
-  height: 250px;
-}
-
 .modal-image {
-  height: 100%;
+  height: 280px;
   width: 100%;
   object-fit: cover;
-}
-
-.close-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 100;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.close-btn:hover {
-  background: rgba(0, 0, 0, 0.7);
-}
-
-.modal-content {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 0 24px;
-}
-
-.title-section {
-  padding: 24px 0;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-}
-
-.info-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  background: #F5F5F5;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-}
-
-.info-card:hover {
-  background: #E8F5E9;
-  transform: translateY(-2px);
-}
-
-.info-icon {
-  width: 40px;
-  height: 40px;
-  background: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.info-content {
-  flex: 1;
-}
-
-.info-label {
-  font-size: 0.85rem;
-  color: #666;
-  margin-bottom: 4px;
-}
-
-.info-value {
-  color: #333;
-  line-height: 1.5;
-}
-
-.description-section {
-  padding: 16px 0;
-}
-
-.navigation-section {
-  border-radius: 12px;
-  border-left: 4px solid #2E5D3E;
 }
 
 .bg-blue-1 {
@@ -1601,7 +1465,11 @@ $white: #FFFFFF;
   }
 
   .modal-content {
-    height: calc(100vh - 300px);
+    height: calc(100vh - 320px);
+  }
+
+  .modal-image {
+    height: 220px;
   }
 
   .info-grid {
