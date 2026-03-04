@@ -193,16 +193,45 @@
             <q-card-section>
               <div class="row items-center no-wrap">
                 <div class="col">
-                  <div class="text-h6 text-primary">{{ option.routeName }}</div>
+                  <div class="row items-center q-mb-xs">
+                    <div class="text-h6 text-primary">{{ option.routeName }}</div>
+                    <q-btn
+                      v-if="isFavoriteRoute(option)"
+                      icon="favorite"
+                      size="sm"
+                      color="red"
+                      flat
+                      dense
+                      class="q-ml-xs"
+                      @click.stop="toggleFavoriteRoute(option)"
+                    />
+                    <q-btn
+                      v-else
+                      icon="favorite_border"
+                      size="sm"
+                      color="grey"
+                      flat
+                      dense
+                      class="q-ml-xs"
+                      @click.stop="toggleFavoriteRoute(option)"
+                    />
+                  </div>
                   <div class="text-subtitle2">From: {{ option.terminalStart }}</div>
                   <div class="text-subtitle2">To: {{ option.terminalEnd }}</div>
+                  <div class="text-caption text-grey-7 q-mt-xs" v-if="jeepneyAvailability.status">
+                    <q-icon name="schedule" size="xs" class="q-mr-xs" />
+                    Next: {{ jeepneyAvailability.nextJeepney }} mins | Frequency: {{ jeepneyAvailability.frequency }}
+                    <q-badge :color="jeepneyAvailability.status === 'high' ? 'positive' : jeepneyAvailability.status === 'limited' ? 'warning' : 'primary'" class="q-ml-xs">
+                      {{ jeepneyAvailability.status === 'high' ? 'High Frequency' : jeepneyAvailability.status === 'limited' ? 'Limited' : 'Available' }}
+                    </q-badge>
+                  </div>
                 </div>
                 <div class="col-auto">
                   <q-badge color="primary" class="q-mr-sm">
                     ₱{{ option.fare }}
                   </q-badge>
                   <q-badge color="secondary">
-                    {{ option.estimatedDuration }} min
+                    {{ travelTimeEstimate || option.estimatedDuration }} min
                   </q-badge>
                 </div>
               </div>
@@ -503,6 +532,10 @@ export default defineComponent({
     const map = ref(null)
     const routeMap = ref(null)
     const isScrolled = ref(false)
+    const favoriteRoutes = ref([])
+    const jeepneyAvailability = ref({})
+    const travelTimeEstimate = ref(null)
+    const routeAnimationInterval = ref(null)
 
     // Location options - All 33 destinations from Maykan
     const locationOptions = [
@@ -775,6 +808,12 @@ export default defineComponent({
       selectedOption.value = option
       currentStep.value = 1
 
+      // Calculate travel time estimate
+      calculateTravelTime(option)
+
+      // Simulate jeepney availability
+      simulateJeepneyAvailability(option)
+
       // Initialize main map
       setTimeout(() => {
         if (document.getElementById('map')) {
@@ -800,24 +839,24 @@ export default defineComponent({
         }
       }, 100)
 
-      // Initialize route map
+      // Initialize route map with animation
       setTimeout(() => {
         if (document.getElementById('route-map')) {
           if (routeMap.value) {
             routeMap.value.remove()
           }
-          
+
           // Get coordinates for terminal start and end
           const terminalStart = option.terminalStart
           const terminalEnd = option.terminalEnd
-          
+
           // Default to Baguio center
           routeMap.value = L.map('route-map').setView([16.4122, 120.5948], 14)
-          
+
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           }).addTo(routeMap.value)
-          
+
           // Add custom icons
           const startIcon = L.divIcon({
             className: 'custom-div-icon',
@@ -825,30 +864,30 @@ export default defineComponent({
             iconSize: [20, 20],
             iconAnchor: [10, 10]
           })
-          
+
           const endIcon = L.divIcon({
             className: 'custom-div-icon',
             html: "<div style='background-color:#FF5722;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
             iconSize: [20, 20],
             iconAnchor: [10, 10]
           })
-          
+
           // Get approximate coordinates for terminals (centered on Baguio for now)
           const startCoords = option.terminalStartCoords || [16.4122, 120.5948]
           const endCoords = option.terminalEndCoords || [16.4200, 120.6000]
-          
+
           // Calculate distance
           const distance = calculateDistance(startCoords, endCoords)
-          
+
           // Add markers
           L.marker(startCoords, { icon: startIcon }).addTo(routeMap.value)
             .bindPopup(`<strong>Start:</strong> ${terminalStart}<br>Distance: ${distance.toFixed(2)} km`)
             .openPopup()
-          
+
           L.marker(endCoords, { icon: endIcon }).addTo(routeMap.value)
             .bindPopup(`<strong>Destination:</strong> ${terminalEnd}`)
-          
-          // Draw route line (polyline)
+
+          // Draw animated route line
           const routeLine = L.polyline([startCoords, endCoords], {
             color: '#2196F3',
             weight: 4,
@@ -856,11 +895,110 @@ export default defineComponent({
             dashArray: '10, 10',
             lineCap: 'round'
           }).addTo(routeMap.value)
-          
+
+          // Add animated jeepney marker
+          const jeepneyIcon = L.divIcon({
+            className: 'jeepney-marker',
+            html: "<div style='background-color:#4EA96D;width:24px;height:24px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:14px;'>🚌</div>",
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+          })
+
+          const jeepneyMarker = L.marker(startCoords, { icon: jeepneyIcon }).addTo(routeMap.value)
+
+          // Animate jeepney along route
+          let progress = 0
+          routeAnimationInterval.value = setInterval(() => {
+            progress += 0.02
+            if (progress > 1) progress = 0
+
+            const lat = startCoords[0] + (endCoords[0] - startCoords[0]) * progress
+            const lng = startCoords[1] + (endCoords[1] - startCoords[1]) * progress
+            jeepneyMarker.setLatLng([lat, lng])
+          }, 100)
+
           // Fit map to show both markers
           routeMap.value.fitBounds(routeLine.getBounds(), { padding: [50, 50] })
         }
       }, 200)
+    }
+
+    // Calculate travel time estimate
+    const calculateTravelTime = (option) => {
+      const baseTime = option.estimatedDuration || 15
+      const trafficMultiplier = 1 + (Math.random() * 0.5) // Add 0-50% variance
+      travelTimeEstimate.value = Math.round(baseTime * trafficMultiplier)
+    }
+
+    // Simulate jeepney availability
+    const simulateJeepneyAvailability = () => {
+      const hour = new Date().getHours()
+      const isPeakHour = (hour >= 7 && hour <= 9) || (hour >= 17 && hour <= 19)
+      const isLateNight = hour >= 22 || hour <= 5
+
+      let availability = 'available'
+      let frequency = '5-10 mins'
+
+      if (isLateNight) {
+        availability = 'limited'
+        frequency = '20-30 mins'
+      } else if (isPeakHour) {
+        availability = 'high'
+        frequency = '2-5 mins'
+      }
+
+      jeepneyAvailability.value = {
+        status: availability,
+        frequency: frequency,
+        nextJeepney: Math.floor(Math.random() * 10) + 1
+      }
+    }
+
+    // Toggle favorite route
+    const toggleFavoriteRoute = (option) => {
+      const index = favoriteRoutes.value.findIndex(r => r.id === option.id)
+      if (index > -1) {
+        favoriteRoutes.value.splice(index, 1)
+        $q.notify({
+          type: 'info',
+          message: 'Route removed from favorites',
+          position: 'top'
+        })
+      } else {
+        favoriteRoutes.value.push({
+          id: option.id,
+          routeName: option.routeName,
+          terminalStart: option.terminalStart,
+          terminalEnd: option.terminalEnd,
+          fare: option.fare,
+          estimatedDuration: option.estimatedDuration,
+          savedAt: new Date()
+        })
+        $q.notify({
+          type: 'positive',
+          message: 'Route added to favorites!',
+          position: 'top'
+        })
+      }
+      // Save to localStorage
+      localStorage.setItem('apanam-favorite-routes', JSON.stringify(favoriteRoutes.value))
+    }
+
+    // Check if route is favorite
+    const isFavoriteRoute = (option) => {
+      return favoriteRoutes.value.some(r => r.id === option.id)
+    }
+
+    // Load favorite routes from localStorage
+    const loadFavoriteRoutes = () => {
+      const saved = localStorage.getItem('apanam-favorite-routes')
+      if (saved) {
+        try {
+          favoriteRoutes.value = JSON.parse(saved)
+        } catch (e) {
+          console.error('[APANAM] Error loading favorite routes:', e)
+        }
+      }
     }
 
     const nextStep = () => {
@@ -1005,6 +1143,7 @@ export default defineComponent({
     onMounted(async () => {
       await fetchHeroImage()
       await fetchJeepneyOptions()
+      loadFavoriteRoutes()
 
       // Handle query parameters from IndexPage (hero section inputs)
       if (route.query.toName) {
@@ -1074,8 +1213,13 @@ export default defineComponent({
       selectedFromLocation,
       selectedToLocation,
       teachingSteps,
+      favoriteRoutes,
+      jeepneyAvailability,
+      travelTimeEstimate,
       findRoutes,
       selectOption,
+      toggleFavoriteRoute,
+      isFavoriteRoute,
       nextStep,
       prevStep,
       resetSelection,
@@ -1195,6 +1339,30 @@ export default defineComponent({
 #route-map {
   border-radius: 12px;
   z-index: 1;
+}
+
+/* Animated Jeepney Marker */
+.jeepney-marker {
+  transition: all 0.1s ease;
+}
+
+.jeepney-marker div {
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(78, 169, 109, 0.7);
+  }
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 10px rgba(78, 169, 109, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(78, 169, 109, 0);
+  }
 }
 
 .route-info {
