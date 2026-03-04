@@ -52,7 +52,12 @@
               <div class="text-h5 text-weight-bold text-primary q-mb-sm">{{ event.name }}</div>
               <div class="row items-center q-mb-sm">
                 <q-icon name="event" color="primary" size="sm" class="q-mr-sm" />
-                <span>{{ formatDate(event.startDate) }}</span>
+                <span>
+                  {{ formatDate(event.startDate) }}
+                  <span v-if="event.endDate && formatDate(event.endDate) !== formatDate(event.startDate)">
+                    - {{ formatDate(event.endDate) }}
+                  </span>
+                </span>
               </div>
               <div class="row items-center">
                 <q-icon name="schedule" color="secondary" size="sm" class="q-mr-sm" />
@@ -173,7 +178,16 @@
                         <div class="text-h6 text-weight-bold text-primary">{{ event.name }}</div>
                         <div class="text-caption text-grey-7 q-mb-xs">{{ event.location }}</div>
                         <div class="row items-center q-mb-xs">
-                          <q-icon name="schedule" color="primary" size="xs" class="q-mr-sm" />
+                          <q-icon name="event" color="primary" size="xs" class="q-mr-sm" />
+                          <span class="text-caption">
+                            {{ formatDate(event.startDate) }}
+                            <span v-if="event.endDate && formatDate(event.endDate) !== formatDate(event.startDate)">
+                              - {{ formatDate(event.endDate) }}
+                            </span>
+                          </span>
+                        </div>
+                        <div class="row items-center q-mb-xs">
+                          <q-icon name="schedule" color="secondary" size="xs" class="q-mr-sm" />
                           <span class="text-caption">{{ formatTime(event.startDate) }} - {{ formatTime(event.endDate) }}</span>
                         </div>
                         <q-btn
@@ -234,7 +248,12 @@
               <div class="text-caption text-grey-7 q-mb-sm">{{ event.description }}</div>
               <div class="row items-center q-mb-xs">
                 <q-icon name="event" color="primary" size="xs" class="q-mr-sm" />
-                <span class="text-caption">{{ formatDate(event.startDate) }}</span>
+                <span class="text-caption">
+                  {{ formatDate(event.startDate) }}
+                  <span v-if="event.endDate && formatDate(event.endDate) !== formatDate(event.startDate)">
+                    - {{ formatDate(event.endDate) }}
+                  </span>
+                </span>
               </div>
               <div class="row items-center q-mb-xs">
                 <q-icon name="schedule" color="secondary" size="xs" class="q-mr-sm" />
@@ -257,7 +276,12 @@
           <div class="row items-center">
             <div class="col">
               <div class="text-h5 text-weight-bold">{{ selectedEvent?.name }}</div>
-              <div class="text-subtitle2">{{ formatDate(selectedEvent?.startDate) }}</div>
+              <div class="text-subtitle2">
+                {{ formatDate(selectedEvent?.startDate) }}
+                <span v-if="selectedEvent?.endDate && formatDate(selectedEvent?.endDate) !== formatDate(selectedEvent?.startDate)">
+                  - {{ formatDate(selectedEvent?.endDate) }}
+                </span>
+              </div>
             </div>
             <q-btn icon="close" flat round dense v-close-popup />
           </div>
@@ -285,7 +309,12 @@
                       </q-item-section>
                       <q-item-section>
                         <q-item-label class="text-weight-bold">Date</q-item-label>
-                        <q-item-label caption>{{ formatDate(selectedEvent.startDate) }}</q-item-label>
+                        <q-item-label caption>
+                          <span>{{ formatDate(selectedEvent.startDate) }}</span>
+                          <span v-if="selectedEvent.endDate && formatDate(selectedEvent.endDate) !== formatDate(selectedEvent.startDate)">
+                            to {{ formatDate(selectedEvent.endDate) }}
+                          </span>
+                        </q-item-label>
                       </q-item-section>
                     </q-item>
                     <q-item>
@@ -379,7 +408,7 @@ import { defineComponent, ref, computed, onMounted, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import { db } from 'src/boot/firebase'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, collection, getDocs, query, orderBy } from 'firebase/firestore'
 import FooterSection from '../components/Home/FooterSection.vue'
 import bakeryImage from '../assets/bakery.png'
 
@@ -399,170 +428,10 @@ export default defineComponent({
     const selectedDate = ref(null)
     
     // Calendar state
-    const currentDate = ref(new Date(2026, 0, 1)) // Start with January 2026
-    const selectedYear = ref(2026)
+    const currentDate = ref(new Date()) // Start with current month/year
+    const selectedYear = ref(new Date().getFullYear())
     const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     const yearOptions = [2026, 2027, 2028]
-
-    // Hardcoded Panagbenga 2026 Events (Sample Data)
-    const sampleEvents = [
-      {
-        id: '1',
-        name: "Panagbenga Grand Opening Day Parade",
-        location: "Panagbenga Park to Melvin Jones Football Grounds",
-        startDate: new Date(2026, 1, 1, 8, 0), // Feb 1, 2026, 8:00 AM
-        endDate: new Date(2026, 1, 1, 12, 0), // Feb 1, 2026, 12:00 PM
-        description: "The official start of the 30th Panagbenga Festival featuring elementary school drum and lyre corps and festive street dancing along Session Road. Theme: 'Blooming Without End' - celebrating the Pearl Anniversary.",
-        imageUrl: "",
-        featured: true,
-        organizer: "BFFFI / Baguio City Government",
-        contactEmail: "info@panagbenga.org",
-        contactPhone: "+63 74 442 2772"
-      },
-      {
-        id: '2',
-        name: "Panagbenga Market Encounter & Panagbengascapes",
-        location: "Juan Luna Drive and Rose Garden, Burnham Park",
-        startDate: new Date(2026, 1, 1, 9, 0), // Feb 1, 2026, 9:00 AM
-        endDate: new Date(2026, 2, 8, 21, 0), // Mar 8, 2026, 9:00 PM
-        description: "A month-long landscaping exhibition and trade fair featuring floral designs, local handicrafts, and food stalls.",
-        imageUrl: "",
-        featured: true,
-        organizer: "BFFFI",
-        contactEmail: "info@panagbenga.org",
-        contactPhone: "+63 74 442 2772"
-      },
-      {
-        id: '3',
-        name: "Cup of Joe: Stardust Philippine Tour 2026",
-        location: "University of Baguio Gym",
-        startDate: new Date(2026, 1, 6, 19, 0), // Feb 6, 2026, 7:00 PM
-        endDate: new Date(2026, 1, 6, 23, 0), // Feb 6, 2026, 11:00 PM
-        description: "A special concert by the popular Baguio-based OPM band Cup of Joe as part of the Panagbenga Festival's musical highlights.",
-        imageUrl: "",
-        featured: true,
-        organizer: "Ovation Productions",
-        contactEmail: "info@ovationproductions.com",
-        contactPhone: "+63 917 123 4567"
-      },
-      {
-        id: '4',
-        name: "Floral Fiesta: Bouquet & Dish Garden Competition",
-        location: "Melvin Jones Football Grounds",
-        startDate: new Date(2026, 1, 7, 9, 0), // Feb 7, 2026, 9:00 AM
-        endDate: new Date(2026, 1, 7, 17, 0), // Feb 7, 2026, 5:00 PM
-        description: "A school-based competition showcasing the floral arrangement skills of students from various schools in Baguio City.",
-        imageUrl: "",
-        featured: false,
-        organizer: "BFFFI",
-        contactEmail: "info@panagbenga.org",
-        contactPhone: "+63 74 442 2772"
-      },
-      {
-        id: '5',
-        name: "PMA Alumni Homecoming",
-        location: "Fort Del Pilar, Baguio City",
-        startDate: new Date(2026, 1, 13, 8, 0), // Feb 13, 2026, 8:00 AM
-        endDate: new Date(2026, 1, 15, 20, 0), // Feb 15, 2026, 8:00 PM
-        description: "An annual tradition where thousands of PMA alumni gather for a weekend of camaraderie and celebration.",
-        imageUrl: "",
-        featured: false,
-        organizer: "Philippine Military Academy (PMA)",
-        contactEmail: "alumni@pma.edu.ph",
-        contactPhone: "+63 74 442 2031"
-      },
-      {
-        id: '6',
-        name: "Handog ng Panagbenga sa Pamilya Baguio",
-        location: "Melvin Jones Football Grounds",
-        startDate: new Date(2026, 1, 14, 8, 0), // Feb 14, 2026, 8:00 AM
-        endDate: new Date(2026, 1, 14, 18, 0), // Feb 14, 2026, 6:00 PM
-        description: "A family-oriented Valentine's Day celebration featuring the 'Colours in Bloom' painting competition and the 11th Annual Panagbenga Kite Flying Challenge.",
-        imageUrl: "",
-        featured: false,
-        organizer: "BFFFI",
-        contactEmail: "info@panagbenga.org",
-        contactPhone: "+63 74 442 2772"
-      },
-      {
-        id: '7',
-        name: "Rhythm of the Highlands",
-        location: "Melvin Jones Football Grounds",
-        startDate: new Date(2026, 1, 15, 15, 0), // Feb 15, 2026, 3:00 PM
-        endDate: new Date(2026, 1, 15, 21, 0), // Feb 15, 2026, 9:00 PM
-        description: "A dedicated showcase of traditional Cordilleran culture, music, and ethnic dances by indigenous cultural communities.",
-        imageUrl: "",
-        featured: false,
-        organizer: "BFFFI",
-        contactEmail: "info@panagbenga.org",
-        contactPhone: "+63 74 442 2772"
-      },
-      {
-        id: '8',
-        name: "Baguio Spring Festival (Chinese New Year Parade)",
-        location: "Session Road to Melvin Jones",
-        startDate: new Date(2026, 1, 18, 10, 0), // Feb 18, 2026, 10:00 AM
-        endDate: new Date(2026, 1, 18, 14, 0), // Feb 18, 2026, 2:00 PM
-        description: "A colorful parade celebrating the Lunar New Year, featuring dragon dances and traditional Chinese-Filipino celebrations.",
-        imageUrl: "",
-        featured: false,
-        organizer: "Baguio Filipino-Chinese Community",
-        contactEmail: "info@baguiochinese.org",
-        contactPhone: "+63 74 442 3456"
-      },
-      {
-        id: '9',
-        name: "Panagbenga Grand Street Dance Parade",
-        location: "Panagbenga Park → Session Road → Harrison Road → Melvin Jones",
-        startDate: new Date(2026, 1, 28, 8, 0), // Feb 28, 2026, 8:00 AM
-        endDate: new Date(2026, 1, 28, 16, 0), // Feb 28, 2026, 4:00 PM
-        description: "THE MAIN HIGHLIGHT! A massive parade of dancers in vibrant, flower-inspired costumes performing to the rhythmic Panagbenga hymn.",
-        imageUrl: "",
-        featured: true,
-        organizer: "BFFFI",
-        contactEmail: "info@panagbenga.org",
-        contactPhone: "+63 74 442 2772"
-      },
-      {
-        id: '10',
-        name: "Panagbenga Grand Floral Float Parade",
-        location: "Panagbenga Park to Melvin Jones Football Grounds",
-        startDate: new Date(2026, 2, 1, 8, 0), // Mar 1, 2026, 8:00 AM
-        endDate: new Date(2026, 2, 1, 17, 0), // Mar 1, 2026, 5:00 PM
-        description: "The festival's MOST FAMOUS event! Giant floats made entirely of fresh flowers parade through the city streets.",
-        imageUrl: "",
-        featured: true,
-        organizer: "BFFFI",
-        contactEmail: "info@panagbenga.org",
-        contactPhone: "+63 74 442 2772"
-      },
-      {
-        id: '11',
-        name: "Session Road in Bloom",
-        location: "Session Road (Entire length closed to traffic)",
-        startDate: new Date(2026, 2, 2, 9, 0), // Mar 2, 2026, 9:00 AM
-        endDate: new Date(2026, 2, 8, 22, 0), // Mar 8, 2026, 10:00 PM
-        description: "Baguio's main thoroughfare transforms into a pedestrian mall with sidewalk cafés, floral installations, and local merchant stalls.",
-        imageUrl: "",
-        featured: true,
-        organizer: "BFFFI / Baguio City Government",
-        contactEmail: "info@panagbenga.org",
-        contactPhone: "+63 74 442 2772"
-      },
-      {
-        id: '12',
-        name: "Panagbenga Awarding and Closing Ceremonies",
-        location: "Melvin Jones Football Grounds",
-        startDate: new Date(2026, 2, 8, 16, 0), // Mar 8, 2026, 4:00 PM
-        endDate: new Date(2026, 2, 8, 22, 0), // Mar 8, 2026, 10:00 PM
-        description: "The official wrap-up featuring the PMA Silent Drill Exhibition, Little Miss Panagbenga pageant, and the 'Flowers in the Sky' Grand Fireworks Display.",
-        imageUrl: "",
-        featured: true,
-        organizer: "BFFFI",
-        contactEmail: "info@panagbenga.org",
-        contactPhone: "+63 74 442 2772"
-      }
-    ]
 
     // Fetch hero image
     const fetchHeroImage = async () => {
@@ -577,11 +446,57 @@ export default defineComponent({
       }
     }
 
-    // Use hardcoded sample events (no Firebase needed)
-    const loadEvents = () => {
-      events.value = sampleEvents
-      loading.value = false
-      console.log('[AramidemPage] Loaded', events.value.length, 'sample events')
+    // Fetch events from Firebase
+    const loadEvents = async () => {
+      loading.value = true
+      try {
+        console.log('[AramidemPage] Fetching events from Firebase...')
+        const q = query(collection(db, 'events'), orderBy('startDate', 'asc'))
+        const querySnapshot = await getDocs(q)
+
+        const firebaseEvents = querySnapshot.docs.map(doc => {
+          const data = doc.data()
+          return {
+            id: doc.id,
+            name: data.title || data.name, // Map 'title' to 'name' for compatibility
+            location: data.location,
+            startDate: data.startDate,
+            endDate: data.endDate,
+            description: data.description,
+            imageUrl: data.imageUrl || '',
+            featured: data.featured || false,
+            organizer: data.organizer,
+            contactEmail: data.contactEmail,
+            contactPhone: data.contactPhone
+          }
+        })
+
+        // Remove duplicates based on event ID
+        const uniqueEventsMap = new Map()
+        firebaseEvents.forEach(event => {
+          uniqueEventsMap.set(event.id, event)
+        })
+        const uniqueEvents = Array.from(uniqueEventsMap.values())
+
+        console.log('[AramidemPage] Loaded', uniqueEvents.length, 'unique events from Firebase')
+
+        if (uniqueEvents.length > 0) {
+          events.value = uniqueEvents
+        } else {
+          console.log('[AramidemPage] No events found in Firebase')
+          events.value = []
+        }
+      } catch (error) {
+        console.error('[AramidemPage] Error loading events:', error)
+        $q.notify({
+          type: 'negative',
+          message: 'Failed to load events',
+          position: 'top'
+        })
+        events.value = []
+      } finally {
+        loading.value = false
+      }
     }
 
     // Get featured events
