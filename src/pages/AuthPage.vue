@@ -207,17 +207,6 @@
             </q-btn>
           </q-form>
         </q-card-section>
-
-        <!-- Admin Link -->
-        <q-card-section class="admin-link-section">
-          <q-separator />
-          <div class="admin-link">
-            <span>Admin access?</span>
-            <a @click="$router.push('/admin/adminlogin')" class="text-primary cursor-pointer">
-              Login here
-            </a>
-          </div>
-        </q-card-section>
       </q-card>
 
       <!-- Features -->
@@ -728,33 +717,6 @@ $border-color: #E0E0E0;
   }
 }
 
-// Admin Link Section
-.admin-link-section {
-  padding: 1rem 2rem;
-  background: rgba($primary, 0.02);
-
-  .admin-link {
-    text-align: center;
-    font-size: 0.9rem;
-    color: $text-muted;
-
-    span {
-      margin-right: 0.5rem;
-    }
-
-    a {
-      color: $primary;
-      text-decoration: none;
-      font-weight: 600;
-      cursor: pointer;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-  }
-}
-
 // Features Section
 .features-section {
   margin-top: 1rem;
@@ -834,10 +796,6 @@ $border-color: #E0E0E0;
     .auth-form-section {
       padding: 1.5rem 1.5rem;
     }
-
-    .admin-link-section {
-      padding: 1rem 1.5rem;
-    }
   }
 
   .features-section {
@@ -885,10 +843,6 @@ $border-color: #E0E0E0;
 
     .auth-form-section {
       padding: 1.25rem 1.25rem;
-    }
-
-    .admin-link-section {
-      padding: 0.75rem 1.25rem;
     }
   }
 
