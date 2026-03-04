@@ -50,9 +50,15 @@
 
           <template #body-cell-category="props">
             <q-td :props="props">
-              <q-badge :color="getCategoryColor(props.value)">
-                {{ props.value }}
-              </q-badge>
+              <div class="row q-gutter-xs" style="flex-wrap: wrap;">
+                <q-badge
+                  v-for="cat in (Array.isArray(props.row.categories) ? props.row.categories : [props.row.category])"
+                  :key="cat"
+                  :color="getCategoryColor(cat)"
+                >
+                  {{ getCategoryLabel(cat) }}
+                </q-badge>
+              </div>
             </q-td>
           </template>
 
@@ -143,13 +149,19 @@
 
           <!-- Category -->
           <q-select
-            v-model="form.category"
+            v-model="form.categories"
             outlined
-            label="Category *"
+            label="Categories *"
             :options="categories"
+            option-label="label"
+            option-value="value"
+            emit-value
+            map-options
+            multiple
+            use-chips
             class="q-mb-md"
-            :rules="[val => !!val || 'Category is required']"
-            hint="Used for filtering in Ayan Mo feature"
+            :rules="[val => val && val.length > 0 || 'At least one category is required']"
+            hint="Select one or more categories for filtering in Ayan Mo feature"
           />
 
           <!-- Address/Location -->
@@ -286,7 +298,7 @@ export default {
       searchingLocation: false,
       form: {
         name: '',
-        category: '',
+        categories: [],
         address: '',
         latitude: null,
         longitude: null,
@@ -301,16 +313,16 @@ export default {
         featured: false
       },
       categories: [
-        'Tourist Spots',
-        'Cafes & Restaurants',
-        'Parks & Nature',
-        'Museums & Culture',
-        'Shopping',
-        'Hotels & Lodging',
-        'Government',
-        'Hospital',
-        'School',
-        'Other'
+        { label: 'Tourist Spots', value: 'tourist-spot' },
+        { label: 'Cafes & Restaurants', value: 'restaurant' },
+        { label: 'Parks & Nature', value: 'park-nature' },
+        { label: 'Museums & Culture', value: 'museum-culture' },
+        { label: 'Shopping', value: 'shopping' },
+        { label: 'Hotels & Lodging', value: 'hotel-lodging' },
+        { label: 'Government', value: 'government' },
+        { label: 'Hospital', value: 'hospital' },
+        { label: 'School', value: 'school' },
+        { label: 'Other', value: 'other' }
       ],
       columns: [
         { name: 'image', label: 'Image', field: 'imageUrl', align: 'center' },
@@ -581,7 +593,7 @@ export default {
       this.editingPlace = place
       this.form = {
         name: place.name || '',
-        category: place.category || '',
+        categories: Array.isArray(place.categories) ? place.categories : (place.category ? [place.category] : []),
         address: place.address || '',
         latitude: place.latitude || null,
         longitude: place.longitude || null,
@@ -597,7 +609,7 @@ export default {
 
     async savePlace() {
       // Validate required fields
-      if (!this.form.name || !this.form.category || !this.form.address || !this.form.description) {
+      if (!this.form.name || !this.form.categories || this.form.categories.length === 0 || !this.form.address || !this.form.description) {
         this.$q.notify({
           type: 'warning',
           message: 'Please fill in all required fields',
@@ -635,7 +647,7 @@ export default {
 
         const placeData = {
           name: this.form.name,
-          category: this.form.category,
+          categories: this.form.categories,
           address: this.form.address,
           latitude: this.form.latitude,
           longitude: this.form.longitude,
@@ -718,24 +730,40 @@ export default {
 
     getCategoryColor(category) {
       const colors = {
-        'Tourist Spots': 'green',
-        'Cafes & Restaurants': 'orange',
-        'Parks & Nature': 'teal',
-        'Museums & Culture': 'purple',
-        'Shopping': 'pink',
-        'Hotels & Lodging': 'blue',
-        'Government': 'red',
-        'Hospital': 'pink',
-        'School': 'indigo',
-        'Other': 'grey'
+        'tourist-spot': 'green',
+        'restaurant': 'orange',
+        'park-nature': 'teal',
+        'museum-culture': 'purple',
+        'shopping': 'pink',
+        'hotel-lodging': 'blue',
+        'government': 'red',
+        'hospital': 'pink',
+        'school': 'indigo',
+        'other': 'grey'
       }
       return colors[category] || 'grey'
+    },
+
+    getCategoryLabel(category) {
+      const labels = {
+        'tourist-spot': 'Tourist Spots',
+        'restaurant': 'Cafes & Restaurants',
+        'park-nature': 'Parks & Nature',
+        'museum-culture': 'Museums & Culture',
+        'shopping': 'Shopping',
+        'hotel-lodging': 'Hotels & Lodging',
+        'government': 'Government',
+        'hospital': 'Hospital',
+        'school': 'School',
+        'other': 'Other'
+      }
+      return labels[category] || category
     },
 
     resetForm() {
       this.form = {
         name: '',
-        category: '',
+        categories: [],
         address: '',
         latitude: null,
         longitude: null,

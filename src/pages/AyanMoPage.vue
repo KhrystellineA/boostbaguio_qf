@@ -162,7 +162,16 @@
                 <div class="row items-center justify-between">
                   <div>
                     <div class="text-h6 text-primary">{{ place.name }}</div>
-                    <div class="text-subtitle2">{{ place.category }}</div>
+                    <div class="text-subtitle2">
+                      <q-badge
+                        v-for="(cat, idx) in (Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean))"
+                        :key="idx"
+                        color="secondary"
+                        class="text-capitalize q-mr-xs"
+                      >
+                        {{ getCategoryLabel(cat) }}
+                      </q-badge>
+                    </div>
                   </div>
                   <q-badge color="secondary" class="text-capitalize">
                     {{ calculateDistance(place) }} km
@@ -196,7 +205,16 @@
                 <div class="row items-center q-mb-lg">
                   <div class="col">
                     <div class="text-h4 text-weight-bold text-primary">{{ selectedPlace.name }}</div>
-                    <div class="text-subtitle1">{{ selectedPlace.category }}</div>
+                    <div class="text-subtitle1 q-gutter-xs">
+                      <q-badge
+                        v-for="(cat, idx) in (Array.isArray(selectedPlace.categories) ? selectedPlace.categories : [selectedPlace.category].filter(Boolean))"
+                        :key="idx"
+                        color="secondary"
+                        class="text-capitalize"
+                      >
+                        {{ getCategoryLabel(cat) }}
+                      </q-badge>
+                    </div>
                   </div>
                   <div class="col-auto">
                     <q-badge color="primary" text-color="white" class="text-bold">
@@ -212,7 +230,7 @@
                   </div>
                   <div class="info-row" v-if="selectedPlace.operatingHours">
                     <q-icon name="schedule" color="primary" size="sm" class="q-mr-sm" />
-                    <span>{{ selectedPlace.operatingHours }}</span>
+                    <span>{{ formatOperatingHours(selectedPlace.operatingHours) }}</span>
                   </div>
                   <div class="info-row" v-if="selectedPlace.phone">
                     <q-icon name="phone" color="primary" size="sm" class="q-mr-sm" />
@@ -362,7 +380,10 @@ export default defineComponent({
 
       // Filter by category
       if (selectedCategory.value !== 'all') {
-        result = result.filter(place => place.category === selectedCategory.value)
+        result = result.filter(place => {
+          const placeCategories = Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean)
+          return placeCategories.includes(selectedCategory.value)
+        })
       }
 
       // Filter by search query
@@ -370,7 +391,7 @@ export default defineComponent({
         const query = searchQuery.value.toLowerCase().trim()
         result = result.filter(place =>
           place.name.toLowerCase().includes(query) ||
-          place.category.toLowerCase().includes(query) ||
+          (Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean)).some(cat => cat.toLowerCase().includes(query)) ||
           (place.description && place.description.toLowerCase().includes(query))
         )
       }
@@ -514,6 +535,56 @@ export default defineComponent({
       return text.substring(0, maxLength) + '...'
     }
 
+    const formatOperatingHours = (operatingHours) => {
+      if (!operatingHours) return ''
+
+      // If it's already a formatted string, return as is
+      if (typeof operatingHours === 'string') {
+        return operatingHours
+      }
+
+      // If it's an object with open/close/days
+      if (typeof operatingHours === 'object') {
+        const { open, close, days } = operatingHours
+
+        if (!open || !close) {
+          return days || ''
+        }
+
+        // Convert 24-hour to 12-hour format
+        const formatTime = (timeStr) => {
+          if (!timeStr) return ''
+          const [hours, minutes] = timeStr.split(':').map(Number)
+          const period = hours >= 12 ? 'PM' : 'AM'
+          const displayHours = hours % 12 || 12
+          return `${displayHours}:${minutes.toString().padStart(2, '0')}${period}`
+        }
+
+        const openTime = formatTime(open)
+        const closeTime = formatTime(close)
+
+        return `${days || ''} | ${openTime} - ${closeTime}`.trim()
+      }
+
+      return ''
+    }
+
+    const getCategoryLabel = (category) => {
+      const labels = {
+        'tourist-spot': 'Tourist Spots',
+        'restaurant': 'Cafes & Restaurants',
+        'park-nature': 'Parks & Nature',
+        'museum-culture': 'Museums & Culture',
+        'shopping': 'Shopping',
+        'hotel-lodging': 'Hotels & Lodging',
+        'government': 'Government',
+        'hospital': 'Hospital',
+        'school': 'School',
+        'other': 'Other'
+      }
+      return labels[category] || category
+    }
+
     const filterByCategory = (category) => {
       selectedCategory.value = category
     }
@@ -585,6 +656,8 @@ export default defineComponent({
       navigateToPlace,
       calculateDistance,
       truncateText,
+      formatOperatingHours,
+      getCategoryLabel,
       isScrolled,
       onScroll
     }

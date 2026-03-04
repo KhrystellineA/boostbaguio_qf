@@ -447,7 +447,16 @@
                         <div class="row items-center justify-between">
                           <div>
                             <div class="text-h6 text-weight-bold">{{ place.name }}</div>
-                            <div class="text-caption text-grey-7">{{ place.category }}</div>
+                            <div class="text-caption text-grey-7">
+                              <q-badge
+                                v-for="(cat, idx) in (Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean))"
+                                :key="idx"
+                                color="secondary"
+                                class="text-capitalize q-mr-xs"
+                              >
+                                {{ getCategoryLabel(cat) }}
+                              </q-badge>
+                            </div>
                           </div>
                           <q-btn
                             flat
@@ -528,7 +537,16 @@
                       <div class="row items-center justify-between">
                         <div>
                           <div class="text-h6 text-weight-bold">{{ place.name }}</div>
-                          <div class="text-caption text-grey-7">{{ place.category }}</div>
+                          <div class="text-caption text-grey-7">
+                            <q-badge
+                              v-for="(cat, idx) in (Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean))"
+                              :key="idx"
+                              color="secondary"
+                              class="text-capitalize q-mr-xs"
+                            >
+                              {{ getCategoryLabel(cat) }}
+                            </q-badge>
+                          </div>
                         </div>
                         <q-btn
                           flat
@@ -632,8 +650,17 @@
             </div>
 
             <div class="q-pa-lg">
-              <q-chip :label="selectedItem.category" color="primary" text-color="white" class="q-mb-md" />
-              
+              <div class="q-gutter-xs q-mb-md">
+                <q-chip
+                  v-for="(cat, idx) in (Array.isArray(selectedItem.categories) ? selectedItem.categories : [selectedItem.category].filter(Boolean))"
+                  :key="idx"
+                  color="primary"
+                  text-color="white"
+                >
+                  {{ getCategoryLabel(cat) }}
+                </q-chip>
+              </div>
+
               <h4 class="text-h5 text-weight-bold q-mt-none q-mb-md">{{ selectedItem.name }}</h4>
               <p class="text-body1 q-mb-lg">{{ selectedItem.description }}</p>
 
@@ -643,7 +670,7 @@
                     <q-icon name="schedule" size="24px" color="primary" class="q-mr-sm" />
                     <span class="text-weight-bold">Operating Hours</span>
                   </div>
-                  <div class="text-body2">{{ selectedItem.operatingHours }}</div>
+                  <div class="text-body2">{{ formatOperatingHours(selectedItem.operatingHours) }}</div>
                 </q-card-section>
               </q-card>
 
@@ -846,6 +873,56 @@ const formatDate = (dateString) => {
     month: 'long',
     day: 'numeric'
   })
+}
+
+const formatOperatingHours = (operatingHours) => {
+  if (!operatingHours) return ''
+  
+  // If it's already a formatted string, return as is
+  if (typeof operatingHours === 'string') {
+    return operatingHours
+  }
+  
+  // If it's an object with open/close/days
+  if (typeof operatingHours === 'object') {
+    const { open, close, days } = operatingHours
+    
+    if (!open || !close) {
+      return days || ''
+    }
+    
+    // Convert 24-hour to 12-hour format
+    const formatTime = (timeStr) => {
+      if (!timeStr) return ''
+      const [hours, minutes] = timeStr.split(':').map(Number)
+      const period = hours >= 12 ? 'PM' : 'AM'
+      const displayHours = hours % 12 || 12
+      return `${displayHours}:${minutes.toString().padStart(2, '0')}${period}`
+    }
+    
+    const openTime = formatTime(open)
+    const closeTime = formatTime(close)
+    
+    return `${days || ''} | ${openTime} - ${closeTime}`.trim()
+  }
+  
+  return ''
+}
+
+const getCategoryLabel = (category) => {
+  const labels = {
+    'tourist-spot': 'Tourist Spots',
+    'restaurant': 'Cafes & Restaurants',
+    'park-nature': 'Parks & Nature',
+    'museum-culture': 'Museums & Culture',
+    'shopping': 'Shopping',
+    'hotel-lodging': 'Hotels & Lodging',
+    'government': 'Government',
+    'hospital': 'Hospital',
+    'school': 'School',
+    'other': 'Other'
+  }
+  return labels[category] || category
 }
 
 const loadSavedItems = async () => {

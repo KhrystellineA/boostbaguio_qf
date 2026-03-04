@@ -256,8 +256,13 @@
             
             <!-- Category Badge -->
             <div class="category-badge">
-              <q-badge color="secondary" class="text-capitalize">
-                {{ place.category }}
+              <q-badge
+                v-for="(cat, idx) in (Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean))"
+                :key="idx"
+                color="secondary"
+                class="text-capitalize q-mr-xs"
+              >
+                {{ getCategoryLabel(cat) }}
               </q-badge>
             </div>
 
@@ -360,9 +365,16 @@
                   {{ selectedPlace.area }}
                 </div>
               </div>
-              <q-badge color="secondary" class="text-capitalize q-pa-md">
-                {{ selectedPlace.category }}
-              </q-badge>
+              <div class="row q-gutter-xs items-center">
+                <q-badge
+                  v-for="(cat, idx) in (Array.isArray(selectedPlace.categories) ? selectedPlace.categories : [selectedPlace.category].filter(Boolean))"
+                  :key="idx"
+                  color="secondary"
+                  class="text-capitalize q-pa-md"
+                >
+                  {{ getCategoryLabel(cat) }}
+                </q-badge>
+              </div>
             </div>
 
             <!-- Tags -->
@@ -399,7 +411,7 @@
               </div>
               <div class="info-content">
                 <div class="info-label text-weight-bold">Operating Hours</div>
-                <div class="info-value text-body2">{{ selectedPlace.operatingHours }}</div>
+                <div class="info-value text-body2">{{ formatOperatingHours(selectedPlace.operatingHours) }}</div>
               </div>
             </div>
 
@@ -572,11 +584,11 @@ export default defineComponent({
 
     const categories = [
       { label: 'All Places', value: 'all' },
-      { label: 'Tourist Spots', value: 'Tourist Spots' },
-      { label: 'Cafes & Restaurants', value: 'Cafes & Restaurants' },
-      { label: 'Parks & Nature', value: 'Parks & Nature' },
-      { label: 'Museums & Culture', value: 'Museums & Culture' },
-      { label: 'Shopping', value: 'Shopping' },
+      { label: 'Tourist Spots', value: 'tourist-spot' },
+      { label: 'Cafes & Restaurants', value: 'restaurant' },
+      { label: 'Parks & Nature', value: 'park-nature' },
+      { label: 'Museums & Culture', value: 'museum-culture' },
+      { label: 'Shopping', value: 'shopping' },
     ]
 
     // Get top tourist places for carousel (filter by category or popularity)
@@ -593,7 +605,11 @@ export default defineComponent({
       if (selectedCategory.value === 'all') {
         return places.value
       }
-      return places.value.filter(place => place.category === selectedCategory.value)
+      return places.value.filter(place => {
+        // Support both single category (string) and multiple categories (array)
+        const placeCategories = Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean)
+        return placeCategories.includes(selectedCategory.value)
+      })
     })
 
     const fetchHeroImage = async () => {
@@ -722,7 +738,7 @@ export default defineComponent({
             placeId: place.id,
             name: place.name,
             area: place.area,
-            category: place.category,
+            categories: Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean),
             tags: place.tags || [],
             description: place.description,
             address: place.address,
@@ -798,6 +814,56 @@ export default defineComponent({
       }
     }
 
+    const formatOperatingHours = (operatingHours) => {
+      if (!operatingHours) return ''
+
+      // If it's already a formatted string, return as is
+      if (typeof operatingHours === 'string') {
+        return operatingHours
+      }
+
+      // If it's an object with open/close/days
+      if (typeof operatingHours === 'object') {
+        const { open, close, days } = operatingHours
+
+        if (!open || !close) {
+          return days || ''
+        }
+
+        // Convert 24-hour to 12-hour format
+        const formatTime = (timeStr) => {
+          if (!timeStr) return ''
+          const [hours, minutes] = timeStr.split(':').map(Number)
+          const period = hours >= 12 ? 'PM' : 'AM'
+          const displayHours = hours % 12 || 12
+          return `${displayHours}:${minutes.toString().padStart(2, '0')}${period}`
+        }
+
+        const openTime = formatTime(open)
+        const closeTime = formatTime(close)
+
+        return `${days || ''} | ${openTime} - ${closeTime}`.trim()
+      }
+
+      return ''
+    }
+
+    const getCategoryLabel = (category) => {
+      const labels = {
+        'tourist-spot': 'Tourist Spots',
+        'restaurant': 'Cafes & Restaurants',
+        'park-nature': 'Parks & Nature',
+        'museum-culture': 'Museums & Culture',
+        'shopping': 'Shopping',
+        'hotel-lodging': 'Hotels & Lodging',
+        'government': 'Government',
+        'hospital': 'Hospital',
+        'school': 'School',
+        'other': 'Other'
+      }
+      return labels[category] || category
+    }
+
     onMounted(async () => {
       await fetchHeroImage()
       await fetchPlaces()
@@ -819,6 +885,8 @@ export default defineComponent({
       topTouristPlaces,
       slide,
       truncateText,
+      formatOperatingHours,
+      getCategoryLabel,
       openSaBaguioGroup,
       filterByCategory,
       selectPlace,
