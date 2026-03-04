@@ -134,6 +134,36 @@
                 Max 5MB (JPG, PNG, WebP)
               </template>
             </q-file>
+
+            <!-- Upload Progress -->
+            <div v-if="isUploading" class="upload-progress q-mt-md">
+              <div class="row items-center q-mb-xs">
+                <span class="text-caption text-grey-7 q-mr-sm">Uploading...</span>
+                <span class="text-caption text-primary text-weight-bold">{{ uploadProgress }}%</span>
+              </div>
+              <q-linear-progress :value="uploadProgress / 100" color="primary" />
+            </div>
+
+            <!-- Image Actions -->
+            <div v-if="imagePreview || form.imageUrl" class="image-actions q-mt-md q-gutter-sm">
+              <q-btn
+                label="Crop Image"
+                color="secondary"
+                outline
+                icon="crop"
+                size="sm"
+                @click="openCropper"
+              />
+              <q-btn
+                label="View Gallery"
+                color="primary"
+                outline
+                icon="photo_library"
+                size="sm"
+                @click="openGallery"
+                v-if="imageGallery.length > 0"
+              />
+            </div>
           </div>
 
           <q-separator class="q-my-md" />
@@ -256,6 +286,71 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <!-- Image Cropper Dialog -->
+    <q-dialog v-model="showCropperDialog" persistent maximized>
+      <q-card class="cropper-dialog">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6">Crop Image</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section class="cropper-section">
+          <vue-cropper
+            ref="cropper"
+            :src="imagePreview || form.imageUrl"
+            :alt="imageFile?.name"
+            :stencil-props="{ aspectRatio: 16/9 }"
+            :canvas="{ mimeType: 'image/webp', quality: 0.9 }"
+            class="cropper-container"
+          />
+        </q-card-section>
+
+        <q-card-actions align="center" class="q-pa-md">
+          <q-btn
+            label="Cancel"
+            color="grey"
+            flat
+            v-close-popup
+          />
+          <q-btn
+            label="Apply Crop"
+            color="primary"
+            unelevated
+            @click="applyCrop"
+            icon="check"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Image Gallery Dialog -->
+    <q-dialog v-model="showGalleryDialog" maximized>
+      <q-card class="gallery-dialog">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6">Image Gallery</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section>
+          <div class="gallery-grid">
+            <div
+              v-for="(image, index) in imageGallery"
+              :key="index"
+              class="gallery-item"
+              @click="selectGalleryImage(image)"
+            >
+              <q-img :src="image.url" class="gallery-image" />
+              <div class="gallery-item-overlay">
+                <q-icon name="add" color="white" />
+              </div>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -265,6 +360,8 @@ import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp
 import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import VueCropper from 'vue-cropperjs'
+import 'cropperjs/dist/cropper.css'
 
 // Fix for default marker icons in Leaflet
 delete L.Icon.Default.prototype._getIconUrl
@@ -276,6 +373,9 @@ L.Icon.Default.mergeOptions({
 
 export default {
   name: 'PlacesManagement',
+  components: {
+    VueCropper
+  },
 
   setup() {
     const $q = useQuasar()
@@ -292,6 +392,12 @@ export default {
       editingPlace: null,
       imageFile: null,
       imagePreview: null,
+      imageCropped: null,
+      showCropperDialog: false,
+      uploadProgress: 0,
+      isUploading: false,
+      imageGallery: [],
+      showGalleryDialog: false,
       map: null,
       marker: null,
       locationSearch: '',
@@ -556,12 +662,80 @@ export default {
       this.form.imagePath = ''
     },
 
+    // Open cropper dialog
+    openCropper() {
+      this.showCropperDialog = true
+    },
+
+    // Apply crop
+    applyCrop() {
+      if (this.$refs.cropper) {
+        const canvas = this.$refs.cropper.getCroppedCanvas({
+          width: 1920,
+          height: 1080,
+          imageSmoothingQuality: 'high'
+        })
+
+        canvas.toBlob((blob) => {
+          const croppedFile = new File([blob], this.imageFile?.name || 'cropped-image.jpg', {
+            type: 'image/jpeg'
+          })
+          this.imageFile = croppedFile
+          this.imagePreview = canvas.toDataURL('image/jpeg', 0.9)
+          this.showCropperDialog = false
+          this.$q.notify({
+            type: 'positive',
+            message: 'Image cropped successfully!',
+            position: 'top'
+          })
+        }, 'image/jpeg', 0.9)
+      }
+    },
+
+    // Open gallery
+    openGallery() {
+      this.showGalleryDialog = true
+    },
+
+    // Select image from gallery
+    selectGalleryImage(image) {
+      this.form.imageUrl = image.url
+      this.imagePreview = image.url
+      this.showGalleryDialog = false
+      this.$q.notify({
+        type: 'positive',
+        message: 'Image selected from gallery',
+        position: 'top'
+      })
+    },
+
+    // Simulate upload progress
+    simulateUploadProgress() {
+      this.isUploading = true
+      this.uploadProgress = 0
+      
+      const interval = setInterval(() => {
+        this.uploadProgress += Math.random() * 15
+        if (this.uploadProgress >= 100) {
+          this.uploadProgress = 100
+          clearInterval(interval)
+          setTimeout(() => {
+            this.isUploading = false
+            this.uploadProgress = 0
+          }, 500)
+        }
+      }, 200)
+    },
+
     async uploadImage() {
       if (!this.imageFile) return null
 
+      // Start upload progress simulation
+      this.simulateUploadProgress()
+
       try {
         const { uploadOptimizedImage } = await import('src/utils/cloudinary')
-        
+
         const uploadResult = await uploadOptimizedImage(
           this.imageFile,
           'baguiboost/places',
@@ -573,12 +747,21 @@ export default {
           }
         )
 
+        // Add to gallery
+        this.imageGallery.push({
+          url: uploadResult.url,
+          publicId: uploadResult.publicId,
+          uploadedAt: new Date()
+        })
+
         return {
           imageUrl: uploadResult.url,
           imagePublicId: uploadResult.publicId
         }
       } catch (error) {
         console.error('[Places] Error uploading image:', error)
+        this.isUploading = false
+        this.uploadProgress = 0
         throw error
       }
     },
@@ -842,4 +1025,72 @@ export default {
   display: flex
   align-items: center
   flex-wrap: wrap
+
+// Upload Progress
+.upload-progress
+  width: 100%
+
+// Image Actions
+.image-actions
+  display: flex
+  gap: 8px
+  flex-wrap: wrap
+
+// Cropper Dialog
+.cropper-dialog
+  height: 90vh
+  display: flex
+  flex-direction: column
+
+.cropper-section
+  flex: 1
+  overflow: hidden
+  padding: 0
+
+.cropper-container
+  width: 100%
+  height: 100%
+  max-height: 60vh
+
+// Gallery Dialog
+.gallery-dialog
+  height: 90vh
+  display: flex
+  flex-direction: column
+
+.gallery-grid
+  display: grid
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))
+  gap: 16px
+  padding: 16px
+
+.gallery-item
+  position: relative
+  cursor: pointer
+  border-radius: 8px
+  overflow: hidden
+  transition: transform 0.3s
+
+  &:hover
+    transform: scale(1.05)
+
+.gallery-image
+  height: 200px
+  object-fit: cover
+
+.gallery-item-overlay
+  position: absolute
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
+  background: rgba(0, 0, 0, 0.5)
+  display: flex
+  align-items: center
+  justify-content: center
+  opacity: 0
+  transition: opacity 0.3s
+
+  &:hover
+    opacity: 1
 </style>
