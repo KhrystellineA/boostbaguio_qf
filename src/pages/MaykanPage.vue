@@ -305,9 +305,9 @@
             </q-card-section>
 
             <q-card-actions align="right">
-              <q-btn 
-                flat 
-                color="primary" 
+              <q-btn
+                flat
+                color="primary"
                 @click.stop="selectPlace(place)"
                 icon="visibility"
               >
@@ -330,12 +330,10 @@
     <!-- PLACE DETAILS MODAL (Section 6) -->
     <q-dialog
       v-model="showPlaceDetail"
-      full-width
-      full-height
-      transition-show="slide-up"
-      transition-hide="slide-down"
+      transition-show="fade"
+      transition-hide="fade"
     >
-      <q-card v-if="selectedPlace" class="place-detail-card">
+      <q-card v-if="selectedPlace" class="place-detail-card" style="width: 90%; max-width: 800px;">
         <!-- Header with Image -->
         <div class="modal-header">
           <q-img
@@ -354,7 +352,7 @@
           />
         </div>
 
-        <q-card-section class="modal-content">
+        <q-scroll-area class="modal-content" style="height: 60vh;">
           <!-- Title Section -->
           <div class="title-section q-mb-lg">
             <div class="row items-start justify-between">
@@ -464,17 +462,24 @@
               />
               <q-btn
                 :label="isPlaceSaved(selectedPlace) ? 'Saved' : 'Save Place'"
-                :color="isPlaceSaved(selectedPlace) ? 'positive' : 'white'"
-                :outline="!isPlaceSaved(selectedPlace)"
+                :color="isPlaceSaved(selectedPlace) ? 'positive' : 'secondary'"
                 :icon="isPlaceSaved(selectedPlace) ? 'bookmark' : 'bookmark_border'"
                 @click="toggleSavePlace(selectedPlace)"
+                unelevated
               />
               <q-btn
                 label="Share"
-                color="white"
-                outline
+                color="secondary"
+                unelevated
                 icon="share"
                 @click="sharePlace"
+              />
+              <q-btn
+                label="Report Issue"
+                color="negative"
+                unelevated
+                icon="report_problem"
+                @click="reportIssue(selectedPlace)"
               />
             </div>
             <div class="text-caption text-grey-7 q-mt-md" v-if="selectedPlace.updatedAt">
@@ -482,7 +487,44 @@
               Last updated: {{ formatDate(selectedPlace.updatedAt) }}
             </div>
           </div>
+        </q-scroll-area>
+      </q-card>
+    </q-dialog>
+
+    <!-- Report Issue Dialog -->
+    <q-dialog v-model="showReportDialog" persistent>
+      <q-card style="min-width: 500px">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6 text-primary">Report Issue</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
+
+        <q-card-section>
+          <div class="text-body2 text-grey-7 q-mb-md">
+            Reporting: <strong>{{ placeToReport?.name }}</strong>
+          </div>
+          <q-input
+            v-model="reportIssueText"
+            outlined
+            type="textarea"
+            label="Describe the issue *"
+            placeholder="Please describe what's wrong with this place (e.g., incorrect information, closed permanently, inappropriate content, etc.)"
+            autogrow
+            :rows="4"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" color="grey" v-close-popup />
+          <q-btn
+            label="Submit Report"
+            color="negative"
+            unelevated
+            @click="submitReport"
+            :disable="!reportIssueText.trim()"
+          />
+        </q-card-actions>
       </q-card>
     </q-dialog>
 
@@ -566,6 +608,9 @@ export default defineComponent({
     const selectedCategory = ref('all')
     const heroImageUrl = ref(fallbackImage)
     const savedPlacesIds = ref(new Set())
+    const showReportDialog = ref(false)
+    const placeToReport = ref(null)
+    const reportIssueText = ref('')
 
     // Carousel state
     const slide = ref(0)
@@ -844,6 +889,39 @@ export default defineComponent({
       })
     }
 
+    const reportIssue = (place) => {
+      placeToReport.value = place
+      reportIssueText.value = ''
+      showReportDialog.value = true
+    }
+
+    const submitReport = () => {
+      if (!reportIssueText.value.trim()) {
+        $q.notify({
+          type: 'warning',
+          message: 'Please describe the issue',
+          position: 'top'
+        })
+        return
+      }
+
+      // Here you would typically save the report to Firebase
+      console.log('[MaykanPage] Report submitted:', {
+        placeId: placeToReport.value?.id,
+        placeName: placeToReport.value?.name,
+        issue: reportIssueText.value,
+        timestamp: new Date()
+      })
+
+      showReportDialog.value = false
+      $q.notify({
+        type: 'positive',
+        message: 'Thank you! Your report has been submitted.',
+        position: 'top',
+        timeout: 3000
+      })
+    }
+
     const formatOperatingHours = (operatingHours) => {
       if (!operatingHours) return ''
 
@@ -939,6 +1017,11 @@ export default defineComponent({
       toggleSavePlace,
       isPlaceSaved,
       userStore,
+      reportIssue,
+      submitReport,
+      showReportDialog,
+      placeToReport,
+      reportIssueText
     }
   },
 })
@@ -1350,13 +1433,14 @@ $white: #FFFFFF;
 
 /* Modal Styles */
 .place-detail-card {
-  border-radius: 20px 20px 0 0;
+  border-radius: 16px;
   overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .modal-header {
   position: relative;
-  height: 350px;
+  height: 250px;
 }
 
 .modal-image {
@@ -1381,8 +1465,7 @@ $white: #FFFFFF;
 .modal-content {
   max-width: 1000px;
   margin: 0 auto;
-  overflow-y: auto;
-  max-height: calc(100vh - 350px);
+  padding: 0 24px;
 }
 
 .title-section {
@@ -1518,7 +1601,7 @@ $white: #FFFFFF;
   }
 
   .modal-content {
-    max-height: calc(100vh - 250px);
+    height: calc(100vh - 300px);
   }
 
   .info-grid {

@@ -270,8 +270,8 @@
     </section>
 
     <!-- EVENT DETAILS DIALOG -->
-    <q-dialog v-model="showEventDialog" maximized>
-      <q-card class="event-details-dialog">
+    <q-dialog v-model="showEventDialog" transition-show="fade" transition-hide="fade">
+      <q-card class="event-details-dialog" style="width: 90%; max-width: 900px;">
         <q-card-section class="bg-primary text-white">
           <div class="row items-center">
             <div class="col">
@@ -288,7 +288,7 @@
         </q-card-section>
 
         <q-card-section class="q-pa-none" v-if="selectedEvent">
-          <q-scroll-area style="height: calc(100vh - 80px)">
+          <q-scroll-area style="height: 65vh">
             <q-img
               :src="selectedEvent.imageUrl || '~assets/event-default.jpg'"
               spinner-color="primary"
@@ -394,8 +394,22 @@
                         color="secondary"
                         icon="share"
                         class="full-width"
-                        outline
+                        unelevated
                         @click="shareEvent(selectedEvent)"
+                      />
+                    </q-card-section>
+                  </q-card>
+
+                  <q-card flat bordered>
+                    <q-card-section>
+                      <h5 class="text-subtitle1 text-weight-bold q-mb-sm text-negative">Report Issue</h5>
+                      <q-btn
+                        label="Report Issue"
+                        color="negative"
+                        icon="report_problem"
+                        class="full-width"
+                        unelevated
+                        @click="reportIssue(selectedEvent)"
                       />
                     </q-card-section>
                   </q-card>
@@ -404,6 +418,43 @@
             </q-card-section>
           </q-scroll-area>
         </q-card-section>
+      </q-card>
+    </q-dialog>
+
+    <!-- Report Issue Dialog -->
+    <q-dialog v-model="showReportDialog" persistent>
+      <q-card style="min-width: 500px">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6 text-primary">Report Issue</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section>
+          <div class="text-body2 text-grey-7 q-mb-md">
+            Reporting: <strong>{{ eventToReport?.name }}</strong>
+          </div>
+          <q-input
+            v-model="reportIssueText"
+            outlined
+            type="textarea"
+            label="Describe the issue *"
+            placeholder="Please describe what's wrong with this event (e.g., incorrect information, cancelled event, inappropriate content, etc.)"
+            autogrow
+            :rows="4"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" color="grey" v-close-popup />
+          <q-btn
+            label="Submit Report"
+            color="negative"
+            unelevated
+            @click="submitReport"
+            :disable="!reportIssueText.trim()"
+          />
+        </q-card-actions>
       </q-card>
     </q-dialog>
 
@@ -483,6 +534,9 @@ export default defineComponent({
     const selectedEvent = ref(null)
     const heroImageUrl = ref(bakeryImage)
     const selectedDate = ref(null)
+    const showReportDialog = ref(false)
+    const eventToReport = ref(null)
+    const reportIssueText = ref('')
     
     // Calendar state
     const currentDate = ref(new Date()) // Start with current month/year
@@ -714,6 +768,38 @@ export default defineComponent({
       })
     }
 
+    const reportIssue = (event) => {
+      eventToReport.value = event
+      reportIssueText.value = ''
+      showReportDialog.value = true
+    }
+
+    const submitReport = () => {
+      if (!reportIssueText.value.trim()) {
+        $q.notify({
+          type: 'warning',
+          message: 'Please describe the issue',
+          position: 'top'
+        })
+        return
+      }
+
+      console.log('[AramidemPage] Report submitted:', {
+        eventId: eventToReport.value?.id,
+        eventName: eventToReport.value?.name,
+        issue: reportIssueText.value,
+        timestamp: new Date()
+      })
+
+      showReportDialog.value = false
+      $q.notify({
+        type: 'positive',
+        message: 'Thank you! Your report has been submitted.',
+        position: 'top',
+        timeout: 3000
+      })
+    }
+
     const formatDate = (dateString) => {
       if (!dateString) return ''
       const date = new Date(dateString)
@@ -811,6 +897,8 @@ export default defineComponent({
       viewEventDetails,
       navigateToEvent,
       shareEvent,
+      reportIssue,
+      submitReport,
       formatDate,
       formatDateFull,
       formatTime,
@@ -818,7 +906,10 @@ export default defineComponent({
       getMonth,
       faqs,
       leftFaqs,
-      rightFaqs
+      rightFaqs,
+      showReportDialog,
+      eventToReport,
+      reportIssueText
     }
   },
 })
@@ -1041,10 +1132,11 @@ export default defineComponent({
 .event-details-dialog {
   border-radius: 16px;
   overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
 }
 
 .event-detail-image {
-  height: 350px;
+  height: 280px;
 }
 
 .bg-primary {

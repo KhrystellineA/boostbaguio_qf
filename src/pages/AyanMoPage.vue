@@ -244,6 +244,14 @@
                     class="full-width"
                     @click="navigateToPlace(selectedPlace)"
                   />
+                  <q-btn
+                    label="Report Issue"
+                    color="negative"
+                    unelevated
+                    icon="report_problem"
+                    class="full-width q-mt-md"
+                    @click="reportIssue(selectedPlace)"
+                  />
                 </div>
               </q-card-section>
             </q-card>
@@ -258,6 +266,43 @@
         </div>
       </div>
     </section>
+
+    <!-- Report Issue Dialog -->
+    <q-dialog v-model="showReportDialog" persistent>
+      <q-card style="min-width: 500px">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6 text-primary">Report Issue</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section>
+          <div class="text-body2 text-grey-7 q-mb-md">
+            Reporting: <strong>{{ placeToReport?.name }}</strong>
+          </div>
+          <q-input
+            v-model="reportIssueText"
+            outlined
+            type="textarea"
+            label="Describe the issue *"
+            placeholder="Please describe what's wrong with this place (e.g., incorrect information, closed permanently, inappropriate content, etc.)"
+            autogrow
+            :rows="4"
+          />
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancel" color="grey" v-close-popup />
+          <q-btn
+            label="Submit Report"
+            color="negative"
+            unelevated
+            @click="submitReport"
+            :disable="!reportIssueText.trim()"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
     <!-- FAQS SECTION (Section 6) -->
     <section class="faqs-section">
@@ -343,6 +388,9 @@ export default defineComponent({
     const isScrolled = ref(false)
     const mapInstance = ref(null)
     const userMarker = ref(null)
+    const showReportDialog = ref(false)
+    const placeToReport = ref(null)
+    const reportIssueText = ref('')
 
     const categories = [
       { label: 'All Categories', value: 'all' },
@@ -706,6 +754,38 @@ export default defineComponent({
       selectedPlace.value = place
     }
 
+    const reportIssue = (place) => {
+      placeToReport.value = place
+      reportIssueText.value = ''
+      showReportDialog.value = true
+    }
+
+    const submitReport = () => {
+      if (!reportIssueText.value.trim()) {
+        $q.notify({
+          type: 'warning',
+          message: 'Please describe the issue',
+          position: 'top'
+        })
+        return
+      }
+
+      console.log('[AyanMoPage] Report submitted:', {
+        placeId: placeToReport.value?.id,
+        placeName: placeToReport.value?.name,
+        issue: reportIssueText.value,
+        timestamp: new Date()
+      })
+
+      showReportDialog.value = false
+      $q.notify({
+        type: 'positive',
+        message: 'Thank you! Your report has been submitted.',
+        position: 'top',
+        timeout: 3000
+      })
+    }
+
     const navigateToPlace = (place) => {
       if (!place) return
 
@@ -857,7 +937,12 @@ export default defineComponent({
       getCategoryLabel,
       getCategoryColor,
       isScrolled,
-      onScroll
+      onScroll,
+      reportIssue,
+      submitReport,
+      showReportDialog,
+      placeToReport,
+      reportIssueText
     }
   },
 })
