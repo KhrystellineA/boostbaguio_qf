@@ -477,6 +477,10 @@
                 @click="sharePlace"
               />
             </div>
+            <div class="text-caption text-grey-7 q-mt-md" v-if="selectedPlace.updatedAt">
+              <q-icon name="update" size="xs" class="q-mr-xs" />
+              Last updated: {{ formatDate(selectedPlace.updatedAt) }}
+            </div>
           </div>
         </q-card-section>
       </q-card>
@@ -797,21 +801,41 @@ export default defineComponent({
     const sharePlace = () => {
       if (!selectedPlace.value) return
 
-      if (navigator.share) {
-        navigator.share({
-          title: selectedPlace.value.name,
-          text: `Check out this place in Baguio: ${selectedPlace.value.name}`,
-          url: window.location.href
-        }).catch(console.error)
-      } else {
-        // Fallback for browsers that don't support Web Share API
-        navigator.clipboard.writeText(window.location.href)
-        $q.notify({
-          message: 'Place link copied to clipboard!',
-          color: 'positive',
-          position: 'top'
-        })
-      }
+      // Show share options dialog
+      $q.dialog({
+        title: 'Share ' + selectedPlace.value.name,
+        message: 'Choose how you want to share this place:',
+        options: {
+          type: 'list',
+          options: [
+            { label: 'Copy Link', icon: 'content_copy', value: 'copy' },
+            { label: 'Facebook', icon: 'facebook', value: 'facebook' },
+            { label: 'Twitter', icon: 'rss_feed', value: 'twitter' },
+            { label: 'Messenger', icon: 'chat', value: 'messenger' }
+          ]
+        },
+        cancel: true,
+        persistent: true
+      }).onOk(async (data) => {
+        const placeUrl = window.location.href.split('?')[0] + '?place=' + selectedPlace.value.id
+        const placeText = 'Check out ' + selectedPlace.value.name + ' in Baguio City! ' + placeUrl
+
+        if (data === 'copy') {
+          await navigator.clipboard.writeText(placeUrl)
+          $q.notify({
+            message: 'Link copied to clipboard!',
+            color: 'positive',
+            position: 'top',
+            icon: 'check'
+          })
+        } else if (data === 'facebook') {
+          window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(placeUrl), '_blank', 'width=600,height=400')
+        } else if (data === 'twitter') {
+          window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(placeText), '_blank', 'width=600,height=400')
+        } else if (data === 'messenger') {
+          window.open('fb-messenger://share?link=' + encodeURIComponent(placeUrl), '_blank')
+        }
+      })
     }
 
     const formatOperatingHours = (operatingHours) => {
@@ -864,6 +888,18 @@ export default defineComponent({
       return labels[category] || category
     }
 
+    const formatDate = (timestamp) => {
+      if (!timestamp) return ''
+      const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp)
+      return date.toLocaleDateString('en-PH', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    }
+
     onMounted(async () => {
       await fetchHeroImage()
       await fetchPlaces()
@@ -887,6 +923,7 @@ export default defineComponent({
       truncateText,
       formatOperatingHours,
       getCategoryLabel,
+      formatDate,
       openSaBaguioGroup,
       filterByCategory,
       selectPlace,
