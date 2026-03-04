@@ -1,6 +1,17 @@
 <template>
   <header :class="['app-header', { 'scrolled': isScrolled }]">
     <q-toolbar class="main-toolbar">
+      <!-- Mobile Menu Button -->
+      <q-btn
+        flat
+        dense
+        round
+        icon="menu"
+        aria-label="Menu"
+        class="mobile-only q-mr-sm"
+        @click="leftDrawerOpen = !leftDrawerOpen"
+      />
+
       <!-- Logo Section -->
       <div class="logo-section cursor-pointer" @click="$router.push('/')">
         <div class="logo-bento">
@@ -737,8 +748,9 @@ $text-muted: #636E72;
 
 .mobile-nav-item {
   border-radius: 12px;
-  padding: 14px 16px;
+  padding: 16px 16px;
   margin: 4px 8px;
+  min-height: 56px;
   transition: all 0.3s ease;
 
   &:hover {

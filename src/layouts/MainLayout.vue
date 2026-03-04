@@ -239,4 +239,77 @@ export default {
 .q-page {
   background: transparent !important;
 }
+
+// Mobile Touch Optimizations
+@media (max-width: 768px) {
+  // Ensure all buttons are touch-friendly (minimum 44px)
+  .q-btn {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+
+  // Make q-items touch-friendly
+  .q-item {
+    min-height: 56px !important;
+  }
+
+  // Optimize form inputs for touch
+  .q-field {
+    min-height: 56px !important;
+  }
+
+  // Make tabs easier to tap
+  .q-tab {
+    min-height: 48px !important;
+    min-width: 72px !important;
+  }
+
+  // Optimize list items
+  .q-item__section--avatar {
+    min-width: 56px !important;
+  }
+
+  // Make cards easier to tap
+  .q-card {
+    .q-card__section {
+      padding: 16px !important;
+    }
+  }
+
+  // Optimize expansion items
+  .q-expansion-item {
+    min-height: 56px !important;
+    
+    .q-item__section--main {
+      font-weight: 600;
+    }
+  }
+
+  // Make fab buttons larger on mobile
+  .q-page__fab {
+    .q-btn--fab {
+      width: 56px !important;
+      height: 56px !important;
+    }
+  }
+
+  // Optimize select dropdowns
+  .q-select {
+    .q-field__control {
+      min-height: 56px !important;
+    }
+  }
+
+  // Make checkboxes and radios larger
+  .q-checkbox, .q-radio {
+    min-height: 48px !important;
+    min-width: 48px !important;
+  }
+
+  // Optimize chip clickable area
+  .q-chip {
+    min-height: 40px !important;
+    padding: 8px 12px !important;
+  }
+}
 </style>
