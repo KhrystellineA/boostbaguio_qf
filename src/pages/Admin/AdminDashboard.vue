@@ -534,7 +534,7 @@ export default {
     async loadStats() {
       try {
         const [routesSnap, placesSnap, eventsSnap, adminsSnap] = await Promise.all([
-          getDocs(collection(db, 'routes')),
+          getDocs(collection(db, 'jeepneys')),
           getDocs(collection(db, 'places')),
           getDocs(collection(db, 'events')),
           getDocs(collection(db, 'admins')),

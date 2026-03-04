@@ -7,6 +7,23 @@
       </div>
       <div class="col-auto q-gutter-sm">
         <q-btn
+          v-if="selectedJeepneys.length > 0"
+          color="negative"
+          :label="`Delete Selected (${selectedJeepneys.length})`"
+          icon="delete"
+          no-caps
+          @click="bulkDelete"
+        />
+        <q-btn
+          v-if="filteredJeepneys.length > 0"
+          color="negative"
+          outline
+          :label="`Delete All (${filteredJeepneys.length})`"
+          icon="delete_sweep"
+          no-caps
+          @click="deleteAllJeepneys"
+        />
+        <q-btn
           outline
           style="border-color: #2d6a4f; color: #2d6a4f"
           label="Download CSV Template"
@@ -54,6 +71,8 @@
           :loading="loading"
           flat
           bordered
+          v-model:selected="selectedJeepneys"
+          selection="multiple"
         >
           <template #body-cell-imageUrl="props">
             <q-td :props="props">
@@ -585,6 +604,7 @@ export default {
       importedCount: 0,
       isImporting: false,
       importLogs: [],
+      selectedJeepneys: [],
       previewColumns: [
         { name: 'jeepName', label: 'Jeepney Name', field: 'jeepName', align: 'left', sortable: true },
         { name: 'terminalLocation', label: 'Terminal', field: 'terminalLocation', align: 'left' },
@@ -598,14 +618,26 @@ export default {
 
   computed: {
     filteredJeepneys() {
-      if (!this.search) return this.jeepneys
+      let result = this.jeepneys
 
-      const searchLower = this.search.toLowerCase()
-      return this.jeepneys.filter(jeepney =>
-        jeepney.jeepName?.toLowerCase().includes(searchLower) ||
-        jeepney.terminalLocation?.toLowerCase().includes(searchLower) ||
-        jeepney.endPoint?.toLowerCase().includes(searchLower)
-      )
+      // Filter by search query
+      if (this.search) {
+        const searchLower = this.search.toLowerCase()
+        result = result.filter(jeepney =>
+          jeepney.jeepName?.toLowerCase().includes(searchLower) ||
+          jeepney.terminalLocation?.toLowerCase().includes(searchLower) ||
+          jeepney.endPoint?.toLowerCase().includes(searchLower)
+        )
+      }
+
+      // Sort alphabetically by jeepney name
+      result.sort((a, b) => {
+        const nameA = (a.jeepName || '').toLowerCase()
+        const nameB = (b.jeepName || '').toLowerCase()
+        return nameA.localeCompare(nameB)
+      })
+
+      return result
     },
 
     validCount() {
@@ -971,6 +1003,147 @@ export default {
       })
     },
 
+    async bulkDelete() {
+      if (this.selectedJeepneys.length === 0) return
+
+      this.$q.dialog({
+        title: 'Confirm Bulk Delete',
+        message: `Are you sure you want to delete ${this.selectedJeepneys.length} selected jeepney(s)? This action cannot be undone.`,
+        cancel: true,
+        persistent: true,
+        ok: {
+          label: 'Delete All',
+          color: 'negative',
+          push: true
+        }
+      }).onOk(async () => {
+        const loadingDialog = this.$q.loading.show({
+          message: `Deleting ${this.selectedJeepneys.length} jeepney(s)...`
+        })
+
+        try {
+          let successCount = 0
+          let failCount = 0
+
+          for (const jeepney of this.selectedJeepneys) {
+            try {
+              await deleteDoc(doc(db, 'jeepneys', jeepney.id))
+              successCount++
+            } catch (error) {
+              console.error('[Jeepneys] Error deleting:', jeepney.jeepName, error)
+              failCount++
+            }
+          }
+
+          this.selectedJeepneys = []
+          this.loadJeepneys()
+
+          loadingDialog.hide()
+
+          if (successCount > 0) {
+            this.$q.notify({
+              type: 'positive',
+              message: `Successfully deleted ${successCount} jeepney(s)`,
+              position: 'top',
+              timeout: 3000
+            })
+          }
+
+          if (failCount > 0) {
+            this.$q.notify({
+              type: 'warning',
+              message: `Failed to delete ${failCount} jeepney(s)`,
+              position: 'top',
+              timeout: 5000
+            })
+          }
+        } catch (error) {
+          console.error('[Jeepneys] Bulk delete error:', error)
+          loadingDialog.hide()
+          this.$q.notify({
+            type: 'negative',
+            message: 'Bulk delete failed: ' + error.message,
+            position: 'top',
+            timeout: 5000
+          })
+        }
+      })
+    },
+
+    async deleteAllJeepneys() {
+      const total = this.filteredJeepneys.length
+      if (total === 0) return
+
+      this.$q.dialog({
+        title: '⚠️ DANGER: Delete ALL Jeepneys',
+        message: `WARNING: This will permanently delete ALL ${total} jeepney(s) from the database. This action CANNOT be undone and will remove all routes and data. Type "DELETE ALL" to confirm:`,
+        cancel: true,
+        persistent: true,
+        prompt: {
+          model: '',
+          isValid: (val) => val === 'DELETE ALL'
+        },
+        ok: {
+          label: 'DELETE ALL',
+          color: 'negative',
+          push: true
+        }
+      }).onOk(async (confirmText) => {
+        if (confirmText !== 'DELETE ALL') return
+
+        const loadingDialog = this.$q.loading.show({
+          message: `Deleting ALL ${total} jeepney(s)... Please wait.`
+        })
+
+        try {
+          let successCount = 0
+          let failCount = 0
+
+          for (const jeepney of this.filteredJeepneys) {
+            try {
+              await deleteDoc(doc(db, 'jeepneys', jeepney.id))
+              successCount++
+            } catch (error) {
+              console.error('[Jeepneys] Error deleting:', jeepney.jeepName, error)
+              failCount++
+            }
+          }
+
+          this.selectedJeepneys = []
+          this.loadJeepneys()
+
+          loadingDialog.hide()
+
+          if (successCount > 0) {
+            this.$q.notify({
+              type: 'positive',
+              message: `Successfully deleted ${successCount} jeepney(s)`,
+              position: 'top',
+              timeout: 5000
+            })
+          }
+
+          if (failCount > 0) {
+            this.$q.notify({
+              type: 'warning',
+              message: `Failed to delete ${failCount} jeepney(s)`,
+              position: 'top',
+              timeout: 5000
+            })
+          }
+        } catch (error) {
+          console.error('[Jeepneys] Delete all error:', error)
+          loadingDialog.hide()
+          this.$q.notify({
+            type: 'negative',
+            message: 'Delete all failed: ' + error.message,
+            position: 'top',
+            timeout: 5000
+          })
+        }
+      })
+    },
+
     resetForm() {
       this.form = {
         jeepName: '',
@@ -1152,10 +1325,27 @@ export default {
     },
 
     mapCsvRow(headers, values, rowIndex) {
+      // Normalize headers (trim spaces, convert to lowercase)
+      const normalizedHeaders = headers.map(h => h.trim().toLowerCase().replace(/\s+/g, '_'))
+
       const getValue = (key) => {
-        const index = headers.indexOf(key)
-        return index !== -1 ? values[index] : ''
+        const index = normalizedHeaders.indexOf(key)
+        const value = index !== -1 ? values[index]?.trim() || '' : ''
+        console.log(`[CSV] ${key}: "${value}" (index: ${index})`)
+        return value
       }
+
+      // Debug: Log headers for troubleshooting
+      if (rowIndex === 0) {
+        console.log('[CSV] Original Headers:', headers)
+        console.log('[CSV] Normalized Headers:', normalizedHeaders)
+        console.log('[CSV] First Row Values:', values)
+      }
+
+      const operatingHoursOpen = getValue('operating_hours_open')
+      const operatingHoursClose = getValue('operating_hours_close')
+
+      console.log('[CSV] Operating Hours - Open:', operatingHoursOpen, 'Close:', operatingHoursClose)
 
       const jeepney = {
         index: rowIndex,
@@ -1169,8 +1359,8 @@ export default {
         farePWD: parseFloat(getValue('fare_pwd')) || null,
         endPoint: getValue('end_point'),
         operatingHours: {
-          open: getValue('operating_hours_open') || '',
-          close: getValue('operating_hours_close') || ''
+          open: operatingHoursOpen,
+          close: operatingHoursClose
         },
         touristSpotsServiced: [],
         valid: true,
@@ -1221,7 +1411,12 @@ export default {
         
         try {
           const uniqueId = `JEEP-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
-          
+
+          console.log('[CSV Import] Before save:', {
+            jeepName: jeepney.jeepName,
+            operatingHours: jeepney.operatingHours
+          })
+
           const jeepneyData = {
             uniqueId: uniqueId,
             jeepName: jeepney.jeepName,
@@ -1232,15 +1427,21 @@ export default {
             fareStudent: jeepney.fareStudent,
             fareSenior: jeepney.fareSenior,
             farePWD: jeepney.farePWD,
-            operatingHours: jeepney.operatingHours,
+            operatingHours: {
+              open: jeepney.operatingHours.open || '',
+              close: jeepney.operatingHours.close || ''
+            },
             touristSpotsServiced: jeepney.touristSpotsServiced,
             routePoints: [],
             endPoint: jeepney.endPoint,
+            isActive: true,
             imageUrl: '',
             imagePublicId: '',
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
           }
+
+          console.log('[CSV Import] Saving to Firebase:', jeepneyData.operatingHours)
 
           await addDoc(collection(db, 'jeepneys'), jeepneyData)
           

@@ -157,23 +157,25 @@ export default defineConfig((/* ctx */) => {
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-pwa/configuring-pwa
     pwa: {
-  workboxMode: 'GenerateSW', // lowercase 'g' in generateSW
+  workboxMode: 'GenerateSW',
   injectPwaMetaTags: true,
   swFilename: 'sw.js',
   manifestFilename: 'manifest.json',
   useCredentialsForManifestTag: false,
-  
+
   extendGenerateSWOptions (cfg) {
     cfg.skipWaiting = true
     cfg.clientsClaim = true
     cfg.cleanupOutdatedCaches = true
     cfg.navigateFallback = '/index.html'
-    // Add caching strategies
+    cfg.offlineGoogleAnalytics = false
+    
+    // Enhanced caching strategies
     cfg.runtimeCaching = [
       // Google Fonts
       {
         urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-        handler: 'CacheFirst',
+        handler: 'StaleWhileRevalidate',
         options: {
           cacheName: 'google-fonts-stylesheets',
           expiration: {
@@ -191,7 +193,7 @@ export default defineConfig((/* ctx */) => {
         options: {
           cacheName: 'gstatic-fonts-cache',
           expiration: {
-            maxEntries: 10,
+            maxEntries: 30,
             maxAgeSeconds: 60 * 60 * 24 * 365
           },
           cacheableResponse: {
@@ -199,19 +201,22 @@ export default defineConfig((/* ctx */) => {
           }
         }
       },
-      // Images
+      // Images - Cache First with fallback
       {
-        urlPattern: /\.(?:png|gif|jpg|jpeg|svg|webp)$/,
+        urlPattern: /\.(?:png|gif|jpg|jpeg|svg|webp|ico|avif)$/,
         handler: 'CacheFirst',
         options: {
           cacheName: 'images-cache',
           expiration: {
-            maxEntries: 60,
+            maxEntries: 100,
             maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+          },
+          cacheableResponse: {
+            statuses: [0, 200]
           }
         }
       },
-      // Firebase Storage
+      // Firebase Storage - Network First
       {
         urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\/.*/i,
         handler: 'NetworkFirst',
@@ -221,10 +226,28 @@ export default defineConfig((/* ctx */) => {
           expiration: {
             maxEntries: 50,
             maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
+          },
+          cacheableResponse: {
+            statuses: [0, 200]
           }
         }
       },
-      // Firebase Data
+      // Cloudinary Images
+      {
+        urlPattern: /^https:\/\/res\.cloudinary\.com\/.*/i,
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'cloudinary-images-cache',
+          expiration: {
+            maxEntries: 100,
+            maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+          },
+          cacheableResponse: {
+            statuses: [0, 200]
+          }
+        }
+      },
+      // API Calls - Network First with cache fallback
       {
         urlPattern: /^https:\/\/.*\.firebaseio\.com\/.*/i,
         handler: 'NetworkFirst',
@@ -233,7 +256,25 @@ export default defineConfig((/* ctx */) => {
           networkTimeoutSeconds: 5,
           expiration: {
             maxEntries: 100,
-            maxAgeSeconds: 60 * 10 // 10 minutes
+            maxAgeSeconds: 60 * 5 // 5 minutes
+          },
+          cacheableResponse: {
+            statuses: [0, 200]
+          }
+        }
+      },
+      // Static Assets - Cache First
+      {
+        urlPattern: /\.(?:js|css|woff|woff2|ttf|otf|eot)$/,
+        handler: 'CacheFirst',
+        options: {
+          cacheName: 'static-assets-cache',
+          expiration: {
+            maxEntries: 60,
+            maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+          },
+          cacheableResponse: {
+            statuses: [0, 200]
           }
         }
       }

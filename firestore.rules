@@ -146,6 +146,23 @@ service cloud.firestore {
       allow delete: if isAuthenticated();
     }
 
+    // ========== JEEPNEYS COLLECTION ==========
+
+    match /jeepneys/{jeepneyId} {
+      // Anyone can read jeepneys
+      allow read: if true;
+
+      // Only authenticated admins can create jeepneys
+      allow create: if isAuthenticated() && isAdmin() &&
+                       request.resource.data.keys().hasAll(['jeepName', 'terminalLocation']);
+
+      // Only authenticated admins can update jeepneys
+      allow update: if isAuthenticated() && isAdmin();
+
+      // Only authenticated admins can delete jeepneys
+      allow delete: if isAuthenticated() && isAdmin();
+    }
+
     // ========== PHOTOS COLLECTION ==========
 
     match /photos/{photoId} {

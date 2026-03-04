@@ -49,14 +49,36 @@
         <div class="search-bar-section q-mb-xl">
           <q-input
             v-model="searchQuery"
-            filled
-            placeholder="Search for routes, destinations..."
+            outlined
+            placeholder="Search by jeepney name, terminal, destination, or tourist spot..."
+            dense
             class="search-input"
           >
             <template v-slot:prepend>
               <q-icon name="search" />
             </template>
+            <template v-slot:append>
+              <q-btn
+                v-if="searchQuery"
+                flat
+                dense
+                icon="clear"
+                @click="searchQuery = ''"
+              >
+                <q-tooltip>Clear Search</q-tooltip>
+              </q-btn>
+            </template>
           </q-input>
+          <div class="row justify-between items-center q-mt-xs">
+            <div class="text-caption text-grey-7">
+              <span v-if="searchQuery">
+                Found {{ filteredRoutes.length }} jeepney(s) matching "{{ searchQuery }}"
+              </span>
+              <span v-else>
+                Showing all {{ allRoutes.length }} jeepney(s) - Sorted A-Z
+              </span>
+            </div>
+          </div>
         </div>
 
         <div class="routes-grid">
@@ -72,16 +94,80 @@
               class="route-image"
             />
             <q-card-section>
-              <div class="text-h6 text-primary">{{ route.routeName }}</div>
-              <div class="text-subtitle2">From: {{ route.terminalStart }}</div>
-              <div class="text-subtitle2">To: {{ route.terminalEnd }}</div>
-              <div class="row items-center q-mt-md">
-                <q-icon name="monetization_on" color="primary" size="xs" class="q-mr-sm" />
-                <span>Fare: ₱{{ route.fare }}</span>
+              <div class="text-h6 text-primary text-weight-bold">{{ route.jeepName || route.routeName }}</div>
+              <div class="text-subtitle2 text-grey-7 q-mt-xs">
+                <q-icon name="location_on" size="14px" class="q-mr-xs" color="primary" />
+                Terminal: {{ route.terminalLocation }}
               </div>
-              <div class="row items-center q-mt-sm">
-                <q-icon name="schedule" color="secondary" size="xs" class="q-mr-sm" />
-                <span>{{ route.operatingHours }}</span>
+              <div class="text-subtitle2 text-grey-7 q-mt-xs">
+                <q-icon name="flag" size="14px" class="q-mr-xs" color="secondary" />
+                Destination: {{ route.endPoint }}
+              </div>
+              
+              <!-- Fare Matrix -->
+              <div class="fare-matrix q-mt-md">
+                <div class="text-caption text-grey-7 q-mb-xs">Fare Matrix:</div>
+                <div class="row q-col-gutter-xs">
+                  <div class="col-6">
+                    <q-badge color="primary" text-color="white" class="full-width">
+                      <q-icon name="person" size="12px" class="q-mr-xs" />
+                      Regular: ₱{{ route.fareRegular || route.fare }}
+                    </q-badge>
+                  </div>
+                  <div class="col-6">
+                    <q-badge color="secondary" text-color="white" class="full-width">
+                      <q-icon name="school" size="12px" class="q-mr-xs" />
+                      Student: ₱{{ route.fareStudent || route.fare }}
+                    </q-badge>
+                  </div>
+                  <div class="col-6">
+                    <q-badge color="accent" text-color="white" class="full-width">
+                      <q-icon name="favorite" size="12px" class="q-mr-xs" />
+                      Senior: ₱{{ route.fareSenior || route.fare }}
+                    </q-badge>
+                  </div>
+                  <div class="col-6">
+                    <q-badge color="info" text-color="white" class="full-width">
+                      <q-icon name="accessible" size="12px" class="q-mr-xs" />
+                      PWD: ₱{{ route.farePWD || route.fare }}
+                    </q-badge>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Operating Hours -->
+              <div class="row items-center q-mt-md">
+                <q-icon name="schedule" color="primary" size="xs" class="q-mr-sm" />
+                <span class="text-caption">
+                  <span v-if="route.operatingHours?.open && route.operatingHours?.close">
+                    {{ formatOperatingHours(route.operatingHours) }}
+                  </span>
+                  <span v-else class="text-grey-7">Operating hours not specified</span>
+                </span>
+              </div>
+              
+              <!-- Tourist Spots Serviced -->
+              <div v-if="route.touristSpotsServiced && route.touristSpotsServiced.length > 0" class="q-mt-md">
+                <div class="text-caption text-grey-7 q-mb-xs">Tourist Spots:</div>
+                <div class="row q-gutter-xs">
+                  <q-badge
+                    v-for="(spot, idx) in route.touristSpotsServiced.slice(0, 3)"
+                    :key="idx"
+                    color="grey-2"
+                    text-color="grey-8"
+                    class="text-caption"
+                  >
+                    {{ spot }}
+                  </q-badge>
+                  <q-badge
+                    v-if="route.touristSpotsServiced.length > 3"
+                    color="grey-2"
+                    text-color="grey-8"
+                    class="text-caption"
+                  >
+                    +{{ route.touristSpotsServiced.length - 3 }}
+                  </q-badge>
+                </div>
               </div>
             </q-card-section>
           </q-card>
@@ -292,15 +378,45 @@ export default defineComponent({
 
     // Filter routes based on search query
     const filteredRoutes = computed(() => {
-      if (!searchQuery.value) {
-        return allRoutes.value
+      let result = allRoutes.value
+
+      // Filter by search query
+      if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase()
+        result = result.filter(route =>
+          (route.jeepName || route.routeName)?.toLowerCase().includes(query) ||
+          route.terminalLocation?.toLowerCase().includes(query) ||
+          route.endPoint?.toLowerCase().includes(query) ||
+          route.touristSpotsServiced?.some(spot => spot.toLowerCase().includes(query))
+        )
       }
-      return allRoutes.value.filter(route => 
-        route.routeName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        route.terminalStart.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        route.terminalEnd.toLowerCase().includes(searchQuery.value.toLowerCase())
-      )
+
+      // Sort alphabetically by jeepney name
+      result.sort((a, b) => {
+        const nameA = (a.jeepName || a.routeName || '').toLowerCase()
+        const nameB = (b.jeepName || b.routeName || '').toLowerCase()
+        return nameA.localeCompare(nameB)
+      })
+
+      return result
     })
+
+    const formatOperatingHours = (hours) => {
+      if (!hours || !hours.open || !hours.close) return 'Not specified'
+      
+      const formatTime = (timeStr) => {
+        if (!timeStr) return ''
+        const [hours, minutes] = timeStr.split(':')
+        const period = parseInt(hours) >= 12 ? 'PM' : 'AM'
+        const displayHours = parseInt(hours) % 12 || 12
+        return `${displayHours}:${minutes || '00'}${period}`
+      }
+      
+      const openTime = formatTime(hours.open)
+      const closeTime = formatTime(hours.close)
+      
+      return `${openTime} - ${closeTime}`
+    }
 
     const fetchHeroImage = async () => {
       try {
@@ -321,7 +437,7 @@ export default defineComponent({
     const fetchRoutes = async () => {
       try {
         console.log('[PagnaamPage] Fetching routes from Firebase...')
-        const routesQuery = query(collection(db, 'jeepneyOptions'), where('isActive', '==', true))
+        const routesQuery = query(collection(db, 'jeepneys'), where('isActive', '==', true))
         const querySnapshot = await getDocs(routesQuery)
         allRoutes.value = querySnapshot.docs.map((doc) => ({
           id: doc.id,
@@ -457,6 +573,7 @@ export default defineComponent({
       faqs,
       leftFaqs,
       rightFaqs,
+      formatOperatingHours,
       selectRoute,
       navigateToTerminal,
     }

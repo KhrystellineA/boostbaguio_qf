@@ -694,7 +694,7 @@ export default defineComponent({
       isLoadingOptions.value = true
       try {
         console.log('[ApanamPage] Fetching jeepney options from Firebase...')
-        const optionsQuery = query(collection(db, 'jeepneyOptions'), where('isActive', '==', true))
+        const optionsQuery = query(collection(db, 'jeepneys'), where('isActive', '==', true))
         const querySnapshot = await getDocs(optionsQuery)
         allJeepneyOptions.value = querySnapshot.docs.map((doc) => ({
           id: doc.id,

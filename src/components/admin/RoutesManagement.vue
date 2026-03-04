@@ -49,12 +49,21 @@
         <q-input
           v-model="searchFilter"
           outlined
-          placeholder="Search routes..."
+          placeholder="Search by route name, starting point, or destination..."
           dense
           class="q-mb-md"
         >
           <template v-slot:prepend>
             <q-icon name="search" />
+          </template>
+          <template v-slot:append>
+            <q-btn
+              v-if="searchFilter"
+              flat
+              dense
+              icon="clear"
+              @click="searchFilter = ''"
+            />
           </template>
         </q-input>
 
@@ -711,15 +720,27 @@ export default {
     ]
 
     const filteredRoutes = computed(() => {
-      if (!searchFilter.value) return routes.value
+      let result = routes.value
 
-      const search = searchFilter.value.toLowerCase()
-      return routes.value.filter(
-        (route) =>
-          route.routeName?.toLowerCase().includes(search) ||
-          route.startingPoint?.toLowerCase().includes(search) ||
-          route.destination?.toLowerCase().includes(search)
-      )
+      // Filter by search query
+      if (searchFilter.value) {
+        const search = searchFilter.value.toLowerCase()
+        result = result.filter(
+          (route) =>
+            route.routeName?.toLowerCase().includes(search) ||
+            route.startingPoint?.toLowerCase().includes(search) ||
+            route.destination?.toLowerCase().includes(search)
+        )
+      }
+
+      // Sort alphabetically by route name
+      result.sort((a, b) => {
+        const nameA = (a.routeName || '').toLowerCase()
+        const nameB = (b.routeName || '').toLowerCase()
+        return nameA.localeCompare(nameB)
+      })
+
+      return result
     })
 
     const fetchRoutes = async () => {
