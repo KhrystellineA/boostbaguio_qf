@@ -205,6 +205,7 @@ export const useUserStore = defineStore('user', {
         await setDoc(doc(db, 'users', this.user.uid), {
           email: this.user.email,
           displayName: this.user.displayName || 'User',
+          role: 'user',
           isPremium: false,
           createdAt: new Date().toISOString(),
           premiumExpiry: null
@@ -269,11 +270,27 @@ export const useUserStore = defineStore('user', {
 
         await updateProfile(this.user, updateData)
 
-        await updateDoc(doc(db, 'users', this.user.uid), {
-          displayName: displayName !== undefined ? displayName : this.user.displayName,
-          photoURL: photoURL !== undefined ? photoURL : this.user.photoURL,
-          lastUpdated: new Date().toISOString()
-        })
+        const userDocRef = doc(db, 'users', this.user.uid)
+        const userDoc = await getDoc(userDocRef)
+
+        if (userDoc.exists()) {
+          await updateDoc(userDocRef, {
+            displayName: displayName !== undefined ? displayName : this.user.displayName,
+            photoURL: photoURL !== undefined ? photoURL : this.user.photoURL,
+            lastUpdated: new Date().toISOString()
+          })
+        } else {
+          await setDoc(userDocRef, {
+            email: this.user.email,
+            displayName: displayName !== undefined ? displayName : this.user.displayName,
+            photoURL: photoURL !== undefined ? photoURL : this.user.photoURL,
+            role: 'user',
+            isPremium: false,
+            createdAt: new Date().toISOString(),
+            premiumExpiry: null,
+            lastUpdated: new Date().toISOString()
+          })
+        }
 
         // Refresh the user object to get the updated photoURL
         const currentUser = auth.currentUser

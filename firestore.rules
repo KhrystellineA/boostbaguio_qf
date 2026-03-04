@@ -58,6 +58,15 @@ service cloud.firestore {
 
       // Only admins can delete users
       allow delete: if isAdmin();
+
+      // Subcollections under users
+      match /savedPlaces/{placeId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      match /savedRoutes/{routeId} {
+        allow read, write: if isOwner(userId);
+      }
     }
     
     // ========== ADMINS COLLECTION ==========
