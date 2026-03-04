@@ -54,25 +54,27 @@
           <p class="text-body1">Explore nearby places with category filtering and distance sorting</p>
         </div>
 
-        <div class="feature-content">
-          <div class="row">
-            <div class="col-md-6 col-12 q-pa-lg">
-              <div class="map-container">
-                <div id="map" style="height: 400px; width: 100%; border-radius: 8px; background: #e0e0e0;">
-                  <div class="map-placeholder-text text-center">
-                    <q-icon name="map" size="48px" color="grey-6"/>
-                    <div class="q-mt-md">Interactive Map</div>
-                    <div class="text-caption">Shows nearby places based on your location</div>
-                  </div>
-                </div>
-              </div>
+        <!-- Map Container - Full Width -->
+        <div class="map-wrapper" style="position: relative; width: 100%; height: 700px; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+          <!-- Full Map Background -->
+          <div id="map" style="width: 100%; height: 100%; background: #e0e0e0;">
+            <div class="map-placeholder-text text-center" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+              <q-icon name="map" size="64px" color="grey-6"/>
+              <div class="q-mt-md text-h6">Interactive Map</div>
+              <div class="text-caption">Shows nearby places based on your location</div>
             </div>
-            <div class="col-md-6 col-12 q-pa-lg">
-              <div class="controls-section">
-                <div class="search-bar-section q-mb-xl">
+          </div>
+
+          <!-- Floating Bento Box - Right Side -->
+          <div class="floating-bento">
+            <q-card class="bento-card">
+              <q-card-section class="q-pa-md">
+                <!-- Search Bar -->
+                <div class="search-bar-section q-mb-md">
                   <q-input
                     v-model="searchQuery"
-                    filled
+                    outlined
+                    dense
                     placeholder="Search for nearby places..."
                     class="search-input"
                     @input="onSearchInput"
@@ -83,10 +85,11 @@
                   </q-input>
                 </div>
 
-                <div class="category-filter-section q-mb-xl">
-                  <div class="text-h6 text-weight-bold text-primary q-mb-md">Filter by Category</div>
+                <!-- Category Filter -->
+                <div class="category-filter-section q-mb-md">
+                  <div class="text-subtitle2 text-weight-bold text-primary q-mb-sm">Filter by Category</div>
                   <div class="category-buttons">
-                    <q-btn-group spread>
+                    <q-btn-group spread outline class="full-width">
                       <q-btn
                         v-for="category in categories"
                         :key="category.value"
@@ -94,8 +97,8 @@
                         :unelevated="selectedCategory === category.value"
                         :outline="selectedCategory !== category.value"
                         :color="selectedCategory === category.value ? 'primary' : 'dark'"
-                        size="md"
-                        padding="8px 16px"
+                        size="sm"
+                        padding="6px 12px"
                         class="category-btn"
                         @click="filterByCategory(category.value)"
                       />
@@ -103,87 +106,77 @@
                   </div>
                 </div>
 
-                <div class="location-control-section q-mb-xl">
+                <!-- Location Button -->
+                <div class="location-control-section">
                   <q-btn
                     label="Use Current Location"
                     color="primary"
                     icon="my_location"
                     class="full-width"
+                    unelevated
                     @click="getCurrentLocation"
                     :loading="isLoadingLocation"
                   >
                     <template v-slot:loading>
-                      <q-spinner-facebook />
+                      <q-spinner-facebook size="sm" />
                       Detecting...
                     </template>
                   </q-btn>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
+              </q-card-section>
 
-        <!-- Results Section - Combined -->
-        <div class="results-section q-mt-xl">
-          <div class="text-center q-mb-xl">
-            <h3 class="text-h4 text-weight-bold text-primary">Nearby Places</h3>
-            <p class="text-body1" v-if="userLocation">
-              Showing results near your location ({{ userLocation.latitude.toFixed(4) }}, {{ userLocation.longitude.toFixed(4) }})
-            </p>
-            <p class="text-body1" v-else>Select a location to see nearby places</p>
-          </div>
-
-          <div v-if="isLoadingPlaces" class="text-center q-py-xl">
-            <q-spinner-hourglass color="primary" size="60px" />
-            <p class="q-mt-md text-grey-7">Finding nearby places...</p>
-          </div>
-
-          <div v-else-if="filteredPlaces.length === 0" class="text-center q-py-xl">
-            <q-icon name="place" size="80px" color="grey-5" />
-            <h3 class="text-grey-7 q-mt-md">No Places Found</h3>
-            <p class="text-grey-6">
-              {{ userLocation ? 'No places found near your current location' : 'Please select a location to find nearby places' }}
-            </p>
-          </div>
-
-          <div v-else class="places-grid">
-            <q-card
-              v-for="place in filteredPlaces"
-              :key="place.id"
-              class="bento-card q-ma-sm"
-              @click="selectPlace(place)"
-            >
-              <q-img
-                :src="place.imageUrl || '~assets/place-default.jpg'"
-                spinner-color="primary"
-                class="place-image"
-              />
-              <q-card-section>
-                <div class="row items-center justify-between">
-                  <div>
-                    <div class="text-h6 text-primary">{{ place.name }}</div>
-                    <div class="text-subtitle2">
-                      <q-badge
-                        v-for="(cat, idx) in (Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean))"
-                        :key="idx"
-                        color="secondary"
-                        class="text-capitalize q-mr-xs"
-                      >
-                        {{ getCategoryLabel(cat) }}
-                      </q-badge>
-                    </div>
-                  </div>
-                  <q-badge color="secondary" class="text-capitalize">
-                    {{ calculateDistance(place) }} km
+              <!-- Places List Section -->
+              <q-separator />
+              
+              <q-card-section class="q-pa-md places-list-section">
+                <div class="row items-center justify-between q-mb-md">
+                  <div class="text-subtitle2 text-weight-bold text-primary">Nearby Places</div>
+                  <q-badge v-if="userLocation" color="secondary" text-color="white">
+                    {{ filteredPlaces.length }} found
                   </q-badge>
                 </div>
-                <p class="text-body2 q-mt-md">
-                  {{ truncateText(place.description, 80) }}
-                </p>
+
+                <div v-if="isLoadingPlaces" class="text-center q-py-md">
+                  <q-spinner-hourglass color="primary" size="32px" />
+                  <p class="q-mt-sm text-caption text-grey-7">Finding nearby places...</p>
+                </div>
+
+                <div v-else-if="filteredPlaces.length === 0" class="text-center q-py-md">
+                  <q-icon name="place" size="40px" color="grey-5" />
+                  <p class="q-mt-sm text-caption text-grey-6">
+                    {{ userLocation ? 'No places found near your location' : 'Select a location to see nearby places' }}
+                  </p>
+                </div>
+
+                <q-scroll-area style="height: 300px;" v-else>
+                  <div class="places-list">
+                    <q-item
+                      v-for="place in filteredPlaces"
+                      :key="place.id"
+                      class="place-list-item cursor-pointer q-mb-sm"
+                      @click="selectPlace(place)"
+                    >
+                      <q-item-section avatar>
+                        <q-avatar square>
+                          <img :src="place.imageUrl || '~assets/place-default.jpg'" />
+                        </q-avatar>
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="text-weight-bold">{{ place.name }}</q-item-label>
+                        <q-item-label caption>
+                          <q-badge :color="getCategoryColor(place.categories || [place.category])" class="q-mr-xs">
+                            {{ getCategoryLabel(Array.isArray(place.categories) ? place.categories[0] : place.category) }}
+                          </q-badge>
+                          <span class="q-ml-xs">{{ calculateDistance(place) }} km away</span>
+                        </q-item-label>
+                      </q-item-section>
+                      <q-item-section side>
+                        <q-icon name="chevron_right" color="grey-7" />
+                      </q-item-section>
+                    </q-item>
+                  </div>
+                </q-scroll-area>
               </q-card-section>
-              <q-card-actions>
-                <q-btn flat color="primary" @click.stop="selectPlace(place)">View Details</q-btn>
-              </q-card-actions>
             </q-card>
           </div>
         </div>
@@ -342,14 +335,16 @@ export default defineComponent({
     const isLoadingLocation = ref(false)
     const isLoadingPlaces = ref(false)
     const isScrolled = ref(false)
+    const mapInstance = ref(null)
+    const userMarker = ref(null)
 
     const categories = [
       { label: 'All Categories', value: 'all' },
-      { label: 'Tourist Spots', value: 'Tourist Spots' },
-      { label: 'Cafes & Restaurants', value: 'Cafes & Restaurants' },
-      { label: 'Parks & Nature', value: 'Parks & Nature' },
-      { label: 'Shopping', value: 'Shopping' },
-      { label: 'Entertainment', value: 'Entertainment' },
+      { label: 'Tourist Spots', value: 'tourist-spot' },
+      { label: 'Cafes & Restaurants', value: 'restaurant' },
+      { label: 'Parks & Nature', value: 'park-nature' },
+      { label: 'Museums & Culture', value: 'museum-culture' },
+      { label: 'Shopping', value: 'shopping' },
     ]
 
     const faqs = [
@@ -465,19 +460,104 @@ export default defineComponent({
             longitude: position.coords.longitude,
             accuracy: position.coords.accuracy
           }
+          
+          // Update map view and add marker
+          if (mapInstance.value) {
+            // Fly to user's location
+            mapInstance.value.flyTo([position.coords.latitude, position.coords.longitude], 15, {
+              duration: 1.5
+            })
+            
+            // Remove existing marker if any
+            if (userMarker.value) {
+              mapInstance.value.removeLayer(userMarker.value)
+            }
+            
+            // Add custom "You are here" marker
+            const userIcon = L.divIcon({
+              className: 'user-location-marker',
+              html: `
+                <div style="
+                  position: relative;
+                  width: 40px;
+                  height: 40px;
+                  background: #2196F3;
+                  border: 3px solid white;
+                  border-radius: 50%;
+                  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                  animation: pulse 2s infinite;
+                ">
+                  <div style="
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 16px;
+                    height: 16px;
+                    background: white;
+                    border-radius: 50%;
+                  "></div>
+                </div>
+                <div style="
+                  position: absolute;
+                  top: 45px;
+                  left: 50%;
+                  transform: translateX(-50%);
+                  background: white;
+                  padding: 4px 8px;
+                  border-radius: 4px;
+                  font-size: 11px;
+                  font-weight: bold;
+                  white-space: nowrap;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                  color: #333;
+                ">You are here</div>
+                <style>
+                  @keyframes pulse {
+                    0% { transform: scale(1); box-shadow: 0 2px 10px rgba(33, 150, 243, 0.5); }
+                    50% { transform: scale(1.1); box-shadow: 0 2px 20px rgba(33, 150, 243, 0.8); }
+                    100% { transform: scale(1); box-shadow: 0 2px 10px rgba(33, 150, 243, 0.5); }
+                  }
+                </style>
+              `,
+              iconSize: [40, 55],
+              iconAnchor: [20, 55]
+            })
+            
+            userMarker.value = L.marker([position.coords.latitude, position.coords.longitude], { icon: userIcon })
+              .addTo(mapInstance.value)
+              .bindPopup(`<strong>Your Location</strong><br>Accuracy: ${Math.round(position.coords.accuracy)}m`)
+              .openPopup()
+          }
+          
           $q.notify({
+            type: 'positive',
             message: 'Location detected successfully!',
-            color: 'positive',
+            icon: 'my_location',
             position: 'top'
           })
           isLoadingLocation.value = false
         },
         (error) => {
           console.error('[AyanMoPage] Geolocation error:', error)
+          let errorMessage = 'Unable to get your location. '
+          
+          if (error.code === 1) {
+            errorMessage += 'Please allow location access in your browser settings.'
+          } else if (error.code === 2) {
+            errorMessage += 'Location service is unavailable.'
+          } else if (error.code === 3) {
+            errorMessage += 'Location request timed out.'
+          } else {
+            errorMessage += error.message
+          }
+          
           $q.notify({
-            message: `Error getting location: ${error.message}`,
-            color: 'negative',
-            position: 'top'
+            type: 'negative',
+            message: errorMessage,
+            icon: 'warning',
+            position: 'top',
+            timeout: 5000
           })
           isLoadingLocation.value = false
         }
@@ -569,6 +649,25 @@ export default defineComponent({
       return ''
     }
 
+    const getCategoryColor = (categories) => {
+      const categoryArray = Array.isArray(categories) ? categories : [categories]
+      const firstCategory = categoryArray[0] || 'other'
+      
+      const colors = {
+        'tourist-spot': 'green',
+        'restaurant': 'orange',
+        'park-nature': 'teal',
+        'museum-culture': 'purple',
+        'shopping': 'pink',
+        'hotel-lodging': 'blue',
+        'government': 'red',
+        'hospital': 'pink',
+        'school': 'indigo',
+        'other': 'grey'
+      }
+      return colors[firstCategory] || 'grey'
+    }
+
     const getCategoryLabel = (category) => {
       const labels = {
         'tourist-spot': 'Tourist Spots',
@@ -615,18 +714,110 @@ export default defineComponent({
     onMounted(async () => {
       await fetchHeroImage()
       await fetchPlaces()
-      
-      // Initialize map if there's a container
+
+      // Initialize map
       if (document.getElementById('map')) {
-        const map = L.map('map').setView([16.4122, 120.5948], 13)
+        // Default to Baguio City center
+        const defaultLat = 16.4122
+        const defaultLng = 120.5948
+        
+        mapInstance.value = L.map('map').setView([defaultLat, defaultLng], 13)
+        
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map)
+        }).addTo(mapInstance.value)
+        
+        console.log('[AyanMoPage] Map initialized')
+      }
+      
+      // Auto-detect user location on page load (non-intrusive)
+      if (navigator.geolocation && !userLocation.value) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            userLocation.value = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              accuracy: position.coords.accuracy
+            }
+            
+            // Add marker to map
+            if (mapInstance.value) {
+              const userIcon = L.divIcon({
+                className: 'user-location-marker',
+                html: `
+                  <div style="
+                    position: relative;
+                    width: 40px;
+                    height: 40px;
+                    background: #2196F3;
+                    border: 3px solid white;
+                    border-radius: 50%;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                    animation: pulse 2s infinite;
+                  ">
+                    <div style="
+                      position: absolute;
+                      top: 50%;
+                      left: 50%;
+                      transform: translate(-50%, -50%);
+                      width: 16px;
+                      height: 16px;
+                      background: white;
+                      border-radius: 50%;
+                    "></div>
+                  </div>
+                  <div style="
+                    position: absolute;
+                    top: 45px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: white;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 11px;
+                    font-weight: bold;
+                    white-space: nowrap;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                    color: #333;
+                  ">You are here</div>
+                  <style>
+                    @keyframes pulse {
+                      0% { transform: scale(1); box-shadow: 0 2px 10px rgba(33, 150, 243, 0.5); }
+                      50% { transform: scale(1.1); box-shadow: 0 2px 20px rgba(33, 150, 243, 0.8); }
+                      100% { transform: scale(1); box-shadow: 0 2px 10px rgba(33, 150, 243, 0.5); }
+                    }
+                  </style>
+                `,
+                iconSize: [40, 55],
+                iconAnchor: [20, 55]
+              })
+              
+              userMarker.value = L.marker([position.coords.latitude, position.coords.longitude], { icon: userIcon })
+                .addTo(mapInstance.value)
+            }
+            
+            console.log('[AyanMoPage] Auto-detected user location')
+          },
+          () => {
+            console.log('[AyanMoPage] Auto-location detection declined or unavailable')
+          }
+        )
       }
     })
 
     onUnmounted(() => {
-      // Cleanup if needed
+      // Cleanup map if needed
+      if (mapInstance.value) {
+        mapInstance.value.remove()
+      }
+    })
+
+    // Watch for user location changes and update map
+    watch(userLocation, (newLocation) => {
+      if (newLocation && mapInstance.value) {
+        console.log('[AyanMoPage] User location updated:', newLocation)
+        // Map will be updated by getCurrentLocation when user clicks the button
+      }
     })
 
     // Watch for search query changes
@@ -658,6 +849,7 @@ export default defineComponent({
       truncateText,
       formatOperatingHours,
       getCategoryLabel,
+      getCategoryColor,
       isScrolled,
       onScroll
     }
@@ -740,6 +932,63 @@ export default defineComponent({
 .ayan-mo-section {
   background-color: #F5F5F5;
 }
+
+/* Map Wrapper with Floating Bento */
+.map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.map-wrapper #map {
+  width: 100%;
+  height: 100%;
+}
+
+/* Floating Bento Box */
+.floating-bento {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 380px;
+  max-height: calc(100% - 40px);
+  z-index: 1000;
+}
+
+.bento-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+}
+
+.category-btn {
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: none;
+  border-radius: 8px !important;
+}
+
+.places-list-section {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.place-list-item {
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.place-list-item:hover {
+  background-color: rgba(46, 93, 62, 0.08);
+  transform: translateX(4px);
+}
+
+/* Old styles kept for compatibility */
 
 .controls-section {
   background: white;
@@ -918,22 +1167,43 @@ export default defineComponent({
   .hero-title {
     font-size: 2rem;
   }
-  
+
   .hero-description {
     font-size: 1rem;
   }
-  
+
   .places-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .row {
     flex-direction: column;
   }
-  
+
   .col-md-6, .col-md-8, .col-md-4 {
     width: 100%;
     margin-bottom: 1rem;
+  }
+
+  /* Mobile: Floating bento becomes bottom sheet */
+  .floating-bento {
+    top: auto;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    width: 100%;
+    max-height: 50vh;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .bento-card {
+    border-radius: 16px 16px 0 0;
+    max-height: 50vh;
+  }
+
+  .map-wrapper {
+    height: 100vh;
+    border-radius: 0;
   }
 }
 </style>
