@@ -131,9 +131,154 @@
               <q-card-section class="q-pa-md places-list-section">
                 <div class="row items-center justify-between q-mb-md">
                   <div class="text-subtitle2 text-weight-bold text-primary">Nearby Places</div>
-                  <q-badge v-if="userLocation" color="secondary" text-color="white">
-                    {{ filteredPlaces.length }} found
-                  </q-badge>
+                  <div class="row q-gutter-xs">
+                    <q-badge v-if="userLocation" color="secondary" text-color="white">
+                      {{ filteredPlaces.length }} found
+                    </q-badge>
+                    <q-btn
+                      icon="filter_list"
+                      size="sm"
+                      flat
+                      dense
+                      round
+                      @click="showAdvancedFilters = !showAdvancedFilters"
+                    >
+                      <q-tooltip>Advanced Filters</q-tooltip>
+                    </q-btn>
+                  </div>
+                </div>
+
+                <!-- Advanced Filters -->
+                <div v-if="showAdvancedFilters" class="advanced-filters q-mb-md">
+                  <q-separator class="q-mb-md" />
+                  
+                  <div class="row q-col-gutter-sm">
+                    <div class="col-12">
+                      <div class="text-caption text-grey-7 q-mb-xs">Sort By</div>
+                      <q-btn-toggle
+                        v-model="sortBy"
+                        toggle-color="primary"
+                        :options="[
+                          {label: 'Distance', value: 'distance'},
+                          {label: 'Name', value: 'name'},
+                          {label: 'Rating', value: 'rating'}
+                        ]"
+                        size="sm"
+                        class="full-width"
+                        unelevated
+                      />
+                    </div>
+                    
+                    <div class="col-12">
+                      <div class="text-caption text-grey-7 q-mb-xs">Order</div>
+                      <q-btn-toggle
+                        v-model="sortOrder"
+                        toggle-color="primary"
+                        :options="[
+                          {label: 'Ascending', value: 'asc'},
+                          {label: 'Descending', value: 'desc'}
+                        ]"
+                        size="sm"
+                        class="full-width"
+                        unelevated
+                      />
+                    </div>
+                    
+                    <div class="col-12">
+                      <div class="text-caption text-grey-7 q-mb-xs">
+                        Min Rating: {{ minRating }} ⭐
+                      </div>
+                      <q-slider
+                        v-model="minRating"
+                        :min="0"
+                        :max="5"
+                        :step="0.5"
+                        label
+                        label-always
+                        class="q-my-sm"
+                      />
+                    </div>
+                    
+                    <div class="col-12" v-if="userLocation">
+                      <div class="text-caption text-grey-7 q-mb-xs">
+                        Max Distance: {{ maxDistance }} km
+                      </div>
+                      <q-slider
+                        v-model="maxDistance"
+                        :min="1"
+                        :max="50"
+                        label
+                        label-always
+                        class="q-my-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Search History -->
+                <div v-if="searchHistory.length > 0 && !searchQuery" class="search-history q-mb-md">
+                  <div class="row items-center q-mb-xs">
+                    <div class="text-caption text-grey-7">Recent Searches</div>
+                    <q-space />
+                    <q-btn
+                      icon="clear_all"
+                      size="xs"
+                      flat
+                      dense
+                      round
+                      @click="clearSearchHistory"
+                    >
+                      <q-tooltip>Clear History</q-tooltip>
+                    </q-btn>
+                  </div>
+                  <div class="row q-gutter-xs">
+                    <q-chip
+                      v-for="(item, index) in searchHistory"
+                      :key="index"
+                      clickable
+                      color="grey-2"
+                      text-color="grey-8"
+                      size="sm"
+                      @click="searchQuery = item.query"
+                    >
+                      <q-icon name="history" size="xs" />
+                      {{ item.query }}
+                    </q-chip>
+                  </div>
+                </div>
+
+                <!-- Recently Viewed -->
+                <div v-if="recentlyViewed.length > 0 && !selectedPlace" class="recently-viewed q-mb-md">
+                  <div class="row items-center q-mb-xs">
+                    <div class="text-caption text-grey-7">Recently Viewed</div>
+                    <q-space />
+                    <q-btn
+                      icon="clear_all"
+                      size="xs"
+                      flat
+                      dense
+                      round
+                      @click="clearRecentlyViewed"
+                    >
+                      <q-tooltip>Clear History</q-tooltip>
+                    </q-btn>
+                  </div>
+                  <div class="row q-gutter-xs">
+                    <q-chip
+                      v-for="(item, index) in recentlyViewed"
+                      :key="index"
+                      clickable
+                      color="primary"
+                      text-color="white"
+                      size="sm"
+                      @click="selectPlace({id: item.id, name: item.name})"
+                    >
+                      <q-avatar>
+                        <img :src="item.imageUrl || '~assets/place-default.jpg'" />
+                      </q-avatar>
+                      {{ item.name }}
+                    </q-chip>
+                  </div>
                 </div>
 
                 <div v-if="isLoadingPlaces" class="text-center q-py-md">
@@ -388,6 +533,15 @@ export default defineComponent({
     const isScrolled = ref(false)
     const mapInstance = ref(null)
     const userMarker = ref(null)
+    
+    // Advanced search features
+    const searchHistory = ref([])
+    const recentlyViewed = ref([])
+    const sortBy = ref('distance') // 'distance', 'name', 'rating'
+    const sortOrder = ref('asc') // 'asc', 'desc'
+    const showAdvancedFilters = ref(false)
+    const minRating = ref(0)
+    const maxDistance = ref(50) // km
     const showReportDialog = ref(false)
     const placeToReport = ref(null)
     const reportIssueText = ref('')
@@ -423,7 +577,7 @@ export default defineComponent({
     const leftFaqs = computed(() => faqs.slice(0, 2))
     const rightFaqs = computed(() => faqs.slice(2))
 
-    // Filter places based on search query and category
+    // Filter places with advanced search
     const filteredPlaces = computed(() => {
       let result = places.value
 
@@ -445,17 +599,114 @@ export default defineComponent({
         )
       }
 
-      // Sort by distance if user location is available
-      if (userLocation.value) {
+      // Filter by minimum rating
+      if (minRating.value > 0) {
+        result = result.filter(place => place.rating && place.rating >= minRating.value)
+      }
+
+      // Filter by maximum distance
+      if (userLocation.value && maxDistance.value < 50) {
+        result = result.filter(place => {
+          const distance = calculateDistanceRaw(place)
+          return distance !== Infinity && distance <= maxDistance.value
+        })
+      }
+
+      // Sort by selected criteria
+      if (sortBy.value === 'distance' && userLocation.value) {
         result.sort((a, b) => {
           const distA = calculateDistanceRaw(a)
           const distB = calculateDistanceRaw(b)
-          return distA - distB
+          return sortOrder.value === 'asc' ? distA - distB : distB - distA
+        })
+      } else if (sortBy.value === 'name') {
+        result.sort((a, b) => {
+          const nameA = a.name.toLowerCase()
+          const nameB = b.name.toLowerCase()
+          return sortOrder.value === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA)
+        })
+      } else if (sortBy.value === 'rating') {
+        result.sort((a, b) => {
+          const ratingA = a.rating || 0
+          const ratingB = b.rating || 0
+          return sortOrder.value === 'asc' ? ratingA - ratingB : ratingB - ratingA
         })
       }
 
       return result
     })
+
+    // Add to search history
+    const addToSearchHistory = (query) => {
+      if (!query.trim()) return
+      
+      // Remove if already exists
+      const index = searchHistory.value.findIndex(h => h.query === query)
+      if (index > -1) {
+        searchHistory.value.splice(index, 1)
+      }
+      
+      // Add to beginning
+      searchHistory.value.unshift({
+        query: query,
+        timestamp: new Date()
+      })
+      
+      // Keep only last 10 searches
+      if (searchHistory.value.length > 10) {
+        searchHistory.value = searchHistory.value.slice(0, 10)
+      }
+      
+      // Save to localStorage
+      localStorage.setItem('ayanmo-search-history', JSON.stringify(searchHistory.value))
+    }
+
+    // Clear search history
+    const clearSearchHistory = () => {
+      searchHistory.value = []
+      localStorage.removeItem('ayanmo-search-history')
+    }
+
+    // Load search history from localStorage
+    const loadSearchHistory = () => {
+      const saved = localStorage.getItem('ayanmo-search-history')
+      if (saved) {
+        try {
+          searchHistory.value = JSON.parse(saved)
+        } catch (e) {
+          console.error('[AyanMo] Error loading search history:', e)
+        }
+      }
+    }
+
+    // Add to recently viewed
+    const addToRecentlyViewed = (place) => {
+      if (!place) return
+      
+      // Remove if already exists
+      const index = recentlyViewed.value.findIndex(p => p.id === place.id)
+      if (index > -1) {
+        recentlyViewed.value.splice(index, 1)
+      }
+      
+      // Add to beginning
+      recentlyViewed.value.unshift({
+        id: place.id,
+        name: place.name,
+        imageUrl: place.imageUrl,
+        viewedAt: new Date()
+      })
+      
+      // Keep only last 8 viewed
+      if (recentlyViewed.value.length > 8) {
+        recentlyViewed.value = recentlyViewed.value.slice(0, 8)
+      }
+    }
+
+    // Clear recently viewed
+    const clearRecentlyViewed = () => {
+      recentlyViewed.value = []
+    }
 
     const fetchHeroImage = async () => {
       try {
@@ -747,11 +998,16 @@ export default defineComponent({
       clearTimeout(this.searchTimeout)
       this.searchTimeout = setTimeout(() => {
         searchQuery.value = val
-      }, 300)
+        // Add to search history when user stops typing
+        if (val && val.trim()) {
+          addToSearchHistory(val.trim())
+        }
+      }, 500)
     }
 
     const selectPlace = (place) => {
       selectedPlace.value = place
+      addToRecentlyViewed(place)
     }
 
     const reportIssue = (place) => {
@@ -800,6 +1056,7 @@ export default defineComponent({
     onMounted(async () => {
       await fetchHeroImage()
       await fetchPlaces()
+      loadSearchHistory()
 
       // Initialize map
       if (document.getElementById('map')) {
@@ -942,7 +1199,19 @@ export default defineComponent({
       submitReport,
       showReportDialog,
       placeToReport,
-      reportIssueText
+      reportIssueText,
+      // Advanced search features
+      searchHistory,
+      recentlyViewed,
+      sortBy,
+      sortOrder,
+      showAdvancedFilters,
+      minRating,
+      maxDistance,
+      addToSearchHistory,
+      clearSearchHistory,
+      addToRecentlyViewed,
+      clearRecentlyViewed
     }
   },
 })
@@ -1256,6 +1525,26 @@ $white: #FFFFFF;
   font-size: 0.95rem;
   color: rgba($white, 0.85);
   line-height: 1.7;
+}
+
+// Advanced Filters
+.advanced-filters {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+// Search History
+.search-history,
+.recently-viewed {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.q-chip {
+  font-size: 0.75rem;
+  font-weight: 500;
 }
 
 .bg-primary {
