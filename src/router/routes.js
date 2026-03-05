@@ -39,20 +39,20 @@ const routes = [
       {
         path: 'adminlogin',
         name: 'AdminLogin',
-        component: () => import('pages/admin/AdminLogin.vue'),
-        meta: { requiresGuest: true } // Only accessible when NOT logged in
+        component: () => import('pages/Admin/AdminLogin.vue'),
+        meta: { requiresGuest: true }
       },
       {
         path: 'signup',
         name: 'AdminSignup',
-        component: () => import('pages/admin/AdminSignup.vue'),
+        component: () => import('pages/Admin/AdminSignup.vue'),
         meta: { requiresGuest: true }
       },
       {
         path: 'dashboard',
         name: 'AdminDashboard',
-        component: () => import('pages/admin/AdminDashboard.vue'),
-        meta: { requiresAuth: true, requiresAdmin: true } // Admins only
+        component: () => import('pages/Admin/AdminDashboard.vue'),
+        meta: { requiresAuth: true, requiresAdmin: true }
       },
     ]
   },
