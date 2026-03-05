@@ -1,1 +1,585 @@
-// app global css in Sass form
+// Boost Baguio - App Global Styles
+// Mobile-first responsive design
+
+// ============================================
+// Global Reset & Base
+// ============================================
+* {
+  box-sizing: border-box
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif
+  -webkit-font-smoothing: antialiased
+  -moz-osx-font-smoothing: grayscale
+  overflow-x: hidden
+}
+
+// ============================================
+// Mobile-First Container
+// ============================================
+.q-page {
+  padding: 16px
+  
+  @media (max-width: 599px) {
+    padding: 12px
+  }
+  
+  @media (min-width: 600px) and (max-width: 1023px) {
+    padding: 16px
+  }
+}
+
+// ============================================
+// Card Responsiveness
+// ============================================
+.q-card {
+  border-radius: 12px
+  overflow: hidden
+  width: 100%
+  
+  @media (max-width: 599px) {
+    border-radius: 8px
+    margin-bottom: 12px
+  }
+}
+
+.q-card__section {
+  @media (max-width: 599px) {
+    padding: 12px
+  }
+}
+
+// ============================================
+// Button Responsiveness
+// ============================================
+.q-btn {
+  min-height: 44px  // Touch target size
+  min-width: 44px
+  text-transform: none
+  font-weight: 500
+  
+  @media (max-width: 599px) {
+    min-height: 48px  // Larger touch target on mobile
+    padding: 12px 16px
+    font-size: 14px
+    
+    &.q-btn--dense {
+      min-height: 40px
+    }
+    
+    &.q-btn--fab {
+      width: 56px
+      height: 56px
+    }
+  }
+}
+
+.q-btn-group {
+  @media (max-width: 599px) {
+    .q-btn {
+      min-height: 44px
+    }
+  }
+}
+
+// ============================================
+// Header & Toolbar
+// ============================================
+.q-toolbar {
+  @media (max-width: 599px) {
+    min-height: 56px
+    padding: 0 8px
+  }
+}
+
+.q-toolbar__title {
+  @media (max-width: 599px) {
+    font-size: 16px
+    padding-left: 8px
+  }
+}
+
+// ============================================
+// Drawer (Sidebar)
+// ============================================
+.q-drawer {
+  @media (max-width: 767px) {
+    .q-item {
+      min-height: 48px
+      padding: 8px 16px
+    }
+    
+    .q-item__section--avatar {
+      min-width: 40px
+    }
+  }
+}
+
+// ============================================
+// Grid System
+// ============================================
+.row {
+  margin-left: -8px
+  margin-right: -8px
+  
+  @media (max-width: 599px) {
+    margin-left: -6px
+    margin-right: -6px
+  }
+}
+
+.col, [class*="col-"] {
+  padding-left: 8px
+  padding-right: 8px
+  
+  @media (max-width: 599px) {
+    padding-left: 6px
+    padding-right: 6px
+  }
+}
+
+// ============================================
+// Form Elements
+// ============================================
+.q-field {
+  width: 100%
+  
+  @media (max-width: 599px) {
+    margin-bottom: 16px
+  }
+}
+
+.q-field__control {
+  min-height: 48px
+  
+  @media (max-width: 599px) {
+    min-height: 52px
+  }
+}
+
+.q-field__label {
+  @media (max-width: 599px) {
+    font-size: 14px
+  }
+}
+
+// ============================================
+// Table Responsiveness
+// ============================================
+.q-table {
+  @media (max-width: 767px) {
+    font-size: 13px
+    
+    th, td {
+      padding: 8px 4px
+    }
+    
+    .q-table__top {
+      padding: 12px
+    }
+  }
+}
+
+// ============================================
+// Dialog Responsiveness
+// ============================================
+.q-dialog__inner {
+  @media (max-width: 599px) {
+    > div {
+      border-radius: 12px 12px 0 0 !important
+      max-width: 100% !important
+      width: 100% !important
+      margin: 0 !important
+    }
+    
+    > div > .q-card {
+      max-height: 85vh !important
+    }
+  }
+}
+
+.q-dialog__title {
+  @media (max-width: 599px) {
+    font-size: 18px
+    padding: 16px
+  }
+}
+
+// ============================================
+// List Items
+// ============================================
+.q-item {
+  @media (max-width: 599px) {
+    min-height: 56px
+    padding: 12px 16px
+  }
+  
+  &--clickable {
+    @media (max-width: 599px) {
+      min-height: 56px
+    }
+  }
+}
+
+.q-item__section {
+  @media (max-width: 599px) {
+    padding: 8px
+  }
+}
+
+// ============================================
+// Image Responsiveness
+// ============================================
+.q-img {
+  width: 100%
+  
+  @media (max-width: 599px) {
+    border-radius: 8px
+  }
+}
+
+// ============================================
+// Avatar
+// ============================================
+.q-avatar {
+  @media (max-width: 599px) {
+    font-size: 14px
+  }
+}
+
+// ============================================
+// Badge
+// ============================================
+.q-badge {
+  @media (max-width: 599px) {
+    padding: 4px 8px
+    font-size: 11px
+  }
+}
+
+// ============================================
+// Chip
+// ============================================
+.q-chip {
+  @media (max-width: 599px) {
+    min-height: 36px
+    font-size: 13px
+  }
+}
+
+// ============================================
+// Tabs
+// ============================================
+.q-tabs {
+  @media (max-width: 599px) {
+    .q-tab {
+      min-height: 48px
+      padding: 0 12px
+    }
+    
+    .q-tab__label {
+      font-size: 12px
+    }
+  }
+}
+
+// ============================================
+// Select Dropdown
+// ============================================
+.q-menu {
+  @media (max-width: 599px) {
+    max-width: 95vw !important
+    min-width: 280px
+  }
+}
+
+// ============================================
+// Notification (Toast)
+// ============================================
+.q-notification {
+  @media (max-width: 599px) {
+    left: 8px !important
+    right: 8px !important
+    bottom: 8px !important
+    width: auto !important
+    border-radius: 8px
+    font-size: 13px
+  }
+}
+
+// ============================================
+// Loading
+// ============================================
+.q-loading {
+  @media (max-width: 599px) {
+    .q-spinner {
+      width: 48px !important
+      height: 48px !important
+    }
+  }
+}
+
+// ============================================
+// Scroll Area
+// ============================================
+.q-scrollarea {
+  @media (max-width: 599px) {
+    .q-scrollarea__thumb {
+      width: 4px
+    }
+  }
+}
+
+// ============================================
+// Separator
+// ============================================
+.q-separator {
+  @media (max-width: 599px) {
+    margin: 8px 0
+  }
+}
+
+// ============================================
+// Space
+// ============================================
+.q-space {
+  @media (max-width: 599px) {
+    min-height: 8px
+  }
+}
+
+// ============================================
+// Tooltip
+// ============================================
+.q-tooltip {
+  @media (max-width: 599px) {
+    font-size: 12px
+    padding: 6px 12px
+  }
+}
+
+// ============================================
+// Progress Bar
+// ============================================
+.q-linear-progress {
+  @media (max-width: 599px) {
+    border-radius: 2px
+    height: 4px
+  }
+}
+
+// ============================================
+// Banner
+// ============================================
+.q-banner {
+  @media (max-width: 599px) {
+    padding: 12px
+    font-size: 13px
+    
+    .q-banner__avatar {
+      min-width: 32px
+    }
+    
+    .q-banner__actions {
+      .q-btn {
+        min-height: 40px
+        font-size: 13px
+      }
+    }
+  }
+}
+
+// ============================================
+// Carousel
+// ============================================
+.q-carousel {
+  @media (max-width: 599px) {
+    border-radius: 8px
+    
+    .q-carousel__slide {
+      padding: 16px
+    }
+    
+    .q-carousel__control {
+      .q-btn {
+        min-height: 36px
+        min-width: 36px
+      }
+    }
+  }
+}
+
+// ============================================
+// Menu
+// ============================================
+.q-menu {
+  @media (max-width: 599px) {
+    max-width: 90vw
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15)
+  }
+}
+
+// ============================================
+// Specific Component Fixes
+// ============================================
+
+// Stat Cards
+.stat-card {
+  @media (max-width: 599px) {
+    margin-bottom: 12px
+    
+    .stat-value {
+      font-size: 24px
+    }
+    
+    .stat-label {
+      font-size: 12px
+    }
+    
+    .stat-icon {
+      width: 48px
+      height: 48px
+    }
+  }
+}
+
+// Dashboard Cards
+.dashboard-card {
+  @media (max-width: 599px) {
+    margin-bottom: 16px
+    
+    .q-card__section {
+      padding: 12px
+    }
+  }
+}
+
+// Management Headers
+.management-header, .row.q-mb-md.items-center {
+  @media (max-width: 599px) {
+    flex-direction: column
+    align-items: flex-start !important
+    gap: 12px
+    
+    .col-auto {
+      width: 100%
+      
+      .q-btn {
+        width: 100%
+        margin-bottom: 8px
+      }
+    }
+  }
+}
+
+// Table Actions
+.q-td .q-btn {
+  @media (max-width: 599px) {
+    min-height: 36px
+    min-width: 36px
+    padding: 8px
+  }
+}
+
+// Image Preview
+.image-preview-container {
+  @media (max-width: 599px) {
+    max-width: 100%
+    
+    .image-preview {
+      height: 150px
+    }
+  }
+}
+
+// Map Container
+.map-container {
+  @media (max-width: 599px) {
+    height: 250px !important
+    border-radius: 8px
+  }
+}
+
+// Upload Progress
+.upload-progress {
+  @media (max-width: 599px) {
+    padding: 8px
+  }
+}
+
+// ============================================
+// Utility Classes
+// ============================================
+.text-h1 {
+  @media (max-width: 599px) {
+    font-size: 28px !important
+  }
+}
+
+.text-h2 {
+  @media (max-width: 599px) {
+    font-size: 24px !important
+  }
+}
+
+.text-h3 {
+  @media (max-width: 599px) {
+    font-size: 20px !important
+  }
+}
+
+.text-h4 {
+  @media (max-width: 599px) {
+    font-size: 18px !important
+  }
+}
+
+.text-h5 {
+  @media (max-width: 599px) {
+    font-size: 16px !important
+  }
+}
+
+.text-h6 {
+  @media (max-width: 599px) {
+    font-size: 15px !important
+  }
+}
+
+// ============================================
+// Safe Area for Notch Devices
+// ============================================
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left))
+    padding-right: max(0px, env(safe-area-inset-right))
+  }
+  
+  .q-page {
+    padding-left: max(16px, env(safe-area-inset-left))
+    padding-right: max(16px, env(safe-area-inset-right))
+  }
+  
+  .q-toolbar {
+    padding-left: max(8px, env(safe-area-inset-left))
+    padding-right: max(8px, env(safe-area-inset-right))
+  }
+}
+
+// ============================================
+// Print Styles
+// ============================================
+@media print {
+  .q-drawer,
+  .q-header,
+  .q-footer,
+  .q-btn,
+  .no-print {
+    display: none !important
+  }
+  
+  .q-page {
+    padding: 0
+  }
+}

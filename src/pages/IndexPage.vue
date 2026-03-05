@@ -1008,4 +1008,164 @@ $white: #FFFFFF;
     height: 60px;
   }
 }
+
+// ============================================
+// Mobile Responsive Fixes (max-width: 599px)
+// ============================================
+@media (max-width: 599px) {
+  .page-wrapper {
+    overflow-x: hidden;
+  }
+
+  .container-custom {
+    padding: 12px !important;
+  }
+
+  .hero-section {
+    padding: 0;
+    
+    .hero-box {
+      border-radius: 0;
+      overflow: hidden;
+    }
+  }
+
+  .hero-content {
+    padding: 20px 16px !important;
+    
+    .content-grid {
+      grid-template-columns: 1fr !important;
+      gap: 20px !important;
+    }
+    
+    .left-content,
+    .right-content {
+      width: 100% !important;
+    }
+  }
+
+  .hero-title {
+    font-size: 1.75rem !important;
+    word-break: break-word;
+    line-height: 1.2;
+  }
+
+  .hero-description {
+    font-size: 0.9rem !important;
+    line-height: 1.5;
+  }
+
+  .hero-tagline {
+    font-size: 0.85rem !important;
+    letter-spacing: 0.05em;
+  }
+
+  .route-card {
+    padding: 16px !important;
+    border-radius: 12px !important;
+    
+    .card-header {
+      flex-direction: column;
+      gap: 8px;
+      
+      .card-title {
+        font-size: 1rem !important;
+        text-align: center;
+      }
+    }
+  }
+
+  .input-group {
+    margin-bottom: 12px !important;
+    
+    .input-label {
+      font-size: 11px !important;
+    }
+    
+    .q-field {
+      min-height: 48px !important;
+      
+      .q-field__control {
+        min-height: 48px !important;
+      }
+      
+      .q-field__label {
+        font-size: 13px !important;
+      }
+    }
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px !important;
+    
+    .q-btn {
+      width: 100% !important;
+      min-height: 48px !important;
+      font-size: 14px !important;
+    }
+  }
+
+  .partners-section {
+    padding: 24px 0 !important;
+  }
+
+  .partners-title {
+    font-size: 1.25rem !important;
+    text-align: center;
+  }
+
+  .partners-row {
+    justify-content: center !important;
+    padding: 0 8px !important;
+    
+    .partner-card {
+      min-width: 120px !important;
+      padding: 12px 8px !important;
+      
+      .partner-icon {
+        width: 48px !important;
+        height: 48px !important;
+      }
+      
+      .partner-name {
+        font-size: 11px !important;
+      }
+    }
+  }
+
+  // Fix for q-select dropdown on mobile
+  .q-menu {
+    max-width: 90vw !important;
+  }
+
+  // Ensure buttons are touch-friendly
+  .q-btn {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 12px 16px !important;
+  }
+}
+
+// ============================================
+// Tablet Responsive (600px - 1023px)
+// ============================================
+@media (min-width: 600px) and (max-width: 1023px) {
+  .container-custom {
+    padding: 24px !important;
+  }
+
+  .hero-content {
+    padding: 32px !important;
+  }
+
+  .hero-title {
+    font-size: 2.25rem !important;
+  }
+
+  .route-card {
+    padding: 24px !important;
+  }
+}
 </style>
