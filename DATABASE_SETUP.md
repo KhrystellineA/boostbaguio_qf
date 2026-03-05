@@ -144,6 +144,44 @@ This will create:
 }
 ```
 
+### **jeepneys** (PAGNAAM - Updated with Route Coordinates)
+
+```javascript
+{
+  jeepName: string,           // Jeepney name (e.g., "Session Road - Loakan")
+  routeName: string,          // Alternative route name
+  terminalLocation: string,   // Starting terminal location
+  terminalStart: string,      // Starting terminal name
+  terminalEnd: string,        // Ending terminal name
+  endPoint: string,           // Destination/endpoint
+  fare: number,               // Base fare
+  fareRegular: number,        // Regular passenger fare
+  fareStudent: number,        // Student fare
+  fareSenior: number,         // Senior citizen fare
+  farePWD: number,            // PWD fare
+  operatingHours: {           // Operating hours
+    open: string,             // HH:MM format
+    close: string             // HH:MM format
+  },
+  touristSpotsServiced: [],   // Array of tourist spots along the route
+  isActive: boolean,          // Currently active route
+  imageUrl: string,           // Jeepney/route image
+  
+  // 🗺️ Route Coordinates for Map Visualization
+  routeCoordinates: [         // Array of objects with lat/lng properties
+    { lat: 16.4109, lng: 120.5964 },  // Session Road (starting point)
+    { lat: 16.4125, lng: 120.5975 },  // Session Road - Upper
+    { lat: 16.4145, lng: 120.5985 },  // Leonard Wood Road
+    { lat: 16.4165, lng: 120.5995 },  // Loakan Road
+    { lat: 16.4185, lng: 120.6005 },  // Loakan - Near Airport
+    { lat: 16.4205, lng: 120.6015 },  // Loakan Terminal
+  ],
+  terminalCoordinates: { lat: number, lng: number },  // Starting terminal
+  destinationCoordinates: { lat: number, lng: number }, // Ending terminal
+  originCoordinates: { lat: number, lng: number },    // Alternative: origin point
+}
+```
+
 ### **photos**
 
 ```javascript

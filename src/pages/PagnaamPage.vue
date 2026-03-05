@@ -175,105 +175,151 @@
       </div>
     </section>
 
-    <!-- JEEPNEY DETAILS SECTION (Section 4) -->
-    <section v-if="selectedRoute" class="details-section bg-white q-py-xl">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-8 col-12 q-pa-lg">
-            <q-card class="route-detail-card">
-              <q-card-section class="bg-primary text-white">
-                <div class="row items-center">
-                  <div class="col">
-                    <div class="text-h5 text-weight-bold">{{ selectedRoute.routeName }}</div>
-                    <div class="text-subtitle1">{{ selectedRoute.terminalStart }} → {{ selectedRoute.terminalEnd }}</div>
-                  </div>
-                  <div class="col-auto">
-                    <q-badge color="white" text-color="primary" class="text-bold">
-                      ₱{{ selectedRoute.fare }}
-                    </q-badge>
-                  </div>
-                </div>
-              </q-card-section>
+    <!-- JEEPNEY DETAILS DIALOG -->
+    <q-dialog v-model="showRouteDialog">
+      <q-card class="route-dialog-card" style="min-width: 1100px;">
+        <q-card-section class="row items-center q-pb-none bg-primary text-white">
+          <div class="text-h6 text-weight-bold">
+            <q-icon name="directions_bus" class="q-mr-sm" />
+            {{ selectedRoute?.routeName || selectedRoute?.jeepName }}
+          </div>
+          <q-space />
+          <q-btn v-close-popup flat round dense icon="close" />
+        </q-card-section>
 
-              <q-card-section>
-                <div class="row q-col-gutter-lg">
-                  <div class="col-md-6 col-12">
-                    <q-list>
+        <q-card-section class="q-pt-md">
+          <div class="row q-col-gutter-lg">
+            <div class="col-lg-5 col-12">
+              <q-card flat bordered class="q-pa-md">
+                <q-card-section class="q-pa-none">
+                  <div class="text-h5 text-primary text-weight-bold q-mb-md">Route Information</div>
+                  
+                  <div class="row q-col-gutter-md">
+                    <div class="col-12">
                       <q-item>
                         <q-item-section avatar>
-                          <q-icon name="location_on" color="primary" />
+                          <q-icon name="location_on" color="primary" size="md" />
                         </q-item-section>
                         <q-item-section>
                           <q-item-label class="text-weight-bold">Terminal Start</q-item-label>
-                          <q-item-label caption>{{ selectedRoute.terminalStart }}</q-item-label>
+                          <q-item-label caption>{{ selectedRoute?.terminalStart || selectedRoute?.terminalLocation }}</q-item-label>
                         </q-item-section>
                       </q-item>
+                    </div>
+                    <div class="col-12">
                       <q-item>
                         <q-item-section avatar>
-                          <q-icon name="location_city" color="primary" />
+                          <q-icon name="location_city" color="primary" size="md" />
                         </q-item-section>
                         <q-item-section>
                           <q-item-label class="text-weight-bold">Terminal End</q-item-label>
-                          <q-item-label caption>{{ selectedRoute.terminalEnd }}</q-item-label>
+                          <q-item-label caption>{{ selectedRoute?.terminalEnd || selectedRoute?.endPoint }}</q-item-label>
                         </q-item-section>
                       </q-item>
+                    </div>
+                    <div class="col-12">
                       <q-item>
                         <q-item-section avatar>
-                          <q-icon name="monetization_on" color="primary" />
+                          <q-icon name="monetization_on" color="primary" size="md" />
                         </q-item-section>
                         <q-item-section>
-                          <q-item-label class="text-weight-bold">Fare</q-item-label>
-                          <q-item-label caption>₱{{ selectedRoute.fare }}</q-item-label>
+                          <q-item-label class="text-weight-bold">Fare Matrix</q-item-label>
+                          <q-item-label caption>
+                            <div class="row q-gutter-sm q-mt-xs">
+                              <q-badge color="primary" text-color="white">
+                                <q-icon name="person" size="12px" class="q-mr-xs" />
+                                Regular: ₱{{ selectedRoute?.fareRegular || selectedRoute?.fare }}
+                              </q-badge>
+                              <q-badge color="secondary" text-color="white">
+                                <q-icon name="school" size="12px" class="q-mr-xs" />
+                                Student: ₱{{ selectedRoute?.fareStudent || selectedRoute?.fare }}
+                              </q-badge>
+                              <q-badge color="accent" text-color="white">
+                                <q-icon name="favorite" size="12px" class="q-mr-xs" />
+                                Senior: ₱{{ selectedRoute?.fareSenior || selectedRoute?.fare }}
+                              </q-badge>
+                              <q-badge color="info" text-color="white">
+                                <q-icon name="accessible" size="12px" class="q-mr-xs" />
+                                PWD: ₱{{ selectedRoute?.farePWD || selectedRoute?.fare }}
+                              </q-badge>
+                            </div>
+                          </q-item-label>
                         </q-item-section>
                       </q-item>
+                    </div>
+                    <div class="col-12">
                       <q-item>
                         <q-item-section avatar>
-                          <q-icon name="schedule" color="primary" />
+                          <q-icon name="schedule" color="primary" size="md" />
                         </q-item-section>
                         <q-item-section>
                           <q-item-label class="text-weight-bold">Operating Hours</q-item-label>
-                          <q-item-label caption>{{ selectedRoute.operatingHours }}</q-item-label>
+                          <q-item-label caption>
+                            {{ formatOperatingHours(selectedRoute?.operatingHours) }}
+                          </q-item-label>
                         </q-item-section>
                       </q-item>
-                    </q-list>
-                  </div>
-                  <div class="col-md-6 col-12">
-                    <div class="q-pa-md bg-grey-2 rounded-borders">
-                      <h4 class="text-h6 text-weight-bold text-primary q-mb-md">How to Identify This Jeepney</h4>
-                      <ul class="q-pl-md">
-                        <li class="q-mb-sm">Look for "{{ selectedRoute.routeName }}" signage on the front and sides</li>
-                        <li class="q-mb-sm">Check for route number indicators</li>
-                        <li class="q-mb-sm">The driver will call out major stops along the route</li>
-                        <li class="q-mb-sm">To get off, tap the side or say "para"</li>
-                      </ul>
                     </div>
                   </div>
-                </div>
-              </q-card-section>
 
-              <q-card-actions>
-                <q-btn 
-                  label="Go There" 
-                  color="primary" 
-                  @click="navigateToTerminal"
-                />
-                <q-btn 
-                  flat 
-                  label="View on Map" 
-                  @click="showMap = true"
-                  v-close-popup
-                />
-              </q-card-actions>
-            </q-card>
-          </div>
-          <div class="col-md-4 col-12 q-pa-lg">
-            <div class="map-container">
-              <div id="map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
+                  <q-separator class="q-my-md" />
+
+                  <div class="q-pa-md bg-grey-2 rounded-borders">
+                    <h4 class="text-h6 text-weight-bold text-primary q-mb-md">How to Identify This Jeepney</h4>
+                    <ul class="q-pl-md">
+                      <li class="q-mb-sm">Look for "{{ selectedRoute?.routeName || selectedRoute?.jeepName }}" signage on the front and sides</li>
+                      <li class="q-mb-sm">Check for route number indicators</li>
+                      <li class="q-mb-sm">The driver will call out major stops along the route</li>
+                      <li class="q-mb-sm">To get off, tap the side or say "para"</li>
+                    </ul>
+                  </div>
+
+                  <q-separator class="q-my-md" />
+
+                  <div v-if="selectedRoute?.touristSpotsServiced && selectedRoute.touristSpotsServiced.length > 0" class="q-mt-md">
+                    <h4 class="text-h6 text-weight-bold text-primary q-mb-md">Tourist Spots Along the Route</h4>
+                    <div class="row q-gutter-sm">
+                      <q-badge
+                        v-for="(spot, idx) in selectedRoute.touristSpotsServiced"
+                        :key="idx"
+                        color="primary"
+                        text-color="white"
+                        class="text-body2"
+                      >
+                        <q-icon name="attractions" size="14px" class="q-mr-xs" />
+                        {{ spot }}
+                      </q-badge>
+                    </div>
+                  </div>
+                </q-card-section>
+
+                <q-card-actions align="center" class="q-mt-lg">
+                  <q-btn
+                    label="Navigate to Terminal"
+                    color="primary"
+                    icon="navigation"
+                    @click="navigateToTerminal"
+                    class="q-mr-sm"
+                  />
+                  <q-btn
+                    flat
+                    label="Close"
+                    color="grey"
+                    v-close-popup
+                  />
+                </q-card-actions>
+              </q-card>
+            </div>
+
+            <div class="col-lg-7 col-12">
+              <q-card flat bordered class="map-card" style="height: 550px;">
+                <div id="route-map" style="height: 100%; width: 100%; min-height: 550px; background: #e8e8e8;"></div>
+              </q-card>
             </div>
           </div>
-        </div>
-      </div>
-    </section>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
 
     <!-- FAQS SECTION (Section 5) -->
     <section class="faqs-section">
@@ -351,7 +397,7 @@ export default defineComponent({
     const allRoutes = ref([])
     const selectedRoute = ref(null)
     const heroImageUrl = ref(fallbackImage)
-    const showMap = ref(false)
+    const showRouteDialog = ref(false)
     let map = null
 
     const faqs = [
@@ -504,31 +550,11 @@ export default defineComponent({
 
     const selectRoute = (route) => {
       selectedRoute.value = route
-      
-      // Initialize map
-      setTimeout(() => {
-        if (document.getElementById('map')) {
-          if (map) {
-            map.remove()
-          }
-          map = L.map('map').setView([16.4122, 120.5948], 13)
-          
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          }).addTo(map)
-          
-          // Add markers for start and end terminals
-          if (route.terminalStart) {
-            L.marker([16.4122, 120.5948]).addTo(map)
-              .bindPopup(route.terminalStart)
-          }
-          
-          if (route.terminalEnd) {
-            L.marker([16.4178, 120.6012]).addTo(map)
-              .bindPopup(route.terminalEnd)
-          }
-        }
-      }, 100)
+      showRouteDialog.value = true
+
+      console.log('[PagnaamPage] Selected route:', route)
+      console.log('[PagnaamPage] Route coordinates:', route.routeCoordinates)
+      console.log('[PagnaamPage] Dialog show state:', showRouteDialog.value)
     }
 
     const navigateToTerminal = () => {
@@ -541,20 +567,141 @@ export default defineComponent({
     onMounted(async () => {
       await fetchHeroImage()
       await fetchRoutes()
-      
-      // Initialize map if there's a selected route
-      if (selectedRoute.value && document.getElementById('map')) {
-        map = L.map('map').setView([16.4122, 120.5948], 13)
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map)
+    })
+
+    // Watch for dialog opening
+    watch(showRouteDialog, async (newVal) => {
+      if (newVal) {
+        console.log('=== [PagnaamPage] === DIALOG OPENED ===')
+        // Wait for dialog to fully render
+        await new Promise(resolve => setTimeout(resolve, 500))
+        initMap()
+      } else {
+        console.log('[PagnaamPage] Dialog closed, cleaning up map...')
+        if (map) {
+          map.remove()
+          map = null
+        }
+        selectedRoute.value = null
       }
     })
+
+    const initMap = () => {
+      console.log('[PagnaamPage] Initializing map...')
+      console.log('[PagnaamPage] Selected route:', selectedRoute.value?.routeName)
+      
+      const mapElement = document.getElementById('route-map')
+      console.log('[PagnaamPage] Map element:', mapElement)
+      console.log('[PagnaamPage] Map element dimensions:', mapElement?.offsetWidth, 'x', mapElement?.offsetHeight)
+      console.log('[PagnaamPage] Map element computed style:', window.getComputedStyle(mapElement).height)
+      
+      if (mapElement) {
+        if (map) {
+          map.remove()
+          map = null
+          console.log('[PagnaamPage] Previous map removed')
+        }
+        
+        console.log('[PagnaamPage] Creating new map instance...')
+        
+        // Create map
+        map = L.map('route-map', {
+          center: [16.4122, 120.5948],
+          zoom: 13
+        })
+
+        console.log('[PagnaamPage] Map instance created:', map)
+
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19
+        }).addTo(map)
+
+        console.log('[PagnaamPage] Tile layer added')
+
+        const route = selectedRoute.value
+        console.log('[PagnaamPage] Current route:', route?.routeName)
+        console.log('[PagnaamPage] Route coordinates:', route?.routeCoordinates)
+
+        // Draw route polyline if coordinates are available
+        if (route?.routeCoordinates && route.routeCoordinates.length > 0) {
+          console.log('[PagnaamPage] Drawing polyline with', route.routeCoordinates.length, 'points')
+          
+          // Convert coordinates to [lat, lng] format for Leaflet
+          const latlngs = route.routeCoordinates.map(coord => {
+            const point = [coord.lat, coord.lng]
+            return point
+          })
+
+          console.log('[PagnaamPage] Latlngs:', latlngs)
+
+          // Draw the route path as a polyline
+          const routePath = L.polyline(latlngs, {
+            color: '#2E5D3E',
+            weight: 5,
+            opacity: 0.8,
+            dashArray: '10, 10',
+            lineCap: 'round'
+          }).addTo(map)
+
+          console.log('[PagnaamPage] Polyline created:', routePath)
+
+          // Fit map to show the entire route
+          const bounds = routePath.getBounds()
+          console.log('[PagnaamPage] Route bounds:', bounds)
+          map.fitBounds(bounds, { padding: [50, 50] })
+
+          // Add a popup to the polyline
+          routePath.bindPopup(`<b>${route.routeName || route.jeepName}</b><br>Route Path`)
+          
+          console.log('[PagnaamPage] ✅ Polyline drawn successfully!')
+        } else {
+          console.log('[PagnaamPage] ⚠️ No route coordinates available')
+        }
+
+        // Add markers for start and end terminals
+        const startCoords = route?.terminalCoordinates || route?.originCoordinates || { lat: 16.4122, lng: 120.5948 }
+        const endCoords = route?.destinationCoordinates || { lat: 16.4178, lng: 120.6012 }
+
+        console.log('[PagnaamPage] Start coords:', startCoords, 'End coords:', endCoords)
+
+        // Convert to array format for Leaflet
+        const startLatLng = [startCoords.lat, startCoords.lng]
+        const endLatLng = [endCoords.lat, endCoords.lng]
+
+        if (route?.terminalStart || route?.terminalLocation) {
+          L.marker(startLatLng).addTo(map)
+            .bindPopup(`<b>${route.terminalStart || route.terminalLocation}</b><br>Starting Terminal`)
+        }
+
+        if (route?.terminalEnd || route?.endPoint) {
+          L.marker(endLatLng).addTo(map)
+            .bindPopup(`<b>${route.terminalEnd || route.endPoint}</b><br>Destination Terminal`)
+        }
+
+        // If no route coordinates, fit map to show both terminals
+        if (!route?.routeCoordinates || route.routeCoordinates.length === 0) {
+          const bounds = L.latLngBounds([startLatLng, endLatLng])
+          map.fitBounds(bounds, { padding: [50, 50] })
+        }
+        
+        // Invalidate map size to ensure proper rendering
+        setTimeout(() => {
+          map.invalidateSize()
+          console.log('[PagnaamPage] Map size invalidated')
+          console.log('[PagnaamPage] Map center:', map.getCenter(), 'Zoom:', map.getZoom())
+          console.log('[PagnaamPage] ✅ Map fully loaded!')
+        }, 200)
+      } else {
+        console.error('[PagnaamPage] ❌ Map element NOT found!')
+      }
+    }
 
     onUnmounted(() => {
       if (map) {
         map.remove()
+        map = null
       }
     })
 
@@ -569,7 +716,7 @@ export default defineComponent({
       filteredRoutes,
       selectedRoute,
       heroImageUrl,
-      showMap,
+      showRouteDialog,
       faqs,
       leftFaqs,
       rightFaqs,
@@ -818,6 +965,20 @@ $white: #FFFFFF;
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.route-dialog-card {
+  min-width: 1100px;
+  
+  .map-card {
+    height: 100%;
+    overflow: hidden;
+    
+    #route-map {
+      min-height: 550px;
+      background: #f0f0f0;
+    }
+  }
 }
 
 @media (max-width: 768px) {
