@@ -199,6 +199,19 @@
     <!-- Main Content -->
     <q-page-container>
       <q-page class="q-pa-md">
+        <!-- Breadcrumbs -->
+        <AppBreadcrumbs class="q-mb-md" />
+
+        <!-- Pull to refresh indicator -->
+        <div
+          v-show="isRefreshing"
+          class="pull-refresh-indicator"
+          :style="{ transform: `translateY(${pullDistance}px)` }"
+        >
+          <q-spinner color="primary" size="32px" />
+          <span class="q-ml-sm">Refreshing...</span>
+        </div>
+
         <div v-if="activeMenu === 'dashboard'">
           <!-- Dashboard Header -->
           <div class="row q-mb-md">
@@ -398,7 +411,13 @@
         <AnalyticsManagement v-else-if="activeMenu === 'analytics'" />
 
         <ActivityLogsManagement v-else-if="activeMenu === 'activity-logs'" />
+
+        <!-- Back to Top Button -->
+        <BackToTopBtn position="bottom-right" :threshold="300" />
       </q-page>
+
+      <!-- Pull to refresh wrapper for mobile -->
+      <div data-pull-refresh class="pull-refresh-container"></div>
     </q-page-container>
   </q-layout>
 </template>
@@ -415,6 +434,9 @@ import AdminsManagement from 'src/components/admin/AdminsManagement.vue'
 import PhotosManagement from 'src/components/admin/PhotosManagement.vue'
 import AnalyticsManagement from 'src/components/admin/AnalyticsManagement.vue'
 import ActivityLogsManagement from 'src/components/admin/ActivityLogsManagement.vue'
+import BackToTopBtn from 'src/components/BackToTopBtn.vue'
+import AppBreadcrumbs from 'src/components/AppBreadcrumbs.vue'
+import { usePullToRefresh } from 'src/composables/usePullToRefresh'
 
 export default {
   name: 'AdminDashboard',
@@ -427,11 +449,17 @@ export default {
     PhotosManagement,
     AnalyticsManagement,
     ActivityLogsManagement,
+    BackToTopBtn,
+    AppBreadcrumbs,
   },
 
   setup() {
     const q = useQuasar()
-    return { q }
+    const { isPulling, pullDistance, isRefreshing, refresh } = usePullToRefresh(async () => {
+      // Refresh will be handled by the component methods
+    })
+
+    return { q, isPulling, pullDistance, isRefreshing, refresh }
   },
 
   data() {
@@ -778,6 +806,32 @@ export default {
 .q-drawer
   border-right: 1px solid #e0e0e0
 
+// Pull to refresh indicator
+.pull-refresh-indicator
+  position: fixed
+  top: 70px
+  left: 50%
+  transform: translateX(-50%)
+  background: white
+  padding: 12px 24px
+  border-radius: 24px
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15)
+  display: flex
+  align-items: center
+  z-index: 9999
+  font-weight: 500
+  color: #2E5D3E
+  transition: transform 0.2s ease
+
+.pull-refresh-container
+  position: fixed
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
+  z-index: 9998
+  pointer-events: none
+
 // Responsive adjustments
 @media (max-width: 768px)
   .q-toolbar-title
@@ -792,4 +846,9 @@ export default {
   .col-12.col-md-6
     width: 100%
     margin-bottom: 1rem
+
+  .pull-refresh-indicator
+    top: 60px
+    padding: 10px 20px
+    font-size: 14px
 </style>
