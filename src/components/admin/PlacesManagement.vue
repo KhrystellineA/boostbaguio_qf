@@ -380,6 +380,8 @@ import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import VueCropper from 'vue-cropperjs'
+import { getErrorMessage, withRetry, isOnline } from 'src/utils/errorHandler'
+import { logActionFailure } from 'src/utils/errorMonitoring'
 
 // Fix for default marker icons in Leaflet
 delete L.Icon.Default.prototype._getIconUrl
@@ -482,6 +484,11 @@ export default {
     async loadPlaces() {
       this.loading = true
       try {
+        // Check online status
+        if (!isOnline()) {
+          throw new Error('You appear to be offline. Please check your internet connection.')
+        }
+
         const querySnapshot = await getDocs(collection(db, 'places'))
         this.places = querySnapshot.docs.map(doc => ({
           id: doc.id,
@@ -490,10 +497,21 @@ export default {
         console.log('[Places] Loaded places:', this.places.length)
       } catch (error) {
         console.error('[Places] Error loading:', error)
+        logActionFailure('load_places', error)
+
+        const message = getErrorMessage(error, 'Failed to load places. Please refresh the page.')
         this.$q.notify({
           type: 'negative',
-          message: 'Failed to load places',
-          position: 'top'
+          message: message,
+          position: 'top',
+          timeout: 5000,
+          actions: [
+            {
+              label: 'Retry',
+              color: 'white',
+              handler: () => this.loadPlaces()
+            }
+          ]
         })
       } finally {
         this.loading = false
@@ -830,6 +848,17 @@ export default {
         return
       }
 
+      // Check online status
+      if (!isOnline()) {
+        this.$q.notify({
+          type: 'negative',
+          message: 'You appear to be offline. Please check your internet connection and try again.',
+          position: 'top',
+          timeout: 6000
+        })
+        return
+      }
+
       this.saving = true
       try {
         const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
@@ -841,14 +870,25 @@ export default {
           imagePublicId: this.form.imagePublicId || ''
         }
 
-        // Handle image upload
+        // Handle image upload with retry
         if (this.imageFile) {
           if (this.editingPlace?.imagePublicId) {
-            // Note: Cloudinary deletion requires server-side API
             console.log('[Places] Old image will remain in Cloudinary:', this.editingPlace.imagePublicId)
           }
 
-          imageData = await this.uploadImage()
+          try {
+            imageData = await withRetry(
+              () => this.uploadImage(),
+              {
+                maxRetries: 2,
+                onRetry: ({ attempt }) => {
+                  console.log(`[Places] Image upload retry ${attempt}/2`)
+                }
+              }
+            )
+          } catch {
+            throw new Error('Failed to upload image. Please try again or remove the image and save without it.')
+          }
         }
 
         const placeData = {
@@ -910,11 +950,27 @@ export default {
         this.loadPlaces()
       } catch (error) {
         console.error('[Places] Error saving:', error)
+        logActionFailure(this.editingPlace ? 'update_place' : 'create_place', error, {
+          placeName: this.form.name,
+          placeId: this.editingPlace?.id
+        })
+
+        const message = getErrorMessage(
+          error,
+          `Failed to ${this.editingPlace ? 'update' : 'create'} place. Please try again.`
+        )
         this.$q.notify({
           type: 'negative',
-          message: 'Failed to save place: ' + error.message,
+          message: message,
           position: 'top',
-          timeout: 5000
+          timeout: 6000,
+          actions: [
+            {
+              label: 'Retry',
+              color: 'white',
+              handler: () => this.savePlace()
+            }
+          ]
         })
       } finally {
         this.saving = false
@@ -929,6 +985,11 @@ export default {
         persistent: true
       }).onOk(async () => {
         try {
+          // Check online status
+          if (!isOnline()) {
+            throw new Error('You appear to be offline. Please check your internet connection.')
+          }
+
           const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
           const adminUid = sessionStorage.getItem('adminUid')
           const { logDelete } = await import('src/utils/activityLogger')
@@ -956,10 +1017,14 @@ export default {
           this.loadPlaces()
         } catch (error) {
           console.error('[Places] Error deleting:', error)
+          logActionFailure('delete_place', error, { placeId: place.id, placeName: place.name })
+
+          const message = getErrorMessage(error, 'Failed to delete place. Please try again.')
           this.$q.notify({
             type: 'negative',
-            message: 'Failed to delete place',
-            position: 'top'
+            message: message,
+            position: 'top',
+            timeout: 5000
           })
         }
       })
@@ -983,6 +1048,11 @@ export default {
       }).onOk(async () => {
         this.loading = true
         try {
+          // Check online status
+          if (!isOnline()) {
+            throw new Error('You appear to be offline. Please check your internet connection.')
+          }
+
           const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
           const adminUid = sessionStorage.getItem('adminUid')
           const { logBulkDelete } = await import('src/utils/activityLogger')
@@ -1011,10 +1081,16 @@ export default {
           this.loadPlaces()
         } catch (error) {
           console.error('[Places] Error bulk deleting:', error)
+          logActionFailure('bulk_delete_places', error, {
+            count: this.selectedPlaces.length
+          })
+
+          const message = getErrorMessage(error, 'Failed to delete places. Please try again.')
           this.$q.notify({
             type: 'negative',
-            message: 'Failed to delete places',
-            position: 'top'
+            message: message,
+            position: 'top',
+            timeout: 6000
           })
         } finally {
           this.loading = false
