@@ -543,9 +543,10 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   align-items: center;
   padding: 0;
   margin: 0;
-  background: linear-gradient(135deg, $dark-green 0%, darken($primary-green, 5%) 100%) !important;
   position: relative;
-  
+  background: none;
+  overflow: hidden;
+
   &::before {
     content: '';
     position: absolute;
@@ -570,9 +571,10 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 .hero-box {
   position: relative;
   width: 100%;
-  height: 650px;
+  height: 100vh;
+  min-height: 700px;
   border-radius: 0;
-  overflow: visible;
+  overflow: hidden;
   box-shadow: none;
 }
 
@@ -596,7 +598,7 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
   z-index: 1;
 }
 
@@ -612,47 +614,50 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 .content-grid {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
-  gap: 4rem;
+  gap: 5rem;
   width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
   align-items: center;
-  padding: 4rem;
+  padding: 4rem 5%;
 }
 
 .left-content {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  max-width: 600px;
 }
 
 .hero-title {
-  font-size: 3.5rem;
+  font-size: 3.75rem;
   font-weight: 800;
   color: white;
   line-height: 1.1;
   margin-bottom: 1.5rem;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .hero-description {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: rgba($white, 0.95);
   line-height: 1.7;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
   font-weight: 300;
-  max-width: 540px;
+  max-width: 560px;
 }
 
 .hero-tagline {
-  font-size: 1.25rem;
-  color: rgba($white, 0.85);
-  font-weight: 500;
-  letter-spacing: 0.15em;
+  font-size: 1.1rem;
+  color: rgba($white, 0.9);
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   margin: 0;
-  padding-top: 1rem;
-  border-top: 1px solid rgba($white, 0.2);
+  padding-top: 1.25rem;
+  border-top: 2px solid rgba($white, 0.3);
 }
 
 .learn-more-btn {
@@ -676,70 +681,72 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 .right-content {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
 }
 
 .route-card {
-  background: $glass-bg;
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-radius: 24px;
-  padding: 2.5rem;
+  border-radius: 20px;
+  padding: 2rem;
   width: 100%;
-  max-width: 460px;
+  max-width: 440px;
   margin-left: auto;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.2),
-    0 0 0 1px rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+    0 24px 64px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.3);
+  border: none;
 
   &:hover {
     transform: translateY(-8px);
     box-shadow:
-      0 30px 80px rgba(0, 0, 0, 0.25),
-      0 0 0 1px rgba(255, 255, 255, 0.4);
+      0 32px 80px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.5);
   }
 }
 
 .card-header {
   display: flex;
   align-items: center;
-  margin-bottom: 1.75rem;
-  padding-bottom: 1.25rem;
-  border-bottom: 2px solid rgba($primary-green, 0.1);
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba($primary-green, 0.15);
 }
 
 .card-title {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: $primary-green;
   letter-spacing: 0.02em;
+  line-height: 1.3;
 }
 
 .input-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 
   &:last-of-type {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
 }
 
 .input-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: $brown;
-  margin-bottom: 0.625rem;
-  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .custom-input {
   :deep(.q-field__control) {
-    border-radius: 12px;
-    min-height: 52px;
+    border-radius: 10px;
+    min-height: 48px;
     background: $white;
     transition: all 0.3s ease;
-    border: 1px solid rgba($primary-green, 0.15);
+    border: 1.5px solid rgba($primary-green, 0.15);
 
     &:hover {
       box-shadow: 0 4px 12px rgba($primary-green, 0.1);
@@ -748,12 +755,12 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 
     &.q-field--focused {
       border-color: $primary-green;
-      box-shadow: 0 4px 16px rgba($primary-green, 0.15);
+      box-shadow: 0 6px 20px rgba($primary-green, 0.15);
     }
   }
 
   :deep(.q-field__native) {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     color: $dark-green;
   }
 
@@ -766,23 +773,23 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   background: $primary-green !important;
   color: white !important;
   font-weight: 600;
-  border-radius: 12px;
+  border-radius: 10px;
   text-transform: none;
-  font-size: 1rem;
+  font-size: 0.95rem;
   width: 100%;
-  height: 52px;
+  height: 48px;
   letter-spacing: 0.02em;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 16px rgba($primary-green, 0.3);
 
   &:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
     box-shadow: 0 8px 24px rgba($primary-green, 0.4);
     background: $dark-green !important;
   }
 
   &:active {
-    transform: translateY(-1px);
+    transform: translateY(0);
   }
 }
 
@@ -924,29 +931,35 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 
 @media (max-width: 1023px) {
   .hero-section {
-    padding: 2rem 0;
+    padding: 0;
   }
 
   .hero-box {
     height: auto;
-    min-height: calc(100vh - 2rem);
+    min-height: 100vh;
   }
 
   .hero-content {
-    padding: 2.5rem;
+    padding: 3rem 5%;
   }
 
   .content-grid {
     grid-template-columns: 1fr;
     gap: 3rem;
+    padding: 0;
+    max-width: 100%;
+  }
+
+  .left-content {
+    max-width: 100%;
   }
 
   .hero-title {
-    font-size: 2.5rem;
+    font-size: 2.75rem;
   }
 
   .hero-description {
-    font-size: 1rem;
+    font-size: 1.05rem;
     max-width: 100%;
   }
 
@@ -986,12 +999,12 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 
 @media (max-width: 599px) {
   .container-custom {
-    padding: 0 1.5rem;
+    padding: 0;
   }
 
   .hero-section {
     padding: 0;
-    
+
     &::before {
       display: none;
     }
@@ -999,31 +1012,31 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 
   .hero-box {
     border-radius: 0;
-    min-height: calc(100vh);
+    min-height: 100vh;
   }
 
   .hero-content {
-    padding: 2rem;
+    padding: 2.5rem 5%;
   }
 
   .hero-title {
-    font-size: 2rem;
+    font-size: 2.25rem;
     margin-bottom: 1rem;
   }
 
   .hero-description {
-    font-size: 0.95rem;
+    font-size: 1rem;
     line-height: 1.6;
   }
 
   .hero-tagline {
-    font-size: 1rem;
-    letter-spacing: 0.1em;
+    font-size: 0.95rem;
+    letter-spacing: 0.15em;
   }
 
   .route-card {
     padding: 1.75rem;
-    border-radius: 20px;
+    border-radius: 16px;
   }
 
   .card-title {
@@ -1067,136 +1080,129 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   .hero-section {
     padding: 0;
     margin: 0;
-    
+
     .hero-box {
       border-radius: 0;
-      overflow: visible;
+      overflow: hidden;
     }
   }
 
   .container-custom {
-    padding: 0 !important;
+    padding: 0;
   }
 
   .hero-content {
-    padding: 0 !important;
-    
+    padding: 2.5rem 5%;
+
     .content-grid {
-      grid-template-columns: 1fr !important;
-      gap: 20px !important;
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
     }
-    
+
     .left-content,
     .right-content {
-      width: 100% !important;
+      width: 100%;
     }
   }
 
   .hero-title {
-    font-size: 1.75rem !important;
+    font-size: 2rem;
     word-break: break-word;
     line-height: 1.2;
   }
 
   .hero-description {
-    font-size: 0.9rem !important;
-    line-height: 1.5;
+    font-size: 0.95rem;
+    line-height: 1.6;
   }
 
   .hero-tagline {
-    font-size: 0.85rem !important;
-    letter-spacing: 0.05em;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
   }
 
   .route-card {
-    padding: 1.5rem !important;
-    border-radius: 16px !important;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
-    background: rgba(255, 255, 255, 0.95) !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    
+    padding: 1.75rem;
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.98);
+    max-width: 100%;
+    margin: 0;
+
     .card-header {
       flex-direction: column;
       gap: 8px;
-      
+
       .card-title {
-        font-size: 1rem !important;
+        font-size: 1.05rem;
         text-align: center;
       }
     }
   }
 
   .input-group {
-    margin-bottom: 12px !important;
-    
+    margin-bottom: 1rem;
+
     .input-label {
-      font-size: 11px !important;
+      font-size: 0.65rem;
     }
-    
+
     .q-field {
-      min-height: 48px !important;
-      
+      min-height: 46px;
+
       .q-field__control {
-        min-height: 48px !important;
+        min-height: 46px;
       }
-      
+
       .q-field__label {
-        font-size: 13px !important;
+        font-size: 0.8rem;
       }
     }
   }
 
-  .action-buttons {
-    flex-direction: column;
-    width: 100%;
-    gap: 8px !important;
-    
-    .q-btn {
-      width: 100% !important;
-      min-height: 48px !important;
-      font-size: 14px !important;
-    }
+  .start-nav-btn {
+    min-height: 48px;
+    font-size: 0.9rem;
   }
 
   .partners-section {
-    padding: 24px 0 !important;
+    padding: 2.5rem 0;
   }
 
   .partners-title {
-    font-size: 1.25rem !important;
+    font-size: 1.35rem;
     text-align: center;
   }
 
   .partners-row {
-    justify-content: center !important;
-    padding: 0 8px !important;
-    
+    justify-content: center;
+    padding: 0 1rem;
+
     .partner-card {
-      min-width: 120px !important;
-      padding: 12px 8px !important;
-      
+      min-width: 130px;
+      padding: 1.25rem 0.75rem;
+
       .partner-icon {
-        width: 48px !important;
-        height: 48px !important;
+        width: 50px;
+        height: 50px;
       }
-      
+
       .partner-name {
-        font-size: 11px !important;
+        font-size: 0.8rem;
       }
     }
   }
 
   // Fix for q-select dropdown on mobile
   .q-menu {
-    max-width: 90vw !important;
+    max-width: 90vw;
   }
 
   // Ensure buttons are touch-friendly
   .q-btn {
-    min-height: 44px !important;
-    min-width: 44px !important;
-    padding: 12px 16px !important;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 12px 16px;
   }
 }
 
@@ -1205,19 +1211,19 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 // ============================================
 @media (min-width: 600px) and (max-width: 1023px) {
   .container-custom {
-    padding: 24px !important;
+    padding: 0;
   }
 
   .hero-content {
-    padding: 32px !important;
+    padding: 3rem 5%;
   }
 
   .hero-title {
-    font-size: 2.25rem !important;
+    font-size: 2.5rem;
   }
 
   .route-card {
-    padding: 24px !important;
+    padding: 1.75rem;
   }
 }
 </style>
