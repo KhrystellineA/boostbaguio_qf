@@ -59,7 +59,7 @@ export default {
 
       let cumulativePath = ''
 
-      pathSegments.forEach((segment, index) => {
+      pathSegments.forEach((segment) => {
         cumulativePath += `/${segment}`
 
         // Convert segment to readable label
