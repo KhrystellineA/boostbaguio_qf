@@ -107,6 +107,11 @@
             outlined
             label="Full Name *"
             class="q-mb-md"
+            :rules="[
+              val => required(val, 'Full name').valid || required(val, 'Full name').message,
+              val => minLength(val, 2, 'Full name').valid || minLength(val, 2, 'Full name').message,
+              val => maxLength(val, 100, 'Full name').valid || maxLength(val, 100, 'Full name').message
+            ]"
           />
 
           <q-input
@@ -116,6 +121,10 @@
             label="Email *"
             :disable="!!editingAdmin"
             class="q-mb-md"
+            :rules="[
+              val => required(val, 'Email').valid || required(val, 'Email').message,
+              val => email(val).valid || email(val).message
+            ]"
           />
 
           <q-input
@@ -125,6 +134,12 @@
             type="password"
             label="Password *"
             class="q-mb-md"
+            :rules="[
+              val => required(val, 'Password').valid || required(val, 'Password').message,
+              val => minLength(val, 6, 'Password').valid || minLength(val, 6, 'Password').message,
+              val => maxLength(val, 128, 'Password').valid || maxLength(val, 128, 'Password').message
+            ]"
+            hint="Password must be at least 6 characters"
           />
 
           <q-select
@@ -137,6 +152,7 @@
             emit-value
             map-options
             class="q-mb-md"
+            :rules="[val => required(val, 'Role').valid || required(val, 'Role').message]"
           />
 
           <q-toggle
@@ -166,6 +182,9 @@ import { db, auth } from 'src/boot/firebase'
 import { collection, getDocs, updateDoc, deleteDoc, doc, setDoc } from 'firebase/firestore'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { useQuasar } from 'quasar'
+/* eslint-disable no-unused-vars */
+import { required, email, minLength, maxLength } from 'src/utils/validation'
+/* eslint-enable no-unused-vars */
 
 export default {
   name: 'AdminsManagement',

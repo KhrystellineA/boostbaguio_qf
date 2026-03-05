@@ -169,7 +169,11 @@
             outlined
             label="Event Name *"
             class="q-mb-md"
-            :rules="[val => !!val || 'Event name is required']"
+            :rules="[
+              val => required(val, 'Event name').valid || required(val, 'Event name').message,
+              val => minLength(val, 3, 'Event name').valid || minLength(val, 3, 'Event name').message,
+              val => maxLength(val, 200, 'Event name').valid || maxLength(val, 200, 'Event name').message
+            ]"
           />
 
           <!-- Event Organizer -->
@@ -178,7 +182,11 @@
             outlined
             label="Event Organizer *"
             class="q-mb-md"
-            :rules="[val => !!val || 'Event organizer is required']"
+            :rules="[
+              val => required(val, 'Event organizer').valid || required(val, 'Event organizer').message,
+              val => minLength(val, 2, 'Event organizer').valid || minLength(val, 2, 'Event organizer').message,
+              val => maxLength(val, 100, 'Event organizer').valid || maxLength(val, 100, 'Event organizer').message
+            ]"
           />
 
           <!-- Event Location -->
@@ -187,7 +195,11 @@
             outlined
             label="Event Location *"
             class="q-mb-md"
-            :rules="[val => !!val || 'Event location is required']"
+            :rules="[
+              val => required(val, 'Event location').valid || required(val, 'Event location').message,
+              val => minLength(val, 5, 'Event location').valid || minLength(val, 5, 'Event location').message,
+              val => maxLength(val, 200, 'Event location').valid || maxLength(val, 200, 'Event location').message
+            ]"
           />
 
           <!-- Event Date -->
@@ -199,8 +211,8 @@
                 type="date"
                 label="Start Date *"
                 :rules="[
-                  val => !!val || 'Start date is required',
-                  val => validateStartDate(val) || 'Start date cannot be in the past'
+                  val => required(val, 'Start date').valid || required(val, 'Start date').message,
+                  val => notInPast(val).valid || notInPast(val).message
                 ]"
               />
             </div>
@@ -211,8 +223,8 @@
                 type="date"
                 label="End Date *"
                 :rules="[
-                  val => !!val || 'End date is required',
-                  val => validateEndDate(val) || 'End date must be on or after start date'
+                  val => required(val, 'End date').valid || required(val, 'End date').message,
+                  val => dateOnOrAfter(val, this.form.startDate).valid || dateOnOrAfter(val, this.form.startDate).message
                 ]"
               />
             </div>
@@ -282,6 +294,9 @@
 import { db } from 'src/boot/firebase'
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore'
 import { useQuasar } from 'quasar'
+/* eslint-disable no-unused-vars */
+import { required, minLength, maxLength, notInPast, dateOnOrAfter, email } from 'src/utils/validation'
+/* eslint-enable no-unused-vars */
 
 export default {
   name: 'EventsManagement',

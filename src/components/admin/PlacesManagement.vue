@@ -207,7 +207,11 @@
             outlined
             label="Place Name *"
             class="q-mb-md"
-            :rules="[val => !!val || 'Place name is required']"
+            :rules="[
+              val => required(val, 'Place name').valid || required(val, 'Place name').message,
+              val => minLength(val, 2, 'Place name').valid || minLength(val, 2, 'Place name').message,
+              val => maxLength(val, 100, 'Place name').valid || maxLength(val, 100, 'Place name').message
+            ]"
           />
 
           <!-- Category -->
@@ -223,7 +227,7 @@
             multiple
             use-chips
             class="q-mb-md"
-            :rules="[val => val && val.length > 0 || 'At least one category is required']"
+            :rules="[val => required(val, 'Category').valid || required(val, 'Category').message]"
             hint="Select one or more categories for filtering in Ayan Mo feature"
           />
 
@@ -233,7 +237,10 @@
             outlined
             label="Address/Location *"
             class="q-mb-md"
-            :rules="[val => !!val || 'Address is required']"
+            :rules="[
+              val => required(val, 'Address').valid || required(val, 'Address').message,
+              val => minLength(val, 5, 'Address').valid || minLength(val, 5, 'Address').message
+            ]"
           >
             <template #append>
               <q-btn
@@ -265,7 +272,12 @@
             label="Description *"
             rows="4"
             class="q-mb-md"
-            :rules="[val => !!val || 'Description is required']"
+            :rules="[
+              val => required(val, 'Description').valid || required(val, 'Description').message,
+              val => minLength(val, 10, 'Description').valid || minLength(val, 10, 'Description').message,
+              val => maxLength(val, 2000, 'Description').valid || maxLength(val, 2000, 'Description').message
+            ]"
+            hint="Provide a helpful description (10-2000 characters)"
           />
 
           <!-- Operating Hours -->
@@ -284,6 +296,9 @@
                 outlined
                 type="time"
                 label="Close Time"
+                :rules="[
+                  val => !val || !form.operatingHours.open || val > form.operatingHours.open || 'Close time must be after open time'
+                ]"
               />
             </div>
           </div>
@@ -397,6 +412,9 @@ import VueCropper from 'vue-cropperjs'
 import { getErrorMessage, withRetry, isOnline } from 'src/utils/errorHandler'
 import { logActionFailure } from 'src/utils/errorMonitoring'
 import { announceActionResult } from 'src/utils/accessibility'
+/* eslint-disable no-unused-vars */
+import { required, minLength, maxLength, coordinates, url as validateUrl } from 'src/utils/validation'
+/* eslint-enable no-unused-vars */
 
 // Fix for default marker icons in Leaflet
 delete L.Icon.Default.prototype._getIconUrl
