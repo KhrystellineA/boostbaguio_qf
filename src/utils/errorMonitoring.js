@@ -10,7 +10,7 @@
 
 import { db } from 'src/boot/firebase'
 import { collection, addDoc, serverTimestamp, limit, query, orderBy, getDocs } from 'firebase/firestore'
-import { categorizeError, formatError } from './errorHandler'
+import { formatError } from './errorHandler'
 
 /**
  * Log an error to monitoring service

@@ -8,9 +8,6 @@
  * - Error categorization
  */
 
-import { db } from 'src/boot/firebase'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
-
 /**
  * Error categories for better handling
  */
