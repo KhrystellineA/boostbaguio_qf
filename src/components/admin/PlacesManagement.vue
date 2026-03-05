@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div role="region" aria-label="Place Management">
     <div class="row q-mb-md items-center">
       <div class="col">
         <h4 class="q-my-none text-pine-green">Place Management</h4>
-        <p class="text-grey-7 q-mb-none">Manage places and destinations</p>
+        <p class="text-grey-7 q-mb-none" id="places-description">Manage places and destinations</p>
       </div>
-      <div class="col-auto q-gutter-sm">
+      <div class="col-auto q-gutter-sm" role="group" aria-label="Place actions" aria-describedby="places-description">
         <q-btn
           v-if="selectedPlaces.length > 0"
           color="negative"
@@ -13,6 +13,7 @@
           icon="delete"
           no-caps
           @click="bulkDelete"
+          aria-label="Delete selected places"
         />
         <q-btn
           v-if="filteredPlaces.length > 0"
@@ -22,6 +23,7 @@
           icon="delete_sweep"
           no-caps
           @click="deleteAllPlaces"
+          aria-label="Delete all places"
         />
         <q-btn
           unelevated
@@ -30,21 +32,29 @@
           icon="add"
           no-caps
           @click="showAddDialog = true"
+          aria-label="Add new place"
         />
       </div>
     </div>
 
     <q-card>
       <q-card-section>
+        <!-- Loading status for screen readers -->
+        <div v-if="loading" id="table-loading-status" class="sr-only" aria-live="polite">
+          Loading places...
+        </div>
+        
         <q-input
           v-model="search"
           outlined
           placeholder="Search places..."
           dense
           class="q-mb-md"
+          aria-label="Search places"
+          aria-describedby="places-description"
         >
           <template #prepend>
-            <q-icon name="search" />
+            <q-icon name="search" aria-hidden="true" />
           </template>
         </q-input>
 
@@ -57,19 +67,21 @@
           bordered
           v-model:selected="selectedPlaces"
           selection="multiple"
+          aria-label="Places table"
+          :aria-describedby="loading ? 'table-loading-status' : null"
         >
           <template #body-cell-image="props">
             <q-td :props="props">
               <q-avatar v-if="props.value" size="60px" square>
-                <img :src="props.value" />
+                <img :src="props.value" :alt="`Image for ${props.row.name}`" />
               </q-avatar>
-              <q-icon v-else name="image" size="40px" color="grey-4" />
+              <q-icon v-else name="image" size="40px" color="grey-4" aria-label="No image" />
             </q-td>
           </template>
 
           <template #body-cell-category="props">
             <q-td :props="props">
-              <div class="row q-gutter-xs" style="flex-wrap: wrap;">
+              <div class="row q-gutter-xs" style="flex-wrap: wrap;" role="group" :aria-label="`Categories for ${props.row.name}`">
                 <q-badge
                   v-for="cat in (Array.isArray(props.row.categories) ? props.row.categories : [props.row.category])"
                   :key="cat"
@@ -90,6 +102,7 @@
                 icon="edit"
                 style="background: #2d6a4f; color: white"
                 @click="editPlace(props.row)"
+                :aria-label="`Edit ${props.row.name}`"
               >
                 <q-tooltip>Edit</q-tooltip>
               </q-btn>
@@ -100,6 +113,7 @@
                 icon="delete"
                 color="negative"
                 @click="confirmDelete(props.row)"
+                :aria-label="`Delete ${props.row.name}`"
               >
                 <q-tooltip>Delete</q-tooltip>
               </q-btn>
@@ -382,6 +396,7 @@ import 'leaflet/dist/leaflet.css'
 import VueCropper from 'vue-cropperjs'
 import { getErrorMessage, withRetry, isOnline } from 'src/utils/errorHandler'
 import { logActionFailure } from 'src/utils/errorMonitoring'
+import { announceActionResult } from 'src/utils/accessibility'
 
 // Fix for default marker icons in Leaflet
 delete L.Icon.Default.prototype._getIconUrl
@@ -948,6 +963,13 @@ export default {
         this.showAddDialog = false
         this.resetForm()
         this.loadPlaces()
+        
+        // Announce to screen readers
+        announceActionResult(
+          this.editingPlace ? 'Place updated' : 'Place created',
+          true,
+          this.form.name
+        )
       } catch (error) {
         console.error('[Places] Error saving:', error)
         logActionFailure(this.editingPlace ? 'update_place' : 'create_place', error, {
@@ -1015,6 +1037,9 @@ export default {
             icon: 'delete'
           })
           this.loadPlaces()
+          
+          // Announce to screen readers
+          announceActionResult('Place deleted', true, place.name)
         } catch (error) {
           console.error('[Places] Error deleting:', error)
           logActionFailure('delete_place', error, { placeId: place.id, placeName: place.name })
@@ -1079,6 +1104,9 @@ export default {
 
           this.selectedPlaces = []
           this.loadPlaces()
+          
+          // Announce to screen readers
+          announceActionResult('Places deleted', true, `${this.selectedPlaces.length} places`)
         } catch (error) {
           console.error('[Places] Error bulk deleting:', error)
           logActionFailure('bulk_delete_places', error, {

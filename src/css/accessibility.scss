@@ -1,0 +1,365 @@
+/**
+ * Boost Baguio - Accessibility Styles
+ *
+ * Includes:
+ * - Screen reader only utility
+ * - Skip link styles
+ * - Focus indicators
+ * - High contrast support
+ * - Reduced motion support
+ */
+
+/* Screen reader only - visually hidden but accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Skip link - visible on focus */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2E5D3E;
+  color: white;
+  padding: 12px 24px;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 0 0 8px 8px;
+  z-index: 10000;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid #FFD60A;
+  outline-offset: 2px;
+}
+
+/* Enhanced focus indicators */
+*:focus-visible {
+  outline: 3px solid #2E5D3E;
+  outline-offset: 2px;
+}
+
+/* High visibility focus for interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #2E5D3E;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px rgba(46, 93, 62, 0.2);
+}
+
+/* Focus within for complex components */
+.q-card:focus-within,
+.q-field:focus-within {
+  box-shadow: 0 0 0 2px rgba(46, 93, 62, 0.3);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: more) {
+  .q-btn {
+    border: 2px solid currentColor;
+  }
+
+  .q-card {
+    border: 2px solid #ddd;
+  }
+
+  .q-field__control {
+    border-width: 2px;
+  }
+
+  /* Ensure text has sufficient contrast */
+  body {
+    background: white;
+    color: black;
+  }
+
+  a {
+    color: #0000EE;
+    text-decoration: underline;
+  }
+
+  .text-grey-7,
+  .text-grey-8,
+  .text-grey-9 {
+    color: #333 !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Keep essential animations for feedback */
+  .q-notification--avatar,
+  .q-notification--progress {
+    animation: none;
+  }
+}
+
+/* Forced colors mode (Windows High Contrast) */
+@media (forced-colors: active) {
+  .q-btn {
+    border: 2px solid ButtonText;
+  }
+
+  .q-card {
+    border: 2px solid CanvasText;
+  }
+
+  *:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+}
+
+/* Color contrast improvements */
+.text-low-contrast {
+  color: #1b4332 !important; /* Darker green for better contrast */
+}
+
+.bg-low-contrast {
+  background-color: #4a7d5d !important; /* Darker background */
+}
+
+/* Ensure minimum contrast ratio of 4.5:1 for text */
+.text-body1,
+.text-body2,
+.text-caption {
+  color: #333;
+}
+
+/* Link styles for accessibility */
+a {
+  color: #1a5f2a;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  color: #0d3d12;
+  text-decoration-thickness: 2px;
+}
+
+a:visited {
+  color: #551a8b;
+}
+
+/* Button accessibility */
+.q-btn {
+  min-height: 44px; /* Minimum touch target size */
+  min-width: 44px;
+}
+
+.q-btn--dense {
+  min-height: 36px;
+  min-width: 36px;
+}
+
+/* Form field accessibility */
+.q-field {
+  margin-bottom: 16px;
+}
+
+.q-field__label {
+  font-weight: 500;
+  color: #333;
+}
+
+.q-field--error .q-field__label {
+  color: #c62828;
+  font-weight: 600;
+}
+
+.q-field__messages {
+  color: #c62828;
+  font-weight: 500;
+}
+
+/* Table accessibility */
+.q-table {
+  th {
+    font-weight: 600;
+    color: #333;
+  }
+
+  tr:focus-within {
+    background-color: rgba(46, 93, 62, 0.08);
+  }
+}
+
+/* Dialog accessibility */
+.q-dialog__inner > div {
+  border-radius: 12px;
+}
+
+.q-dialog__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* Notification accessibility */
+.q-notification {
+  border-left: 4px solid;
+  font-size: 14px;
+  min-height: 48px;
+}
+
+.q-notification--positive {
+  border-color: #2e7d32;
+}
+
+.q-notification--negative {
+  border-color: #c62828;
+}
+
+.q-notification--warning {
+  border-color: #f57c00;
+}
+
+.q-notification--info {
+  border-color: #1976d2;
+}
+
+/* Loading indicator accessibility */
+.q-spinner {
+  aria-busy: true;
+}
+
+/* Progress bar accessibility */
+.q-linear-progress {
+  border-radius: 4px;
+  min-height: 8px;
+}
+
+/* Icon accessibility */
+.q-icon[aria-hidden="true"] {
+  pointer-events: none;
+}
+
+/* Ensure clickable areas are large enough */
+.q-item--clickable {
+  min-height: 48px;
+}
+
+/* Card actions accessibility */
+.q-card__actions {
+  gap: 8px;
+}
+
+.q-card__actions .q-btn {
+  margin: 0;
+}
+
+/* Tooltip accessibility */
+.q-tooltip {
+  font-size: 13px;
+  padding: 8px 12px;
+}
+
+/* Badge accessibility */
+.q-badge {
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Chip accessibility */
+.q-chip {
+  min-height: 32px;
+}
+
+.q-chip__content {
+  font-size: 14px;
+}
+
+/* Avatar accessibility */
+.q-avatar {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* List accessibility */
+.q-list {
+  padding: 8px 0;
+}
+
+.q-item {
+  padding: 8px 16px;
+}
+
+.q-item__label {
+  color: #333;
+}
+
+.q-item__label--caption {
+  color: #666;
+  font-size: 12px;
+}
+
+/* Separator visibility */
+.q-separator {
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+/* Dark mode adjustments */
+.body--dark {
+  .text-body1,
+  .text-body2,
+  .text-caption {
+    color: #e0e0e0;
+  }
+
+  .text-low-contrast {
+    color: #81c784 !important;
+  }
+
+  a {
+    color: #81c784;
+  }
+
+  a:visited {
+    color: #ce93d8;
+  }
+
+  .q-field__label {
+    color: #e0e0e0;
+  }
+
+  .q-table th {
+    color: #e0e0e0;
+  }
+
+  .q-item__label {
+    color: #e0e0e0;
+  }
+
+  .q-item__label--caption {
+    color: #9e9e9e;
+  }
+
+  .q-separator {
+    background-color: rgba(255, 255, 255, 0.12);
+  }
+}
