@@ -136,7 +136,7 @@ export default {
       isSyncing.value = true
       syncProgress.value = 0
 
-      await processOfflineQueue(async (action) => {
+      await processOfflineQueue(async () => {
         syncProgress.value += 1 / queueLength.value
         // Process action
       })

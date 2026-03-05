@@ -10,7 +10,6 @@
 
 import { LocalStorage } from 'quasar'
 
-const STORAGE_KEY = 'boost-baguio-offline'
 const QUEUE_KEY = 'boost-baguio-offline-queue'
 
 // State

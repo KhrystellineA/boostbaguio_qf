@@ -10,7 +10,7 @@
 
 import { LocalStorage } from 'quasar'
 import { db } from 'src/boot/firebase'
-import { collection, getDocs, doc, getDoc } from 'firebase/firestore'
+import { collection, getDocs } from 'firebase/firestore'
 import { getOnlineStatus, onOnlineStatusChange } from './offline'
 
 const CACHE_CONFIG = {

@@ -10,7 +10,7 @@
 import { initOfflineDetection } from 'src/utils/offline'
 import { initCacheService, preCacheEssentials } from 'src/utils/offlineCache'
 
-export default async ({ app }) => {
+export default async () => {
   // Initialize offline detection
   initOfflineDetection()
 
