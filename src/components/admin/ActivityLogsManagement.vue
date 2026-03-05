@@ -368,7 +368,7 @@
 
 <script>
 import { db } from 'src/boot/firebase'
-import { collection, getDocs, query, orderBy, limit, where, deleteDoc, doc } from 'firebase/firestore'
+import { collection, getDocs, query, orderBy, limit, deleteDoc } from 'firebase/firestore'
 import { useQuasar } from 'quasar'
 
 export default {
