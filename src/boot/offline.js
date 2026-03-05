@@ -7,42 +7,49 @@
  * - Pre-caching of essential data
  */
 
-import { initOfflineDetection } from 'src/utils/offline'
+import { initOfflineDetection, getOnlineStatus, onOnlineStatusChange } from 'src/utils/offline'
 import { initCacheService, preCacheEssentials } from 'src/utils/offlineCache'
 
 export default async () => {
-  // Initialize offline detection
-  initOfflineDetection()
+  try {
+    // Initialize offline detection
+    initOfflineDetection()
 
-  // Initialize cache service
-  initCacheService()
+    // Initialize cache service
+    initCacheService()
 
-  // Pre-cache essential data in background
-  // This doesn't block app initialization
-  preCacheEssentials().catch((error) => {
-    console.log('[Offline] Pre-cache skipped or failed:', error.message)
-  })
+    // Pre-cache essential data in background (non-blocking)
+    preCacheEssentials().catch((error) => {
+      console.log('[Offline] Pre-cache skipped or failed:', error.message)
+    })
 
-  // Add offline class to body when offline
-  const { getOnlineStatus, onOnlineStatusChange } = await import('src/utils/offline')
-
-  const updateBodyClass = () => {
-    if (getOnlineStatus()) {
-      document.body.classList.remove('is-offline')
-      document.body.classList.add('is-online')
-    } else {
-      document.body.classList.remove('is-online')
-      document.body.classList.add('is-offline')
+    // Add offline class to body when offline
+    const updateBodyClass = () => {
+      if (getOnlineStatus()) {
+        document.body.classList.remove('is-offline')
+        document.body.classList.add('is-online')
+      } else {
+        document.body.classList.remove('is-online')
+        document.body.classList.add('is-offline')
+      }
     }
-  }
 
-  // Initial check
-  updateBodyClass()
-
-  // Listen for changes
-  onOnlineStatusChange(() => {
+    // Initial check
     updateBodyClass()
-  })
 
-  console.log('[Offline] Boot complete')
+    // Listen for changes
+    const cleanup = onOnlineStatusChange(() => {
+      updateBodyClass()
+    })
+
+    // Cleanup on unload
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', cleanup)
+    }
+
+    console.log('[Offline] Boot complete')
+  } catch (error) {
+    console.error('[Offline] Boot failed:', error)
+    // Don't block app initialization if offline features fail
+  }
 }
