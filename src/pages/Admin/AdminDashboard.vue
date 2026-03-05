@@ -199,10 +199,11 @@
     <!-- Main Content -->
     <q-page-container>
       <q-page class="q-pa-md">
-        <!-- Breadcrumbs -->
+        <!-- Breadcrumbs - temporarily disabled
         <AppBreadcrumbs class="q-mb-md" />
+        -->
 
-        <!-- Pull to refresh indicator -->
+        <!-- Pull to refresh indicator - temporarily disabled
         <div
           v-show="isRefreshing"
           class="pull-refresh-indicator"
@@ -211,6 +212,7 @@
           <q-spinner color="primary" size="32px" />
           <span class="q-ml-sm">Refreshing...</span>
         </div>
+        -->
 
         <div v-if="activeMenu === 'dashboard'">
           <!-- Dashboard Header -->
@@ -412,12 +414,14 @@
 
         <ActivityLogsManagement v-else-if="activeMenu === 'activity-logs'" />
 
-        <!-- Back to Top Button -->
+        <!-- Back to Top Button - temporarily disabled
         <BackToTopBtn position="bottom-right" :threshold="300" />
+        -->
       </q-page>
 
-      <!-- Pull to refresh wrapper for mobile -->
+      <!-- Pull to refresh wrapper for mobile - temporarily disabled
       <div data-pull-refresh class="pull-refresh-container"></div>
+      -->
     </q-page-container>
   </q-layout>
 </template>
@@ -434,9 +438,9 @@ import AdminsManagement from 'src/components/admin/AdminsManagement.vue'
 import PhotosManagement from 'src/components/admin/PhotosManagement.vue'
 import AnalyticsManagement from 'src/components/admin/AnalyticsManagement.vue'
 import ActivityLogsManagement from 'src/components/admin/ActivityLogsManagement.vue'
-import BackToTopBtn from 'src/components/BackToTopBtn.vue'
-import AppBreadcrumbs from 'src/components/AppBreadcrumbs.vue'
-import { usePullToRefresh } from 'src/composables/usePullToRefresh'
+// import BackToTopBtn from 'src/components/BackToTopBtn.vue'
+// import AppBreadcrumbs from 'src/components/AppBreadcrumbs.vue'
+// import { usePullToRefresh } from 'src/composables/usePullToRefresh'
 
 export default {
   name: 'AdminDashboard',
@@ -449,17 +453,18 @@ export default {
     PhotosManagement,
     AnalyticsManagement,
     ActivityLogsManagement,
-    BackToTopBtn,
-    AppBreadcrumbs,
+    // BackToTopBtn,
+    // AppBreadcrumbs,
   },
 
   setup() {
     const q = useQuasar()
-    const { isPulling, pullDistance, isRefreshing, refresh } = usePullToRefresh(async () => {
-      // Refresh will be handled by the component methods
-    })
+    // const { isPulling, pullDistance, isRefreshing, refresh } = usePullToRefresh(async () => {
+    //   // Refresh will be handled by the component methods
+    // })
 
-    return { q, isPulling, pullDistance, isRefreshing, refresh }
+    return { q }
+    // return { q, isPulling, pullDistance, isRefreshing, refresh }
   },
 
   data() {
