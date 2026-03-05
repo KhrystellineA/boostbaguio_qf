@@ -1,585 +1,334 @@
-// Boost Baguio - App Global Styles
-// Mobile-first responsive design
+// ============================================
+// BOOST BAGUIO - Bento Glassmorphism Design System
+// ============================================
+
+// Color Palette Variables (Retained)
+$dark-green: #1B4332
+$primary-green: #2E5D3E
+$light-green: #9EC98F
+$brown: #6B5344
+$white: #FFFFFF
+
+// Additional cute minimalist colors
+$soft-green: #E8F5E9
+$mint-cream: #F1F8F4
+$blush-pink: #FCE4EC
+$soft-peach: #FFE5D9
+$lavender-mist: #F3E5F5
+$sky-tint: #E3F2FD
+$butter-cream: #FFF9E6
+$coral-blush: #FFEBEE
+
+// Glassmorphism Variables
+$glass-bg: rgba(255, 255, 255, 0.75)
+$glass-bg-light: rgba(255, 255, 255, 0.5)
+$glass-bg-dark: rgba(255, 255, 255, 0.85)
+$glass-border: rgba(255, 255, 255, 0.3)
+$glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08)
+$glass-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.12)
+$backdrop-blur: blur(16px)
+
+// Bento Grid Variables
+$bento-radius: 20px
+$bento-radius-sm: 12px
+$bento-radius-lg: 28px
+$bento-gap: 16px
+$bento-padding: 24px
+
+// Shadows
+$shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.04)
+$shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.06)
+$shadow-strong: 0 8px 32px rgba(0, 0, 0, 0.08)
+$shadow-float: 0 12px 48px rgba(0, 0, 0, 0.1)
+
+// Transitions
+$transition-fast: 0.2s ease
+$transition-normal: 0.3s ease
+$transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1)
 
 // ============================================
-// Global Reset & Base
+// Global Utility Classes
 // ============================================
-* {
-  box-sizing: border-box
-}
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif
-  -webkit-font-smoothing: antialiased
-  -moz-osx-font-smoothing: grayscale
-  overflow-x: hidden
-}
+// Glassmorphism Card
+.glass-card
+  background: $glass-bg
+  backdrop-filter: $backdrop-blur
+  -webkit-backdrop-filter: $backdrop-blur
+  border: 1px solid $glass-border
+  border-radius: $bento-radius
+  box-shadow: $glass-shadow
+  transition: all $transition-normal
+
+  &:hover
+    box-shadow: $glass-shadow-hover
+    transform: translateY(-4px)
+
+.glass-card-light
+  background: $glass-bg-light
+  backdrop-filter: $backdrop-blur
+  -webkit-backdrop-filter: $backdrop-blur
+  border: 1px solid $glass-border
+  border-radius: $bento-radius
+  box-shadow: $shadow-soft
+
+.glass-card-dark
+  background: $glass-bg-dark
+  backdrop-filter: $backdrop-blur
+  -webkit-backdrop-filter: $backdrop-blur
+  border: 1px solid $glass-border
+  border-radius: $bento-radius
+  box-shadow: $glass-shadow
+
+// Bento Grid Container
+.bento-grid
+  display: grid
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))
+  gap: $bento-gap
+  width: 100%
+
+.bento-grid-2
+  display: grid
+  grid-template-columns: repeat(2, 1fr)
+  gap: $bento-gap
+
+.bento-grid-3
+  display: grid
+  grid-template-columns: repeat(3, 1fr)
+  gap: $bento-gap
+
+.bento-grid-4
+  display: grid
+  grid-template-columns: repeat(4, 1fr)
+  gap: $bento-gap
+
+// Bento Card
+.bento-card
+  background: $white
+  border-radius: $bento-radius
+  padding: $bento-padding
+  box-shadow: $shadow-medium
+  transition: all $transition-normal
+  border: 1px solid rgba($primary-green, 0.08)
+
+  &:hover
+    transform: translateY(-6px)
+    box-shadow: $shadow-float
+    border-color: rgba($primary-green, 0.15)
+
+.bento-card-accent
+  background: linear-gradient(135deg, $soft-green 0%, $mint-cream 100%)
+  border-radius: $bento-radius
+  padding: $bento-padding
+  box-shadow: $shadow-medium
+  transition: all $transition-normal
+
+  &:hover
+    transform: translateY(-6px)
+    box-shadow: $shadow-float
+
+// Cute Minimalist Badges
+.badge-soft
+  display: inline-flex
+  align-items: center
+  padding: 6px 12px
+  border-radius: 20px
+  font-size: 0.75rem
+  font-weight: 600
+  background: $soft-green
+  color: $primary-green
+  transition: all $transition-fast
+
+.badge-soft-primary
+  background: $soft-green
+  color: $primary-green
+
+.badge-soft-secondary
+  background: $blush-pink
+  color: #C2185B
+
+.badge-soft-accent
+  background: $lavender-mist
+  color: #7B1FA2
+
+.badge-soft-warning
+  background: $butter-cream
+  color: #F57F17
+
+// Soft Gradient Backgrounds
+.gradient-soft
+  background: linear-gradient(135deg, $mint-cream 0%, $soft-green 100%)
+
+.gradient-warm
+  background: linear-gradient(135deg, $butter-cream 0%, $soft-peach 100%)
+
+.gradient-cool
+  background: linear-gradient(135deg, $sky-tint 0%, $lavender-mist 100%)
+
+.gradient-romantic
+  background: linear-gradient(135deg, $blush-pink 0%, $coral-blush 100%)
+
+// Rounded Utilities
+.rounded-bento
+  border-radius: $bento-radius
+
+.rounded-bento-sm
+  border-radius: $bento-radius-sm
+
+.rounded-bento-lg
+  border-radius: $bento-radius-lg
+
+// Hover Effects
+.hover-lift
+  transition: transform $transition-normal, box-shadow $transition-normal
+
+  &:hover
+    transform: translateY(-6px)
+    box-shadow: $shadow-float
+
+.hover-glow
+  transition: box-shadow $transition-normal
+
+  &:hover
+    box-shadow: 0 0 24px rgba($light-green, 0.3)
+
+// Text Utilities
+.text-soft
+  color: rgba($dark-green, 0.8)
+
+.text-muted
+  color: rgba($dark-green, 0.6)
+
+// Page Background
+.page-bg
+  background: linear-gradient(180deg, $mint-cream 0%, $white 100%)
+  min-height: 100vh
+
+// Section Spacing
+.section-py
+  padding-top: 80px
+  padding-bottom: 80px
+
+.section-py-lg
+  padding-top: 100px
+  padding-bottom: 100px
+
+// Container
+.container-custom
+  max-width: 1280px
+  margin: 0 auto
+  padding: 0 24px
 
 // ============================================
-// Mobile-First Container
+// Animation Keyframes
 // ============================================
-.q-page {
-  padding: 16px
-  
-  @media (max-width: 599px) {
-    padding: 12px
-  }
-  
-  @media (min-width: 600px) and (max-width: 1023px) {
-    padding: 16px
-  }
-}
+
+@keyframes fadeInUp
+  from
+    opacity: 0
+    transform: translateY(30px)
+  to
+    opacity: 1
+    transform: translateY(0)
+
+@keyframes fadeInLeft
+  from
+    opacity: 0
+    transform: translateX(-30px)
+  to
+    opacity: 1
+    transform: translateX(0)
+
+@keyframes fadeInRight
+  from
+    opacity: 0
+    transform: translateX(30px)
+  to
+    opacity: 1
+    transform: translateX(0)
+
+@keyframes scaleIn
+  from
+    opacity: 0
+    transform: scale(0.95)
+  to
+    opacity: 1
+    transform: scale(1)
+
+@keyframes float
+  0%, 100%
+    transform: translateY(0)
+  50%
+    transform: translateY(-10px)
+
+@keyframes shimmer
+  0%
+    background-position: -200% 0
+  100%
+    background-position: 200% 0
+
+// Animation Classes
+.animate-fade-in-up
+  animation: fadeInUp 0.6s ease forwards
+
+.animate-fade-in-left
+  animation: fadeInLeft 0.6s ease forwards
+
+.animate-fade-in-right
+  animation: fadeInRight 0.6s ease forwards
+
+.animate-scale-in
+  animation: scaleIn 0.5s ease forwards
+
+.animate-float
+  animation: float 3s ease-in-out infinite
+
+// Skeleton Loader Animation
+.skeleton-loader
+  background: linear-gradient(90deg, $soft-green 25%, $mint-cream 50%, $soft-green 75%)
+  background-size: 200% 100%
+  animation: shimmer 1.5s infinite
+  border-radius: $bento-radius-sm
 
 // ============================================
-// Card Responsiveness
+// Quasar Component Overrides
 // ============================================
-.q-card {
+
+// Soft rounded buttons
+.q-btn
   border-radius: 12px
-  overflow: hidden
-  width: 100%
-  
-  @media (max-width: 599px) {
-    border-radius: 8px
-    margin-bottom: 12px
-  }
-}
 
-.q-card__section {
-  @media (max-width: 599px) {
-    padding: 12px
-  }
-}
+.q-btn--rounded
+  border-radius: 20px
 
-// ============================================
-// Button Responsiveness
-// ============================================
-.q-btn {
-  min-height: 44px  // Touch target size
-  min-width: 44px
-  text-transform: none
+// Soft card style
+.q-card
+  border-radius: $bento-radius
+  box-shadow: $shadow-medium
+
+// Input fields
+.q-field--outlined .q-field__control
+  border-radius: 12px
+  background: $white
+  border-color: rgba($primary-green, 0.15)
+
+  &:hover
+    border-color: $primary-green
+
+  &.q-field--focused
+    border-color: $primary-green
+    box-shadow: 0 0 0 3px rgba($primary-green, 0.08)
+
+// Chip style
+.q-chip
+  border-radius: 20px
   font-weight: 500
-  
-  @media (max-width: 599px) {
-    min-height: 48px  // Larger touch target on mobile
-    padding: 12px 16px
-    font-size: 14px
-    
-    &.q-btn--dense {
-      min-height: 40px
-    }
-    
-    &.q-btn--fab {
-      width: 56px
-      height: 56px
-    }
-  }
-}
 
-.q-btn-group {
-  @media (max-width: 599px) {
-    .q-btn {
-      min-height: 44px
-    }
-  }
-}
+// Expansion item
+.q-expansion-item
+  border-radius: $bento-radius
+  margin-bottom: 8px
+  box-shadow: $shadow-soft
 
-// ============================================
-// Header & Toolbar
-// ============================================
-.q-toolbar {
-  @media (max-width: 599px) {
-    min-height: 56px
-    padding: 0 8px
-  }
-}
-
-.q-toolbar__title {
-  @media (max-width: 599px) {
-    font-size: 16px
-    padding-left: 8px
-  }
-}
-
-// ============================================
-// Drawer (Sidebar)
-// ============================================
-.q-drawer {
-  @media (max-width: 767px) {
-    .q-item {
-      min-height: 48px
-      padding: 8px 16px
-    }
-    
-    .q-item__section--avatar {
-      min-width: 40px
-    }
-  }
-}
-
-// ============================================
-// Grid System
-// ============================================
-.row {
-  margin-left: -8px
-  margin-right: -8px
-  
-  @media (max-width: 599px) {
-    margin-left: -6px
-    margin-right: -6px
-  }
-}
-
-.col, [class*="col-"] {
-  padding-left: 8px
-  padding-right: 8px
-  
-  @media (max-width: 599px) {
-    padding-left: 6px
-    padding-right: 6px
-  }
-}
-
-// ============================================
-// Form Elements
-// ============================================
-.q-field {
-  width: 100%
-  
-  @media (max-width: 599px) {
-    margin-bottom: 16px
-  }
-}
-
-.q-field__control {
-  min-height: 48px
-  
-  @media (max-width: 599px) {
-    min-height: 52px
-  }
-}
-
-.q-field__label {
-  @media (max-width: 599px) {
-    font-size: 14px
-  }
-}
-
-// ============================================
-// Table Responsiveness
-// ============================================
-.q-table {
-  @media (max-width: 767px) {
-    font-size: 13px
-    
-    th, td {
-      padding: 8px 4px
-    }
-    
-    .q-table__top {
-      padding: 12px
-    }
-  }
-}
-
-// ============================================
-// Dialog Responsiveness
-// ============================================
-.q-dialog__inner {
-  @media (max-width: 599px) {
-    > div {
-      border-radius: 12px 12px 0 0 !important
-      max-width: 100% !important
-      width: 100% !important
-      margin: 0 !important
-    }
-    
-    > div > .q-card {
-      max-height: 85vh !important
-    }
-  }
-}
-
-.q-dialog__title {
-  @media (max-width: 599px) {
-    font-size: 18px
-    padding: 16px
-  }
-}
-
-// ============================================
-// List Items
-// ============================================
-.q-item {
-  @media (max-width: 599px) {
-    min-height: 56px
-    padding: 12px 16px
-  }
-  
-  &--clickable {
-    @media (max-width: 599px) {
-      min-height: 56px
-    }
-  }
-}
-
-.q-item__section {
-  @media (max-width: 599px) {
-    padding: 8px
-  }
-}
-
-// ============================================
-// Image Responsiveness
-// ============================================
-.q-img {
-  width: 100%
-  
-  @media (max-width: 599px) {
-    border-radius: 8px
-  }
-}
-
-// ============================================
-// Avatar
-// ============================================
-.q-avatar {
-  @media (max-width: 599px) {
-    font-size: 14px
-  }
-}
-
-// ============================================
-// Badge
-// ============================================
-.q-badge {
-  @media (max-width: 599px) {
-    padding: 4px 8px
-    font-size: 11px
-  }
-}
-
-// ============================================
-// Chip
-// ============================================
-.q-chip {
-  @media (max-width: 599px) {
-    min-height: 36px
-    font-size: 13px
-  }
-}
-
-// ============================================
-// Tabs
-// ============================================
-.q-tabs {
-  @media (max-width: 599px) {
-    .q-tab {
-      min-height: 48px
-      padding: 0 12px
-    }
-    
-    .q-tab__label {
-      font-size: 12px
-    }
-  }
-}
-
-// ============================================
-// Select Dropdown
-// ============================================
-.q-menu {
-  @media (max-width: 599px) {
-    max-width: 95vw !important
-    min-width: 280px
-  }
-}
-
-// ============================================
-// Notification (Toast)
-// ============================================
-.q-notification {
-  @media (max-width: 599px) {
-    left: 8px !important
-    right: 8px !important
-    bottom: 8px !important
-    width: auto !important
-    border-radius: 8px
-    font-size: 13px
-  }
-}
-
-// ============================================
-// Loading
-// ============================================
-.q-loading {
-  @media (max-width: 599px) {
-    .q-spinner {
-      width: 48px !important
-      height: 48px !important
-    }
-  }
-}
-
-// ============================================
-// Scroll Area
-// ============================================
-.q-scrollarea {
-  @media (max-width: 599px) {
-    .q-scrollarea__thumb {
-      width: 4px
-    }
-  }
-}
-
-// ============================================
-// Separator
-// ============================================
-.q-separator {
-  @media (max-width: 599px) {
-    margin: 8px 0
-  }
-}
-
-// ============================================
-// Space
-// ============================================
-.q-space {
-  @media (max-width: 599px) {
-    min-height: 8px
-  }
-}
-
-// ============================================
-// Tooltip
-// ============================================
-.q-tooltip {
-  @media (max-width: 599px) {
-    font-size: 12px
-    padding: 6px 12px
-  }
-}
-
-// ============================================
-// Progress Bar
-// ============================================
-.q-linear-progress {
-  @media (max-width: 599px) {
-    border-radius: 2px
-    height: 4px
-  }
-}
-
-// ============================================
-// Banner
-// ============================================
-.q-banner {
-  @media (max-width: 599px) {
-    padding: 12px
-    font-size: 13px
-    
-    .q-banner__avatar {
-      min-width: 32px
-    }
-    
-    .q-banner__actions {
-      .q-btn {
-        min-height: 40px
-        font-size: 13px
-      }
-    }
-  }
-}
-
-// ============================================
-// Carousel
-// ============================================
-.q-carousel {
-  @media (max-width: 599px) {
-    border-radius: 8px
-    
-    .q-carousel__slide {
-      padding: 16px
-    }
-    
-    .q-carousel__control {
-      .q-btn {
-        min-height: 36px
-        min-width: 36px
-      }
-    }
-  }
-}
-
-// ============================================
-// Menu
-// ============================================
-.q-menu {
-  @media (max-width: 599px) {
-    max-width: 90vw
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15)
-  }
-}
-
-// ============================================
-// Specific Component Fixes
-// ============================================
-
-// Stat Cards
-.stat-card {
-  @media (max-width: 599px) {
-    margin-bottom: 12px
-    
-    .stat-value {
-      font-size: 24px
-    }
-    
-    .stat-label {
-      font-size: 12px
-    }
-    
-    .stat-icon {
-      width: 48px
-      height: 48px
-    }
-  }
-}
-
-// Dashboard Cards
-.dashboard-card {
-  @media (max-width: 599px) {
-    margin-bottom: 16px
-    
-    .q-card__section {
-      padding: 12px
-    }
-  }
-}
-
-// Management Headers
-.management-header, .row.q-mb-md.items-center {
-  @media (max-width: 599px) {
-    flex-direction: column
-    align-items: flex-start !important
-    gap: 12px
-    
-    .col-auto {
-      width: 100%
-      
-      .q-btn {
-        width: 100%
-        margin-bottom: 8px
-      }
-    }
-  }
-}
-
-// Table Actions
-.q-td .q-btn {
-  @media (max-width: 599px) {
-    min-height: 36px
-    min-width: 36px
-    padding: 8px
-  }
-}
-
-// Image Preview
-.image-preview-container {
-  @media (max-width: 599px) {
-    max-width: 100%
-    
-    .image-preview {
-      height: 150px
-    }
-  }
-}
-
-// Map Container
-.map-container {
-  @media (max-width: 599px) {
-    height: 250px !important
-    border-radius: 8px
-  }
-}
-
-// Upload Progress
-.upload-progress {
-  @media (max-width: 599px) {
-    padding: 8px
-  }
-}
-
-// ============================================
-// Utility Classes
-// ============================================
-.text-h1 {
-  @media (max-width: 599px) {
-    font-size: 28px !important
-  }
-}
-
-.text-h2 {
-  @media (max-width: 599px) {
-    font-size: 24px !important
-  }
-}
-
-.text-h3 {
-  @media (max-width: 599px) {
-    font-size: 20px !important
-  }
-}
-
-.text-h4 {
-  @media (max-width: 599px) {
-    font-size: 18px !important
-  }
-}
-
-.text-h5 {
-  @media (max-width: 599px) {
-    font-size: 16px !important
-  }
-}
-
-.text-h6 {
-  @media (max-width: 599px) {
-    font-size: 15px !important
-  }
-}
-
-// ============================================
-// Safe Area for Notch Devices
-// ============================================
-@supports (padding: max(0px)) {
-  body {
-    padding-left: max(0px, env(safe-area-inset-left))
-    padding-right: max(0px, env(safe-area-inset-right))
-  }
-  
-  .q-page {
-    padding-left: max(16px, env(safe-area-inset-left))
-    padding-right: max(16px, env(safe-area-inset-right))
-  }
-  
-  .q-toolbar {
-    padding-left: max(8px, env(safe-area-inset-left))
-    padding-right: max(8px, env(safe-area-inset-right))
-  }
-}
-
-// ============================================
-// Print Styles
-// ============================================
-@media print {
-  .q-drawer,
-  .q-header,
-  .q-footer,
-  .q-btn,
-  .no-print {
-    display: none !important
-  }
-  
-  .q-page {
-    padding: 0
-  }
-}
+  &--expanded
+    box-shadow: $shadow-medium

@@ -407,8 +407,20 @@ $light-green: #9EC98F;
 $brown: #6B5344;
 $white: #FFFFFF;
 
+// Cute minimalist colors
+$soft-green: #E8F5E9;
+$mint-cream: #F1F8F4;
+$blush-pink: #FCE4EC;
+$soft-peach: #FFE5D9;
+$lavender-mist: #F3E5F5;
+
+// Glassmorphism
+$glass-bg: rgba(255, 255, 255, 0.85);
+$glass-border: rgba(255, 255, 255, 0.3);
+$glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+
 .page-wrapper {
-  background: $white !important;
+  background: linear-gradient(180deg, $mint-cream 0%, $white 100%) !important;
   min-height: 100vh;
 }
 
@@ -512,19 +524,44 @@ $white: #FFFFFF;
   }
 }
 
+// Bento Grid Animation
+.bento-item {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .hero-section {
+  width: 100%;
   min-height: 100vh !important;
   display: flex;
   align-items: center;
-  padding: 3rem 0;
-  background: $dark-green !important;
+  padding: 0;
+  margin: 0;
+  background: linear-gradient(135deg, $dark-green 0%, darken($primary-green, 5%) 100%) !important;
   position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
 }
 
 .container-custom {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 3rem;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
   width: 100%;
   position: relative;
   z-index: 1;
@@ -534,9 +571,9 @@ $white: #FFFFFF;
   position: relative;
   width: 100%;
   height: 650px;
-  border-radius: 32px;
-  overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border-radius: 0;
+  overflow: visible;
+  box-shadow: none;
 }
 
 .hero-bg-wrapper {
@@ -569,7 +606,7 @@ $white: #FFFFFF;
   height: 100%;
   display: flex;
   align-items: center;
-  padding: 4rem;
+  padding: 0;
 }
 
 .content-grid {
@@ -578,6 +615,7 @@ $white: #FFFFFF;
   gap: 4rem;
   width: 100%;
   align-items: center;
+  padding: 4rem;
 }
 
 .left-content {
@@ -641,22 +679,25 @@ $white: #FFFFFF;
 }
 
 .route-card {
-  background: rgba($white, 0.95);
+  background: $glass-bg;
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-radius: 24px;
   padding: 2.5rem;
   width: 100%;
   max-width: 460px;
+  margin-left: auto;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 
+  box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.2),
-    0 0 0 1px rgba($white, 0.2);
+    0 0 0 1px rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 
   &:hover {
     transform: translateY(-8px);
-    box-shadow: 
+    box-shadow:
       0 30px 80px rgba(0, 0, 0, 0.25),
-      0 0 0 1px rgba($white, 0.3);
+      0 0 0 1px rgba(255, 255, 255, 0.4);
   }
 }
 
@@ -746,7 +787,7 @@ $white: #FFFFFF;
 }
 
 .partners-section {
-  background: $white;
+  background: linear-gradient(180deg, $white 0%, $mint-cream 100%);
   padding: 5rem 0;
   overflow: hidden;
   position: relative;
@@ -801,12 +842,12 @@ $white: #FFFFFF;
 
   &::before {
     left: 0;
-    background: linear-gradient(90deg, $white 0%, transparent 100%);
+    background: linear-gradient(90deg, $mint-cream 0%, transparent 100%);
   }
 
   &::after {
     right: 0;
-    background: linear-gradient(-90deg, $white 0%, transparent 100%);
+    background: linear-gradient(-90deg, $mint-cream 0%, transparent 100%);
   }
 }
 
@@ -845,9 +886,9 @@ $white: #FFFFFF;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
 
   &:hover {
-    transform: translateY(-10px);
+    transform: translateY(-10px) scale(1.02);
     box-shadow: 0 12px 40px rgba($primary-green, 0.15);
-    background: rgba($light-green, 0.05);
+    background: linear-gradient(135deg, $soft-green 0%, rgba($light-green, 0.05) 100%);
     border-color: rgba($primary-green, 0.2);
   }
 }
@@ -860,12 +901,12 @@ $white: #FFFFFF;
   width: 80px;
   height: 80px;
   border-radius: 16px;
-  background: rgba($light-green, 0.1);
+  background: linear-gradient(135deg, $soft-green 0%, $mint-cream 100%);
   transition: all 0.3s ease;
 
   .partner-card:hover & {
-    background: rgba($light-green, 0.2);
-    transform: scale(1.1);
+    background: linear-gradient(135deg, $light-green 0%, $soft-green 100%);
+    transform: scale(1.1) rotate(5deg);
   }
 }
 
@@ -949,12 +990,16 @@ $white: #FFFFFF;
   }
 
   .hero-section {
-    padding: 1rem 0;
+    padding: 0;
+    
+    &::before {
+      display: none;
+    }
   }
 
   .hero-box {
-    border-radius: 20px;
-    min-height: calc(100vh - 1rem);
+    border-radius: 0;
+    min-height: calc(100vh);
   }
 
   .hero-content {
@@ -978,6 +1023,7 @@ $white: #FFFFFF;
 
   .route-card {
     padding: 1.75rem;
+    border-radius: 20px;
   }
 
   .card-title {
@@ -986,6 +1032,7 @@ $white: #FFFFFF;
 
   .partners-section {
     padding: 3rem 0;
+    background: $mint-cream;
   }
 
   .partners-title {
@@ -1017,21 +1064,22 @@ $white: #FFFFFF;
     overflow-x: hidden;
   }
 
-  .container-custom {
-    padding: 12px !important;
-  }
-
   .hero-section {
     padding: 0;
+    margin: 0;
     
     .hero-box {
       border-radius: 0;
-      overflow: hidden;
+      overflow: visible;
     }
   }
 
+  .container-custom {
+    padding: 0 !important;
+  }
+
   .hero-content {
-    padding: 20px 16px !important;
+    padding: 0 !important;
     
     .content-grid {
       grid-template-columns: 1fr !important;
@@ -1061,8 +1109,12 @@ $white: #FFFFFF;
   }
 
   .route-card {
-    padding: 16px !important;
-    border-radius: 12px !important;
+    padding: 1.5rem !important;
+    border-radius: 16px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    max-width: 100% !important;
+    margin: 0 !important;
     
     .card-header {
       flex-direction: column;

@@ -8,25 +8,25 @@ import {
 import { getStorage } from 'firebase/storage'
 
 // Firebase configuration from environment variables
-// Quasar passes these via quasar.config.js > build > env
+// Using VITE_ prefix as defined in .env file
 const firebaseConfig = {
-  apiKey: import.meta.env.FIREBASE_API_KEY,
-  authDomain: import.meta.env.FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.FIREBASE_APP_ID,
-  measurementId: import.meta.env.FIREBASE_MEASUREMENT_ID
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 }
 
 // Validate required config
 const requiredConfigKeys = [
-  'FIREBASE_API_KEY',
-  'FIREBASE_AUTH_DOMAIN',
-  'FIREBASE_PROJECT_ID',
-  'FIREBASE_STORAGE_BUCKET',
-  'FIREBASE_MESSAGING_SENDER_ID',
-  'FIREBASE_APP_ID'
+  'VITE_FIREBASE_API_KEY',
+  'VITE_FIREBASE_AUTH_DOMAIN',
+  'VITE_FIREBASE_PROJECT_ID',
+  'VITE_FIREBASE_STORAGE_BUCKET',
+  'VITE_FIREBASE_MESSAGING_SENDER_ID',
+  'VITE_FIREBASE_APP_ID'
 ]
 
 const missingConfig = requiredConfigKeys.filter(
@@ -39,29 +39,39 @@ if (missingConfig.length > 0) {
     missingConfig.join(', ')
   )
   console.error(
-    '[Firebase] Please ensure these are set in quasar.config.js or your deployment environment'
+    '[Firebase] Please check your .env file'
   )
+  // Don't throw - let app continue in case of partial config
 }
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig)
+let app, auth, db, storage
 
-// Initialize services
-export const auth = getAuth(app)
+try {
+  if (firebaseConfig.apiKey) {
+    app = initializeApp(firebaseConfig)
+    
+    // Initialize services
+    auth = getAuth(app)
+    
+    db = initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        cacheSizeBytes: 50 * 1024 * 1024, // 50MB cache
+        tabManager: persistentMultipleTabManager()
+      })
+    })
+    
+    storage = getStorage(app)
+    
+    console.log('[Firebase] ✅ Initialized successfully')
+    console.log('[Firebase] 📦 Offline persistence enabled (50MB cache)')
+    console.log('[Firebase] 🗄️ Project ID:', firebaseConfig.projectId || 'NOT CONFIGURED')
+  } else {
+    console.warn('[Firebase] ⚠️ Firebase not configured - app will run in limited mode')
+  }
+} catch (error) {
+  console.error('[Firebase] ❌ Initialization failed:', error.message)
+}
 
-export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({
-    cacheSizeBytes: 50 * 1024 * 1024, // 50MB cache
-    tabManager: persistentMultipleTabManager()
-  })
-})
-
-export const storage = getStorage(app)
-
-// Export app for any advanced usage
-export { app }
-
-// Log initialization status
-console.log('[Firebase] ✅ Initialized successfully')
-console.log('[Firebase] 📦 Offline persistence enabled (50MB cache)')
-console.log('[Firebase] 🗄️ Project ID:', firebaseConfig.projectId || 'NOT CONFIGURED')
+// Export services (may be undefined if not configured)
+export { app, auth, db, storage }

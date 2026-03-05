@@ -12,7 +12,39 @@
       </div>
     </section>
 
-    <!-- MAIN FEATURE SECTION (Section 2) -->
+    <!-- EXTENDED HERO SECTION (Section 2) -->
+    <section class="extended-hero bg-white">
+      <div class="container">
+        <div class="row items-center">
+          <div class="col-md-6 col-12 q-pa-xl">
+            <h2 class="text-h4 text-weight-bold text-primary q-mb-lg">Point-to-Point Navigation</h2>
+            <p class="text-body1 q-mb-md">
+              APANAM helps you navigate Baguio City by showing you which jeepneys to take
+              and how to get to their terminals. Our system focuses on teaching you the
+              route rather than tracking vehicles in real-time.
+            </p>
+            <p class="text-body1 q-mb-lg">
+              Input your starting point and destination to get step-by-step instructions
+              on how to navigate Baguio's jeepney system efficiently.
+            </p>
+            <div class="q-gutter-sm">
+              <q-chip square color="primary" text-color="white">Route Planning</q-chip>
+              <q-chip square color="secondary" text-color="white">Step-by-Step Guide</q-chip>
+              <q-chip square color="primary" text-color="white">Terminal Info</q-chip>
+              <q-chip square color="secondary" text-color="white">Fare Estimates</q-chip>
+            </div>
+          </div>
+          <div class="col-md-6 col-12 q-pa-xl">
+            <div class="image-placeholder bg-grey-3 q-pa-xl rounded-borders">
+              <q-icon name="directions_bus" size="64px" color="grey-6"/>
+              <div class="text-center q-mt-md">Route Planning Visualization</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN FEATURE SECTION (Section 3) -->
     <section class="navigation-section bg-grey-1">
       <div class="container">
         <div class="navigation-wrapper">
@@ -1239,9 +1271,30 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+// Color Palette
+$dark-green: #1B4332;
+$primary-green: #2E5D3E;
+$light-green: #9EC98F;
+$soft-green: #E8F5E9;
+$mint-cream: #F1F8F4;
+$blush-pink: #FCE4EC;
+$white: #FFFFFF;
+$brown: #6B5344;
+
+// Glassmorphism
+$glass-bg: rgba(255, 255, 255, 0.85);
+$glass-border: rgba(255, 255, 255, 0.3);
+$glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+
+// Bento
+$bento-radius: 20px;
+$bento-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+$bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
+
 .apanam-page {
-  background-color: #F5F5F5 !important;
+  background: linear-gradient(180deg, $mint-cream 0%, $white 100%) !important;
+  min-height: 100vh;
 }
 
 /* Navbar Animation */
@@ -1269,6 +1322,17 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
 }
 
 .hero-overlay {
@@ -1288,40 +1352,70 @@ export default defineComponent({
   color: white;
   max-width: 800px;
   padding: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .hero-title {
   font-size: 2.5rem;
   margin-bottom: 1rem;
   color: white;
+  font-weight: 700;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
 
 .hero-description {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   margin: 0;
+  opacity: 0.95;
+}
+
+.extended-hero {
+  padding: 4rem 0;
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
 }
 
 .navigation-section {
-  padding: 3rem 0;
+  padding: 4rem 0;
+  background: linear-gradient(180deg, $white 0%, $mint-cream 100%);
+}
+
+.image-placeholder {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  border-radius: $bento-radius;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  border: 2px dashed #ddd;
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
 }
 
 .frosted-glass-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: $bento-radius;
+  border: 1px solid $glass-border;
+  box-shadow: $glass-shadow;
   height: 100%;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+  }
 }
 
 .options-section {
-  background-color: #F5F5F5;
+  background: linear-gradient(180deg, $mint-cream 0%, $white 100%);
 }
 
 /* Route Map Container */
@@ -1331,9 +1425,11 @@ export default defineComponent({
 }
 
 .map-card {
-  border-radius: 16px;
+  border-radius: $bento-radius;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  box-shadow: $bento-shadow;
+  background: $white;
+  border: 1px solid rgba($primary-green, 0.08);
 }
 
 #route-map {
@@ -1353,28 +1449,28 @@ export default defineComponent({
 @keyframes pulse-green {
   0% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(78, 169, 109, 0.7);
+    box-shadow: 0 0 0 0 rgba($primary-green, 0.7);
   }
   50% {
     transform: scale(1.1);
-    box-shadow: 0 0 0 10px rgba(78, 169, 109, 0);
+    box-shadow: 0 0 0 10px rgba($primary-green, 0);
   }
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(78, 169, 109, 0);
+    box-shadow: 0 0 0 0 rgba($primary-green, 0);
   }
 }
 
 .route-info {
-  background: #F5F5F5;
+  background: $soft-green;
   padding: 16px;
   border-radius: 12px;
-  border-left: 4px solid #2196F3;
+  border-left: 4px solid $primary-green;
 }
 
 .route-info .info-label {
   font-size: 0.75rem;
-  color: #666;
+  color: $dark-green;
   font-weight: 600;
   text-transform: uppercase;
   margin-bottom: 8px;
@@ -1382,7 +1478,7 @@ export default defineComponent({
 
 .route-info .info-value {
   font-size: 0.95rem;
-  color: #333;
+  color: $dark-green;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -1390,49 +1486,52 @@ export default defineComponent({
 
 .options-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
 }
 
-/* Bento Card Style */
+/* Bento Card Style - Enhanced */
 .bento-card {
-  background: white;
-  border-radius: 16px;
-  border-left: 6px solid #4EA96D; /* Primary Earth Tone */
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+  background: $white;
+  border-radius: $bento-radius;
+  border: 1px solid rgba($primary-green, 0.08);
+  box-shadow: $bento-shadow;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.bento-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: $bento-shadow-hover;
+    border-color: rgba($primary-green, 0.15);
+  }
 }
 
 .navigation-steps {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  background: $white;
+  border-radius: $bento-radius;
+  box-shadow: $bento-shadow;
+  border: 1px solid rgba($primary-green, 0.08);
 }
 
 .tutorial-section {
-  background-color: #F5F5F5;
+  background: linear-gradient(180deg, $mint-cream 0%, $white 100%);
 }
 
 .bg-primary {
-  background-color: #4EA96D !important;
+  background-color: $primary-green !important;
 }
 
 .text-primary {
-  color: #4EA96D !important;
+  color: $primary-green !important;
 }
 
 .bg-secondary {
-  background-color: #8D6E63 !important; /* Earthy Brown */
+  background-color: $brown !important;
 }
 
 .text-secondary {
-  color: #8D6E63 !important;
+  color: $brown !important;
 }
 
 .animate-fade-in {
@@ -1445,10 +1544,11 @@ export default defineComponent({
 }
 
 .map-container {
-  background: white;
+  background: $white;
   padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-radius: $bento-radius;
+  box-shadow: $bento-shadow;
+  border: 1px solid rgba($primary-green, 0.08);
 }
 
 /* Teaching Steps Overview Styles */
@@ -1457,24 +1557,24 @@ export default defineComponent({
 }
 
 .teaching-step-card {
-  background: white;
-  border-radius: 12px;
+  background: $white;
+  border-radius: 16px;
   padding: 1.5rem 1rem;
   text-align: center;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  border: 2px solid transparent;
+  box-shadow: $bento-shadow;
+  border: 1px solid rgba($primary-green, 0.08);
 }
 
 .teaching-step-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  box-shadow: $bento-shadow-hover;
 }
 
 .teaching-step-card.step-active {
-  border-color: #4EA96D;
-  background: #E8F5E9;
-  box-shadow: 0 4px 16px rgba(78, 169, 109, 0.3);
+  border-color: $primary-green;
+  background: linear-gradient(135deg, $soft-green 0%, rgba($light-green, 0.1) 100%);
+  box-shadow: 0 4px 16px rgba($primary-green, 0.2);
 }
 
 .teaching-step-card.step-done {
@@ -1490,12 +1590,12 @@ export default defineComponent({
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background: #F5F5F5;
+  background: linear-gradient(135deg, $soft-green 0%, $mint-cream 100%);
   transition: all 0.3s ease;
 }
 
 .step-active .step-icon-wrapper {
-  background: #4EA96D;
+  background: linear-gradient(135deg, $primary-green 0%, $light-green 100%);
 }
 
 .step-done .step-icon-wrapper {
@@ -1510,7 +1610,7 @@ export default defineComponent({
 .step-label {
   font-size: 13px;
   font-weight: 600;
-  color: #424242;
+  color: $dark-green;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -1524,29 +1624,35 @@ export default defineComponent({
 .terminal-info-card,
 .arrival-info-card {
   border-left: 4px solid;
+  border-radius: 12px;
 }
 
 .walking-instructions {
   border-left-color: #2196F3;
+  background: #E3F2FD;
 }
 
 .terminal-info-card {
   border-left-color: #FFC107;
+  background: #FFF8E1;
 }
 
 .arrival-info-card {
   border-left-color: #9C27B0;
+  background: #F3E5F5;
 }
 
 .mb-0 {
   margin-bottom: 0 !important;
 }
 
-/* Driver Phrase Card */
+/* Driver Phrase Card - Enhanced */
 .driver-phrase-card {
-  background: linear-gradient(135deg, #4EA96D 0%, #66BB6A 100%);
+  background: linear-gradient(135deg, $primary-green 0%, $light-green 100%);
   position: relative;
   overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba($primary-green, 0.3);
 }
 
 .driver-phrase-card::before {
@@ -1563,6 +1669,9 @@ export default defineComponent({
 /* Detail Cards */
 .detail-card {
   transition: all 0.2s ease;
+  background: $white;
+  border-radius: 12px;
+  border: 1px solid rgba($primary-green, 0.08);
 }
 
 .detail-card:hover {
@@ -1572,17 +1681,25 @@ export default defineComponent({
 
 /* Cultural Context Card */
 .cultural-context-card {
-  border-left: 4px solid #4CAF50;
+  border-left: 4px solid $primary-green;
+  background: $soft-green;
+  border-radius: 12px;
 }
 
 /* Destination Highlights */
 .destination-highlights {
   border-left: 4px solid #FF9800;
+  background: #FFF3E0;
+  border-radius: 12px;
 }
 
 /* Quick Reference Card */
 .quick-reference-card {
   font-size: 13px;
+  background: $white;
+  border-radius: $bento-radius;
+  box-shadow: $bento-shadow;
+  border: 1px solid rgba($primary-green, 0.08);
 }
 
 .quick-reference-card .q-item {
@@ -1596,7 +1713,7 @@ export default defineComponent({
 
 /* Rounded borders */
 .rounded-borders {
-  border-radius: 8px !important;
+  border-radius: 12px !important;
 }
 
 /* Background colors */
@@ -1609,7 +1726,7 @@ export default defineComponent({
 }
 
 .bg-green-1 {
-  background-color: #E8F5E9 !important;
+  background-color: $soft-green !important;
 }
 
 .bg-purple-1 {
@@ -1618,22 +1735,22 @@ export default defineComponent({
 
 /* Shadow utilities */
 .shadow-1 {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
 }
 
 .shadow-2 {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.15) !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
 }
 
 @media (max-width: 768px) {
   .hero-title {
     font-size: 2rem;
   }
-  
+
   .hero-description {
     font-size: 1rem;
   }
-  
+
   .options-grid {
     grid-template-columns: 1fr;
   }

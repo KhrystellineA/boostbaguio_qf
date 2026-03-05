@@ -976,8 +976,22 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+// Color Variables
+$dark-green: #1B4332;
+$primary-green: #2E5D3E;
+$light-green: #9EC98F;
+$soft-green: #E8F5E9;
+$mint-cream: #F1F8F4;
+$blush-pink: #FCE4EC;
+$white: #FFFFFF;
+$brown: #6B5344;
+$glass-bg: rgba(255, 255, 255, 0.85);
+$glass-border: rgba(255, 255, 255, 0.3);
+$bento-radius: 20px;
+
 .maykan-page {
-  background-color: #F5F5F5 !important;
+  background: linear-gradient(180deg, $mint-cream 0%, $white 100%) !important;
+  min-height: 100vh;
 }
 
 .hero-section {
@@ -988,6 +1002,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 0 0 $bento-radius $bento-radius;
 }
 
 .hero-overlay {
@@ -1007,44 +1022,56 @@ export default defineComponent({
   color: white;
   max-width: 800px;
   padding: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .hero-title {
   font-size: 2.5rem;
   margin-bottom: 1rem;
   color: white;
+  font-weight: 700;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .hero-description {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   margin: 0;
+  opacity: 0.95;
+  line-height: 1.6;
 }
 
 /* Carousel Section Styles */
 .carousel-section {
-  background: white;
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+  padding: 3rem 0;
 }
 
 .carousel-container {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 
 .carousel-slide {
   position: relative;
   overflow: hidden;
+  border-radius: $bento-radius;
 }
 
 .slide-content {
   position: relative;
   height: 100%;
   width: 100%;
+  border-radius: $bento-radius;
+  overflow: hidden;
 }
 
 .carousel-image {
   height: 100%;
   width: 100%;
   object-fit: cover;
+  border-radius: $bento-radius;
 }
 
 .slide-overlay {
@@ -1052,10 +1079,11 @@ export default defineComponent({
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
-  padding: 60px 24px 24px;
+  background: linear-gradient(to top, rgba($dark-green, 0.95) 0%, rgba($dark-green, 0.7) 50%, transparent 100%);
+  padding: 80px 24px 24px;
   display: flex;
   align-items: flex-end;
+  border-radius: 0 0 $bento-radius $bento-radius;
 }
 
 .slide-info {
@@ -1067,12 +1095,12 @@ export default defineComponent({
   font-size: 1.75rem;
   font-weight: 700;
   margin-bottom: 0.25rem;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .slide-area {
   font-size: 1rem;
-  opacity: 0.9;
+  opacity: 0.95;
   margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
@@ -1084,14 +1112,19 @@ export default defineComponent({
 
 .slide-actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+  
+  :deep(.q-btn) {
+    border-radius: 12px;
+    font-weight: 600;
+  }
 }
 
 .carousel-indicators {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   overflow-x: auto;
-  padding: 8px 0;
+  padding: 12px 0;
   justify-content: center;
   flex-wrap: wrap;
 }
@@ -1099,23 +1132,26 @@ export default defineComponent({
 .indicator-item {
   width: 80px;
   height: 60px;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
   opacity: 0.6;
   transition: all 0.3s ease;
   border: 2px solid transparent;
-}
-
-.indicator-item:hover {
-  opacity: 0.8;
-  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  &:hover {
+    opacity: 0.85;
+    transform: scale(1.08);
+    box-shadow: 0 4px 16px rgba($primary-green, 0.2);
+  }
 }
 
 .indicator-item.active {
   opacity: 1;
-  border-color: #2E5D3E;
-  transform: scale(1.1);
+  border-color: $primary-green;
+  transform: scale(1.12);
+  box-shadow: 0 4px 16px rgba($primary-green, 0.3);
 }
 
 .indicator-image {
@@ -1129,206 +1165,63 @@ export default defineComponent({
 }
 
 .extended-hero {
-  padding: 3rem 0;
+  padding: 4rem 0;
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
 }
 
 .community-ribbon {
-  padding: 2rem 0;
+  padding: 2.5rem 0;
+  background: linear-gradient(135deg, $brown 0%, darken($brown, 8%) 100%);
+  border-radius: $bento-radius;
+  margin: 2rem auto;
+  max-width: 1100px;
+  box-shadow: 0 8px 24px rgba($brown, 0.2);
 }
 
 .places-section {
-  background-color: #F5F5F5;
-}
-
-.places-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.place-card {
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  border-left: 4px solid #2E5D3E;
-}
-
-.place-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-}
-
-.place-image {
-  height: 200px;
-  object-fit: cover;
-}
-
-.detail-image {
-  height: 400px;
-  object-fit: cover;
-}
-
-// Color Palette Variables
-$dark-green: #1B4332;
-$primary-green: #2E5D3E;
-$light-green: #9EC98F;
-$brown: #6B5344;
-$white: #FFFFFF;
-
-.faqs-section {
-  background: $brown;
-  padding: 6rem 0;
-  color: $white;
-  position: relative;
-}
-
-.container-faqs {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 3rem;
-}
-
-.faqs-header {
-  text-align: center;
-  margin-bottom: 4rem;
-}
-
-.faqs-title {
-  font-size: 2.25rem;
-  font-weight: 800;
-  color: $white;
-  margin-bottom: 1rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
-}
-
-.faqs-description {
-  font-size: 1.05rem;
-  color: rgba($white, 0.9);
-  line-height: 1.7;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.faqs-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2.5rem;
-  margin-bottom: 4rem;
-}
-
-.faqs-column {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.faq-item {
-  background: rgba($white, 0.1);
-  border: 1px solid rgba($white, 0.2);
-  border-radius: 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
-
-  &:hover {
-    background: rgba($white, 0.15);
-    border-color: rgba($white, 0.3);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  }
-
-  :deep(.q-item) {
-    padding: 1.25rem 1.5rem;
-  }
-
-  :deep(.q-item__label) {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: $white;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  :deep(.q-icon) {
-    color: $light-green;
-    font-size: 20px;
-    transition: transform 0.3s ease;
-  }
-
-  &:hover :deep(.q-icon) {
-    transform: scale(1.1);
-  }
-}
-
-.faq-card {
+  padding: 4rem 0;
   background: transparent;
-  box-shadow: none;
 }
 
-.faq-answer {
-  padding: 0 1.5rem 1.5rem;
-  font-size: 0.95rem;
-  color: rgba($white, 0.85);
-  line-height: 1.7;
-}
-
-.bg-primary {
-  background-color: #4EA96D !important;
-}
-
-.text-primary {
-  color: #4EA96D !important;
-}
-
-.bg-secondary {
-  background-color: #8D6E63 !important;
-}
-
-.text-secondary {
-  color: #8D6E63 !important;
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.image-placeholder {
-  height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-
-/* Place Card Styles */
+// Bento Grid for Places
 .places-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
+  gap: 20px;
+  padding: 0 10px;
 }
 
 .place-card {
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+  border-radius: $bento-radius;
+  border: 1px solid $glass-border;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   cursor: pointer;
-  transition: all 0.3s ease;
-  border-left: 4px solid #2E5D3E;
-  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-}
-
-.place-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba($primary-green, 0.15);
+    border-color: rgba($primary-green, 0.3);
+  }
+  
+  :deep(.q-img) {
+    height: 220px;
+    position: relative;
+  }
+  
+  :deep(.q-card__section) {
+    padding: 20px;
+  }
 }
 
 .place-image {
@@ -1345,13 +1238,15 @@ $white: #FFFFFF;
 }
 
 .save-place-btn {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(4px);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
   transition: all 0.3s ease;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
   
   &:hover {
     background: rgba(255, 255, 255, 1);
-    transform: scale(1.1);
+    transform: scale(1.15);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   }
 }
 
@@ -1360,44 +1255,216 @@ $white: #FFFFFF;
   top: 12px;
   right: 12px;
   z-index: 10;
+  
+  :deep(.q-badge) {
+    border-radius: 12px;
+    padding: 6px 12px;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+  }
 }
 
 .tags-container {
   display: flex;
   flex-wrap: wrap;
+  gap: 6px;
 }
 
 .tag-badge {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   padding: 4px 10px;
   border-radius: 16px;
-}
-
-.tag-badge-full {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
+  font-weight: 500;
 }
 
 /* Modal Styles */
 .place-detail-card {
-  border-radius: 16px;
+  border-radius: $bento-radius;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+  border: 1px solid $glass-border;
 }
 
 .modal-image {
-  height: 280px;
+  height: 300px;
   width: 100%;
   object-fit: cover;
 }
 
-.bg-blue-1 {
-  background-color: #E3F2FD !important;
+// FAQ Section with Glassmorphism
+$faqs-bg: $brown;
+
+.faqs-section {
+  background: linear-gradient(135deg, $faqs-bg 0%, darken($faqs-bg, 10%) 100%);
+  padding: 5rem 0;
+  color: $white;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
 }
 
-.rounded-borders {
-  border-radius: 8px !important;
+.container-faqs {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 32px;
+  position: relative;
+  z-index: 1;
+}
+
+.faqs-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.faqs-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: $white;
+  margin-bottom: 1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+}
+
+.faqs-description {
+  font-size: 1.05rem;
+  color: rgba($white, 0.9);
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.faqs-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 4rem;
+}
+
+.faqs-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.faq-item {
+  background: rgba($white, 0.1);
+  border: 1px solid rgba($white, 0.2);
+  border-radius: $bento-radius;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+
+  &:hover {
+    background: rgba($white, 0.15);
+    border-color: rgba($white, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  }
+
+  :deep(.q-item) {
+    padding: 18px 24px;
+    min-height: 70px;
+  }
+
+  :deep(.q-item__label) {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: $white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: 1.4;
+  }
+
+  :deep(.q-icon) {
+    color: $light-green;
+    font-size: 22px;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover :deep(.q-icon) {
+    transform: scale(1.15) rotate(90deg);
+  }
+  
+  :deep(.q-expansion-item__content) {
+    padding: 0;
+  }
+}
+
+.faq-card {
+  background: transparent;
+  box-shadow: none;
+}
+
+.faq-answer {
+  padding: 0 24px 24px;
+  font-size: 0.95rem;
+  color: rgba($white, 0.9);
+  line-height: 1.8;
+}
+
+.bg-primary {
+  background: linear-gradient(135deg, $primary-green 0%, $dark-green 100%) !important;
+}
+
+.text-primary {
+  color: $primary-green !important;
+}
+
+.bg-secondary {
+  background-color: $brown !important;
+}
+
+.text-secondary {
+  color: $brown !important;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(30px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+.image-placeholder {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: linear-gradient(135deg, $soft-green 0%, $mint-cream 100%);
+  border-radius: $bento-radius;
+  border: 1px solid $glass-border;
+}
+
+.category-btn {
+  border-radius: 25px !important;
+  text-transform: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  padding: 10px 20px !important;
+  
+  &:not(.q-btn--unelevated) {
+    border: 2px solid $primary-green;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1411,44 +1478,44 @@ $white: #FFFFFF;
 
   .places-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 0 1rem;
+    gap: 16px;
+    padding: 0 12px;
   }
 
   .place-card {
-    min-height: 280px;
+    min-height: auto;
   }
 
   .place-image {
-    height: 180px;
+    height: 200px;
   }
 
   /* Touch-friendly buttons */
-  .q-btn {
+  :deep(.q-btn) {
     min-height: 44px !important;
     min-width: 44px !important;
   }
 
   .carousel-section {
-    padding: 1rem 0;
+    padding: 2rem 0;
   }
 
   .carousel-image {
-    height: 300px;
+    height: 320px;
   }
 
   .slide-title {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
   }
 
   .slide-actions {
     flex-direction: column;
-    gap: 8px;
-  }
-
-  .slide-actions .q-btn {
-    width: 100%;
-    min-height: 48px !important;
+    gap: 10px;
+    
+    :deep(.q-btn) {
+      width: 100%;
+      min-height: 48px !important;
+    }
   }
 
   .carousel-indicators {
@@ -1457,7 +1524,7 @@ $white: #FFFFFF;
   }
 
   .indicator-item {
-    min-width: 60px;
+    min-width: 70px;
   }
 
   .modal-header {
@@ -1469,7 +1536,7 @@ $white: #FFFFFF;
   }
 
   .modal-image {
-    height: 220px;
+    height: 240px;
   }
 
   .info-grid {
@@ -1486,7 +1553,15 @@ $white: #FFFFFF;
 
   /* Category buttons - scrollable on mobile */
   .category-btn {
-    min-width: 120px;
+    min-width: 130px;
+  }
+  
+  .faqs-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .container-faqs {
+    padding: 0 20px;
   }
 }
 </style>

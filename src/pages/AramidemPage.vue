@@ -916,8 +916,22 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+// Color Variables
+$dark-green: #1B4332;
+$primary-green: #2E5D3E;
+$light-green: #9EC98F;
+$soft-green: #E8F5E9;
+$mint-cream: #F1F8F4;
+$blush-pink: #FCE4EC;
+$white: #FFFFFF;
+$brown: #6B5344;
+$glass-bg: rgba(255, 255, 255, 0.85);
+$glass-border: rgba(255, 255, 255, 0.3);
+$bento-radius: 20px;
+
 .aramidem-page {
-  background-color: #F5F5F5 !important;
+  background: linear-gradient(180deg, $mint-cream 0%, $white 100%) !important;
+  min-height: 100vh;
 }
 
 .hero-section {
@@ -928,6 +942,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 0 0 $bento-radius $bento-radius;
 }
 
 .hero-overlay {
@@ -947,42 +962,69 @@ export default defineComponent({
   color: white;
   max-width: 800px;
   padding: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .hero-title {
   font-size: 2.5rem;
   margin-bottom: 1rem;
   color: white;
+  font-weight: 700;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .hero-description {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   margin: 0;
+  opacity: 0.95;
+  line-height: 1.6;
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
 }
 
-/* Featured Events */
+/* Featured Events - Bento Grid */
+.featured-section {
+  padding: 4rem 0;
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+}
+
 .featured-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
+  gap: 20px;
+  padding: 0 10px;
 }
 
 .featured-card {
-  border-radius: 16px;
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+  border-radius: $bento-radius;
+  border: 1px solid $glass-border;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.featured-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba($primary-green, 0.15);
+    border-color: rgba($primary-green, 0.3);
+  }
+  
+  :deep(.q-img) {
+    height: 220px;
+    position: relative;
+  }
+  
+  :deep(.q-card__section) {
+    padding: 20px;
+  }
 }
 
 .featured-image {
@@ -995,38 +1037,62 @@ export default defineComponent({
   top: 12px;
   right: 12px;
   font-size: 12px;
-  padding: 6px 12px;
-  border-radius: 20px;
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Calendar */
+/* Calendar Section */
+.calendar-section {
+  padding: 4rem 0;
+  background: transparent;
+}
+
 .calendar-card {
-  border-radius: 16px;
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+  border-radius: $bento-radius;
+  border: 1px solid $glass-border;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   overflow: hidden;
 }
 
 .year-selector {
-  width: 150px;
+  width: 160px;
+  
+  :deep(.q-field) {
+    background: $white;
+    border-radius: 12px;
+    
+    &.q-field--outlined {
+      border: 1px solid $glass-border;
+    }
+  }
 }
 
 .calendar-grid {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border: 1px solid rgba($primary-green, 0.1);
+  border-radius: 12px;
   overflow: hidden;
+  background: $white;
 }
 
 .calendar-header {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  background: #f5f5f5;
+  background: linear-gradient(135deg, $soft-green 0%, $mint-cream 100%);
 }
 
 .calendar-day-header {
-  padding: 12px 8px;
+  padding: 14px 8px;
   text-align: center;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 12px;
-  color: #666;
+  color: $dark-green;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .calendar-days {
@@ -1035,17 +1101,17 @@ export default defineComponent({
 }
 
 .calendar-day {
-  min-height: 60px;
-  padding: 8px;
+  min-height: 65px;
+  padding: 10px 6px;
   text-align: center;
   cursor: pointer;
-  border: 1px solid #f0f0f0;
-  transition: background 0.2s;
+  border: 1px solid rgba($primary-green, 0.08);
+  transition: all 0.2s ease;
   position: relative;
-}
-
-.calendar-day:not(.empty-day):hover {
-  background: #f0f7f4;
+  
+  &:hover:not(.empty-day) {
+    background: $soft-green;
+  }
 }
 
 .calendar-day.empty-day {
@@ -1054,130 +1120,181 @@ export default defineComponent({
 }
 
 .calendar-day.has-event {
-  background: #e8f5e9;
+  background: linear-gradient(135deg, $soft-green 0%, rgba($light-green, 0.3) 100%);
 }
 
 .calendar-day.selected-day {
-  background: #4EA96D;
+  background: linear-gradient(135deg, $primary-green 0%, $dark-green 100%);
   color: white;
+  
+  .day-number {
+    color: white;
+  }
 }
 
 .calendar-day.today {
-  border: 2px solid #4EA96D;
+  border: 2px solid $primary-green;
 }
 
 .day-number {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 14px;
+  color: $dark-green;
+  transition: color 0.2s ease;
 }
 
 .event-dots {
   display: flex;
   justify-content: center;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .event-dot {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: #4EA96D;
+  background: linear-gradient(135deg, $primary-green 0%, $light-green 100%);
+  box-shadow: 0 2px 6px rgba($primary-green, 0.4);
 }
 
 .selected-day .event-dot {
-  background: white;
+  background: $white;
+  box-shadow: 0 2px 6px rgba(255, 255, 255, 0.4);
 }
 
 /* Events List */
 .events-list-card {
-  border-radius: 16px;
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+  border-radius: $bento-radius;
+  border: 1px solid $glass-border;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   overflow: hidden;
 }
 
 .event-item {
+  background: $glass-bg;
+  backdrop-filter: blur(10px);
   border-radius: 12px;
-  border-left: 4px solid #4EA96D;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.event-item:hover {
-  transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-left: 4px solid $primary-green;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 12px;
+  
+  &:hover {
+    transform: translateX(6px);
+    box-shadow: 0 4px 16px rgba($primary-green, 0.15);
+    background: $soft-green;
+  }
+  
+  :deep(.q-card__section) {
+    padding: 12px;
+  }
 }
 
 /* All Events Grid */
+.all-events-section {
+  padding: 4rem 0;
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+}
+
 .events-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  padding: 0 10px;
 }
 
 .event-card {
-  border-radius: 16px;
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+  border-radius: $bento-radius;
+  border: 1px solid $glass-border;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.event-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba($primary-green, 0.15);
+    border-color: rgba($primary-green, 0.3);
+  }
+  
+  :deep(.q-img) {
+    height: 180px;
+  }
+  
+  :deep(.q-card__section) {
+    padding: 18px;
+  }
 }
 
 .event-image {
   height: 180px;
+  object-fit: cover;
 }
 
 /* Event Details Dialog */
 .event-details-dialog {
-  border-radius: 16px;
+  border-radius: $bento-radius;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+  border: 1px solid $glass-border;
 }
 
 .event-detail-image {
-  height: 280px;
+  height: 300px;
+  object-fit: cover;
 }
 
 .bg-primary {
-  background-color: #4EA96D !important;
+  background: linear-gradient(135deg, $primary-green 0%, $dark-green 100%) !important;
 }
 
 .bg-secondary {
-  background-color: #8D6E63 !important;
+  background-color: $brown !important;
 }
 
 .text-primary {
-  color: #4EA96D !important;
+  color: $primary-green !important;
 }
 
 .text-secondary {
-  color: #8D6E63 !important;
+  color: $brown !important;
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.5s ease-in;
+  animation: fadeIn 0.6s ease-out;
 }
 
 /* FAQ Section Styles */
-// Color Palette Variables
-$dark-green: #1B4332;
-$primary-green: #2E5D3E;
-$light-green: #9EC98F;
-$brown: #6B5344;
-$white: #FFFFFF;
+$faqs-bg: $brown;
 
 .faqs-section {
-  background: $brown;
-  padding: 6rem 0;
+  background: linear-gradient(135deg, $faqs-bg 0%, darken($faqs-bg, 10%) 100%);
+  padding: 5rem 0;
   color: $white;
   position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
 }
 
 .container-faqs {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 3rem;
+  padding: 0 32px;
+  position: relative;
+  z-index: 1;
 }
 
 .faqs-header {
@@ -1192,7 +1309,7 @@ $white: #FFFFFF;
   margin-bottom: 1rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
 }
 
 .faqs-description {
@@ -1206,50 +1323,57 @@ $white: #FFFFFF;
 .faqs-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 2.5rem;
+  gap: 24px;
   margin-bottom: 4rem;
 }
 
 .faqs-column {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 20px;
 }
 
 .faq-item {
   background: rgba($white, 0.1);
   border: 1px solid rgba($white, 0.2);
-  border-radius: 16px;
+  border-radius: $bento-radius;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(10px);
+  overflow: hidden;
 
   &:hover {
     background: rgba($white, 0.15);
     border-color: rgba($white, 0.3);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   }
 
   :deep(.q-item) {
-    padding: 1.25rem 1.5rem;
+    padding: 18px 24px;
+    min-height: 70px;
   }
 
   :deep(.q-item__label) {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: $white;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    line-height: 1.4;
   }
 
   :deep(.q-icon) {
     color: $light-green;
-    font-size: 20px;
+    font-size: 22px;
     transition: transform 0.3s ease;
   }
 
   &:hover :deep(.q-icon) {
-    transform: scale(1.1);
+    transform: scale(1.15) rotate(90deg);
+  }
+  
+  :deep(.q-expansion-item__content) {
+    padding: 0;
   }
 }
 
@@ -1259,15 +1383,21 @@ $white: #FFFFFF;
 }
 
 .faq-answer {
-  padding: 0 1.5rem 1.5rem;
+  padding: 0 24px 24px;
   font-size: 0.95rem;
-  color: rgba($white, 0.85);
-  line-height: 1.7;
+  color: rgba($white, 0.9);
+  line-height: 1.8;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(30px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
 @media (max-width: 768px) {
@@ -1281,10 +1411,12 @@ $white: #FFFFFF;
 
   .featured-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .events-grid {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .faqs-grid {
@@ -1292,11 +1424,16 @@ $white: #FFFFFF;
   }
 
   .container-faqs {
-    padding: 0 1.5rem;
+    padding: 0 20px;
   }
 
   .faqs-title {
     font-size: 1.75rem;
+  }
+  
+  .calendar-card,
+  .events-list-card {
+    margin-bottom: 16px;
   }
 }
 </style>

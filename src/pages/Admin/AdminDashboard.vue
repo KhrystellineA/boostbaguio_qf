@@ -856,36 +856,4 @@ export default {
     top: 60px
     padding: 10px 20px
     font-size: 14px
-
-// Mobile-specific fixes
-@media (max-width: 599px)
-  .q-toolbar
-    min-height: 56px
-    padding: 0 8px
-  
-  .q-toolbar__title
-    font-size: 16px
-  
-  .stat-card
-    border-radius: 8px
-    
-    .stat-value
-      font-size: 24px
-    
-    .stat-icon
-      width: 48px
-      height: 48px
-    
-    .stat-label
-      font-size: 11px
-  
-  .dashboard-card
-    border-radius: 8px
-    
-    .q-card__section
-      padding: 12px
-  
-  .q-btn
-    min-height: 44px
-    min-width: 44px
 </style>

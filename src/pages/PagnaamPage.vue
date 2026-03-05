@@ -729,8 +729,22 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+// Color Variables
+$dark-green: #1B4332;
+$primary-green: #2E5D3E;
+$light-green: #9EC98F;
+$soft-green: #E8F5E9;
+$mint-cream: #F1F8F4;
+$blush-pink: #FCE4EC;
+$white: #FFFFFF;
+$brown: #6B5344;
+$glass-bg: rgba(255, 255, 255, 0.85);
+$glass-border: rgba(255, 255, 255, 0.3);
+$bento-radius: 20px;
+
 .pagnaam-page {
-  background-color: #F5F5F5 !important;
+  background: linear-gradient(180deg, $mint-cream 0%, $white 100%) !important;
+  min-height: 100vh;
 }
 
 .hero-section {
@@ -741,6 +755,7 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: 0 0 $bento-radius $bento-radius;
 }
 
 .hero-overlay {
@@ -760,86 +775,169 @@ export default defineComponent({
   color: white;
   max-width: 800px;
   padding: 2rem;
+  position: relative;
+  z-index: 1;
 }
 
 .hero-title {
   font-size: 2.5rem;
   margin-bottom: 1rem;
   color: white;
+  font-weight: 700;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 
 .hero-description {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   margin: 0;
+  opacity: 0.95;
+  line-height: 1.6;
 }
 
 .extended-hero {
-  padding: 3rem 0;
+  padding: 4rem 0;
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
 }
 
 .directories-section {
-  background-color: #F5F5F5;
+  padding: 4rem 0;
+  background: transparent;
 }
 
 .search-bar-section {
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  
+  :deep(.q-field) {
+    background: $glass-bg;
+    backdrop-filter: blur(20px);
+    border-radius: $bento-radius;
+    border: 1px solid $glass-border;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+    
+    &:hover {
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+    
+    &.q-field--focused {
+      box-shadow: 0 8px 24px rgba($primary-green, 0.15);
+      border-color: $primary-green;
+    }
+  }
+  
+  :deep(.q-field__control) {
+    border-radius: $bento-radius;
+  }
+  
+  :deep(.q-field__prepend) {
+    color: $primary-green;
+  }
 }
 
+// Bento Grid for Routes
 .routes-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+  padding: 0 10px;
 }
 
 .route-card {
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+  border-radius: $bento-radius;
+  border: 1px solid $glass-border;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  border-left: 4px solid #2E5D3E;
-}
-
-.route-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 32px rgba($primary-green, 0.15);
+    border-color: rgba($primary-green, 0.3);
+  }
+  
+  :deep(.q-img) {
+    border-radius: $bento-radius $bento-radius 0 0;
+    height: 180px;
+  }
+  
+  :deep(.q-card__section) {
+    padding: 20px;
+  }
 }
 
 .route-image {
-  height: 150px;
+  height: 180px;
   object-fit: cover;
 }
 
-.route-detail-card {
-  border-left: 4px solid #2E5D3E;
+.fare-matrix {
+  background: $soft-green;
+  border-radius: 12px;
+  padding: 12px;
+  margin-top: 12px;
 }
 
-.details-section {
-  background-color: white;
+.route-dialog-card {
+  border-radius: $bento-radius;
+  overflow: hidden;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+  border: 1px solid $glass-border;
+  
+  :deep(.q-card__section) {
+    background: linear-gradient(135deg, $soft-green 0%, $mint-cream 100%);
+  }
+  
+  .map-card {
+    border-radius: $bento-radius;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    
+    #route-map {
+      min-height: 550px;
+      background: #f0f0f0;
+      border-radius: $bento-radius;
+    }
+  }
 }
 
-// Color Palette Variables
-$dark-green: #1B4332;
-$primary-green: #2E5D3E;
-$light-green: #9EC98F;
-$brown: #6B5344;
-$white: #FFFFFF;
+// FAQ Section with Glassmorphism
+$faqs-bg: $brown;
 
 .faqs-section {
-  background: $brown;
-  padding: 6rem 0;
+  background: linear-gradient(135deg, $faqs-bg 0%, darken($faqs-bg, 10%) 100%);
+  padding: 5rem 0;
   color: $white;
   position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
 }
 
 .container-faqs {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 3rem;
+  padding: 0 32px;
+  position: relative;
+  z-index: 1;
 }
 
 .faqs-header {
@@ -854,7 +952,7 @@ $white: #FFFFFF;
   margin-bottom: 1rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
 }
 
 .faqs-description {
@@ -868,50 +966,57 @@ $white: #FFFFFF;
 .faqs-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 2.5rem;
+  gap: 24px;
   margin-bottom: 4rem;
 }
 
 .faqs-column {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 20px;
 }
 
 .faq-item {
   background: rgba($white, 0.1);
   border: 1px solid rgba($white, 0.2);
-  border-radius: 16px;
+  border-radius: $bento-radius;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(10px);
+  overflow: hidden;
 
   &:hover {
     background: rgba($white, 0.15);
     border-color: rgba($white, 0.3);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   }
 
   :deep(.q-item) {
-    padding: 1.25rem 1.5rem;
+    padding: 18px 24px;
+    min-height: 70px;
   }
 
   :deep(.q-item__label) {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     font-weight: 700;
     color: $white;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    line-height: 1.4;
   }
 
   :deep(.q-icon) {
     color: $light-green;
-    font-size: 20px;
+    font-size: 22px;
     transition: transform 0.3s ease;
   }
 
   &:hover :deep(.q-icon) {
-    transform: scale(1.1);
+    transform: scale(1.15) rotate(90deg);
+  }
+  
+  :deep(.q-expansion-item__content) {
+    padding: 0;
   }
 }
 
@@ -921,35 +1026,41 @@ $white: #FFFFFF;
 }
 
 .faq-answer {
-  padding: 0 1.5rem 1.5rem;
+  padding: 0 24px 24px;
   font-size: 0.95rem;
-  color: rgba($white, 0.85);
-  line-height: 1.7;
+  color: rgba($white, 0.9);
+  line-height: 1.8;
 }
 
 .bg-primary {
-  background-color: #2E5D3E !important;
+  background: linear-gradient(135deg, $primary-green 0%, $dark-green 100%) !important;
 }
 
 .text-primary {
-  color: #2E5D3E !important;
+  color: $primary-green !important;
 }
 
 .bg-secondary {
-  background-color: #8D6E63 !important;
+  background-color: $brown !important;
 }
 
 .text-secondary {
-  color: #8D6E63 !important;
+  color: $brown !important;
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.5s ease-in;
+  animation: fadeIn 0.6s ease-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0; 
+    transform: translateY(30px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
 }
 
 .image-placeholder {
@@ -958,49 +1069,49 @@ $white: #FFFFFF;
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  background: linear-gradient(135deg, $soft-green 0%, $mint-cream 100%);
+  border-radius: $bento-radius;
+  border: 1px solid $glass-border;
 }
 
 .map-container {
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
-.route-dialog-card {
-  min-width: 1100px;
-  
-  .map-card {
-    height: 100%;
-    overflow: hidden;
-    
-    #route-map {
-      min-height: 550px;
-      background: #f0f0f0;
-    }
-  }
+  background: $glass-bg;
+  backdrop-filter: blur(20px);
+  padding: 1.5rem;
+  border-radius: $bento-radius;
+  border: 1px solid $glass-border;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 @media (max-width: 768px) {
   .hero-title {
     font-size: 2rem;
   }
-  
+
   .hero-description {
     font-size: 1rem;
   }
-  
+
   .routes-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .faqs-grid {
     grid-template-columns: 1fr;
   }
   
+  .container-faqs {
+    padding: 0 20px;
+  }
+
   .row {
     flex-direction: column;
   }
-  
+
   .col-md-6, .col-md-4, .col-md-8 {
     width: 100%;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
   }
 }
 </style>
