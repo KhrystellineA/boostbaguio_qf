@@ -195,6 +195,15 @@ export default {
         sessionStorage.setItem('adminData', JSON.stringify(adminData))
         sessionStorage.setItem('adminUid', user.uid)
 
+        // Log admin login
+        const { logAdminLogin } = await import('src/utils/activityLogger')
+        await logAdminLogin({
+          uid: user.uid,
+          name: adminData.name,
+          email: adminData.email,
+          role: adminData.role
+        })
+
         this.$q.notify({
           type: 'positive',
           message: `Welcome back, ${adminData.name || 'Admin'}!`,

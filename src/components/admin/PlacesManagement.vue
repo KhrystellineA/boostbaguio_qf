@@ -5,7 +5,24 @@
         <h4 class="q-my-none text-pine-green">Place Management</h4>
         <p class="text-grey-7 q-mb-none">Manage places and destinations</p>
       </div>
-      <div class="col-auto">
+      <div class="col-auto q-gutter-sm">
+        <q-btn
+          v-if="selectedPlaces.length > 0"
+          color="negative"
+          :label="`Delete Selected (${selectedPlaces.length})`"
+          icon="delete"
+          no-caps
+          @click="bulkDelete"
+        />
+        <q-btn
+          v-if="filteredPlaces.length > 0"
+          color="negative"
+          outline
+          :label="`Delete All (${filteredPlaces.length})`"
+          icon="delete_sweep"
+          no-caps
+          @click="deleteAllPlaces"
+        />
         <q-btn
           unelevated
           style="background: #2d6a4f; color: white"
@@ -38,6 +55,8 @@
           :loading="loading"
           flat
           bordered
+          v-model:selected="selectedPlaces"
+          selection="multiple"
         >
           <template #body-cell-image="props">
             <q-td :props="props">
@@ -401,6 +420,7 @@ export default {
       marker: null,
       locationSearch: '',
       searchingLocation: false,
+      selectedPlaces: [],
       form: {
         name: '',
         categories: [],
@@ -812,6 +832,10 @@ export default {
 
       this.saving = true
       try {
+        const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+        const adminUid = sessionStorage.getItem('adminUid')
+        const { logCreate, logUpdate } = await import('src/utils/activityLogger')
+
         let imageData = {
           imageUrl: this.form.imageUrl || '',
           imagePublicId: this.form.imagePublicId || ''
@@ -844,6 +868,15 @@ export default {
 
         if (this.editingPlace) {
           await updateDoc(doc(db, 'places', this.editingPlace.id), placeData)
+          
+          // Log activity
+          await logUpdate(
+            { uid: adminUid, ...adminData },
+            'places',
+            this.form.name,
+            this.editingPlace.id
+          )
+          
           this.$q.notify({
             type: 'positive',
             message: 'Place updated successfully',
@@ -853,7 +886,16 @@ export default {
           })
         } else {
           placeData.createdAt = serverTimestamp()
-          await addDoc(collection(db, 'places'), placeData)
+          const docRef = await addDoc(collection(db, 'places'), placeData)
+          
+          // Log activity
+          await logCreate(
+            { uid: adminUid, ...adminData },
+            'places',
+            this.form.name,
+            docRef.id
+          )
+          
           this.$q.notify({
             type: 'positive',
             message: 'Place created successfully',
@@ -879,7 +921,7 @@ export default {
       }
     },
 
-    confirmDelete(place) {
+    async confirmDelete(place) {
       this.$q.dialog({
         title: 'Confirm Delete',
         message: `Are you sure you want to delete "${place.name}"?`,
@@ -887,12 +929,24 @@ export default {
         persistent: true
       }).onOk(async () => {
         try {
+          const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+          const adminUid = sessionStorage.getItem('adminUid')
+          const { logDelete } = await import('src/utils/activityLogger')
+
           if (place.imagePath) {
             await this.deleteImage(place.imagePath)
           }
 
           await deleteDoc(doc(db, 'places', place.id))
-          
+
+          // Log activity
+          await logDelete(
+            { uid: adminUid, ...adminData },
+            'places',
+            place.name,
+            place.id
+          )
+
           this.$q.notify({
             type: 'positive',
             message: 'Place deleted successfully',
@@ -907,6 +961,108 @@ export default {
             message: 'Failed to delete place',
             position: 'top'
           })
+        }
+      })
+    },
+
+    async bulkDelete() {
+      if (this.selectedPlaces.length === 0) {
+        this.$q.notify({
+          type: 'warning',
+          message: 'Please select places to delete',
+          position: 'top'
+        })
+        return
+      }
+
+      this.$q.dialog({
+        title: 'Confirm Bulk Delete',
+        message: `Are you sure you want to delete ${this.selectedPlaces.length} place(s)? This action cannot be undone.`,
+        cancel: true,
+        persistent: true
+      }).onOk(async () => {
+        this.loading = true
+        try {
+          const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+          const adminUid = sessionStorage.getItem('adminUid')
+          const { logBulkDelete } = await import('src/utils/activityLogger')
+
+          const deletePromises = this.selectedPlaces.map(place => 
+            deleteDoc(doc(db, 'places', place.id))
+          )
+          await Promise.all(deletePromises)
+
+          // Log activity
+          await logBulkDelete(
+            { uid: adminUid, ...adminData },
+            'places',
+            this.selectedPlaces.length,
+            this.selectedPlaces.map(p => p.id)
+          )
+
+          this.$q.notify({
+            type: 'positive',
+            message: `${this.selectedPlaces.length} place(s) deleted successfully`,
+            position: 'top',
+            icon: 'delete'
+          })
+
+          this.selectedPlaces = []
+          this.loadPlaces()
+        } catch (error) {
+          console.error('[Places] Error bulk deleting:', error)
+          this.$q.notify({
+            type: 'negative',
+            message: 'Failed to delete places',
+            position: 'top'
+          })
+        } finally {
+          this.loading = false
+        }
+      })
+    },
+
+    async deleteAllPlaces() {
+      if (this.filteredPlaces.length === 0) {
+        this.$q.notify({
+          type: 'warning',
+          message: 'No places to delete',
+          position: 'top'
+        })
+        return
+      }
+
+      this.$q.dialog({
+        title: 'Confirm Delete All',
+        message: `Are you sure you want to delete ALL ${this.filteredPlaces.length} place(s)? This action cannot be undone.`,
+        cancel: true,
+        persistent: true
+      }).onOk(async () => {
+        this.loading = true
+        try {
+          const deletePromises = this.filteredPlaces.map(place => 
+            deleteDoc(doc(db, 'places', place.id))
+          )
+          await Promise.all(deletePromises)
+
+          this.$q.notify({
+            type: 'positive',
+            message: `${this.filteredPlaces.length} place(s) deleted successfully`,
+            position: 'top',
+            icon: 'delete'
+          })
+
+          this.selectedPlaces = []
+          this.loadPlaces()
+        } catch (error) {
+          console.error('[Places] Error deleting all:', error)
+          this.$q.notify({
+            type: 'negative',
+            message: 'Failed to delete places',
+            position: 'top'
+          })
+        } finally {
+          this.loading = false
         }
       })
     },

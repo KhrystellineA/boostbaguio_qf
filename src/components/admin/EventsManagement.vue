@@ -5,7 +5,24 @@
         <h4 class="q-my-none text-pine-green">Event Management</h4>
         <p class="text-grey-7 q-mb-none">Manage events and activities</p>
       </div>
-      <div class="col-auto">
+      <div class="col-auto q-gutter-sm">
+        <q-btn
+          v-if="selectedEvents.length > 0"
+          color="negative"
+          :label="`Delete Selected (${selectedEvents.length})`"
+          icon="delete"
+          no-caps
+          @click="bulkDelete"
+        />
+        <q-btn
+          v-if="filteredEvents.length > 0"
+          color="negative"
+          outline
+          :label="`Delete All (${filteredEvents.length})`"
+          icon="delete_sweep"
+          no-caps
+          @click="deleteAllEvents"
+        />
         <q-btn
           unelevated
           style="background: #2d6a4f; color: white"
@@ -38,6 +55,8 @@
           :loading="loading"
           flat
           bordered
+          v-model:selected="selectedEvents"
+          selection="multiple"
         >
           <template #body-cell-image="props">
             <q-td :props="props">
@@ -282,6 +301,7 @@ export default {
       editingEvent: null,
       imageFile: null,
       imagePreview: null,
+      selectedEvents: [],
       form: {
         title: '',
         location: '',
@@ -525,6 +545,10 @@ export default {
 
       this.saving = true
       try {
+        const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+        const adminUid = sessionStorage.getItem('adminUid')
+        const { logCreate, logUpdate } = await import('src/utils/activityLogger')
+
         // Auto-calculate status based on dates and times
         const status = this.calculateStatus(
           this.form.startDate,
@@ -567,6 +591,15 @@ export default {
 
         if (this.editingEvent) {
           await updateDoc(doc(db, 'events', this.editingEvent.id), eventData)
+          
+          // Log activity
+          await logUpdate(
+            { uid: adminUid, ...adminData },
+            'events',
+            this.form.title,
+            this.editingEvent.id
+          )
+          
           this.$q.notify({
             type: 'positive',
             message: 'Event updated successfully',
@@ -576,7 +609,16 @@ export default {
           })
         } else {
           eventData.createdAt = serverTimestamp()
-          await addDoc(collection(db, 'events'), eventData)
+          const docRef = await addDoc(collection(db, 'events'), eventData)
+          
+          // Log activity
+          await logCreate(
+            { uid: adminUid, ...adminData },
+            'events',
+            this.form.title,
+            docRef.id
+          )
+          
           this.$q.notify({
             type: 'positive',
             message: 'Event created successfully',
@@ -610,11 +652,23 @@ export default {
         persistent: true
       }).onOk(async () => {
         try {
+          const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+          const adminUid = sessionStorage.getItem('adminUid')
+          const { logDelete } = await import('src/utils/activityLogger')
+
           if (event.imagePublicId) {
             await this.deleteImage(event.imagePublicId)
           }
 
           await deleteDoc(doc(db, 'events', event.id))
+
+          // Log activity
+          await logDelete(
+            { uid: adminUid, ...adminData },
+            'events',
+            event.title,
+            event.id
+          )
 
           this.$q.notify({
             type: 'positive',
@@ -632,6 +686,108 @@ export default {
             position: 'top',
             timeout: 5000
           })
+        }
+      })
+    },
+
+    async bulkDelete() {
+      if (this.selectedEvents.length === 0) {
+        this.$q.notify({
+          type: 'warning',
+          message: 'Please select events to delete',
+          position: 'top'
+        })
+        return
+      }
+
+      this.$q.dialog({
+        title: 'Confirm Bulk Delete',
+        message: `Are you sure you want to delete ${this.selectedEvents.length} event(s)? This action cannot be undone.`,
+        cancel: true,
+        persistent: true
+      }).onOk(async () => {
+        this.loading = true
+        try {
+          const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+          const adminUid = sessionStorage.getItem('adminUid')
+          const { logBulkDelete } = await import('src/utils/activityLogger')
+
+          const deletePromises = this.selectedEvents.map(event => 
+            deleteDoc(doc(db, 'events', event.id))
+          )
+          await Promise.all(deletePromises)
+
+          // Log activity
+          await logBulkDelete(
+            { uid: adminUid, ...adminData },
+            'events',
+            this.selectedEvents.length,
+            this.selectedEvents.map(e => e.id)
+          )
+
+          this.$q.notify({
+            type: 'positive',
+            message: `${this.selectedEvents.length} event(s) deleted successfully`,
+            position: 'top',
+            icon: 'delete'
+          })
+
+          this.selectedEvents = []
+          this.loadEvents()
+        } catch (error) {
+          console.error('[Events] Error bulk deleting:', error)
+          this.$q.notify({
+            type: 'negative',
+            message: 'Failed to delete events',
+            position: 'top'
+          })
+        } finally {
+          this.loading = false
+        }
+      })
+    },
+
+    async deleteAllEvents() {
+      if (this.filteredEvents.length === 0) {
+        this.$q.notify({
+          type: 'warning',
+          message: 'No events to delete',
+          position: 'top'
+        })
+        return
+      }
+
+      this.$q.dialog({
+        title: 'Confirm Delete All',
+        message: `Are you sure you want to delete ALL ${this.filteredEvents.length} event(s)? This action cannot be undone.`,
+        cancel: true,
+        persistent: true
+      }).onOk(async () => {
+        this.loading = true
+        try {
+          const deletePromises = this.filteredEvents.map(event => 
+            deleteDoc(doc(db, 'events', event.id))
+          )
+          await Promise.all(deletePromises)
+
+          this.$q.notify({
+            type: 'positive',
+            message: `${this.filteredEvents.length} event(s) deleted successfully`,
+            position: 'top',
+            icon: 'delete'
+          })
+
+          this.selectedEvents = []
+          this.loadEvents()
+        } catch (error) {
+          console.error('[Events] Error deleting all:', error)
+          this.$q.notify({
+            type: 'negative',
+            message: 'Failed to delete events',
+            position: 'top'
+          })
+        } finally {
+          this.loading = false
         }
       })
     },

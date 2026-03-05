@@ -167,6 +167,22 @@
               <q-item-label>Analytics</q-item-label>
             </q-item-section>
           </q-item>
+
+          <q-item
+            v-if="adminData.role === 'super_admin'"
+            clickable
+            v-ripple
+            :active="activeMenu === 'activity-logs'"
+            @click="activeMenu = 'activity-logs'"
+            active-class="bg-primary text-white"
+          >
+            <q-item-section avatar>
+              <q-icon name="history" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Activity Logs</q-item-label>
+            </q-item-section>
+          </q-item>
         </q-list>
       </q-scroll-area>
 
@@ -380,6 +396,8 @@
         <AdminsManagement v-else-if="activeMenu === 'admins'" />
 
         <AnalyticsManagement v-else-if="activeMenu === 'analytics'" />
+
+        <ActivityLogsManagement v-else-if="activeMenu === 'activity-logs'" />
       </q-page>
     </q-page-container>
   </q-layout>
@@ -396,6 +414,7 @@ import EventsManagement from 'src/components/admin/EventsManagement.vue'
 import AdminsManagement from 'src/components/admin/AdminsManagement.vue'
 import PhotosManagement from 'src/components/admin/PhotosManagement.vue'
 import AnalyticsManagement from 'src/components/admin/AnalyticsManagement.vue'
+import ActivityLogsManagement from 'src/components/admin/ActivityLogsManagement.vue'
 
 export default {
   name: 'AdminDashboard',
@@ -407,6 +426,7 @@ export default {
     AdminsManagement,
     PhotosManagement,
     AnalyticsManagement,
+    ActivityLogsManagement,
   },
 
   setup() {
@@ -559,7 +579,65 @@ export default {
     },
 
     async loadRecentActivity() {
-      this.recentActivities = []
+      try {
+        const { getRecentActivityLogs } = await import('src/utils/activityLogger')
+        const logs = await getRecentActivityLogs(10)
+
+        this.recentActivities = logs.map(log => ({
+          id: log.id,
+          title: log.description,
+          time: this.formatRelativeTime(log.timestamp),
+          icon: this.getActivityIcon(log.action),
+          color: this.getActionColor(log.action)
+        }))
+      } catch (error) {
+        console.error('[Dashboard] Error loading recent activity:', error)
+        this.recentActivities = []
+      }
+    },
+
+    formatRelativeTime(timestamp) {
+      if (!timestamp) return ''
+      const date = timestamp.toDate()
+      const now = new Date()
+      const diffMs = now - date
+      const diffMins = Math.floor(diffMs / 60000)
+      const diffHours = Math.floor(diffMs / 3600000)
+      const diffDays = Math.floor(diffMs / 86400000)
+
+      if (diffMins < 1) return 'Just now'
+      if (diffMins < 60) return `${diffMins}m ago`
+      if (diffHours < 24) return `${diffHours}h ago`
+      if (diffDays < 7) return `${diffDays}d ago`
+      return date.toLocaleDateString()
+    },
+
+    getActivityIcon(action) {
+      const icons = {
+        create: 'add_circle',
+        update: 'edit',
+        delete: 'delete',
+        bulk_delete: 'delete_sweep',
+        login: 'login',
+        logout: 'logout',
+        export: 'download',
+        import: 'upload_file'
+      }
+      return icons[action] || 'info'
+    },
+
+    getActionColor(action) {
+      const colors = {
+        create: 'green',
+        update: 'blue',
+        delete: 'red',
+        bulk_delete: 'red',
+        login: 'purple',
+        logout: 'grey',
+        export: 'teal',
+        import: 'orange'
+      }
+      return colors[action] || 'grey'
     },
 
     openAddRoute() {
@@ -602,6 +680,20 @@ export default {
 
     async logout() {
       try {
+        // Log admin logout
+        const adminData = this.adminData
+        const adminUid = sessionStorage.getItem('adminUid')
+        
+        if (adminUid && adminData) {
+          const { logAdminLogout } = await import('src/utils/activityLogger')
+          await logAdminLogout({
+            uid: adminUid,
+            name: adminData.name,
+            email: adminData.email,
+            role: adminData.role
+          })
+        }
+
         await signOut(auth)
         sessionStorage.clear()
 
