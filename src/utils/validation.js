@@ -99,7 +99,7 @@ export function phone(phone) {
   }
 
   // Remove spaces, dashes, and parentheses
-  const cleaned = phone.replace(/[\s\-\(\)]/g, '')
+  const cleaned = phone.replace(/[\s\-()]/g, '')
 
   // Philippine mobile number patterns
   // Globe/TM: 0917, 0916, 0915, 0906, 0905, 0935, 0936, 0937, 0945, 0956, 0966, 0977, 0996
