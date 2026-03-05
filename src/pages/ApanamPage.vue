@@ -95,33 +95,69 @@
               <div class="col-md-6 col-12">
                 <div class="frosted-glass-card q-pa-lg">
                   <h4 class="text-primary text-weight-bold q-mb-lg">Enter Your Locations</h4>
-                  
+
                   <div class="q-mb-md">
-                    <q-select
-                      filled
-                      v-model="fromLocation"
-                      :options="locationOptions"
-                      option-label="label"
-                      option-value="value"
-                      label="Starting Point Location"
-                      placeholder="Where are you now?"
-                      @update:model-value="onFromLocationChange"
-                      class="q-mb-sm"
-                    >
-                      <template v-slot:prepend>
-                        <q-icon name="location_on" color="primary" />
-                      </template>
-                    </q-select>
-                    
-                    <q-input
-                      v-if="fromLocation && fromLocation.value === 'other'"
-                      filled
-                      v-model="customFromLocation"
-                      label="Enter Custom Location"
-                      placeholder="Type your starting location"
-                      class="q-mb-sm"
-                    />
-                    
+                    <!-- FROM Location -->
+                    <div class="q-mb-sm">
+                      <div class="input-label q-mb-xs">FROM:</div>
+                      <q-input
+                        v-if="!fromAutoDetect"
+                        v-model="fromLocationText"
+                        filled
+                        placeholder="Enter starting location"
+                        bg-color="white"
+                        class="custom-input"
+                        @keyup.enter="searchFromLocation"
+                      >
+                        <template v-slot:prepend>
+                          <q-icon name="my_location" color="grey-7" />
+                        </template>
+                        <template v-slot:append>
+                          <q-btn
+                            flat
+                            dense
+                            round
+                            icon="search"
+                            color="primary"
+                            size="sm"
+                            @click="searchFromLocation"
+                            style="margin-right: -8px;"
+                          >
+                            <q-tooltip>Search location</q-tooltip>
+                          </q-btn>
+                        </template>
+                      </q-input>
+                      <q-input
+                        v-else
+                        filled
+                        readonly
+                        :value="fromLocationText || 'Detecting your location...'"
+                        bg-color="white"
+                        class="custom-input"
+                        disable
+                      >
+                        <template v-slot:prepend>
+                          <q-icon name="gps_fixed" color="positive" />
+                        </template>
+                        <template v-slot:append>
+                          <q-btn
+                            flat
+                            dense
+                            round
+                            icon="edit"
+                            color="primary"
+                            size="sm"
+                            @click="disableFromAutoDetect"
+                            style="margin-right: -8px;"
+                          >
+                            <q-tooltip>Enter location manually</q-tooltip>
+                          </q-btn>
+                        </template>
+                      </q-input>
+                    </div>
+
+                    <!-- TO Location -->
+                    <div class="text-caption text-weight-bold text-primary q-mb-xs" style="letter-spacing: 0.08em; text-transform: uppercase;">TO:</div>
                     <q-select
                       filled
                       v-model="toLocation"
@@ -136,17 +172,8 @@
                         <q-icon name="location_searching" color="primary" />
                       </template>
                     </q-select>
-                    
-                    <q-input
-                      v-if="toLocation && toLocation.value === 'other'"
-                      filled
-                      v-model="customToLocation"
-                      label="Enter Custom Destination"
-                      placeholder="Type your destination"
-                      class="q-mb-sm"
-                    />
                   </div>
-                  
+
                   <q-btn
                     label="Start Navigation!"
                     color="primary"
@@ -551,8 +578,10 @@ export default defineComponent({
     const $q = useQuasar()
     const route = useRoute()
     const optionsSection = ref(null)
+    const fromLocationText = ref('')
     const fromLocation = ref(null)
     const toLocation = ref(null)
+    const fromAutoDetect = ref(false)
     const customFromLocation = ref('')
     const customToLocation = ref('')
     const isLoadingOptions = ref(false)
@@ -1062,6 +1091,113 @@ export default defineComponent({
       }
     }
 
+    const enableFromAutoDetect = async () => {
+      fromAutoDetect.value = true
+      fromLocation.value = null
+      
+      const loadingNotify = $q.notify({
+        message: 'Detecting your location...',
+        icon: 'gps_not_fixed',
+        color: 'primary',
+        timeout: 0,
+        spinner: true,
+      })
+
+      try {
+        if (!navigator.geolocation) {
+          throw new Error('Geolocation is not supported by your browser')
+        }
+
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          })
+        })
+
+        const { latitude, longitude } = position.coords
+        
+        fromLocation.value = {
+          label: '📍 Your Current Location',
+          value: 'current-location',
+          isCurrentLocation: true,
+          coords: [latitude, longitude]
+        }
+
+        loadingNotify()
+        
+        $q.notify({
+          message: 'Location detected successfully!',
+          icon: 'gps_fixed',
+          color: 'positive',
+          timeout: 2000,
+          position: 'top'
+        })
+      } catch (error) {
+        loadingNotify()
+        fromAutoDetect.value = false
+        fromLocation.value = null
+        
+        $q.notify({
+          message: error.message || 'Unable to detect your location',
+          icon: 'warning',
+          color: 'negative',
+          timeout: 3000,
+          position: 'top'
+        })
+      }
+    }
+
+    const disableFromAutoDetect = () => {
+      fromAutoDetect.value = false
+      fromLocation.value = null
+      fromLocationText.value = ''
+    }
+
+    const searchFromLocation = () => {
+      if (!fromLocationText.value.trim()) {
+        $q.notify({
+          message: 'Please enter a location',
+          icon: 'warning',
+          color: 'warning',
+          timeout: 2000,
+          position: 'top'
+        })
+        return
+      }
+
+      // For now, just store the text as the location
+      fromLocation.value = {
+        label: fromLocationText.value,
+        value: 'custom-location',
+        isCurrentLocation: false,
+        coords: null
+      }
+
+      $q.notify({
+        message: `Searching for "${fromLocationText.value}"...`,
+        icon: 'search',
+        color: 'primary',
+        timeout: 2000,
+        position: 'top'
+      })
+    }
+
+    const filterToLocations = (val, update) => {
+      update(() => {
+        const needle = val.toLowerCase()
+        if (needle === '') {
+          locationOptions.value = locationOptions.value.filter(opt => opt.value !== 'other')
+        } else {
+          const filtered = locationOptions.value.filter(
+            (loc) => loc.label.toLowerCase().indexOf(needle) > -1
+          )
+          locationOptions.value = filtered
+        }
+      })
+    }
+
     const onFromLocationChange = (val) => {
       if (val) {
         selectedFromLocation.value = val
@@ -1230,8 +1366,10 @@ export default defineComponent({
     })
 
     return {
+      fromLocationText,
       fromLocation,
       toLocation,
+      fromAutoDetect,
       customFromLocation,
       customToLocation,
       isLoadingOptions,
@@ -1257,6 +1395,10 @@ export default defineComponent({
       resetSelection,
       onFromLocationChange,
       onToLocationChange,
+      enableFromAutoDetect,
+      disableFromAutoDetect,
+      searchFromLocation,
+      filterToLocations,
       isScrolled,
       onScroll,
       getWalkingInstructions,
@@ -1399,18 +1541,175 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 }
 
 .frosted-glass-card {
-  background: $glass-bg;
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-radius: $bento-radius;
-  border: 1px solid $glass-border;
-  box-shadow: $glass-shadow;
-  height: 100%;
-  transition: all 0.3s ease;
-  
+  border-radius: 20px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 520px;
+  margin-left: auto;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.3);
+  border: none;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      transparent 100%
+    );
+    border-radius: 20px 20px 0 0;
+    pointer-events: none;
+  }
+
   &:hover {
-    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.12);
-    transform: translateY(-4px);
+    transform: translateY(-8px);
+    box-shadow:
+      0 32px 80px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.5);
+  }
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba($primary-green, 0.15);
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: $primary-green;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.input-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: $brown;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.input-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+
+  .input-label {
+    margin-bottom: 0;
+  }
+}
+
+.custom-input {
+  :deep(.q-field__control) {
+    border-radius: 10px;
+    min-height: 48px;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(248, 248, 248, 1) 100%
+    );
+    transition: all 0.3s ease;
+    border: 1.5px solid rgba($primary-green, 0.15);
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.06),
+      0 1px 0 rgba(255, 255, 255, 1);
+
+    &:hover {
+      box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.08),
+        0 4px 12px rgba($primary-green, 0.1);
+      border-color: $primary-green;
+    }
+
+    &.q-field--focused {
+      border-color: $primary-green;
+      box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.1),
+        0 6px 20px rgba($primary-green, 0.15),
+        0 0 0 3px rgba($primary-green, 0.08);
+    }
+  }
+
+  :deep(.q-field__native) {
+    font-size: 0.9rem;
+    color: $dark-green;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+
+  :deep(.q-field__label) {
+    color: #999;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+}
+
+.start-nav-btn {
+  background: linear-gradient(
+    180deg,
+    $primary-green 0%,
+    $dark-green 100%
+  ) !important;
+  color: white !important;
+  font-weight: 600;
+  border-radius: 10px;
+  text-transform: none;
+  font-size: 0.95rem;
+  width: 100%;
+  height: 48px;
+  letter-spacing: 0.02em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow:
+    0 4px 16px rgba($primary-green, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      transparent 100%
+    );
+    border-radius: 10px 10px 0 0;
+    pointer-events: none;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 8px 24px rgba($primary-green, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow:
+      0 4px 12px rgba($primary-green, 0.3),
+      inset 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 }
 

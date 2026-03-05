@@ -35,32 +35,63 @@
                     <q-icon name="navigation" size="24px" class="q-mr-sm" />
                     <span class="card-title">APANAM - Point to Point Navigation</span>
                   </div>
-                  
+
                   <div class="input-group">
                     <div class="input-label">FROM:</div>
-                    <q-select
-                      v-model="fromLocation"
-                      :options="fromLocationOptions"
+                    <q-input
+                      v-if="!fromAutoDetect"
+                      v-model="fromLocationText"
                       filled
-                      use-input
-                      input-debounce="300"
                       placeholder="Enter starting location"
                       bg-color="white"
                       class="custom-input"
-                      @filter="filterFromLocations"
-                      behavior="menu"
+                      @keyup.enter="searchFromLocation"
                     >
                       <template v-slot:prepend>
-                        <q-icon name="my_location" />
+                        <q-icon name="my_location" color="grey-7" />
                       </template>
-                      <template v-slot:no-option>
-                        <q-item>
-                          <q-item-section class="text-grey">
-                            Type to search Baguio locations...
-                          </q-item-section>
-                        </q-item>
+                      <template v-slot:append>
+                        <q-btn
+                          flat
+                          dense
+                          round
+                          icon="search"
+                          color="primary"
+                          size="sm"
+                          @click="searchFromLocation"
+                          style="margin-right: -8px;"
+                        >
+                          <q-tooltip>Search location</q-tooltip>
+                        </q-btn>
                       </template>
-                    </q-select>
+                    </q-input>
+                    <q-input
+                      v-else
+                      filled
+                      readonly
+                      :value="fromLocationText || 'Detecting your location...'"
+                      bg-color="white"
+                      class="custom-input"
+                      disable
+                    >
+                      <template v-slot:prepend>
+                        <q-icon name="gps_fixed" color="positive" />
+                      </template>
+                      <template v-slot:append>
+                        <q-btn
+                          flat
+                          dense
+                          round
+                          icon="edit"
+                          color="primary"
+                          size="sm"
+                          @click="disableFromAutoDetect"
+                          style="margin-right: -8px;"
+                        >
+                          <q-tooltip>Enter location manually</q-tooltip>
+                        </q-btn>
+                      </template>
+                    </q-input>
                   </div>
 
                   <div class="input-group">
@@ -79,13 +110,6 @@
                     >
                       <template v-slot:prepend>
                         <q-icon name="place" />
-                      </template>
-                      <template v-slot:no-option>
-                        <q-item>
-                          <q-item-section class="text-grey">
-                            Type to search Baguio locations...
-                          </q-item-section>
-                        </q-item>
                       </template>
                     </q-select>
                   </div>
@@ -169,10 +193,12 @@ export default {
   setup() {
     const router = useRouter()
     const $q = useQuasar()
+    const fromLocationText = ref('')
     const fromLocation = ref(null)
     const toLocation = ref(null)
     const fromLocationOptions = ref([])
     const toLocationOptions = ref([])
+    const fromAutoDetect = ref(false)
     const heroImage = ref('')
     const defaultHeroImage = 'https://images.unsplash.com/photo-1511497584788-876760111969?w=1920&h=900&fit=crop'
 
@@ -252,26 +278,11 @@ export default {
       update(() => {
         const needle = val.toLowerCase()
         if (needle === '') {
-          fromLocationOptions.value = [
-            {
-              label: '📍 Use Current Location',
-              value: 'current-location',
-              isCurrentLocation: true,
-            },
-            ...baguioLocations,
-          ]
+          fromLocationOptions.value = baguioLocations
         } else {
-          const filtered = baguioLocations.filter(
+          fromLocationOptions.value = baguioLocations.filter(
             (loc) => loc.label.toLowerCase().indexOf(needle) > -1
           )
-          fromLocationOptions.value = [
-            {
-              label: '📍 Use Current Location',
-              value: 'current-location',
-              isCurrentLocation: true,
-            },
-            ...filtered,
-          ]
         }
       })
     }
@@ -286,6 +297,100 @@ export default {
             (loc) => loc.label.toLowerCase().indexOf(needle) > -1
           )
         }
+      })
+    }
+
+    const enableFromAutoDetect = async () => {
+      fromAutoDetect.value = true
+      
+      const loadingNotify = $q.notify({
+        message: 'Detecting your location...',
+        icon: 'gps_not_fixed',
+        color: 'primary',
+        timeout: 0,
+        spinner: true,
+      })
+
+      try {
+        if (!navigator.geolocation) {
+          throw new Error('Geolocation is not supported by your browser')
+        }
+
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          })
+        })
+
+        const { latitude, longitude } = position.coords
+        
+        fromLocationText.value = 'Your Current Location'
+        fromLocation.value = {
+          label: '📍 Your Current Location',
+          value: 'current-location',
+          isCurrentLocation: true,
+          coords: [latitude, longitude]
+        }
+
+        loadingNotify()
+        
+        $q.notify({
+          message: 'Location detected successfully!',
+          icon: 'gps_fixed',
+          color: 'positive',
+          timeout: 2000,
+          position: 'top'
+        })
+      } catch (error) {
+        loadingNotify()
+        fromAutoDetect.value = false
+        fromLocationText.value = ''
+        fromLocation.value = null
+        
+        $q.notify({
+          message: error.message || 'Unable to detect your location',
+          icon: 'warning',
+          color: 'negative',
+          timeout: 3000,
+          position: 'top'
+        })
+      }
+    }
+
+    const disableFromAutoDetect = () => {
+      fromAutoDetect.value = false
+      fromLocation.value = null
+    }
+
+    const searchFromLocation = () => {
+      if (!fromLocationText.value.trim()) {
+        $q.notify({
+          message: 'Please enter a location',
+          icon: 'warning',
+          color: 'warning',
+          timeout: 2000,
+          position: 'top'
+        })
+        return
+      }
+
+      // For now, just store the text as the location
+      // In production, you would call a geocoding API here
+      fromLocation.value = {
+        label: fromLocationText.value,
+        value: 'custom-location',
+        isCurrentLocation: false,
+        coords: null // Would get from geocoding API
+      }
+
+      $q.notify({
+        message: `Searching for "${fromLocationText.value}"...`,
+        icon: 'search',
+        color: 'primary',
+        timeout: 2000,
+        position: 'top'
       })
     }
 
@@ -364,10 +469,7 @@ export default {
       loadHeroImage()
 
       // Initialize location options
-      fromLocationOptions.value = [
-        { label: '📍 Use Current Location', value: 'current-location', isCurrentLocation: true },
-        ...baguioLocations,
-      ]
+      fromLocationOptions.value = [...baguioLocations]
       toLocationOptions.value = [...baguioLocations]
 
       // Setup scroll animations
@@ -383,14 +485,19 @@ export default {
     })
 
     return {
+      fromLocationText,
       fromLocation,
       toLocation,
       fromLocationOptions,
       toLocationOptions,
+      fromAutoDetect,
       heroImage,
       defaultHeroImage,
       filterFromLocations,
       filterToLocations,
+      enableFromAutoDetect,
+      disableFromAutoDetect,
+      searchFromLocation,
       startNavigation,
       partners,
       scrollToFeatures,
@@ -698,6 +805,23 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     0 24px 64px rgba(0, 0, 0, 0.2),
     0 0 0 1px rgba(255, 255, 255, 0.3);
   border: none;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      transparent 100%
+    );
+    border-radius: 20px 20px 0 0;
+    pointer-events: none;
+  }
 
   &:hover {
     transform: translateY(-8px);
@@ -721,6 +845,7 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   color: $primary-green;
   letter-spacing: 0.02em;
   line-height: 1.3;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 .input-group {
@@ -738,39 +863,69 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   margin-bottom: 0.5rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+.input-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+
+  .input-label {
+    margin-bottom: 0;
+  }
 }
 
 .custom-input {
   :deep(.q-field__control) {
     border-radius: 10px;
     min-height: 48px;
-    background: $white;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(248, 248, 248, 1) 100%
+    );
     transition: all 0.3s ease;
     border: 1.5px solid rgba($primary-green, 0.15);
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.06),
+      0 1px 0 rgba(255, 255, 255, 1);
 
     &:hover {
-      box-shadow: 0 4px 12px rgba($primary-green, 0.1);
+      box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.08),
+        0 4px 12px rgba($primary-green, 0.1);
       border-color: $primary-green;
     }
 
     &.q-field--focused {
       border-color: $primary-green;
-      box-shadow: 0 6px 20px rgba($primary-green, 0.15);
+      box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.1),
+        0 6px 20px rgba($primary-green, 0.15),
+        0 0 0 3px rgba($primary-green, 0.08);
     }
   }
 
   :deep(.q-field__native) {
     font-size: 0.9rem;
     color: $dark-green;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
   }
 
   :deep(.q-field__label) {
     color: #999;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
   }
 }
 
 .start-nav-btn {
-  background: $primary-green !important;
+  background: linear-gradient(
+    180deg,
+    $primary-green 0%,
+    $dark-green 100%
+  ) !important;
   color: white !important;
   font-weight: 600;
   border-radius: 10px;
@@ -780,16 +935,40 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   height: 48px;
   letter-spacing: 0.02em;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 16px rgba($primary-green, 0.3);
+  box-shadow:
+    0 4px 16px rgba($primary-green, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      transparent 100%
+    );
+    border-radius: 10px 10px 0 0;
+    pointer-events: none;
+  }
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba($primary-green, 0.4);
-    background: $dark-green !important;
+    box-shadow:
+      0 8px 24px rgba($primary-green, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
   }
 
   &:active {
     transform: translateY(0);
+    box-shadow:
+      0 4px 12px rgba($primary-green, 0.3),
+      inset 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 }
 
