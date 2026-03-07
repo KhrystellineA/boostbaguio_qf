@@ -68,25 +68,23 @@
               outlined
               label="Password"
               :type="showPassword ? 'text' : 'password'"
-              class="q-mb-md password-input"
+              class="q-mb-md"
               :rules="[
                 v => !!v || 'Password required',
                 v => v.length >= 6 || 'Min 6 characters'
               ]"
               autocomplete="current-password"
-              bg-color="grey-1"
+              @keyup.enter="onSubmit"
             >
               <template #prepend>
-                <q-icon name="lock" color="white" class="icon-bg" />
+                <q-icon name="lock" color="primary" />
               </template>
               <template #append>
-                <div class="password-toggle-wrapper" @click.stop="togglePasswordVisibility">
-                  <q-icon
-                    :name="showPassword ? 'visibility' : 'visibility_off'"
-                    class="toggle-password-icon"
-                    color="grey-6"
-                  />
-                </div>
+                <q-icon
+                  :name="showPassword ? 'visibility' : 'visibility_off'"
+                  class="cursor-pointer"
+                  @click.stop="showPassword = !showPassword"
+                />
               </template>
             </q-input>
 
@@ -156,10 +154,6 @@ export default {
   },
 
   methods: {
-    togglePasswordVisibility() {
-      this.showPassword = !this.showPassword
-    },
-
     async onSubmit() {
       this.loading = true
       
@@ -497,33 +491,6 @@ export default {
   background: #2E5D3E
   border-radius: 50%
   padding: 8px
-
-.password-input
-  :deep(.q-field__append)
-    padding: 0 8px
-    
-.password-toggle-wrapper
-  display: flex
-  align-items: center
-  justify-content: center
-  padding: 8px
-  margin-right: 8px
-  cursor: pointer
-  z-index: 10
-  position: relative
-  
-  &:hover
-    .toggle-password-icon
-      color: #2E5D3E !important
-      transform: scale(1.1)
-  
-  &:active
-    .toggle-password-icon
-      transform: scale(0.95)
-
-.toggle-password-icon
-  transition: all 0.2s ease
-  font-size: 20px
 
 // Decorative Elements
 .decoration-elements
