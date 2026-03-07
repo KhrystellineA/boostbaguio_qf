@@ -9,16 +9,15 @@
  * 
  * Requirements:
  *   - Firebase Admin SDK initialized
- *   - Service account credentials
- *   - Admin documents exist in Firestore
+ *   - Service account credentials in .env file
  */
 
 import { initializeApp, cert, getApps } from 'firebase-admin/app'
-import { getFirestore, collection, getDocs } from 'firebase-admin/firestore'
+import { getFirestore } from 'firebase-admin/firestore'
 import { getAuth } from 'firebase-admin/auth'
 import dotenv from 'dotenv'
 
-// Load environment variables
+// Load environment variables from .env
 dotenv.config()
 
 // Initialize Firebase Admin SDK
@@ -83,7 +82,8 @@ async function setAdminCustomClaims() {
 
   try {
     // Get all admin documents
-    const adminsSnapshot = await getDocs(collection(db, 'admins'))
+    const adminsRef = db.collection('admins')
+    const adminsSnapshot = await adminsRef.get()
 
     if (adminsSnapshot.empty) {
       console.log('⚠️ No admin documents found in Firestore')
