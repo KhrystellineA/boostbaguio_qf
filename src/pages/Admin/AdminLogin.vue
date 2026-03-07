@@ -80,10 +80,14 @@
                 <q-icon name="lock" color="primary" />
               </template>
               <template #append>
-                <q-icon
-                  :name="showPassword ? 'visibility' : 'visibility_off'"
-                  class="cursor-pointer"
+                <q-btn
+                  flat
+                  dense
+                  round
+                  :icon="showPassword ? 'visibility' : 'visibility_off'"
                   @click.stop="showPassword = !showPassword"
+                  type="button"
+                  size="sm"
                 />
               </template>
             </q-input>
@@ -444,17 +448,15 @@ export default {
       padding: 16px
 
     :deep(.q-field__append)
-      padding: 0 12px !important
+      padding: 0 !important
       margin: 0 !important
       z-index: 100 !important
       position: relative !important
-      pointer-events: auto !important
       
-      .q-icon
-        pointer-events: auto !important
-        cursor: pointer !important
+      .q-btn
         z-index: 101 !important
         position: relative !important
+        pointer-events: auto !important
 
 .login-btn
   background: linear-gradient(135deg, #2E5D3E 0%, #4A7D5D 100%)
