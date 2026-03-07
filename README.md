@@ -42,3 +42,5 @@ quasar build
 ### Customize the configuration
 
 See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
+
+[![CI/CD](https://github.com/KhrystellineA/boostbaguio_qf/actions/workflows/ci.yml/badge.svg)](https://github.com/KhrystellineA/boostbaguio_qf/actions/workflows/ci.yml)
