@@ -63,34 +63,38 @@
               </template>
             </q-input>
 
-            <q-input
-              v-model="password"
-              outlined
-              label="Password"
-              :type="showPassword ? 'text' : 'password'"
-              class="q-mb-md"
-              :rules="[
-                v => !!v || 'Password required',
-                v => v.length >= 6 || 'Min 6 characters'
-              ]"
-              autocomplete="current-password"
-              @keyup.enter="onSubmit"
-            >
-              <template #prepend>
-                <q-icon name="lock" color="primary" />
-              </template>
-              <template #append>
-                <q-btn
-                  flat
-                  dense
-                  round
-                  :icon="showPassword ? 'visibility' : 'visibility_off'"
-                  @click.stop="showPassword = !showPassword"
-                  type="button"
-                  size="sm"
-                />
-              </template>
-            </q-input>
+            <div class="password-field-wrapper">
+              <q-input
+                v-model="password"
+                outlined
+                label="Password"
+                :type="showPassword ? 'text' : 'password'"
+                class="q-mb-md"
+                :rules="[
+                  v => !!v || 'Password required',
+                  v => v.length >= 6 || 'Min 6 characters'
+                ]"
+                autocomplete="current-password"
+                @keyup.enter="onSubmit"
+              >
+                <template #prepend>
+                  <q-icon name="lock" color="primary" />
+                </template>
+              </q-input>
+              <q-btn
+                flat
+                dense
+                round
+                :icon="showPassword ? 'visibility' : 'visibility_off'"
+                @click="showPassword = !showPassword"
+                type="button"
+                size="sm"
+                class="password-toggle-btn"
+                color="grey-7"
+              >
+                <q-tooltip>Toggle password visibility</q-tooltip>
+              </q-btn>
+            </div>
 
             <q-btn
               type="submit"
@@ -435,6 +439,18 @@ export default {
     margin: 0
 
 .login-form
+  .password-field-wrapper
+    position: relative
+    
+    .q-input
+      margin-bottom: 8px !important
+    
+    .password-toggle-btn
+      position: absolute
+      top: 12px
+      right: 12px
+      z-index: 1000 !important
+      
   .q-field
     :deep(.q-field__control)
       border-radius: 12px
@@ -446,17 +462,6 @@ export default {
 
     :deep(.q-field__native)
       padding: 16px
-
-    :deep(.q-field__append)
-      padding: 0 !important
-      margin: 0 !important
-      z-index: 100 !important
-      position: relative !important
-      
-      .q-btn
-        z-index: 101 !important
-        position: relative !important
-        pointer-events: auto !important
 
 .login-btn
   background: linear-gradient(135deg, #2E5D3E 0%, #4A7D5D 100%)
