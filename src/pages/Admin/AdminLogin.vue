@@ -82,11 +82,20 @@
               <template #append>
                 <q-icon
                   :name="showPassword ? 'visibility' : 'visibility_off'"
-                  class="cursor-pointer"
+                  style="cursor: pointer; z-index: 9999; position: relative;"
                   @click.stop="showPassword = !showPassword"
                 />
               </template>
             </q-input>
+
+            <!-- Debug button -->
+            <q-btn 
+              label="Test Toggle (DEBUG)" 
+              size="sm" 
+              @click="showPassword = !showPassword"
+              class="q-mb-md"
+              color="orange"
+            />
 
             <q-btn
               type="submit"
@@ -435,13 +444,26 @@ export default {
     :deep(.q-field__control)
       border-radius: 12px
       height: 56px
-    
+
     :deep(.q-field__label)
       font-size: 15px
       font-weight: 500
-    
+
     :deep(.q-field__native)
       padding: 16px
+
+    :deep(.q-field__append)
+      padding: 0 12px !important
+      margin: 0 !important
+      z-index: 100 !important
+      position: relative !important
+      pointer-events: auto !important
+      
+      .q-icon
+        pointer-events: auto !important
+        cursor: pointer !important
+        z-index: 101 !important
+        position: relative !important
 
 .login-btn
   background: linear-gradient(135deg, #2E5D3E 0%, #4A7D5D 100%)
