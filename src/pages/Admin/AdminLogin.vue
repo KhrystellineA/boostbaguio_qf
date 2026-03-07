@@ -82,9 +82,9 @@
               <template #append>
                 <q-icon
                   :name="showPassword ? 'visibility' : 'visibility_off'"
-                  class="cursor-pointer"
+                  class="cursor-pointer toggle-password"
                   color="grey-6"
-                  @click="showPassword = !showPassword"
+                  @click="togglePasswordVisibility"
                 />
               </template>
             </q-input>
@@ -155,6 +155,10 @@ export default {
   },
 
   methods: {
+    togglePasswordVisibility() {
+      this.showPassword = !this.showPassword
+    },
+
     async onSubmit() {
       this.loading = true
       
@@ -492,6 +496,18 @@ export default {
   background: #2E5D3E
   border-radius: 50%
   padding: 8px
+
+.toggle-password
+  padding: 8px
+  margin-right: 8px
+  transition: all 0.2s ease
+
+  &:hover
+    color: #2E5D3E !important
+    transform: scale(1.1)
+
+  &:active
+    transform: scale(0.95)
 
 // Decorative Elements
 .decoration-elements
