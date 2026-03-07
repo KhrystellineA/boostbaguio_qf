@@ -1,225 +1,177 @@
 /**
- * Cloudinary Image Upload Utility
- * 
- * Free alternative to Firebase Storage for image uploads.
- * Free tier: 25GB storage, 25GB bandwidth/month
- * 
- * Setup:
- * 1. Sign up at https://cloudinary.com/
- * 2. Get your cloud name from dashboard
- * 3. Create an upload preset (Settings > Upload > Add upload preset)
- *    - Signing mode: Unsigned
- *    - Add allowed folders if needed
- * 4. Add to .env:
- *    VITE_CLOUDINARY_CLOUD_NAME=your_cloud_name
- *    VITE_CLOUDINARY_UPLOAD_PRESET=your_preset_name
- * 
- * @example
- * const imageUrl = await uploadImage(file, 'events')
- * // Store imageUrl in Firestore
+ * Cloudinary Image Optimization Utilities
+ * Provides optimized image URLs with transformations
+ */
+
+const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || 'dc9vkemqm'
+const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'BoostBaguio'
+
+/**
+ * Image transformation options
+ * @typedef {Object} CloudinaryTransform
+ * @property {number} [width] - Target width
+ * @property {number} [height] - Target height
+ * @property {number} [quality] - Quality (1-100)
+ * @property {string} [format] - Output format (auto, webp, jpg, png)
+ * @property {string} [crop] - Crop mode (fill, fit, crop, scale)
  */
 
 /**
- * Upload an image to Cloudinary
- * @param {File} file - The image file to upload
- * @param {string} folder - Optional folder name in Cloudinary
- * @returns {Promise<{url: string, publicId: string, width: number, height: number}>}
+ * Generate optimized Cloudinary URL
+ * @param {string} publicId - Cloudinary public ID or full URL
+ * @param {CloudinaryTransform} options - Transformation options
+ * @returns {string} Optimized image URL
  */
-export async function uploadImage(file, folder = 'baguiboost') {
-  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
-  const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
-
-  if (!cloudName || !uploadPreset) {
-    throw new Error(
-      'Cloudinary not configured. Please add VITE_CLOUDINARY_CLOUD_NAME and VITE_CLOUDINARY_UPLOAD_PRESET to your .env file'
-    )
-  }
-
-  const formData = new FormData()
-  formData.append('file', file)
-  formData.append('upload_preset', uploadPreset)
-  
-  if (folder) {
-    formData.append('folder', folder)
-  }
-
-  try {
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
-      {
-        method: 'POST',
-        body: formData
-      }
-    )
-
-    if (!response.ok) {
-      throw new Error(`Upload failed: ${response.statusText}`)
-    }
-
-    const data = await response.json()
-
-    return {
-      url: data.secure_url,
-      publicId: data.public_id,
-      width: data.width,
-      height: data.height,
-      format: data.format,
-      bytes: data.bytes
-    }
-  } catch (error) {
-    console.error('[Cloudinary] Upload error:', error)
-    throw error
-  }
-}
-
-/**
- * Upload multiple images
- * @param {File[]} files - Array of image files
- * @param {string} folder - Optional folder name
- * @returns {Promise<string[]>} Array of image URLs
- */
-export async function uploadMultipleImages(files, folder = 'baguiboost') {
-  const results = await Promise.all(
-    files.map(file => uploadImage(file, folder))
-  )
-  return results.map(result => result.url)
-}
-
-/**
- * Delete an image from Cloudinary
- * Note: Requires signed uploads with API secret (server-side only)
- * For client-side only apps, consider images as permanent
- * or implement a cleanup strategy
- * 
- * @param {string} publicId - The public ID of the image to delete
- * @returns {void}
- */
-export async function deleteImage(publicId) {
-  console.warn(
-    '[Cloudinary] Delete requires server-side API. ' +
-    'Consider implementing a cleanup cron job or marking images as deleted in Firestore.',
-    publicId
-  )
-  // For client-side only apps, you can:
-  // 1. Mark as deleted in Firestore
-  // 2. Use Cloudinary's delete API from a Cloud Function (requires Blaze plan)
-  // 3. Implement periodic cleanup manually via Cloudinary dashboard
-}
-
-/**
- * Generate Cloudinary transformation URL
- * @param {string} publicId - The public ID of the image
- * @param {Object} options - Transformation options
- * @returns {string} Transformed image URL
- * 
- * @example
- * const thumbnail = getTransformedImageUrl('events/img123', {
- *   width: 300,
- *   height: 200,
- *   crop: 'fill'
- * })
- */
-export function getTransformedImageUrl(publicId, options = {}) {
-  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
-  
-  if (!cloudName) {
-    return ''
-  }
-
-  const transformations = []
-  
-  if (options.width) transformations.push(`w_${options.width}`)
-  if (options.height) transformations.push(`h_${options.height}`)
-  if (options.crop) transformations.push(`c_${options.crop}`)
-  if (options.quality) transformations.push(`q_${options.quality}`)
-  if (options.format) transformations.push(`f_${options.format}`)
-
-  const transformString = transformations.join(',')
-  const transformPath = transformString ? `${transformString}/` : ''
-
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${transformPath}${publicId}`
-}
-
-/**
- * Compress and optimize image before upload
- * @param {File} file - Original image file
- * @param {Object} options - Compression options
- * @returns {Promise<File>} Compressed image file
- */
-export async function compressImage(file, options = {}) {
+export function getOptimizedImageUrl(publicId, options = {}) {
   const {
-    maxWidth = 1920,
-    maxHeight = 1080,
-    quality = 0.8,
-    format = 'image/jpeg'
+    width = 1920,
+    height = 1080,
+    quality = 85,
+    format = 'auto',
+    crop = 'fill'
   } = options
 
-  return new Promise((resolve, reject) => {
-    const img = new Image()
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-
-    img.onload = () => {
-      // Calculate new dimensions maintaining aspect ratio
-      let width = img.width
-      let height = img.height
-
-      if (width > maxWidth) {
-        height = (height * maxWidth) / width
-        width = maxWidth
-      }
-
-      if (height > maxHeight) {
-        width = (width * maxHeight) / height
-        height = maxHeight
-      }
-
-      canvas.width = width
-      canvas.height = height
-
-      ctx.drawImage(img, 0, 0, width, height)
-
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) {
-            reject(new Error('Compression failed'))
-            return
-          }
-
-          const compressedFile = new File([blob], file.name, {
-            type: format,
-            lastModified: Date.now()
-          })
-
-          resolve(compressedFile)
-        },
-        format,
-        quality
-      )
+  // If it's already a full Cloudinary URL, extract the public ID
+  if (publicId.includes('cloudinary.com')) {
+    const match = publicId.match(/\/upload\/(.+)$/)
+    if (match) {
+      publicId = match[1]
     }
+  }
 
-    img.onerror = () => reject(new Error('Failed to load image'))
-    img.src = URL.createObjectURL(file)
+  // If it's a relative path or external URL, return as-is
+  if (publicId.startsWith('/') || publicId.startsWith('http')) {
+    return publicId
+  }
+
+  // Build transformation string
+  const transforms = [
+    `w_${width}`,
+    `h_${height}`,
+    `q_${quality}`,
+    `f_${format}`,
+    `c_${crop}`
+  ]
+
+  const transformation = transforms.join(',')
+
+  return `https://res.cloudinary.com/${cloudName}/image/upload/${transformation}/${publicId}`
+}
+
+/**
+ * Generate responsive image srcset
+ * @param {string} publicId - Cloudinary public ID
+ * @param {number[]} widths - Array of widths for srcset
+ * @returns {string} Srcset string
+ */
+export function getSrcSet(publicId, widths = [400, 800, 1200, 1600, 2000]) {
+  return widths
+    .map(w => `${getOptimizedImageUrl(publicId, { width: w })} ${w}w`)
+    .join(', ')
+}
+
+/**
+ * Get Cloudinary upload URL
+ * @returns {string} Upload URL
+ */
+export function getUploadUrl() {
+  return `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`
+}
+
+/**
+ * Get Cloudinary upload params
+ * @returns {Object} Upload params
+ */
+export function getUploadParams() {
+  return {
+    cloud_name: cloudName,
+    upload_preset: uploadPreset
+  }
+}
+
+/**
+ * Lazy load image helper
+ * @param {HTMLImageElement} img - Image element
+ * @param {string} src - Image source
+ * @returns {Promise<void>}
+ */
+export function lazyLoadImage(img, src) {
+  return new Promise((resolve, reject) => {
+    img.onload = () => resolve()
+    img.onerror = reject
+    img.src = src
   })
 }
 
 /**
- * Upload with automatic compression
- * @param {File} file - Image file to upload
- * @param {string} folder - Folder name
- * @param {Object} compressOptions - Compression options
- * @returns {Promise<Object>} Upload result
+ * Preload image
+ * @param {string} src - Image source to preload
+ * @returns {Promise<void>}
  */
-export async function uploadOptimizedImage(file, folder = 'baguiboost', compressOptions = {}) {
-  const compressedFile = await compressImage(file, compressOptions)
-  return uploadImage(compressedFile, folder)
+export function preloadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => resolve()
+    img.onerror = reject
+    img.src = src
+  })
 }
 
-export default {
-  uploadImage,
-  uploadMultipleImages,
-  deleteImage,
-  getTransformedImageUrl,
-  compressImage,
-  uploadOptimizedImage
+/**
+ * Image optimization presets for common use cases
+ */
+export const ImagePresets = {
+  /** Hero/Banner images */
+  hero: {
+    width: 1920,
+    height: 1080,
+    quality: 85,
+    format: 'auto',
+    crop: 'fill'
+  },
+
+  /** Card/thumbnail images */
+  thumbnail: {
+    width: 400,
+    height: 300,
+    quality: 80,
+    format: 'webp',
+    crop: 'fill'
+  },
+
+  /** Gallery images */
+  gallery: {
+    width: 800,
+    height: 600,
+    quality: 85,
+    format: 'auto',
+    crop: 'fill'
+  },
+
+  /** Profile/avatar images */
+  avatar: {
+    width: 200,
+    height: 200,
+    quality: 80,
+    format: 'auto',
+    crop: 'fill'
+  },
+
+  /** Product/item images */
+  product: {
+    width: 600,
+    height: 600,
+    quality: 85,
+    format: 'auto',
+    crop: 'fill'
+  },
+
+  /** Background images */
+  background: {
+    width: 1920,
+    height: 1080,
+    quality: 75,
+    format: 'auto',
+    crop: 'fill'
+  }
 }

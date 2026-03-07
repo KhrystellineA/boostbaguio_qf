@@ -61,9 +61,15 @@ export default defineConfig((/* ctx */) => {
       rollupOptions: {
         output: {
           manualChunks: {
+            // Core dependencies
             'vendor-core': ['vue', 'vue-router', 'pinia', 'quasar'],
+            // Firebase - lazy loaded
             'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
-            'vendor-utils': ['leaflet', 'chart.js', 'vue-chartjs']
+            // Heavy libraries - lazy loaded
+            'vendor-maps': ['leaflet'],
+            'vendor-charts': ['chart.js', 'vue-chartjs'],
+            // Utilities
+            'vendor-utils': ['cropperjs', 'vue-cropperjs']
           }
         }
       },
