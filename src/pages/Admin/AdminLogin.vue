@@ -68,7 +68,7 @@
               outlined
               label="Password"
               :type="showPassword ? 'text' : 'password'"
-              class="q-mb-md"
+              class="q-mb-md password-input"
               :rules="[
                 v => !!v || 'Password required',
                 v => v.length >= 6 || 'Min 6 characters'
@@ -80,12 +80,13 @@
                 <q-icon name="lock" color="white" class="icon-bg" />
               </template>
               <template #append>
-                <q-icon
-                  :name="showPassword ? 'visibility' : 'visibility_off'"
-                  class="cursor-pointer toggle-password"
-                  color="grey-6"
-                  @click="togglePasswordVisibility"
-                />
+                <div class="password-toggle-wrapper" @click.stop="togglePasswordVisibility">
+                  <q-icon
+                    :name="showPassword ? 'visibility' : 'visibility_off'"
+                    class="toggle-password-icon"
+                    color="grey-6"
+                  />
+                </div>
               </template>
             </q-input>
 
@@ -497,17 +498,32 @@ export default {
   border-radius: 50%
   padding: 8px
 
-.toggle-password
+.password-input
+  :deep(.q-field__append)
+    padding: 0 8px
+    
+.password-toggle-wrapper
+  display: flex
+  align-items: center
+  justify-content: center
   padding: 8px
   margin-right: 8px
-  transition: all 0.2s ease
-
+  cursor: pointer
+  z-index: 10
+  position: relative
+  
   &:hover
-    color: #2E5D3E !important
-    transform: scale(1.1)
-
+    .toggle-password-icon
+      color: #2E5D3E !important
+      transform: scale(1.1)
+  
   &:active
-    transform: scale(0.95)
+    .toggle-password-icon
+      transform: scale(0.95)
+
+.toggle-password-icon
+  transition: all 0.2s ease
+  font-size: 20px
 
 // Decorative Elements
 .decoration-elements
