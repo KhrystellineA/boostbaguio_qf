@@ -4,11 +4,9 @@
 
 import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
-import { useBaguioPlaces } from 'src/composables/useBaguioPlaces'
 
 export function useIndexPage() {
   const $q = useQuasar()
-  const { getBaguioLocations } = useBaguioPlaces()
 
   // Location state
   const fromLocationText = ref('')
@@ -48,22 +46,10 @@ export function useIndexPage() {
       return
     }
 
-    try {
-      const locations = getBaguioLocations()
-      fromLocationOptions.value = locations
-        .filter(loc => 
-          loc.label.toLowerCase().includes(fromLocationText.value.toLowerCase())
-        )
-      
-      if (fromLocationOptions.value.length === 0) {
-        fromLocationOptions.value = [{
-          label: `Use "${fromLocationText.value}" as starting point`,
-          value: fromLocationText.value
-        }]
-      }
-    } catch (error) {
-      console.error('[IndexPage] Error searching location:', error)
-    }
+    // Simple location search - can be enhanced later
+    fromLocationOptions.value = [
+      { label: fromLocationText.value, value: fromLocationText.value }
+    ]
   }
 
   // Detect current location
