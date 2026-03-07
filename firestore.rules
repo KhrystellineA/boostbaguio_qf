@@ -81,12 +81,19 @@ service cloud.firestore {
                       isSuperAdmin() ||
                       exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
 
-      // Allow create only by super-admins
-      allow create: if isSuperAdmin() &&
-                       request.resource.data.keys().hasAll(['email', 'name', 'permissions']) &&
-                       request.resource.data.email is string &&
-                       request.resource.data.name is string &&
-                       request.resource.data.permissions is list;
+      // Allow create if:
+      // 1. Super admin creating another admin, OR
+      // 2. User creating their own admin doc (self-signup)
+      allow create: if (isSuperAdmin() &&
+                          request.resource.data.keys().hasAll(['email', 'name', 'permissions']) &&
+                          request.resource.data.email is string &&
+                          request.resource.data.name is string &&
+                          request.resource.data.permissions is list) ||
+                       (isAuthenticated() && isOwner(adminId) &&
+                          request.resource.data.keys().hasAll(['email', 'name', 'role']) &&
+                          request.resource.data.email is string &&
+                          request.resource.data.name is string &&
+                          request.resource.data.role is string);
 
       // Allow update only by super-admins
       allow update: if isSuperAdmin();

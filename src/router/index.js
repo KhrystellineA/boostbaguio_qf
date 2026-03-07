@@ -42,10 +42,15 @@ export default defineRouter(function (/* { store, ssrContext } */) {
 
     if (to.path === '/login' && userStore.isAuthenticated) {
       // Check if admin and redirect to admin dashboard
-      const isAdmin = await checkIsAdmin()
-      if (isAdmin) {
-        next('/admin/dashboard')
-        return
+      // Only check if user is authenticated
+      try {
+        const isAdmin = await checkIsAdmin()
+        if (isAdmin) {
+          next('/admin/dashboard')
+          return
+        }
+      } catch (error) {
+        console.warn('[Router] Error checking admin status:', error)
       }
       next('/')
       return
@@ -53,25 +58,32 @@ export default defineRouter(function (/* { store, ssrContext } */) {
 
     // Check admin routes
     if (to.meta.requiresAdmin) {
-      const isAdmin = await checkIsAdmin()
-      
-      if (!isAdmin) {
-        // Not an admin - redirect to appropriate login
-        if (userStore.isAuthenticated) {
-          // Regular user trying to access admin area
-          next('/')
-        } else {
-          // Not logged in at all
-          next('/admin/adminlogin')
-        }
-        return
-      }
+      try {
+        const isAdmin = await checkIsAdmin()
 
-      // Store admin role in memory for the session (not sessionStorage)
-      const adminRole = await getAdminRole()
-      if (adminRole) {
-        // Make role available to components via router meta
-        to.meta.adminRole = adminRole
+        if (!isAdmin) {
+          // Not an admin - redirect to appropriate login
+          if (userStore.isAuthenticated) {
+            // Regular user trying to access admin area
+            next('/')
+          } else {
+            // Not logged in at all
+            next('/admin/adminlogin')
+          }
+          return
+        }
+
+        // Store admin role in memory for the session (not sessionStorage)
+        const adminRole = await getAdminRole()
+        if (adminRole) {
+          // Make role available to components via router meta
+          to.meta.adminRole = adminRole
+        }
+      } catch (error) {
+        console.error('[Router] Error checking admin access:', error)
+        // If there's an error checking admin, redirect to home for safety
+        next('/')
+        return
       }
     }
 
