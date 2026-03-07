@@ -430,7 +430,9 @@
 import { useQuasar } from 'quasar'
 import { auth, db } from 'src/boot/firebase'
 import { signOut } from 'firebase/auth'
+import { doc, getDoc } from 'firebase/firestore'
 import { collection, getDocs } from 'firebase/firestore'
+import { checkIsAdmin, getAdminRole, getPermissions } from 'src/composables/useAdminClaims'
 import JeepneyManagement from 'src/components/admin/JeepneyManagement.vue'
 import PlacesManagement from 'src/components/admin/PlacesManagement.vue'
 import EventsManagement from 'src/components/admin/EventsManagement.vue'
@@ -471,7 +473,12 @@ export default {
     return {
       drawer: true,
       activeMenu: 'dashboard',
-      adminData: {},
+      adminData: {
+        role: null,
+        permissions: [],
+        name: '',
+        email: ''
+      },
       stats: {
         routes: 0,
         places: 0,
@@ -499,7 +506,7 @@ export default {
 
     canManageRoutes() {
       // Super admin and routes admin can manage routes
-      return this.adminData.role === 'super_admin' || 
+      return this.adminData.role === 'super_admin' ||
              this.adminData.role === 'routes_admin' ||
              this.adminData.permissions?.includes('routes:write') ||
              this.adminData.permissions?.includes('super_admin:all') ||
@@ -508,7 +515,7 @@ export default {
 
     canManagePlaces() {
       // Super admin and places admin can manage places
-      return this.adminData.role === 'super_admin' || 
+      return this.adminData.role === 'super_admin' ||
              this.adminData.role === 'places_admin' ||
              this.adminData.permissions?.includes('places:write') ||
              this.adminData.permissions?.includes('super_admin:all') ||
@@ -517,7 +524,7 @@ export default {
 
     canManageEvents() {
       // Super admin and events admin can manage events
-      return this.adminData.role === 'super_admin' || 
+      return this.adminData.role === 'super_admin' ||
              this.adminData.role === 'events_admin' ||
              this.adminData.permissions?.includes('events:write') ||
              this.adminData.permissions?.includes('super_admin:all') ||
@@ -548,11 +555,11 @@ export default {
     },
   },
 
-  mounted() {
-    this.loadAdminData()
+  async mounted() {
+    await this.loadAdminData()
     this.loadStats()
     this.loadRecentActivity()
-    
+
     // Check for hash in URL and navigate to specific section
     this.handleHashNavigation()
   },
@@ -568,18 +575,66 @@ export default {
           'routes': 'routes',
           'events': 'events',
         }
-        
+
         if (sectionMap[section] && this[sectionMap[section]]) {
           this.activeMenu = sectionMap[section]
         }
       }
     },
-    
-    loadAdminData() {
-      const adminDataStr = sessionStorage.getItem('adminData')
-      if (adminDataStr) {
-        this.adminData = JSON.parse(adminDataStr)
-      } else {
+
+    async loadAdminData() {
+      try {
+        // Check if user is admin using Firebase Custom Claims
+        const isAdmin = await checkIsAdmin()
+        
+        if (!isAdmin) {
+          console.warn('[AdminDashboard] User is not an admin')
+          this.$router.push('/admin/adminlogin')
+          return
+        }
+
+        // Get admin role and permissions from custom claims
+        const role = await getAdminRole()
+        const permissions = await getPermissions()
+
+        // Get admin document from Firestore for additional data
+        const user = auth.currentUser
+        if (user) {
+          const adminDoc = await getDoc(doc(db, 'admins', user.uid))
+          
+          if (adminDoc.exists()) {
+            const adminData = adminDoc.data()
+            this.adminData = {
+              uid: user.uid,
+              email: adminData.email || user.email || '',
+              name: adminData.name || user.displayName || 'Admin',
+              role: role || adminData.role || '',
+              permissions: permissions || adminData.permissions || []
+            }
+            
+            // Store in sessionStorage for temporary access during session
+            // Note: This is now just for caching, not for security
+            sessionStorage.setItem('adminData', JSON.stringify(this.adminData))
+          } else {
+            console.error('[AdminDashboard] Admin document not found')
+            this.$q.notify({
+              type: 'negative',
+              message: 'Admin profile not found',
+              position: 'top'
+            })
+            this.$router.push('/admin/adminlogin')
+          }
+        } else {
+          console.warn('[AdminDashboard] No authenticated user')
+          this.$router.push('/admin/adminlogin')
+        }
+      } catch (error) {
+        console.error('[AdminDashboard] Error loading admin data:', error)
+        this.$q.notify({
+          type: 'negative',
+          message: 'Failed to load admin profile',
+          position: 'top'
+        })
         this.$router.push('/admin/adminlogin')
       }
     },

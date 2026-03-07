@@ -7,6 +7,7 @@ import {
 } from 'vue-router'
 import routes from './routes'
 import { useUserStore } from 'stores/user-store'
+import { checkIsAdmin, getAdminRole } from 'src/composables/useAdminClaims'
 
 export default defineRouter(function (/* { store, ssrContext } */) {
   const createHistory = process.env.SERVER
@@ -40,8 +41,38 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     }
 
     if (to.path === '/login' && userStore.isAuthenticated) {
+      // Check if admin and redirect to admin dashboard
+      const isAdmin = await checkIsAdmin()
+      if (isAdmin) {
+        next('/admin/dashboard')
+        return
+      }
       next('/')
       return
+    }
+
+    // Check admin routes
+    if (to.meta.requiresAdmin) {
+      const isAdmin = await checkIsAdmin()
+      
+      if (!isAdmin) {
+        // Not an admin - redirect to appropriate login
+        if (userStore.isAuthenticated) {
+          // Regular user trying to access admin area
+          next('/')
+        } else {
+          // Not logged in at all
+          next('/admin/adminlogin')
+        }
+        return
+      }
+
+      // Store admin role in memory for the session (not sessionStorage)
+      const adminRole = await getAdminRole()
+      if (adminRole) {
+        // Make role available to components via router meta
+        to.meta.adminRole = adminRole
+      }
     }
 
     next()
