@@ -82,20 +82,11 @@
               <template #append>
                 <q-icon
                   :name="showPassword ? 'visibility' : 'visibility_off'"
-                  style="cursor: pointer; z-index: 9999; position: relative;"
+                  class="cursor-pointer"
                   @click.stop="showPassword = !showPassword"
                 />
               </template>
             </q-input>
-
-            <!-- Debug button -->
-            <q-btn 
-              label="Test Toggle (DEBUG)" 
-              size="sm" 
-              @click="showPassword = !showPassword"
-              class="q-mb-md"
-              color="orange"
-            />
 
             <q-btn
               type="submit"
