@@ -101,15 +101,23 @@ service cloud.firestore {
       // Anyone can read published events
       allow read: if true;
 
-      // Only authenticated users can create events (TEMP for setup)
-      allow create: if isAuthenticated() &&
-                       request.resource.data.keys().hasAll(['title', 'startDate', 'endDate']);
+      // Only admins can create events
+      allow create: if isAdmin() &&
+                       request.resource.data.keys().hasAll(['title', 'startDate', 'endDate']) &&
+                       request.resource.data.title is string &&
+                       request.resource.data.title.size() > 0 &&
+                       request.resource.data.title.size() <= 200 &&
+                       request.resource.data.startDate is timestamp &&
+                       request.resource.data.endDate is timestamp &&
+                       request.resource.data.startDate <= request.resource.data.endDate;
 
-      // Only authenticated users can update events (TEMP for setup)
-      allow update: if isAuthenticated();
+      // Only admins can update events
+      allow update: if isAdmin() &&
+                       (!request.resource.data.keys().hasAny(['createdAt']) ||
+                        request.resource.data.createdAt is timestamp);
 
-      // Only authenticated users can delete events (TEMP for setup)
-      allow delete: if isAuthenticated();
+      // Only admins can delete events
+      allow delete: if isAdmin();
     }
 
     // ========== PLACES COLLECTION ==========
@@ -118,15 +126,29 @@ service cloud.firestore {
       // Anyone can read places
       allow read: if true;
 
-      // Only authenticated users can create places (TEMP for setup)
-      allow create: if isAuthenticated() &&
-                       request.resource.data.keys().hasAll(['name', 'category']);
+      // Only admins can create places
+      allow create: if isAdmin() &&
+                       request.resource.data.keys().hasAll(['name', 'category']) &&
+                       request.resource.data.name is string &&
+                       request.resource.data.name.size() > 0 &&
+                       request.resource.data.name.size() <= 200 &&
+                       request.resource.data.category is string &&
+                       (request.resource.data.latitude is number ||
+                        request.resource.data.location is map) &&
+                       (request.resource.data.latitude is number ?
+                        request.resource.data.latitude >= -90 &&
+                        request.resource.data.latitude <= 90 : true) &&
+                       (request.resource.data.longitude is number ?
+                        request.resource.data.longitude >= -180 &&
+                        request.resource.data.longitude <= 180 : true);
 
-      // Only authenticated users can update places (TEMP for setup)
-      allow update: if isAuthenticated();
+      // Only admins can update places
+      allow update: if isAdmin() &&
+                       (!request.resource.data.keys().hasAny(['createdAt']) ||
+                        request.resource.data.createdAt is timestamp);
 
-      // Only authenticated users can delete places (TEMP for setup)
-      allow delete: if isAuthenticated();
+      // Only admins can delete places
+      allow delete: if isAdmin();
     }
 
     // ========== ROUTES COLLECTION ==========
@@ -135,15 +157,23 @@ service cloud.firestore {
       // Anyone can read routes
       allow read: if true;
 
-      // Only authenticated users can create routes (TEMP for setup)
-      allow create: if isAuthenticated() &&
-                       request.resource.data.keys().hasAll(['name', 'routeNumber']);
+      // Only admins can create routes
+      allow create: if isAdmin() &&
+                       request.resource.data.keys().hasAll(['name', 'routeNumber']) &&
+                       request.resource.data.name is string &&
+                       request.resource.data.name.size() > 0 &&
+                       request.resource.data.name.size() <= 200 &&
+                       request.resource.data.routeNumber is string &&
+                       request.resource.data.routeNumber.size() > 0 &&
+                       request.resource.data.routeNumber.size() <= 20;
 
-      // Only authenticated users can update routes (TEMP for setup)
-      allow update: if isAuthenticated();
+      // Only admins can update routes
+      allow update: if isAdmin() &&
+                       (!request.resource.data.keys().hasAny(['createdAt']) ||
+                        request.resource.data.createdAt is timestamp);
 
-      // Only authenticated users can delete routes (TEMP for setup)
-      allow delete: if isAuthenticated();
+      // Only admins can delete routes
+      allow delete: if isAdmin();
     }
 
     // ========== JEEPNEYS COLLECTION ==========
@@ -152,11 +182,18 @@ service cloud.firestore {
       // Anyone can read jeepneys
       allow read: if true;
 
-      // TEMPORARY: Allow any authenticated user to write (for development/seeding)
-      // TODO: Change back to isAdmin() for production
-      allow create: if isAuthenticated();
-      allow update: if isAuthenticated();
-      allow delete: if isAuthenticated();
+      // Only admins can write to jeepneys collection
+      allow create: if isAdmin() &&
+                       request.resource.data.keys().hasAll(['routeId', 'name']) &&
+                       request.resource.data.name is string &&
+                       request.resource.data.name.size() > 0 &&
+                       request.resource.data.name.size() <= 200;
+
+      allow update: if isAdmin() &&
+                       (!request.resource.data.keys().hasAny(['createdAt']) ||
+                        request.resource.data.createdAt is timestamp);
+
+      allow delete: if isAdmin();
     }
 
     // ========== PHOTOS COLLECTION ==========
@@ -206,6 +243,47 @@ service cloud.firestore {
     match /analytics_foot_traffic/{trafficId} {
       allow read: if isAuthenticated() && isAdmin();
       allow create: if isAuthenticated();
+    }
+
+    // ========== ERROR LOGS COLLECTION ==========
+
+    match /error_logs/{logId} {
+      // Only admins can read error logs
+      allow read: if isAuthenticated() && isAdmin();
+      // Anyone can create error logs (for error monitoring)
+      allow create: if true;
+      // Only admins can update/delete error logs
+      allow update, delete: if isAuthenticated() && isAdmin();
+    }
+
+    // ========== ACTIVITY LOGS COLLECTION ==========
+
+    match /activity_logs/{logId} {
+      // Only admins can read activity logs
+      allow read: if isAuthenticated() && isAdmin();
+      // Authenticated users and admins can create activity logs
+      allow create: if isAuthenticated();
+      // Only admins can update/delete activity logs
+      allow update, delete: if isAuthenticated() && isAdmin();
+    }
+
+    // ========== CONTACT MESSAGES COLLECTION ==========
+
+    match /contactMessages/{messageId} {
+      // Anyone can create contact messages (public contact form)
+      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'message']) &&
+                       request.resource.data.name is string &&
+                       request.resource.data.name.size() > 0 &&
+                       request.resource.data.name.size() <= 200 &&
+                       request.resource.data.email is string &&
+                       request.resource.data.email.matches('^[^@]+@[^@]+\\.[^@]+$') &&
+                       request.resource.data.message is string &&
+                       request.resource.data.message.size() > 0 &&
+                       request.resource.data.message.size() <= 2000;
+      // Only admins can read contact messages
+      allow read: if isAuthenticated() && isAdmin();
+      // Only admins can update/delete contact messages
+      allow update, delete: if isAuthenticated() && isAdmin();
     }
 
     // ========== DEFAULT DENY ==========
