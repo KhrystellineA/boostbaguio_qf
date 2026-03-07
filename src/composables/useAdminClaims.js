@@ -1,14 +1,21 @@
 /**
  * Composable for checking admin permissions via Firebase Custom Claims
- * @returns {Object} Admin permission helpers
+ * @module useAdminClaims
  */
 
 import { auth } from 'src/boot/firebase'
 
 /**
+ * @typedef {Object} AdminClaims
+ * @property {boolean} [admin] - Whether user is an admin
+ * @property {string} [role] - Admin role (super_admin, routes_admin, etc.)
+ * @property {string[]} [permissions] - Array of permissions
+ */
+
+/**
  * Get the current user's ID token claims (includes custom claims)
  * @param {boolean} forceRefresh - Force refresh the token
- * @returns {Promise<Object|null>} Claims object or null if no user
+ * @returns {Promise<AdminClaims|null>} Claims object or null if no user
  */
 export async function getIdTokenClaims(forceRefresh = false) {
   if (!auth.currentUser) {
@@ -46,7 +53,7 @@ export async function checkIsSuperAdmin() {
   if (!claims) return false
 
   // Check for super_admin role in custom claims
-  return !!claims.super_admin || 
+  return !!claims.super_admin ||
          (claims.role && claims.role === 'super_admin') ||
          (claims.permissions && claims.permissions.includes('super-admin'))
 }
@@ -64,7 +71,7 @@ export async function getAdminRole() {
 
 /**
  * Get user's permissions from custom claims
- * @returns {Promise<Array>}
+ * @returns {Promise<string[]>}
  */
 export async function getPermissions() {
   const claims = await getIdTokenClaims()
@@ -75,7 +82,11 @@ export async function getPermissions() {
 
 /**
  * Vue 3 composable function for admin claims
- * @returns {Object} Reactive admin state and helpers
+ * @returns {Object} Admin state and helpers
+ * @returns {Function} returns.isAdmin - Check if user is admin
+ * @returns {Function} returns.isSuperAdmin - Check if user is super admin
+ * @returns {Function} returns.getRole - Get admin role
+ * @returns {Function} returns.refreshClaims - Refresh claims from server
  */
 export function useAdminClaims() {
   const isAdmin = async () => await checkIsAdmin()

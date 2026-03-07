@@ -1,5 +1,6 @@
 /**
- * Composable for AdminDashboard logic
+ * Composable for AdminDashboard logic and state management
+ * @module useAdminDashboard
  */
 
 import { ref, onMounted } from 'vue'
@@ -9,6 +10,42 @@ import { signOut } from 'firebase/auth'
 import { collection, getDocs } from 'firebase/firestore'
 import { checkIsAdmin, getAdminRole, getPermissions } from 'src/composables/useAdminClaims'
 
+/**
+ * @typedef {Object} AdminData
+ * @property {string} uid - User ID
+ * @property {string} email - Admin email
+ * @property {string} name - Admin name
+ * @property {string|null} role - Admin role
+ * @property {string[]} permissions - Array of permissions
+ */
+
+/**
+ * @typedef {Object} DashboardStats
+ * @property {number} routes - Number of routes
+ * @property {number} places - Number of places
+ * @property {number} events - Number of events
+ * @property {number} admins - Number of admins
+ */
+
+/**
+ * @typedef {Object} UseAdminDashboardReturn
+ * @property {import('vue').Ref<boolean>} drawer - Sidebar drawer state
+ * @property {import('vue').Ref<string>} activeMenu - Current active menu
+ * @property {import('vue').Ref<AdminData>} adminData - Admin user data
+ * @property {import('vue').Ref<DashboardStats>} stats - Dashboard statistics
+ * @property {import('vue').Ref<Array>} notifications - Notifications array
+ * @property {import('vue').Ref<boolean>} loading - Loading state
+ * @property {Function} loadAdminData - Load admin data from Firestore
+ * @property {Function} loadStats - Load dashboard statistics
+ * @property {Function} logout - Sign out admin
+ * @property {Function} viewProfile - View admin profile
+ * @property {Function} toggleDrawer - Toggle sidebar drawer
+ */
+
+/**
+ * Composable for AdminDashboard logic
+ * @returns {UseAdminDashboardReturn}
+ */
 export function useAdminDashboard() {
   const $q = useQuasar()
 

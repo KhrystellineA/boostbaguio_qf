@@ -1,3 +1,8 @@
+/**
+ * User Store - Manages user authentication and premium status
+ * @module stores/user-store
+ */
+
 import { defineStore } from 'pinia'
 import {
   createUserWithEmailAndPassword,
@@ -13,6 +18,22 @@ import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { auth, db } from 'src/boot/firebase'
 import { Notify } from 'quasar'
 
+/**
+ * @typedef {Object} User
+ * @property {string} uid - User ID
+ * @property {string} email - User email
+ * @property {string|null} displayName - User display name
+ * @property {string|null} photoURL - User photo URL
+ */
+
+/**
+ * @typedef {Object} UserState
+ * @property {User|null} user - Current user
+ * @property {boolean} isPremium - Premium status
+ * @property {boolean} loading - Loading state
+ * @property {string|null} premiumExpiry - Premium expiry date
+ */
+
 export const useUserStore = defineStore('user', {
   state: () => ({
     user: null,
@@ -22,14 +43,38 @@ export const useUserStore = defineStore('user', {
   }),
 
   getters: {
+    /**
+     * Check if user is authenticated
+     * @returns {boolean}
+     */
     isAuthenticated: (state) => !!state.user,
+    /**
+     * Get user email
+     * @returns {string}
+     */
     userEmail: (state) => state.user?.email || '',
+    /**
+     * Get user display name
+     * @returns {string}
+     */
     userName: (state) => state.user?.displayName || 'User',
+    /**
+     * Get user photo URL
+     * @returns {string|null}
+     */
     userPhotoURL: (state) => state.user?.photoURL || null,
+    /**
+     * Check if user can use offline mode (premium feature)
+     * @returns {boolean}
+     */
     canUseOffline: (state) => state.isPremium,
   },
 
   actions: {
+    /**
+     * Initialize authentication state
+     * @returns {Promise<User|null>}
+     */
     initAuth() {
       return new Promise((resolve) => {
         onAuthStateChanged(auth, async (user) => {
@@ -47,6 +92,13 @@ export const useUserStore = defineStore('user', {
       })
     },
 
+    /**
+     * Sign up a new user
+     * @param {string} email - User email
+     * @param {string} password - User password
+     * @param {string} displayName - User display name
+     * @returns {Promise<{success: boolean, error?: string}>}
+     */
     async signUp(email, password, displayName) {
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password)
@@ -94,6 +146,12 @@ export const useUserStore = defineStore('user', {
       }
     },
 
+    /**
+     * Sign in an existing user
+     * @param {string} email - User email
+     * @param {string} password - User password
+     * @returns {Promise<{success: boolean, error?: string}>}
+     */
     async signIn(email, password) {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password)
@@ -134,6 +192,10 @@ export const useUserStore = defineStore('user', {
       }
     },
 
+    /**
+     * Sign out current user
+     * @returns {Promise<{success: boolean}>}
+     */
     async logout() {
       try {
         await signOut(auth)
