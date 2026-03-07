@@ -1516,7 +1516,7 @@ $bento-radius: 20px;
 $faqs-bg: $brown;
 
 .faqs-section {
-  background: linear-gradient(135deg, $faqs-bg 0%, darken($faqs-bg, 10%) 100%);
+  background: linear-gradient(135deg, $faqs-bg 0%, adjust-color($faqs-bg, $lightness: -10%) 100%);
   padding: 5rem 0;
   color: $white;
   position: relative;

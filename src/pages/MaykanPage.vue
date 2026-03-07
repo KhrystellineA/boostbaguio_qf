@@ -1178,7 +1178,7 @@ $bento-radius: 20px;
 
 .community-ribbon {
   padding: 2.5rem 0;
-  background: linear-gradient(135deg, $brown 0%, darken($brown, 8%) 100%);
+  background: linear-gradient(135deg, $brown 0%, adjust-color($brown, $lightness: -8%) 100%);
   border-radius: $bento-radius;
   margin: 2rem auto;
   max-width: 1100px;
@@ -1295,7 +1295,7 @@ $bento-radius: 20px;
 $faqs-bg: $brown;
 
 .faqs-section {
-  background: linear-gradient(135deg, $faqs-bg 0%, darken($faqs-bg, 10%) 100%);
+  background: linear-gradient(135deg, $faqs-bg 0%, adjust-color($faqs-bg, $lightness: -10%) 100%);
   padding: 5rem 0;
   color: $white;
   position: relative;

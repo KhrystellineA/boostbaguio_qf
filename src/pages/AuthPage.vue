@@ -74,12 +74,18 @@
                 </div>
               </template>
               <template v-slot:append>
-                <q-icon
-                  :name="showPassword ? 'visibility' : 'visibility_off'"
-                  class="cursor-pointer"
-                  @click="showPassword = !showPassword"
-                  color="grey-6"
-                />
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="visibility"
+                  size="sm"
+                  @click.stop="showPassword = !showPassword"
+                  @keydown.enter="showPassword = !showPassword"
+                  @keydown.space.prevent="showPassword = !showPassword"
+                >
+                  <q-tooltip>Toggle password visibility</q-tooltip>
+                </q-btn>
               </template>
             </q-input>
 
@@ -157,12 +163,18 @@
                 </div>
               </template>
               <template v-slot:append>
-                <q-icon
-                  :name="showPassword ? 'visibility' : 'visibility_off'"
-                  class="cursor-pointer"
-                  @click="showPassword = !showPassword"
-                  color="grey-6"
-                />
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="visibility"
+                  size="sm"
+                  @click.stop="showPassword = !showPassword"
+                  @keydown.enter="showPassword = !showPassword"
+                  @keydown.space.prevent="showPassword = !showPassword"
+                >
+                  <q-tooltip>Toggle password visibility</q-tooltip>
+                </q-btn>
               </template>
             </q-input>
 
@@ -627,7 +639,7 @@ $border-color: #E0E0E0;
       transition: all 0.3s ease;
 
       &:hover {
-        background: darken($bg-light, 2%);
+        background: adjust-color($bg-light, $lightness: -2%);
       }
     }
 
