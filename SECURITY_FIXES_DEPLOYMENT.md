@@ -1,60 +1,57 @@
-# Phase 1 Security Fixes - Deployment Guide
+# Phase 1 & 2 Deployment Guide
 
 ## Overview
 
-This document describes the critical security fixes implemented in Phase 1 and the steps required to deploy them.
+This document describes the complete deployment steps for Phase 1 (Security Fixes) and Phase 2 (Testing Infrastructure).
 
 ---
 
-## Changes Made
+## What's Being Deployed
 
-### 1. ✅ Fixed Firestore Security Rules
+### Phase 1: Security Fixes ✅
 
-**File:** `firestore.rules`
+1. **Firestore Security Rules** - Fixed TEMP rules, added data validation
+2. **Firebase Custom Claims** - Secure admin authentication (replaced sessionStorage)
+3. **Router Guards Consolidation** - Single source of truth for route protection
 
-**Changes:**
-- Changed `isAuthenticated()` to `isAdmin()` for events, places, routes, and jeepneys collections
-- Added comprehensive data validation:
-  - String length limits (200 characters for titles/names)
-  - Coordinate validation (latitude: -90 to 90, longitude: -180 to 180)
-  - Date relationship validation (endDate >= startDate)
-  - Email format validation
-  - Required field validation
+### Phase 2: Testing Infrastructure ✅
 
-**New Collections Added:**
-- `error_logs` - Error monitoring (public create, admin read/update/delete)
-- `activity_logs` - Admin activity tracking (authenticated create, admin read/update/delete)
-- `contactMessages` - Public contact form (public create with validation, admin read/update/delete)
+1. **Vitest Setup** - Fast, Vite-native test runner
+2. **Test Suites** - 71 tests for composables, stores, and components
+3. **Testing Documentation** - Complete testing guide
 
 ---
 
-### 2. ✅ Implemented Firebase Custom Claims
+## Files Changed
 
-**New Files:**
-- `src/composables/useAdminClaims.js` - Composable for checking admin permissions
-- `set-admin-custom-claims.js` - Script to set custom claims for existing admins
+### Security Files
+- `firestore.rules` - Updated security rules
+- `src/router/index.js` - Custom claims integration
+- `src/boot/router-guards.js` - Simplified auth initialization
+- `src/pages/Admin/AdminDashboard.vue` - Uses Firebase Custom Claims
+- `src/composables/useAdminClaims.js` - NEW: Admin claims helper
+- `set-admin-custom-claims.js` - NEW: Script to set claims
 
-**Modified Files:**
-- `src/router/index.js` - Updated to use Firebase Custom Claims
-- `src/boot/router-guards.js` - Simplified to only handle auth initialization
-- `src/pages/Admin/AdminDashboard.vue` - Updated to load admin data from Firestore + Custom Claims
-
-**Security Improvement:**
-- **BEFORE:** Admin role stored in `sessionStorage` (easily manipulated)
-- **AFTER:** Admin role stored in Firebase Custom Claims (server-side, secure)
+### Testing Files
+- `vitest.config.js` - NEW: Vitest configuration
+- `src/test/setup.js` - NEW: Global test mocks
+- `src/test/utils.js` - NEW: Test utilities
+- `src/composables/useAdminClaims.test.js` - NEW: 20 tests
+- `src/stores/user-store.test.js` - NEW: 19 tests
+- `src/components/PineSkeletonLoader.test.js` - NEW: 21 tests
+- `src/components/ErrorBoundary.test.js` - NEW: 12 tests
+- `TESTING_GUIDE.md` - NEW: Testing documentation
+- `package.json` - Added test scripts
 
 ---
 
-### 3. ✅ Consolidated Router Guards
+## Pre-Deployment Checklist
 
-**Before:**
-- Duplicate `beforeEach` guards in `src/router/index.js` and `src/boot/router-guards.js`
-- Inconsistent auth checking logic
-
-**After:**
-- Single source of truth in `src/router/index.js`
-- `src/boot/router-guards.js` only handles auth initialization
-- Clear, documented auth flow
+- [ ] Build passes: `pnpm build` ✅
+- [ ] Tests pass: `pnpm test:run` ✅
+- [ ] Firebase Admin credentials ready
+- [ ] Vercel project connected to Git
+- [ ] Admin users list ready for custom claims
 
 ---
 
