@@ -118,7 +118,7 @@
           <q-icon name="radar" class="q-mr-xs" />
           Real-Time Foot Traffic (Last 30 min)
         </div>
-        <div id="traffic-map" style="height: 400px; border-radius: 8px;"></div>
+        <div id="traffic-map" style="height: 400px; border-radius: 8px"></div>
         <div class="text-caption text-grey-7 q-mt-sm">
           Shows user locations in the last 30 minutes. Larger circles = more activity.
         </div>
@@ -140,7 +140,9 @@
                   <q-avatar color="primary" text-color="white" :label="`${index + 1}`" />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label class="text-weight-bold">{{ place.name || 'Loading...' }}</q-item-label>
+                  <q-item-label class="text-weight-bold">{{
+                    place.name || 'Loading...'
+                  }}</q-item-label>
                   <q-item-label caption>{{ place.count }} visits</q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -165,7 +167,9 @@
                   <q-avatar color="amber" text-color="white" :label="`${index + 1}`" />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label class="text-weight-bold">{{ place.name || 'Loading...' }}</q-item-label>
+                  <q-item-label class="text-weight-bold">{{
+                    place.name || 'Loading...'
+                  }}</q-item-label>
                   <q-item-label caption>{{ place.count }} saves</q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -190,7 +194,9 @@
                   <q-avatar color="blue" text-color="white" :label="`${index + 1}`" />
                 </q-item-section>
                 <q-item-section>
-                  <q-item-label class="text-weight-bold">{{ place.name || 'Loading...' }}</q-item-label>
+                  <q-item-label class="text-weight-bold">{{
+                    place.name || 'Loading...'
+                  }}</q-item-label>
                   <q-item-label caption>{{ place.count }} searches</q-item-label>
                 </q-item-section>
                 <q-item-section side>
@@ -242,13 +248,13 @@
 
         <div class="row q-col-gutter-xs">
           <div class="col-12">
-            <div class="row q-col-gutter-xs items-end" style="height: 200px;">
-              <div class="col" v-for="hour in hours24" :key="hour" style="height: 100%;">
+            <div class="row q-col-gutter-xs items-end" style="height: 200px">
+              <div class="col" v-for="hour in hours24" :key="hour" style="height: 100%">
                 <div class="column items-center full-height">
                   <q-linear-progress
                     :value="getPopularTimeIntensity(selectedDay, hour)"
                     color="primary"
-                    style="height: 100%; width: 100%;"
+                    style="height: 100%; width: 100%"
                     class="rounded-borders"
                   />
                   <div class="text-caption text-grey-7 q-mt-xs">{{ hour }}</div>
@@ -270,7 +276,7 @@
               <q-icon name="trending_up" class="q-mr-xs" />
               Activity Trends (Last 7 Days)
             </div>
-            <div style="height: 250px;">
+            <div style="height: 250px">
               <Bar :data="activityChartData" :options="activityChartOptions" />
             </div>
           </q-card-section>
@@ -285,7 +291,7 @@
               <q-icon name="pie_chart" class="q-mr-xs" />
               Most Popular Categories
             </div>
-            <div style="height: 250px;">
+            <div style="height: 250px">
               <Pie :data="categoryChartData" :options="categoryChartOptions" />
             </div>
           </q-card-section>
@@ -303,25 +309,33 @@
         <div class="row q-col-gutter-md">
           <div class="col-12 col-md-3">
             <div class="engagement-card text-center q-pa-md">
-              <div class="text-h3 text-weight-bold text-primary">{{ engagementMetrics.avgSessionDuration }}</div>
+              <div class="text-h3 text-weight-bold text-primary">
+                {{ engagementMetrics.avgSessionDuration }}
+              </div>
               <div class="text-caption text-grey-7">Avg. Session (min)</div>
             </div>
           </div>
           <div class="col-12 col-md-3">
             <div class="engagement-card text-center q-pa-md">
-              <div class="text-h3 text-weight-bold text-green">{{ engagementMetrics.placesPerSession }}</div>
+              <div class="text-h3 text-weight-bold text-green">
+                {{ engagementMetrics.placesPerSession }}
+              </div>
               <div class="text-caption text-grey-7">Places/Session</div>
             </div>
           </div>
           <div class="col-12 col-md-3">
             <div class="engagement-card text-center q-pa-md">
-              <div class="text-h3 text-weight-bold text-orange">{{ engagementMetrics.searchToVisitRate }}%</div>
+              <div class="text-h3 text-weight-bold text-orange">
+                {{ engagementMetrics.searchToVisitRate }}%
+              </div>
               <div class="text-caption text-grey-7">Search → Visit Rate</div>
             </div>
           </div>
           <div class="col-12 col-md-3">
             <div class="engagement-card text-center q-pa-md">
-              <div class="text-h3 text-weight-bold text-blue">{{ engagementMetrics.retentionRate }}%</div>
+              <div class="text-h3 text-weight-bold text-blue">
+                {{ engagementMetrics.retentionRate }}%
+              </div>
               <div class="text-caption text-grey-7">User Retention</div>
             </div>
           </div>
@@ -336,18 +350,19 @@ import { db } from 'src/boot/firebase'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import L from 'leaflet'
 import { getAnalyticsSummary, getRealTimeTraffic, getPopularPlaces } from 'src/utils/analytics'
-import { BarElement, CategoryScale, Chart as ChartJS, ArcElement, Title, Tooltip, Legend, LinearScale } from 'chart.js'
-import { Bar, Pie } from 'vue-chartjs'
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
+import {
   BarElement,
+  CategoryScale,
+  Chart as ChartJS,
+  ArcElement,
   Title,
   Tooltip,
   Legend,
-  ArcElement
-)
+  LinearScale,
+} from 'chart.js'
+import { Bar, Pie } from 'vue-chartjs'
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement)
 import 'leaflet/dist/leaflet.css'
 
 export default {
@@ -362,7 +377,7 @@ export default {
         totalVisits: 0,
         todaySearches: 0,
         todaySaves: 0,
-        todayVisits: 0
+        todayVisits: 0,
       },
       realTimeTraffic: [],
       popularByVisits: [],
@@ -382,19 +397,19 @@ export default {
         labels: [],
         searches: [],
         saves: [],
-        visits: []
+        visits: [],
       },
       categoryDistribution: {
         labels: [],
-        values: []
+        values: [],
       },
       // Engagement metrics
       engagementMetrics: {
         avgSessionDuration: 0,
         placesPerSession: 0,
         searchToVisitRate: 0,
-        retentionRate: 0
-      }
+        retentionRate: 0,
+      },
     }
   },
 
@@ -425,20 +440,20 @@ export default {
           this.loadRealTimeTraffic(),
           this.loadPopularPlaces(),
           this.loadPeakHours(),
-          this.loadPopularTimes()
+          this.loadPopularTimes(),
         ])
         this.$q.notify({
           type: 'positive',
           message: 'Analytics data refreshed',
           position: 'top',
-          timeout: 2000
+          timeout: 2000,
         })
       } catch (error) {
         console.error('[Analytics] Error loading data:', error)
         this.$q.notify({
           type: 'negative',
           message: 'Failed to load analytics data',
-          position: 'top'
+          position: 'top',
         })
       } finally {
         this.loading = false
@@ -464,7 +479,7 @@ export default {
         avgSessionDuration: Math.floor(Math.random() * 10) + 5, // 5-15 min
         placesPerSession: (Math.random() * 3 + 2).toFixed(1), // 2-5 places
         searchToVisitRate: Math.floor(Math.random() * 30) + 40, // 40-70%
-        retentionRate: Math.floor(Math.random() * 20) + 60 // 60-80%
+        retentionRate: Math.floor(Math.random() * 20) + 60, // 60-80%
       }
     },
 
@@ -507,19 +522,19 @@ export default {
     renderTrafficMap() {
       // Initialize map if not exists
       if (!this.trafficMap) {
-        this.trafficMap = L.map('traffic-map').setView([16.4023, 120.5960], 13)
+        this.trafficMap = L.map('traffic-map').setView([16.4023, 120.596], 13)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors'
+          attribution: '© OpenStreetMap contributors',
         }).addTo(this.trafficMap)
       }
 
       // Clear existing markers
-      this.trafficMarkers.forEach(marker => this.trafficMap.removeLayer(marker))
+      this.trafficMarkers.forEach((marker) => this.trafficMap.removeLayer(marker))
       this.trafficMarkers = []
 
       // Group traffic by location
       const locationGroups = {}
-      this.realTimeTraffic.forEach(point => {
+      this.realTimeTraffic.forEach((point) => {
         const key = `${point.lat.toFixed(3)},${point.lng.toFixed(3)}`
         if (!locationGroups[key]) {
           locationGroups[key] = { lat: point.lat, lng: point.lng, count: 0 }
@@ -528,13 +543,13 @@ export default {
       })
 
       // Add markers with circle size based on count
-      Object.values(locationGroups).forEach(loc => {
-        const radius = Math.min(50, 10 + (loc.count * 5))
+      Object.values(locationGroups).forEach((loc) => {
+        const radius = Math.min(50, 10 + loc.count * 5)
         const circle = L.circleMarker([loc.lat, loc.lng], {
           radius: radius,
           color: '#FF5722',
           fillColor: '#FF5722',
-          fillOpacity: 0.5
+          fillOpacity: 0.5,
         }).addTo(this.trafficMap)
 
         circle.bindPopup(`
@@ -552,7 +567,7 @@ export default {
       const [visits, saves, searches] = await Promise.all([
         getPopularPlaces('visits', 10),
         getPopularPlaces('saves', 10),
-        getPopularPlaces('searches', 10)
+        getPopularPlaces('searches', 10),
       ])
 
       // Get place details
@@ -565,19 +580,21 @@ export default {
       const details = []
       for (const item of placeList) {
         try {
-          const placeRef = await getDocs(query(collection(db, 'places'), where('__name__', '==', item.placeId)))
+          const placeRef = await getDocs(
+            query(collection(db, 'places'), where('__name__', '==', item.placeId))
+          )
           if (!placeRef.empty) {
             const placeData = placeRef.docs[0].data()
             details.push({
               placeId: item.placeId,
               name: placeData.name || 'Unknown Place',
-              count: item.count
+              count: item.count,
             })
           } else {
             details.push({
               placeId: item.placeId,
               name: 'Deleted Place',
-              count: item.count
+              count: item.count,
             })
           }
         } catch (error) {
@@ -585,7 +602,7 @@ export default {
           details.push({
             placeId: item.placeId,
             name: 'Error Loading',
-            count: item.count
+            count: item.count,
           })
         }
       }
@@ -596,7 +613,7 @@ export default {
       const traffic = await getRealTimeTraffic()
       const hourCounts = {}
 
-      traffic.forEach(point => {
+      traffic.forEach((point) => {
         const hour = point.timestamp?.getHours()
         if (hour !== undefined) {
           hourCounts[hour] = (hourCounts[hour] || 0) + 1
@@ -609,7 +626,7 @@ export default {
         .map(([hour, count]) => ({
           hour: parseInt(hour),
           count,
-          intensity: count / maxCount
+          intensity: count / maxCount,
         }))
         .sort((a, b) => b.count - a.count)
         .slice(0, 4)
@@ -618,7 +635,7 @@ export default {
     async loadPopularTimes() {
       // Get all foot traffic
       const snapshot = await getDocs(collection(db, 'analytics_foot_traffic'))
-      const traffic = snapshot.docs.map(doc => doc.data())
+      const traffic = snapshot.docs.map((doc) => doc.data())
 
       // Group by day and hour
       const popularTimes = {}
@@ -629,7 +646,7 @@ export default {
         }
       }
 
-      traffic.forEach(point => {
+      traffic.forEach((point) => {
         if (point.dayOfWeek !== undefined && point.hour !== undefined) {
           popularTimes[point.dayOfWeek][point.hour]++
         }
@@ -668,7 +685,7 @@ export default {
           `Avg Session Duration,${this.engagementMetrics.avgSessionDuration} min,${date},Engagement`,
           `Places per Session,${this.engagementMetrics.placesPerSession},${date},Engagement`,
           `Search to Visit Rate,${this.engagementMetrics.searchToVisitRate}%,${date},Engagement`,
-          `Retention Rate,${this.engagementMetrics.retentionRate}%,${date},Engagement`
+          `Retention Rate,${this.engagementMetrics.retentionRate}%,${date},Engagement`,
         ]
 
         // Add popular places
@@ -696,14 +713,14 @@ export default {
         this.$q.notify({
           type: 'positive',
           message: 'Analytics exported to CSV successfully!',
-          position: 'top'
+          position: 'top',
         })
       } catch (error) {
         console.error('[Analytics] Error exporting CSV:', error)
         this.$q.notify({
           type: 'negative',
           message: 'Failed to export to CSV',
-          position: 'top'
+          position: 'top',
         })
       }
     },
@@ -715,38 +732,71 @@ export default {
         const date = new Date().toLocaleDateString('en-US', {
           year: 'numeric',
           month: 'long',
-          day: 'numeric'
+          day: 'numeric',
         })
 
-        const visitedPlacesRows = this.popularByVisits.slice(0, 10).map((place, i) =>
-          `<tr><td>${i + 1}</td><td>${place.name}</td><td>${place.count}</td></tr>`
-        ).join('')
+        const visitedPlacesRows = this.popularByVisits
+          .slice(0, 10)
+          .map(
+            (place, i) => `<tr><td>${i + 1}</td><td>${place.name}</td><td>${place.count}</td></tr>`
+          )
+          .join('')
 
-        const savedPlacesRows = this.popularBySaves.slice(0, 10).map((place, i) =>
-          `<tr><td>${i + 1}</td><td>${place.name}</td><td>${place.count}</td></tr>`
-        ).join('')
+        const savedPlacesRows = this.popularBySaves
+          .slice(0, 10)
+          .map(
+            (place, i) => `<tr><td>${i + 1}</td><td>${place.name}</td><td>${place.count}</td></tr>`
+          )
+          .join('')
 
-        const htmlContent = '<!DOCTYPE html><html><head><title>Boost Baguio Analytics Report - ' + date + '</title>' +
+        const htmlContent =
+          '<!DOCTYPE html><html><head><title>Boost Baguio Analytics Report - ' +
+          date +
+          '</title>' +
           '<style>body{font-family:Arial,sans-serif;padding:40px}h1{color:#2d6a4f}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin:30px 0}.stat-card{background:#f5f5f5;padding:20px;border-radius:12px;text-align:center}.stat-value{font-size:2em;font-weight:bold;color:#2d6a4f}.stat-label{color:#666;margin-top:5px}.section{margin:30px 0}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{padding:12px;text-align:left;border-bottom:1px solid #ddd}th{background:#2d6a4f;color:white}.footer{margin-top:40px;padding-top:20px;border-top:2px solid #2d6a4f;color:#666;font-size:12px}</style>' +
           '</head><body>' +
           '<h1>Boost Baguio Analytics Report</h1>' +
-          '<p><strong>Generated:</strong> ' + date + '</p>' +
+          '<p><strong>Generated:</strong> ' +
+          date +
+          '</p>' +
           '<div class="summary">' +
-          '<div class="stat-card"><div class="stat-value">' + this.stats.todaySearches + '</div><div class="stat-label">Searches Today</div></div>' +
-          '<div class="stat-card"><div class="stat-value">' + this.stats.todaySaves + '</div><div class="stat-label">Saves Today</div></div>' +
-          '<div class="stat-card"><div class="stat-value">' + this.stats.todayVisits + '</div><div class="stat-label">Visits Today</div></div>' +
-          '<div class="stat-card"><div class="stat-value">' + this.realTimeTraffic.length + '</div><div class="stat-label">Active Users Now</div></div>' +
+          '<div class="stat-card"><div class="stat-value">' +
+          this.stats.todaySearches +
+          '</div><div class="stat-label">Searches Today</div></div>' +
+          '<div class="stat-card"><div class="stat-value">' +
+          this.stats.todaySaves +
+          '</div><div class="stat-label">Saves Today</div></div>' +
+          '<div class="stat-card"><div class="stat-value">' +
+          this.stats.todayVisits +
+          '</div><div class="stat-label">Visits Today</div></div>' +
+          '<div class="stat-card"><div class="stat-value">' +
+          this.realTimeTraffic.length +
+          '</div><div class="stat-label">Active Users Now</div></div>' +
           '</div>' +
-          '<div class="section"><h2>Top 10 Most Visited Places</h2><table><tr><th>Rank</th><th>Place</th><th>Visits</th></tr>' + visitedPlacesRows + '</table></div>' +
-          '<div class="section"><h2>Top 10 Most Saved Places</h2><table><tr><th>Rank</th><th>Place</th><th>Saves</th></tr>' + savedPlacesRows + '</table></div>' +
+          '<div class="section"><h2>Top 10 Most Visited Places</h2><table><tr><th>Rank</th><th>Place</th><th>Visits</th></tr>' +
+          visitedPlacesRows +
+          '</table></div>' +
+          '<div class="section"><h2>Top 10 Most Saved Places</h2><table><tr><th>Rank</th><th>Place</th><th>Saves</th></tr>' +
+          savedPlacesRows +
+          '</table></div>' +
           '<div class="section"><h2>Engagement Metrics</h2><table><tr><th>Metric</th><th>Value</th></tr>' +
-          '<tr><td>Avg. Session Duration</td><td>' + this.engagementMetrics.avgSessionDuration + ' min</td></tr>' +
-          '<tr><td>Places per Session</td><td>' + this.engagementMetrics.placesPerSession + '</td></tr>' +
-          '<tr><td>Search to Visit Rate</td><td>' + this.engagementMetrics.searchToVisitRate + '%</td></tr>' +
-          '<tr><td>User Retention Rate</td><td>' + this.engagementMetrics.retentionRate + '%</td></tr>' +
+          '<tr><td>Avg. Session Duration</td><td>' +
+          this.engagementMetrics.avgSessionDuration +
+          ' min</td></tr>' +
+          '<tr><td>Places per Session</td><td>' +
+          this.engagementMetrics.placesPerSession +
+          '</td></tr>' +
+          '<tr><td>Search to Visit Rate</td><td>' +
+          this.engagementMetrics.searchToVisitRate +
+          '%</td></tr>' +
+          '<tr><td>User Retention Rate</td><td>' +
+          this.engagementMetrics.retentionRate +
+          '%</td></tr>' +
           '</table></div>' +
           '<div class="footer"><p>Generated by Boost Baguio Admin Dashboard | Confidential - Internal Use Only</p></div>' +
-          '<scr' + 'ipt>window.onload=function(){setTimeout(function(){window.print()},500)}</scr' + 'ipt>' +
+          '<scr' +
+          'ipt>window.onload=function(){setTimeout(function(){window.print()},500)}</scr' +
+          'ipt>' +
           '</body></html>'
 
         printWindow.document.write(htmlContent)
@@ -756,22 +806,22 @@ export default {
           type: 'positive',
           message: 'PDF report generated! Use the print dialog to save as PDF.',
           position: 'top',
-          timeout: 5000
+          timeout: 5000,
         })
       } catch (error) {
         console.error('[Analytics] Error exporting PDF:', error)
         this.$q.notify({
           type: 'negative',
           message: 'Failed to export PDF',
-          position: 'top'
+          position: 'top',
         })
       }
-    }
+    },
   },
 
   components: {
     Bar,
-    Pie
+    Pie,
   },
 
   computed: {
@@ -783,19 +833,19 @@ export default {
           {
             label: 'Searches',
             backgroundColor: 'rgba(33, 150, 243, 0.7)',
-            data: this.activityTrend.searches
+            data: this.activityTrend.searches,
           },
           {
             label: 'Saves',
             backgroundColor: 'rgba(76, 175, 80, 0.7)',
-            data: this.activityTrend.saves
+            data: this.activityTrend.saves,
           },
           {
             label: 'Visits',
             backgroundColor: 'rgba(255, 152, 0, 0.7)',
-            data: this.activityTrend.visits
-          }
-        ]
+            data: this.activityTrend.visits,
+          },
+        ],
       }
     },
 
@@ -805,20 +855,20 @@ export default {
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            position: 'top'
+            position: 'top',
           },
           title: {
-            display: false
-          }
+            display: false,
+          },
         },
         scales: {
           y: {
             beginAtZero: true,
             ticks: {
-              stepSize: 10
-            }
-          }
-        }
+              stepSize: 10,
+            },
+          },
+        },
       }
     },
 
@@ -834,11 +884,11 @@ export default {
               'rgba(255, 152, 0, 0.7)',
               'rgba(76, 175, 80, 0.7)',
               'rgba(156, 39, 176, 0.7)',
-              'rgba(233, 30, 99, 0.7)'
+              'rgba(233, 30, 99, 0.7)',
             ],
-            data: this.categoryDistribution.values.slice(0, 5)
-          }
-        ]
+            data: this.categoryDistribution.values.slice(0, 5),
+          },
+        ],
       }
     },
 
@@ -848,12 +898,12 @@ export default {
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            position: 'right'
-          }
-        }
+            position: 'right',
+          },
+        },
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

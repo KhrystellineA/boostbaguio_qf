@@ -26,28 +26,32 @@ pnpm test:ui
 
 ## Testing Stack
 
-| Tool | Purpose |
-|------|---------|
-| **Vitest** | Test runner and assertion library |
-| **Vue Test Utils** | Vue component testing utilities |
+| Tool                    | Purpose                                      |
+| ----------------------- | -------------------------------------------- |
+| **Vitest**              | Test runner and assertion library            |
+| **Vue Test Utils**      | Vue component testing utilities              |
 | **Testing Library Vue** | Component testing with user-centric approach |
-| **jsdom** | Browser-like environment for tests |
-| **@vitest/ui** | Visual test dashboard |
+| **jsdom**               | Browser-like environment for tests           |
+| **@vitest/ui**          | Visual test dashboard                        |
 
 ---
 
 ## Test Commands
 
 ### `pnpm test`
+
 Runs tests in **watch mode**. Tests re-run automatically when you save changes. Best for development.
 
 ### `pnpm test:run`
+
 Runs tests **once** and exits. Used in CI/CD pipelines.
 
 ### `pnpm test:coverage`
+
 Runs tests and generates a **coverage report** in `test-report/coverage/`.
 
 ### `pnpm test:ui`
+
 Opens the **Vitest UI dashboard** at `http://localhost:51204/__vitest__/` for visual test exploration.
 
 ---
@@ -81,6 +85,7 @@ src/
 Test files should be named: `*.test.js` or `*.spec.js`
 
 Example:
+
 - `useAdminClaims.test.js`
 - `user-store.test.js`
 - `PineSkeletonLoader.test.js`
@@ -113,6 +118,7 @@ describe('useExample', () => {
 ```
 
 **Key Points:**
+
 - Use `describe` to group related tests
 - Use `beforeEach` to reset mocks/state
 - Test both success and error cases
@@ -158,6 +164,7 @@ describe('Example Store', () => {
 ```
 
 **Key Points:**
+
 - Always call `setActivePinia(createPinia())` before each test
 - Mock Firebase/AWS/external services
 - Test state changes
@@ -182,8 +189,8 @@ describe('ExampleComponent', () => {
   it('accepts props', () => {
     const wrapper = mount(ExampleComponent, {
       props: {
-        title: 'Test Title'
-      }
+        title: 'Test Title',
+      },
     })
     expect(wrapper.props('title')).toBe('Test Title')
   })
@@ -204,6 +211,7 @@ describe('ExampleComponent', () => {
 ```
 
 **Key Points:**
+
 - Use `mount` for full component rendering
 - Test props, events, and slots
 - Test different states (loading, error, success)
@@ -220,7 +228,7 @@ Firebase is automatically mocked in `src/test/setup.js`. To customize:
 ```javascript
 vi.mock('firebase/auth', () => ({
   signInWithEmailAndPassword: vi.fn().mockResolvedValue({
-    user: { uid: 'test-uid', email: 'test@example.com' }
+    user: { uid: 'test-uid', email: 'test@example.com' },
   }),
 }))
 ```
@@ -300,24 +308,27 @@ await waitForAsyncOperations()
 ### ✅ DO:
 
 1. **Test behavior, not implementation**
+
    ```javascript
    // ✅ Good: Tests what user sees
    expect(wrapper.text()).toContain('Success')
-   
+
    // ❌ Bad: Tests internal state
    expect(wrapper.vm.internalCounter).toBe(1)
    ```
 
 2. **Use descriptive test names**
+
    ```javascript
    // ✅ Good
    it('returns false when user is not authenticated')
-   
+
    // ❌ Bad
    it('test auth')
    ```
 
 3. **Clean up after tests**
+
    ```javascript
    beforeEach(() => {
      vi.clearAllMocks()
@@ -360,6 +371,7 @@ open test-report/coverage/index.html
 ### Coverage Thresholds
 
 Current thresholds (in `vitest.config.js`):
+
 - Statements: 50%
 - Branches: 50%
 - Functions: 50%
@@ -427,6 +439,7 @@ pnpm test -- -t "sign in" --watch
 ### "Cannot find module"
 
 **Solution:** Check import paths. Use aliases:
+
 ```javascript
 import { useUserStore } from 'src-stores/user-store'
 import Example from 'src-components/Example.vue'
@@ -442,7 +455,8 @@ import Example from 'src-components/Example.vue'
 
 ### Mock not working
 
-**Solution:** 
+**Solution:**
+
 1. Ensure `vi.mock()` is at top of file
 2. Check mock path matches import path
 3. Use `vi.resetAllMocks()` in `beforeEach`
@@ -479,6 +493,7 @@ jobs:
 ## Test Examples
 
 See existing tests for reference:
+
 - `src/composables/useAdminClaims.test.js` - Composable tests
 - `src/stores/user-store.test.js` - Store tests
 - `src/components/PineSkeletonLoader.test.js` - Component tests (simple)
@@ -510,6 +525,7 @@ See existing tests for reference:
 ## Support
 
 For testing questions or issues:
+
 1. Check Vitest docs: https://vitest.dev/
 2. Check Vue Test Utils: https://test-utils.vuejs.org/
 3. Check Testing Library: https://testing-library.com/docs/vue-testing-library/intro/

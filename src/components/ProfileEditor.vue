@@ -30,19 +30,19 @@
                 <!-- Profile Picture Section -->
                 <div class="text-center q-mb-xl">
                   <q-avatar size="150px" class="shadow-3 cursor-pointer" @click="triggerFileInput">
-                    <img 
-                      v-if="profileForm.photoURL || userPhotoURL" 
-                      :src="profileForm.photoURL || userPhotoURL" 
+                    <img
+                      v-if="profileForm.photoURL || userPhotoURL"
+                      :src="profileForm.photoURL || userPhotoURL"
                       alt="Profile Picture"
                       @error="handleImageError"
-                    >
+                    />
                     <q-icon v-else name="photo_camera" size="60px" color="grey-6" />
-                    
+
                     <q-badge color="primary" floating rounded>
                       <q-icon name="edit" size="xs" />
                     </q-badge>
                   </q-avatar>
-                  
+
                   <div class="q-mt-md">
                     <q-btn
                       flat
@@ -61,15 +61,15 @@
                       @click="removePhoto"
                     />
                   </div>
-                  
+
                   <input
                     ref="fileInput"
                     type="file"
                     accept="image/*"
                     style="display: none"
                     @change="handleFileSelect"
-                  >
-                  
+                  />
+
                   <div v-if="uploadingImage" class="q-mt-md">
                     <q-spinner-hourglass color="primary" size="24px" />
                     <span class="q-ml-sm text-grey-7">Uploading...</span>
@@ -83,7 +83,7 @@
                     label="Display Name"
                     outlined
                     dense
-                    :rules="[val => !!val || 'Name is required']"
+                    :rules="[(val) => !!val || 'Name is required']"
                   >
                     <template v-slot:prepend>
                       <q-icon name="person" />
@@ -139,7 +139,7 @@
                     type="password"
                     outlined
                     dense
-                    :rules="[val => !!val || 'Current password is required']"
+                    :rules="[(val) => !!val || 'Current password is required']"
                   >
                     <template v-slot:prepend>
                       <q-icon name="lock" />
@@ -153,8 +153,8 @@
                     outlined
                     dense
                     :rules="[
-                      val => !!val || 'New password is required',
-                      val => val.length >= 6 || 'Password must be at least 6 characters'
+                      (val) => !!val || 'New password is required',
+                      (val) => val.length >= 6 || 'Password must be at least 6 characters',
                     ]"
                   >
                     <template v-slot:prepend>
@@ -169,8 +169,8 @@
                     outlined
                     dense
                     :rules="[
-                      val => !!val || 'Please confirm your new password',
-                      val => val === passwordForm.newPassword || 'Passwords do not match'
+                      (val) => !!val || 'Please confirm your new password',
+                      (val) => val === passwordForm.newPassword || 'Passwords do not match',
                     ]"
                   >
                     <template v-slot:prepend>
@@ -232,8 +232,8 @@ export default defineComponent({
   props: {
     modelValue: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: ['update:modelValue'],
@@ -252,39 +252,43 @@ export default defineComponent({
     const profileForm = ref({
       displayName: '',
       email: '',
-      photoURL: ''
+      photoURL: '',
     })
 
     const passwordForm = ref({
       currentPassword: '',
       newPassword: '',
-      confirmPassword: ''
+      confirmPassword: '',
     })
 
     const dialogVisible = computed({
       get: () => props.modelValue,
-      set: (value) => emit('update:modelValue', value)
+      set: (value) => emit('update:modelValue', value),
     })
 
     const userPhotoURL = computed(() => userStore.user?.photoURL || '')
 
-    watch(() => props.modelValue, (newVal) => {
-      if (newVal) {
-        initializeForm()
-      }
-    }, { immediate: true })
+    watch(
+      () => props.modelValue,
+      (newVal) => {
+        if (newVal) {
+          initializeForm()
+        }
+      },
+      { immediate: true }
+    )
 
     function initializeForm() {
       profileForm.value = {
         displayName: userStore.user?.displayName || '',
         email: userStore.user?.email || '',
-        photoURL: userStore.user?.photoURL || ''
+        photoURL: userStore.user?.photoURL || '',
       }
 
       passwordForm.value = {
         currentPassword: '',
         newPassword: '',
-        confirmPassword: ''
+        confirmPassword: '',
       }
 
       selectedFile.value = null
@@ -303,7 +307,7 @@ export default defineComponent({
         Notify.create({
           type: 'warning',
           message: 'File size must be less than 5MB',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -312,7 +316,7 @@ export default defineComponent({
         Notify.create({
           type: 'warning',
           message: 'Please select an image file',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -356,7 +360,7 @@ export default defineComponent({
         Notify.create({
           type: 'negative',
           message: 'Failed to upload image',
-          position: 'top'
+          position: 'top',
         })
         return null
       } finally {
@@ -369,7 +373,7 @@ export default defineComponent({
         Notify.create({
           type: 'warning',
           message: 'Display name is required',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -391,7 +395,7 @@ export default defineComponent({
 
         const result = await userStore.updateProfileInfo({
           displayName: profileForm.value.displayName.trim(),
-          photoURL: photoURL || null
+          photoURL: photoURL || null,
         })
 
         if (result.success) {
@@ -409,7 +413,7 @@ export default defineComponent({
         Notify.create({
           type: 'warning',
           message: 'Current password is required',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -418,7 +422,7 @@ export default defineComponent({
         Notify.create({
           type: 'warning',
           message: 'New password is required',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -427,7 +431,7 @@ export default defineComponent({
         Notify.create({
           type: 'warning',
           message: 'New password must be at least 6 characters',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -436,7 +440,7 @@ export default defineComponent({
         Notify.create({
           type: 'warning',
           message: 'Passwords do not match',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -446,14 +450,14 @@ export default defineComponent({
       try {
         const result = await userStore.updatePassword({
           currentPassword: passwordForm.value.currentPassword,
-          newPassword: passwordForm.value.newPassword
+          newPassword: passwordForm.value.newPassword,
         })
 
         if (result.success) {
           passwordForm.value = {
             currentPassword: '',
             newPassword: '',
-            confirmPassword: ''
+            confirmPassword: '',
           }
           closeDialog()
         }
@@ -484,9 +488,9 @@ export default defineComponent({
       removePhoto,
       saveProfileInfo,
       savePassword,
-      closeDialog
+      closeDialog,
     }
-  }
+  },
 })
 </script>
 

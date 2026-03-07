@@ -27,10 +27,10 @@ describe('useAdminClaims', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks()
-    
+
     const { auth } = await import('src-boot/firebase')
     mockAuth = auth
-    
+
     mockUser = {
       uid: 'test-user-uid',
       email: 'test@example.com',

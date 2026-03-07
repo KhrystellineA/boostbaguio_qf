@@ -2,38 +2,18 @@
   <div class="pine-skeleton-loader" :style="{ height: height }">
     <div class="pine-tree-container">
       <!-- Pine Tree SVG Animation -->
-      <svg
-        class="pine-tree"
-        viewBox="0 0 100 150"
-        xmlns="http://www.w3.org/2000/svg"
-      >
+      <svg class="pine-tree" viewBox="0 0 100 150" xmlns="http://www.w3.org/2000/svg">
         <!-- Tree Trunk -->
-        <rect
-          class="pine-trunk"
-          x="45"
-          y="120"
-          width="10"
-          height="30"
-          rx="2"
-        />
+        <rect class="pine-trunk" x="45" y="120" width="10" height="30" rx="2" />
 
         <!-- Tree Layers (animated to grow) -->
         <g class="pine-layers">
           <!-- Bottom Layer -->
-          <polygon
-            class="pine-layer pine-layer-1"
-            points="50,20 15,90 85,90"
-          />
+          <polygon class="pine-layer pine-layer-1" points="50,20 15,90 85,90" />
           <!-- Middle Layer -->
-          <polygon
-            class="pine-layer pine-layer-2"
-            points="50,40 20,80 80,80"
-          />
+          <polygon class="pine-layer pine-layer-2" points="50,40 20,80 80,80" />
           <!-- Top Layer -->
-          <polygon
-            class="pine-layer pine-layer-3"
-            points="50,60 25,90 75,90"
-          />
+          <polygon class="pine-layer pine-layer-3" points="50,60 25,90 75,90" />
         </g>
 
         <!-- Pine Cones (decorative) -->
@@ -79,18 +59,18 @@ export default {
   props: {
     height: {
       type: String,
-      default: '300px'
+      default: '300px',
     },
     showProgress: {
       type: Boolean,
-      default: false
+      default: false,
     },
     progress: {
       type: Number,
       default: 0,
-      validator: (val) => val >= 0 && val <= 100
-    }
-  }
+      validator: (val) => val >= 0 && val <= 100,
+    },
+  },
 }
 </script>
 

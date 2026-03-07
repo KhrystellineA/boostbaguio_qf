@@ -86,7 +86,11 @@
 
 <script>
 import { ref, computed, onMounted } from 'vue'
-import { isSavedForOffline, saveItemForOffline, removeSavedOfflineItem } from 'src/utils/offlineCache'
+import {
+  isSavedForOffline,
+  saveItemForOffline,
+  removeSavedOfflineItem,
+} from 'src/utils/offlineCache'
 import { getOnlineStatus, onOnlineStatusChange } from 'src/utils/offline'
 
 export default {
@@ -96,20 +100,20 @@ export default {
     itemType: {
       type: String,
       required: true,
-      validator: (val) => ['place', 'event', 'jeepney', 'route'].includes(val)
+      validator: (val) => ['place', 'event', 'jeepney', 'route'].includes(val),
     },
     itemId: {
       type: String,
-      required: true
+      required: true,
     },
     itemData: {
       type: Object,
-      required: true
+      required: true,
     },
     itemName: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
   emits: ['saved', 'removed'],
@@ -151,7 +155,7 @@ export default {
         place: '~500 KB',
         event: '~300 KB',
         jeepney: '~200 KB',
-        route: '~150 KB'
+        route: '~150 KB',
       }
       return sizes[props.itemType] || '~250 KB'
     })
@@ -161,7 +165,7 @@ export default {
         place: 'Name, description, location, images, and details',
         event: 'Event details, dates, location, and images',
         jeepney: 'Route information, fares, and schedule',
-        route: 'Route path, stops, and schedule'
+        route: 'Route path, stops, and schedule',
       }
       return content[props.itemType] || 'Item details and content'
     })
@@ -187,7 +191,7 @@ export default {
           // Save for offline
           saveItemForOffline(props.itemType, props.itemId, {
             ...props.itemData,
-            name: props.itemName
+            name: props.itemName,
           })
           isSaved.value = true
           emit('saved', { type: props.itemType, id: props.itemId })
@@ -224,9 +228,9 @@ export default {
       estimatedSize,
       includedContent,
       toggleSave,
-      confirmToggle
+      confirmToggle,
     }
-  }
+  },
 }
 </script>
 

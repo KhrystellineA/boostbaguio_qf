@@ -44,6 +44,7 @@
 **Location:** `src/components/admin/PhotosManagement.vue`
 
 **Responsibilities:**
+
 - Provide UI for admins to upload/manage images
 - Handle file selection and preview
 - Trigger upload to Cloudinary
@@ -63,7 +64,7 @@
 // Step 2: Image is optimized and uploaded to Cloudinary
 async uploadImage() {
   const { uploadOptimizedImage } = await import('src/utils/cloudinary')
-  
+
   const uploadResult = await uploadOptimizedImage(
     this.imageFile,
     'baguiboost/page-photos',      // Cloudinary folder
@@ -74,7 +75,7 @@ async uploadImage() {
       format: 'image/webp'          // Convert to WebP format
     }
   )
-  
+
   // uploadResult contains:
   // {
   //   url: 'https://res.cloudinary.com/xxx/image/upload/v1234567890/baguiboost/page-photos/xxx.webp',
@@ -82,7 +83,7 @@ async uploadImage() {
   //   width: 1920,
   //   height: 1080
   // }
-  
+
   // Step 3: Save metadata to Firestore
   await setDoc(doc(db, 'pagePhotos', this.selectedPage), {
     pageName: this.selectedPage,
@@ -96,6 +97,7 @@ async uploadImage() {
 ```
 
 **Key Points:**
+
 - Images are **optimized before upload** (compressed, resized, converted to WebP)
 - Admin UI shows **preview** before uploading
 - Upload is **atomic** - if Firestore save fails, admin is notified
@@ -108,6 +110,7 @@ async uploadImage() {
 **Configuration:** `src/utils/cloudinary.js`
 
 **What is Cloudinary?**
+
 - Cloud-based image and video management platform
 - Provides **automatic optimization**, transformation, and CDN delivery
 - Faster load times through global CDN
@@ -119,7 +122,7 @@ async uploadImage() {
 // src/utils/cloudinary.js
 
 const CLOUD_NAME = 'your-cloud-name'
-const UPLOAD_PRESET = 'your-upload-preset'  // Unsigned preset for client-side upload
+const UPLOAD_PRESET = 'your-upload-preset' // Unsigned preset for client-side upload
 
 export async function uploadOptimizedImage(file, folder = '', options = {}) {
   // 1. Create FormData for upload
@@ -127,35 +130,33 @@ export async function uploadOptimizedImage(file, folder = '', options = {}) {
   formData.append('file', file)
   formData.append('upload_preset', UPLOAD_PRESET)
   formData.append('folder', folder)
-  
+
   // 2. Add transformation parameters
   if (options.maxWidth) formData.append('width', options.maxWidth)
   if (options.maxHeight) formData.append('height', options.maxHeight)
   if (options.quality) formData.append('quality', `auto:${Math.round(options.quality * 100)}`)
   if (options.format) formData.append('format', options.format.replace('image/', ''))
-  
+
   // 3. Upload to Cloudinary API
-  const response = await fetch(
-    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-    {
-      method: 'POST',
-      body: formData
-    }
-  )
-  
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
+    method: 'POST',
+    body: formData,
+  })
+
   const result = await response.json()
-  
+
   // 4. Return optimized image data
   return {
-    url: result.secure_url,      // HTTPS URL for delivery
-    publicId: result.public_id,  // Unique identifier
+    url: result.secure_url, // HTTPS URL for delivery
+    publicId: result.public_id, // Unique identifier
     width: result.width,
-    height: result.height
+    height: result.height,
   }
 }
 ```
 
 **Image Delivery URL Structure:**
+
 ```
 https://res.cloudinary.com/{cloud_name}/image/upload/{version}/{folder}/{public_id}.{format}
 
@@ -164,6 +165,7 @@ https://res.cloudinary.com/boost-baguio/image/upload/v1234567890/baguiboost/page
 ```
 
 **Benefits:**
+
 - ✅ **Automatic Format Selection:** Delivers WebP to Chrome, AVIF to Firefox, etc.
 - ✅ **Responsive Images:** Can generate multiple sizes on-the-fly
 - ✅ **Lazy Loading:** Built-in support for progressive loading
@@ -218,11 +220,11 @@ https://res.cloudinary.com/boost-baguio/image/upload/v1234567890/baguiboost/page
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
     match /pagePhotos/{photoId} {
       // ✅ PUBLIC READ - Anyone can read images (for user pages)
       allow read: if true;
-      
+
       // 🔒 ADMIN WRITE - Only authenticated admins can modify
       allow create: if isAuthenticated() && isAdmin();
       allow update: if isAuthenticated() && isAdmin();
@@ -233,6 +235,7 @@ service cloud.firestore {
 ```
 
 **Why This Structure?**
+
 - **Decoupled Storage:** Images in Cloudinary, metadata in Firestore
 - **Fast Queries:** Firestore provides instant access to image URLs
 - **Flexible:** Can store multiple images per document (arrays)
@@ -289,18 +292,18 @@ import { doc, getDoc } from 'firebase/firestore'
 setup() {
   const heroImage = ref('')
   const defaultHeroImage = 'https://images.unsplash.com/...'  // Fallback
-  
+
   const loadHeroImage = async () => {
     try {
       console.log('[IndexPage] Loading hero image from Firebase...')
-      
+
       // 1. Query Firestore for image metadata
       const docRef = doc(db, 'pagePhotos', 'home')
       const docSnap = await getDoc(docRef)
-      
+
       if (docSnap.exists()) {
         const data = docSnap.data()
-        
+
         // 2. Check if custom image exists
         if (data.imageUrl) {
           heroImage.value = data.imageUrl
@@ -311,18 +314,18 @@ setup() {
       } else {
         console.log('[IndexPage] No hero image document, using default')
       }
-      
+
     } catch (error) {
       // 3. On error, use fallback image
       console.error('[IndexPage] Error loading hero image:', error)
     }
   }
-  
+
   // 4. Load image when component mounts
   onMounted(() => {
     loadHeroImage()
   })
-  
+
   return {
     heroImage,
     defaultHeroImage
@@ -349,6 +352,7 @@ setup() {
 ```
 
 **Key Points:**
+
 - ✅ **Graceful Fallback:** Always has a default image if Firestore is empty
 - ✅ **Loading State:** Shows spinner while image loads
 - ✅ **Error Handling:** Continues to work even if Firestore query fails
@@ -382,7 +386,7 @@ setup() {
    └─► Quality reduced to 85%
    └─► Converted to WebP format
    └─► POST request to Cloudinary API
-   
+
    Cloudinary Response:
    {
      "secure_url": "https://res.cloudinary.com/.../baguiboost/page-photos/home.webp",
@@ -424,6 +428,7 @@ setup() {
 ## Why This Architecture?
 
 ### 1. **Separation of Concerns**
+
 ```
 Cloudinary  → Specialized for images (storage, optimization, CDN)
 Firestore   → Specialized for metadata (fast queries, security rules)
@@ -432,13 +437,13 @@ Firebase Auth → Specialized for authentication
 
 ### 2. **Performance Benefits**
 
-| Without Cloudinary | With Cloudinary |
-|-------------------|-----------------|
-| Upload 5MB original | Upload 5MB, store 245KB WebP |
-| Serve from single server | Serve from global CDN |
-| Manual optimization | Automatic optimization |
-| Fixed format (JPG/PNG) | Auto WebP/AVIF by browser |
-| Slow on mobile | Fast everywhere |
+| Without Cloudinary       | With Cloudinary              |
+| ------------------------ | ---------------------------- |
+| Upload 5MB original      | Upload 5MB, store 245KB WebP |
+| Serve from single server | Serve from global CDN        |
+| Manual optimization      | Automatic optimization       |
+| Fixed format (JPG/PNG)   | Auto WebP/AVIF by browser    |
+| Slow on mobile           | Fast everywhere              |
 
 ### 3. **Cost Efficiency**
 
@@ -467,20 +472,20 @@ Cloudinary Pricing (Free Tier):
 
 ## Document ID Mapping (Complete Reference)
 
-| Document ID | Admin Label | User Page | Fallback |
-|-------------|-------------|-----------|----------|
-| `home` | HOME (Hero) | IndexPage.vue | Unsplash |
-| `home-features` | HOME (Features) | FeaturesSection.vue | Unsplash |
-| `home-guide` | HOME (Guide Steps) | GuideSection.vue | Icons |
-| `home-about` | HOME (About) | AboutSection.vue | Unsplash |
-| `home-gallery` | HOME (Gallery) | GallerySection.vue | Empty |
-| `apanam` | APANAM | ApanamPage.vue | 44.png |
-| `maykan` | MAYKAN | MaykanPage.vue | 456.png |
-| `pagnaam` | PAGNAAM (Hero) | PagnaamPage.vue | 44.png |
-| `pagnaam-features` | PAGNAAM (Features) | *Not implemented* | N/A |
-| `ayanmo` | AYAN MO (Hero) | AyanMoPage.vue | Fallback |
-| `ayanmo-discovery` | AYAN MO (Discovery) | *Not implemented* | N/A |
-| `aramidem` | ARAMIDEM | AramidemPage.vue | bakery.png |
+| Document ID        | Admin Label         | User Page           | Fallback   |
+| ------------------ | ------------------- | ------------------- | ---------- |
+| `home`             | HOME (Hero)         | IndexPage.vue       | Unsplash   |
+| `home-features`    | HOME (Features)     | FeaturesSection.vue | Unsplash   |
+| `home-guide`       | HOME (Guide Steps)  | GuideSection.vue    | Icons      |
+| `home-about`       | HOME (About)        | AboutSection.vue    | Unsplash   |
+| `home-gallery`     | HOME (Gallery)      | GallerySection.vue  | Empty      |
+| `apanam`           | APANAM              | ApanamPage.vue      | 44.png     |
+| `maykan`           | MAYKAN              | MaykanPage.vue      | 456.png    |
+| `pagnaam`          | PAGNAAM (Hero)      | PagnaamPage.vue     | 44.png     |
+| `pagnaam-features` | PAGNAAM (Features)  | _Not implemented_   | N/A        |
+| `ayanmo`           | AYAN MO (Hero)      | AyanMoPage.vue      | Fallback   |
+| `ayanmo-discovery` | AYAN MO (Discovery) | _Not implemented_   | N/A        |
+| `aramidem`         | ARAMIDEM            | AramidemPage.vue    | bakery.png |
 
 ---
 
@@ -489,6 +494,7 @@ Cloudinary Pricing (Free Tier):
 ### Problem: Image doesn't appear after upload
 
 **Check 1: Browser Console Logs**
+
 ```javascript
 // Should see:
 [Photos] Uploading to Cloudinary...
@@ -498,17 +504,20 @@ Cloudinary Pricing (Free Tier):
 ```
 
 **Check 2: Firestore Document**
+
 ```
 Firebase Console → Firestore → pagePhotos → home
 Should contain: imageUrl, imagePublicId, updatedAt
 ```
 
 **Check 3: Security Rules**
+
 ```
 Ensure pagePhotos has: allow read: if true;
 ```
 
 **Check 4: Browser Cache**
+
 ```
 Hard refresh: Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac)
 ```
@@ -516,23 +525,27 @@ Hard refresh: Ctrl+Shift+R (Windows) or Cmd+Shift+R (Mac)
 ### Problem: Upload fails
 
 **Check 1: File Size**
+
 ```
 Max: 10MB (10485760 bytes)
 Recommended: < 5MB for faster upload
 ```
 
 **Check 2: File Format**
+
 ```
 Accepted: JPG, PNG, WebP, GIF
 ```
 
 **Check 3: Admin Permissions**
+
 ```
 User must be authenticated as admin in Firebase Auth
 Check admins collection for user document
 ```
 
 **Check 4: Cloudinary Credentials**
+
 ```
 Verify CLOUD_NAME and UPLOAD_PRESET in cloudinary.js
 ```
@@ -542,6 +555,7 @@ Verify CLOUD_NAME and UPLOAD_PRESET in cloudinary.js
 ## Future Improvements
 
 1. **Image Preloading**
+
    ```javascript
    // Preload images before page render
    const preloadImage = (url) => {
@@ -555,6 +569,7 @@ Verify CLOUD_NAME and UPLOAD_PRESET in cloudinary.js
    ```
 
 2. **Progressive Image Loading**
+
    ```javascript
    // Load low-res first, then high-res
    const lowResUrl = `${imageUrl}?w=400&q=50`
@@ -562,6 +577,7 @@ Verify CLOUD_NAME and UPLOAD_PRESET in cloudinary.js
    ```
 
 3. **Image Caching Strategy**
+
    ```javascript
    // Cache image URLs in localStorage
    localStorage.setItem('heroImage', imageUrl)
@@ -610,6 +626,7 @@ Verify CLOUD_NAME and UPLOAD_PRESET in cloudinary.js
 ```
 
 This architecture provides:
+
 - ✅ **Fast loading** (CDN + optimization)
 - ✅ **Cost effective** (free tiers, efficient storage)
 - ✅ **Secure** (admin-only writes, public reads)

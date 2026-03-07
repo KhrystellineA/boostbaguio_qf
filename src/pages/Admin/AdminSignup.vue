@@ -35,10 +35,7 @@
               outlined
               label="Full Name"
               class="q-mb-md"
-              :rules="[
-                v => !!v || 'Name required',
-                v => v.length >= 3 || 'Min 3 characters'
-              ]"
+              :rules="[(v) => !!v || 'Name required', (v) => v.length >= 3 || 'Min 3 characters']"
               bg-color="grey-1"
             >
               <template #prepend>
@@ -53,8 +50,8 @@
               type="email"
               class="q-mb-md"
               :rules="[
-                v => !!v || 'Email required',
-                v => /.+@.+\..+/.test(v) || 'Invalid email'
+                (v) => !!v || 'Email required',
+                (v) => /.+@.+\..+/.test(v) || 'Invalid email',
               ]"
               autocomplete="username"
               bg-color="grey-1"
@@ -74,7 +71,7 @@
               emit-value
               map-options
               class="q-mb-md"
-              :rules="[v => !!v || 'Role required']"
+              :rules="[(v) => !!v || 'Role required']"
               bg-color="grey-1"
             >
               <template #prepend>
@@ -89,10 +86,10 @@
               :type="showPassword ? 'text' : 'password'"
               class="q-mb-md"
               :rules="[
-                v => !!v || 'Password required',
-                v => v.length >= 8 || 'Min 8 characters',
-                v => /[A-Z]/.test(v) || 'Need uppercase letter',
-                v => /[0-9]/.test(v) || 'Need a number'
+                (v) => !!v || 'Password required',
+                (v) => v.length >= 8 || 'Min 8 characters',
+                (v) => /[A-Z]/.test(v) || 'Need uppercase letter',
+                (v) => /[0-9]/.test(v) || 'Need a number',
               ]"
               autocomplete="new-password"
               bg-color="grey-1"
@@ -116,8 +113,8 @@
               :type="showConfirmPassword ? 'text' : 'password'"
               class="q-mb-md"
               :rules="[
-                v => !!v || 'Confirm password required',
-                v => v === formData.password || 'Passwords do not match'
+                (v) => !!v || 'Confirm password required',
+                (v) => v === formData.password || 'Passwords do not match',
               ]"
               autocomplete="new-password"
             >
@@ -190,7 +187,7 @@ export default {
         email: '',
         role: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
       },
       showPassword: false,
       showConfirmPassword: false,
@@ -198,28 +195,28 @@ export default {
       roleOptions: [
         {
           label: 'Super Admin - Full access to all features',
-          value: 'super_admin'
+          value: 'super_admin',
         },
         {
           label: 'Routes Administrator - Manage jeepney routes',
-          value: 'routes_admin'
+          value: 'routes_admin',
         },
         {
           label: 'Places Administrator - Manage tourist spots & places',
-          value: 'places_admin'
+          value: 'places_admin',
         },
         {
           label: 'Events Administrator - Manage events & festivals',
-          value: 'events_admin'
-        }
-      ]
+          value: 'events_admin',
+        },
+      ],
     }
   },
 
   methods: {
     async onSubmit() {
       this.loading = true
-      
+
       try {
         const email = this.formData.email.trim().toLowerCase()
         const password = this.formData.password
@@ -235,7 +232,7 @@ export default {
           permissions: this.getDefaultPermissions(this.formData.role),
           createdAt: new Date().toISOString(),
           createdBy: user.uid,
-          lastLogin: null
+          lastLogin: null,
         }
 
         await setDoc(doc(db, 'admins', user.uid), adminData)
@@ -249,11 +246,10 @@ export default {
           message: `Welcome aboard, ${adminData.name}!`,
           icon: 'check_circle',
           position: 'top',
-          color: 'positive'
+          color: 'positive',
         })
 
         this.$router.push('/admin/dashboard')
-        
       } catch (error) {
         console.error('[Admin Signup] Error:', error)
         this.handleError(error)
@@ -267,7 +263,14 @@ export default {
         case 'super_admin':
           return ['super_admin:all']
         case 'routes_admin':
-          return ['routes:read', 'routes:write', 'routes:delete', 'routes:update', 'jeepneyOptions:all', 'analytics:read']
+          return [
+            'routes:read',
+            'routes:write',
+            'routes:delete',
+            'routes:update',
+            'jeepneyOptions:all',
+            'analytics:read',
+          ]
         case 'places_admin':
           return ['places:read', 'places:write', 'places:delete', 'places:update', 'analytics:read']
         case 'events_admin':
@@ -284,7 +287,7 @@ export default {
         'auth/email-already-in-use': 'This email is already registered.',
         'auth/invalid-email': 'Invalid email format.',
         'auth/weak-password': 'Password is too weak.',
-        'auth/operation-not-allowed': 'Email/password accounts are not enabled.'
+        'auth/operation-not-allowed': 'Email/password accounts are not enabled.',
       }
 
       message = errorMap[error?.code] || error?.message || message
@@ -294,10 +297,10 @@ export default {
         message: message,
         icon: 'error',
         position: 'top',
-        timeout: 5000
+        timeout: 5000,
       })
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -377,14 +380,14 @@ export default {
   background: white
   border-radius: 20px
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3)
-  
+
   .q-card__section
     padding: 50px
 
 .form-header
   text-align: center
   margin-bottom: 35px
-  
+
   .icon-wrapper
     background: linear-gradient(135deg, #d8f3dc 0%, #b7e4c7 100%)
     width: 80px
@@ -395,13 +398,13 @@ export default {
     justify-content: center
     margin: 0 auto 20px
     box-shadow: 0 4px 15px rgba(45, 106, 79, 0.2)
-  
+
   h3
     font-size: 28px
     font-weight: 700
     color: #1b4332
     margin: 0 0 5px 0
-  
+
   .subtitle
     font-size: 14px
     color: #6c757d
@@ -412,11 +415,11 @@ export default {
     :deep(.q-field__control)
       border-radius: 12px
       height: 56px
-    
+
     :deep(.q-field__label)
       font-size: 15px
       font-weight: 500
-    
+
     :deep(.q-field__native)
       padding: 16px
 
@@ -429,7 +432,7 @@ export default {
   border-radius: 12px
   margin-top: 10px
   transition: all 0.3s ease
-  
+
   &:hover
     transform: translateY(-2px)
     box-shadow: 0 6px 20px rgba(45, 106, 79, 0.4)
@@ -439,13 +442,13 @@ export default {
     text-align: center
     font-size: 14px
     color: #6c757d
-    
+
     a
       color: #2E5D3E
       font-weight: 600
       cursor: pointer
       text-decoration: none
-      
+
       &:hover
         text-decoration: underline
 
@@ -510,28 +513,28 @@ export default {
   .main-container
     flex-direction: column
     gap: 50px
-    
+
   .branding-section
     align-items: center
     text-align: center
-    
+
   .brand-container
     flex-direction: column
 
 @media (max-width: 600px)
   .admin-signup-page
     padding: 15px
-    
+
   .brand-text h1
     font-size: 42px
-    
+
   .signup-card
     min-width: 100%
     max-width: 100%
-    
+
     .q-card__section
       padding: 35px 25px
-      
+
   .decoration-elements
     display: none
 </style>

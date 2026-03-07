@@ -2,12 +2,7 @@
   <nav class="breadcrumbs-nav" aria-label="Breadcrumb">
     <q-breadcrumbs separator=">" class="breadcrumbs">
       <!-- Home Link -->
-      <q-breadcrumbs-el
-        label="Home"
-        to="/"
-        icon="home"
-        aria-label="Go to homepage"
-      />
+      <q-breadcrumbs-el label="Home" to="/" icon="home" aria-label="Go to homepage" />
 
       <!-- Dynamic Breadcrumbs -->
       <template v-for="(crumb, index) in crumbs" :key="index">
@@ -41,8 +36,8 @@ export default {
     // Override automatic breadcrumbs with custom ones
     customCrumbs: {
       type: Array,
-      default: null
-    }
+      default: null,
+    },
   },
 
   setup(props) {
@@ -65,26 +60,26 @@ export default {
         // Convert segment to readable label
         const label = segment
           .split('-')
-          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(' ')
 
         // Map common routes to icons
         const iconMap = {
-          'admin': 'admin_panel_settings',
-          'dashboard': 'dashboard',
-          'places': 'place',
-          'events': 'event',
-          'routes': 'route',
-          'jeepneys': 'directions_bus',
-          'analytics': 'analytics',
-          'settings': 'settings',
-          'profile': 'person'
+          admin: 'admin_panel_settings',
+          dashboard: 'dashboard',
+          places: 'place',
+          events: 'event',
+          routes: 'route',
+          jeepneys: 'directions_bus',
+          analytics: 'analytics',
+          settings: 'settings',
+          profile: 'person',
         }
 
         breadcrumbs.push({
           label,
           to: cumulativePath,
-          icon: iconMap[segment.toLowerCase()] || null
+          icon: iconMap[segment.toLowerCase()] || null,
         })
       })
 
@@ -92,9 +87,9 @@ export default {
     })
 
     return {
-      crumbs
+      crumbs,
     }
-  }
+  },
 }
 </script>
 

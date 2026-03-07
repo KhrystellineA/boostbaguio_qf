@@ -1,6 +1,12 @@
 <template>
   <transition name="slide-down">
-    <div v-if="showIndicator" class="offline-indicator" :class="statusClass" role="status" aria-live="polite">
+    <div
+      v-if="showIndicator"
+      class="offline-indicator"
+      :class="statusClass"
+      role="status"
+      aria-live="polite"
+    >
       <div class="offline-indicator__content">
         <q-icon :name="statusIcon" size="sm" class="offline-indicator__icon" />
         <div class="offline-indicator__text">
@@ -50,7 +56,7 @@ import {
   getConnectionQuality,
   onOnlineStatusChange,
   getQueueLength,
-  processOfflineQueue
+  processOfflineQueue,
 } from 'src/utils/offline'
 
 export default {
@@ -60,16 +66,16 @@ export default {
     position: {
       type: String,
       default: 'top',
-      validator: (val) => ['top', 'bottom'].includes(val)
+      validator: (val) => ['top', 'bottom'].includes(val),
     },
     autoDismiss: {
       type: Boolean,
-      default: false
+      default: false,
     },
     autoDismissDelay: {
       type: Number,
-      default: 5000
-    }
+      default: 5000,
+    },
   },
 
   emits: ['retry', 'dismiss'],
@@ -177,7 +183,7 @@ export default {
       // Initial check
       updateStatus({
         isOnline: getOnlineStatus(),
-        connectionQuality: getConnectionQuality()
+        connectionQuality: getConnectionQuality(),
       })
 
       // Periodic queue check
@@ -211,9 +217,9 @@ export default {
       statusSubtitle,
       showRetry,
       handleRetry,
-      dismissIndicator
+      dismissIndicator,
     }
-  }
+  },
 }
 </script>
 

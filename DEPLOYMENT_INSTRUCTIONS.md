@@ -5,6 +5,7 @@
 ### Step 1: Set Firebase Custom Claims for Admins
 
 First, you need Firebase Admin credentials. Get them from:
+
 - Firebase Console → Project Settings → Service Accounts
 - Click "Generate new private key"
 - Download the JSON file
@@ -21,17 +22,20 @@ FIREBASE_ADMIN_CLIENT_EMAIL=your-service-account@boost-baguio.iam.gserviceaccoun
 FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
 ```
 
-⚠️ **Important:** 
+⚠️ **Important:**
+
 - Use the `client_email` from the downloaded JSON file
 - Use the `private_key` from the downloaded JSON file (keep the quotes and `\n` characters)
 - **Do NOT commit** `.env` to git (it's in `.gitignore`)
 
 Then run the script:
+
 ```bash
 node set-admin-custom-claims.js
 ```
 
 Expected output:
+
 ```
 🚀 Starting to set Firebase Custom Claims for admins...
 
@@ -53,6 +57,7 @@ firebase deploy --only firestore:rules
 ```
 
 This will update your Firestore security rules with:
+
 - Admin-only write access for events, places, routes, jeepneys
 - Data validation for all fields
 - Rules for error_logs, activity_logs, contactMessages
@@ -90,6 +95,7 @@ vercel --prod
 Custom claims are embedded in the Firebase ID token, which refreshes on login.
 
 **Tell your admins:**
+
 > "Please sign out and sign back in to access the admin dashboard."
 
 ---
@@ -102,16 +108,16 @@ Open browser console on your live site:
 
 ```javascript
 // Test as REGULAR user (should FAIL)
-const db = firebase.firestore();
+const db = firebase.firestore()
 try {
   await db.collection('events').add({
     title: 'Test',
     startDate: new Date(),
-    endDate: new Date()
-  });
-  console.log('❌ SECURITY ISSUE: Regular user can write!');
+    endDate: new Date(),
+  })
+  console.log('❌ SECURITY ISSUE: Regular user can write!')
 } catch (e) {
-  console.log('✅ Security working: Regular user cannot write');
+  console.log('✅ Security working: Regular user cannot write')
 }
 ```
 
@@ -122,6 +128,7 @@ try {
 3. Should load successfully ✅
 
 Try as regular user:
+
 1. Sign in as regular user
 2. Navigate to `/admin/dashboard`
 3. Should redirect to home ✅
@@ -140,6 +147,7 @@ pnpm test
 ```
 
 Expected output:
+
 ```
 ✓ src/composables/useAdminClaims.test.js (20 tests | 1 skipped)
 ✓ src/stores/user-store.test.js (19 tests)
@@ -192,13 +200,17 @@ After deployment, verify:
 **Cause:** Custom claims not set or admin hasn't re-logged in
 
 **Solution:**
+
 1. Run `node set-admin-custom-claims.js` again
 2. Have admin sign out and sign back in
 3. Check claims in browser console:
    ```javascript
-   firebase.auth().currentUser.getIdTokenResult().then(result => {
-     console.log('Claims:', result.claims);
-   });
+   firebase
+     .auth()
+     .currentUser.getIdTokenResult()
+     .then((result) => {
+       console.log('Claims:', result.claims)
+     })
    ```
 
 ### Admin dashboard shows "Admin profile not found"
@@ -206,6 +218,7 @@ After deployment, verify:
 **Cause:** Admin document missing from Firestore
 
 **Solution:**
+
 1. Check Firestore → `admins` collection
 2. Verify document exists with user's UID
 3. If missing, create it manually or re-run admin creation script
@@ -215,6 +228,7 @@ After deployment, verify:
 **Cause:** Usually mock caching issues in Vitest
 
 **Solution:**
+
 ```bash
 # Clear Vitest cache
 rm -rf node_modules/.vite
@@ -231,6 +245,7 @@ pnpm test:run
 ### Monitor for 24 Hours
 
 Watch for:
+
 - Error logs in Firebase Console
 - Admin complaints about access
 - Unusual activity in Firestore
@@ -238,6 +253,7 @@ Watch for:
 ### Next Steps
 
 After successful deployment:
+
 1. ✅ Monitor error logs
 2. ✅ Gather admin feedback
 3. 📋 Plan Phase 3 (Component Refactoring)
@@ -267,12 +283,12 @@ If you encounter issues:
 
 ## Summary
 
-| Step | Command | Time |
-|------|---------|------|
-| 1. Set custom claims | `node set-admin-custom-claims.js` | 1 min |
-| 2. Deploy rules | `firebase deploy --only firestore:rules` | 30 sec |
-| 3. Deploy to Vercel | `git push` or `vercel --prod` | 2-5 min |
-| 4. Admin re-login | Manual | 1 min per admin |
+| Step                 | Command                                  | Time            |
+| -------------------- | ---------------------------------------- | --------------- |
+| 1. Set custom claims | `node set-admin-custom-claims.js`        | 1 min           |
+| 2. Deploy rules      | `firebase deploy --only firestore:rules` | 30 sec          |
+| 3. Deploy to Vercel  | `git push` or `vercel --prod`            | 2-5 min         |
+| 4. Admin re-login    | Manual                                   | 1 min per admin |
 
 **Total deployment time: ~5-10 minutes**
 

@@ -47,9 +47,7 @@ export function useIndexPage() {
     }
 
     // Simple location search - can be enhanced later
-    fromLocationOptions.value = [
-      { label: fromLocationText.value, value: fromLocationText.value }
-    ]
+    fromLocationOptions.value = [{ label: fromLocationText.value, value: fromLocationText.value }]
   }
 
   // Detect current location
@@ -71,10 +69,10 @@ export function useIndexPage() {
         fromLocation.value = {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
-          label: 'Current Location'
+          label: 'Current Location',
         }
         fromLocationText.value = 'Your current location'
-        
+
         $q.notify({
           type: 'positive',
           message: 'Location detected successfully!',
@@ -85,7 +83,7 @@ export function useIndexPage() {
         console.error('[IndexPage] Location detection error:', error)
         fromAutoDetect.value = false
         fromLocationText.value = ''
-        
+
         $q.notify({
           type: 'warning',
           message: 'Unable to detect location. Please enter manually.',
@@ -95,7 +93,7 @@ export function useIndexPage() {
       {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 0
+        maximumAge: 0,
       }
     )
   }
@@ -131,7 +129,7 @@ export function useIndexPage() {
     // This will be handled by the router
     console.log('[IndexPage] Starting navigation:', {
       from: fromLocation.value || fromLocationText.value,
-      to: toLocation.value
+      to: toLocation.value,
     })
   }
 
@@ -158,7 +156,7 @@ export function useIndexPage() {
     toLocationOptions,
     fromAutoDetect,
     heroImage,
-    
+
     // Methods
     searchFromLocation,
     detectCurrentLocation,

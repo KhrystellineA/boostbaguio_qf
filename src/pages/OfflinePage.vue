@@ -5,14 +5,10 @@
         <div class="icon-container q-mb-xl">
           <q-icon name="cloud_off" size="120px" color="grey-6" />
         </div>
-        
-        <div class="text-h3 text-weight-bold text-primary q-mb-sm">
-          You're Offline
-        </div>
-        
-        <div class="text-body1 text-grey-7 q-mb-xl">
-          No internet connection detected
-        </div>
+
+        <div class="text-h3 text-weight-bold text-primary q-mb-sm">You're Offline</div>
+
+        <div class="text-body1 text-grey-7 q-mb-xl">No internet connection detected</div>
 
         <!-- Status Indicators -->
         <div class="status-section q-mb-xl">
@@ -38,7 +34,7 @@
             padding="12px 24px"
             class="q-mr-md"
           />
-          
+
           <q-btn
             v-if="userStore.isPremium"
             color="secondary"
@@ -69,12 +65,10 @@
 
         <!-- Cached Routes Preview (for premium users) -->
         <div v-if="userStore.isPremium && cachedRoutes.length > 0" class="cached-section">
-          <div class="text-h6 text-weight-bold text-primary q-mb-md">
-            Available Offline Routes
-          </div>
+          <div class="text-h6 text-weight-bold text-primary q-mb-md">Available Offline Routes</div>
           <q-list bordered separator class="rounded-borders route-list">
-            <q-item 
-              v-for="route in cachedRoutes" 
+            <q-item
+              v-for="route in cachedRoutes"
               :key="route.id"
               clickable
               @click="viewRoute(route)"
@@ -138,28 +132,28 @@ onMounted(async () => {
 
 const retryConnection = async () => {
   retrying.value = true
-  
+
   try {
     // Simulate connection check
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
     if (navigator.onLine) {
       $q.notify({
         type: 'positive',
         message: 'Connection restored!',
         position: 'top',
-        timeout: 1500
+        timeout: 1500,
       })
-      
+
       router.push('/')
     } else {
-      throw new Error('Still offline');
+      throw new Error('Still offline')
     }
   } catch {
     $q.notify({
       type: 'negative',
       message: 'Still offline. Please check your connection.',
-      position: 'top'
+      position: 'top',
     })
   } finally {
     retrying.value = false
@@ -236,12 +230,12 @@ const upgradeToPremium = () => {
 
 .status-card.positive {
   background: rgba(76, 175, 80, 0.1);
-  color: #4CAF50;
+  color: #4caf50;
 }
 
 .status-card.warning {
   background: rgba(255, 152, 0, 0.1);
-  color: #FF9800;
+  color: #ff9800;
 }
 
 .action-buttons {
@@ -253,7 +247,7 @@ const upgradeToPremium = () => {
 
 .upgrade-prompt {
   padding: 1.5rem;
-  background: linear-gradient(135deg, #8D6E63 0%, #A1887F 100%);
+  background: linear-gradient(135deg, #8d6e63 0%, #a1887f 100%);
   color: white;
   border-radius: 12px;
   margin: 0 auto;
@@ -301,19 +295,19 @@ const upgradeToPremium = () => {
 }
 
 .text-primary {
-  color: #2E5D3E !important;
+  color: #2e5d3e !important;
 }
 
 .text-secondary {
-  color: #8D6E63 !important;
+  color: #8d6e63 !important;
 }
 
 .bg-primary {
-  background-color: #2E5D3E !important;
+  background-color: #2e5d3e !important;
 }
 
 .bg-secondary {
-  background-color: #8D6E63 !important;
+  background-color: #8d6e63 !important;
 }
 
 .rounded-borders {
@@ -324,27 +318,27 @@ const upgradeToPremium = () => {
   .offline-container {
     padding: 1rem;
   }
-  
+
   .offline-content {
     padding: 1.5rem;
   }
-  
+
   .icon-container {
     width: 120px;
     height: 120px;
   }
-  
+
   .action-buttons {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .action-buttons .q-btn {
     width: 100%;
     margin-right: 0 !important;
     margin-bottom: 0.5rem;
   }
-  
+
   .tips-grid {
     grid-template-columns: 1fr;
   }

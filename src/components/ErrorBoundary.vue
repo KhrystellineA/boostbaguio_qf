@@ -3,13 +3,13 @@
     <div v-if="hasError" class="error-fallback">
       <div class="error-content">
         <q-icon name="error_outline" size="64px" color="negative" class="q-mb-md" />
-        
+
         <h4 class="q-my-md">Oops! Something went wrong</h4>
-        
+
         <p class="text-grey-7 q-mb-lg">
           {{ errorMessage }}
         </p>
-        
+
         <div class="error-actions q-gutter-sm">
           <q-btn
             v-if="showRetry"
@@ -21,16 +21,9 @@
             @click="handleRetry"
             :loading="isRetrying"
           />
-          
-          <q-btn
-            unelevated
-            color="secondary"
-            label="Go Home"
-            icon="home"
-            no-caps
-            @click="goHome"
-          />
-          
+
+          <q-btn unelevated color="secondary" label="Go Home" icon="home" no-caps @click="goHome" />
+
           <q-btn
             flat
             color="grey-7"
@@ -40,12 +33,12 @@
             @click="showDetails = !showDetails"
           />
         </div>
-        
+
         <div v-if="showDetails" class="error-details q-mt-md">
           <q-separator class="q-mb-md" />
-          
+
           <div class="text-caption text-grey-6 q-mb-sm">Error Details:</div>
-          
+
           <q-card flat bordered class="bg-grey-2 q-mb-md">
             <q-card-section class="q-pa-sm">
               <div class="text-body2"><strong>Component:</strong> {{ componentName }}</div>
@@ -53,10 +46,10 @@
               <div class="text-body2"><strong>Time:</strong> {{ errorTime }}</div>
             </q-card-section>
           </q-card>
-          
+
           <div class="text-caption text-grey-6 q-mb-sm">Stack Trace:</div>
           <pre class="error-stack">{{ errorStack }}</pre>
-          
+
           <q-btn
             flat
             size="sm"
@@ -70,7 +63,7 @@
         </div>
       </div>
     </div>
-    
+
     <slot v-else></slot>
   </div>
 </template>
@@ -85,20 +78,20 @@ export default {
   props: {
     componentName: {
       type: String,
-      default: 'Unknown Component'
+      default: 'Unknown Component',
     },
     showRetry: {
       type: Boolean,
-      default: true
+      default: true,
     },
     customErrorMessage: {
       type: String,
-      default: null
+      default: null,
     },
     onError: {
       type: Function,
-      default: null
-    }
+      default: null,
+    },
   },
 
   emits: ['error', 'retry'],
@@ -109,7 +102,7 @@ export default {
       error: null,
       errorInfo: null,
       showDetails: false,
-      isRetrying: false
+      isRetrying: false,
     }
   },
 
@@ -118,11 +111,11 @@ export default {
       if (this.customErrorMessage) {
         return this.customErrorMessage
       }
-      
+
       if (!this.error) {
         return 'An unexpected error occurred.'
       }
-      
+
       const formatted = formatError(this.error)
       return formatted.message || 'An unexpected error occurred.'
     },
@@ -140,7 +133,7 @@ export default {
     errorStack() {
       if (!this.error) return 'No stack trace available'
       return this.error.stack || this.error.toString()
-    }
+    },
   },
 
   created() {
@@ -167,8 +160,8 @@ export default {
         severity: 'high',
         metadata: {
           componentStack: errorInfo.componentStack,
-          props: this.$props
-        }
+          props: this.$props,
+        },
       })
 
       // Emit error event
@@ -182,16 +175,16 @@ export default {
 
     async handleRetry() {
       this.isRetrying = true
-      
+
       try {
         // Emit retry event
         this.$emit('retry')
-        
+
         // Reset error state
         this.hasError = false
         this.error = null
         this.errorInfo = null
-        
+
         // Force component re-render
         this.$forceUpdate()
       } catch (error) {
@@ -211,7 +204,7 @@ export default {
         errorCode: this.errorCode,
         message: this.errorMessage,
         time: this.errorTime,
-        stack: this.errorStack
+        stack: this.errorStack,
       }
 
       try {
@@ -220,7 +213,7 @@ export default {
           type: 'positive',
           message: 'Error details copied to clipboard',
           position: 'top',
-          timeout: 2000
+          timeout: 2000,
         })
       } catch (error) {
         console.error('[ErrorBoundary] Failed to copy:', error)
@@ -238,8 +231,8 @@ export default {
       this.error = null
       this.errorInfo = null
       this.showDetails = false
-    }
-  }
+    },
+  },
 }
 </script>
 

@@ -281,7 +281,9 @@
               </q-item-section>
               <q-item-section>
                 <q-item-label class="text-caption text-grey-7">Timestamp</q-item-label>
-                <q-item-label class="text-weight-bold">{{ selectedLog?.timestamp?.toDate()?.toLocaleString() }}</q-item-label>
+                <q-item-label class="text-weight-bold">{{
+                  selectedLog?.timestamp?.toDate()?.toLocaleString()
+                }}</q-item-label>
               </q-item-section>
             </q-item>
 
@@ -291,7 +293,9 @@
               </q-item-section>
               <q-item-section>
                 <q-item-label class="text-caption text-grey-7">Admin</q-item-label>
-                <q-item-label class="text-weight-bold">{{ selectedLog?.admin?.name }} ({{ selectedLog?.admin?.role }})</q-item-label>
+                <q-item-label class="text-weight-bold"
+                  >{{ selectedLog?.admin?.name }} ({{ selectedLog?.admin?.role }})</q-item-label
+                >
                 <q-item-label caption>{{ selectedLog?.admin?.email }}</q-item-label>
               </q-item-section>
             </q-item>
@@ -341,7 +345,9 @@
               <q-item-section>
                 <q-item-label class="text-caption text-grey-7">Metadata</q-item-label>
                 <q-item-label>
-                  <pre class="metadata-pre">{{ JSON.stringify(selectedLog.metadata, null, 2) }}</pre>
+                  <pre class="metadata-pre">{{
+                    JSON.stringify(selectedLog.metadata, null, 2)
+                  }}</pre>
                 </q-item-label>
               </q-item-section>
             </q-item>
@@ -391,10 +397,19 @@ export default {
         resource: null,
         admin: null,
         dateFrom: null,
-        dateTo: null
+        dateTo: null,
       },
       adminList: [],
-      actionTypeOptions: ['create', 'update', 'delete', 'bulk_delete', 'login', 'logout', 'export', 'import'],
+      actionTypeOptions: [
+        'create',
+        'update',
+        'delete',
+        'bulk_delete',
+        'login',
+        'logout',
+        'export',
+        'import',
+      ],
       resourceOptions: ['places', 'events', 'jeepneys', 'routes', 'admins', 'photos', 'users'],
       columns: [
         {
@@ -402,41 +417,41 @@ export default {
           label: 'Timestamp',
           field: 'timestamp',
           align: 'left',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'admin',
           label: 'Admin',
           field: 'admin',
           align: 'left',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'action',
           label: 'Action',
           field: 'action',
           align: 'center',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'resource',
           label: 'Resource',
           field: 'resource',
           align: 'center',
-          sortable: true
+          sortable: true,
         },
         {
           name: 'details',
           label: 'Details',
           field: 'description',
-          align: 'left'
+          align: 'left',
         },
         {
           name: 'actions',
           label: 'Actions',
           field: 'actions',
-          align: 'center'
-        }
+          align: 'center',
+        },
       ],
       stats: {
         today: 0,
@@ -445,9 +460,9 @@ export default {
           places: 0,
           events: 0,
           jeepneys: 0,
-          admins: 0
-        }
-      }
+          admins: 0,
+        },
+      },
     }
   },
 
@@ -458,32 +473,33 @@ export default {
       // Search filter
       if (this.filters.search) {
         const search = this.filters.search.toLowerCase()
-        result = result.filter(log =>
-          log.description?.toLowerCase().includes(search) ||
-          log.admin?.name?.toLowerCase().includes(search) ||
-          log.resource?.toLowerCase().includes(search)
+        result = result.filter(
+          (log) =>
+            log.description?.toLowerCase().includes(search) ||
+            log.admin?.name?.toLowerCase().includes(search) ||
+            log.resource?.toLowerCase().includes(search)
         )
       }
 
       // Action type filter
       if (this.filters.actionType) {
-        result = result.filter(log => log.action === this.filters.actionType)
+        result = result.filter((log) => log.action === this.filters.actionType)
       }
 
       // Resource filter
       if (this.filters.resource) {
-        result = result.filter(log => log.resource === this.filters.resource)
+        result = result.filter((log) => log.resource === this.filters.resource)
       }
 
       // Admin filter
       if (this.filters.admin) {
-        result = result.filter(log => log.admin?.name === this.filters.admin)
+        result = result.filter((log) => log.admin?.name === this.filters.admin)
       }
 
       // Date range filter
       if (this.filters.dateFrom) {
         const fromDate = new Date(this.filters.dateFrom)
-        result = result.filter(log => {
+        result = result.filter((log) => {
           const logDate = log.timestamp?.toDate()
           return logDate && logDate >= fromDate
         })
@@ -492,7 +508,7 @@ export default {
       if (this.filters.dateTo) {
         const toDate = new Date(this.filters.dateTo)
         toDate.setHours(23, 59, 59, 999)
-        result = result.filter(log => {
+        result = result.filter((log) => {
           const logDate = log.timestamp?.toDate()
           return logDate && logDate <= toDate
         })
@@ -502,8 +518,8 @@ export default {
     },
 
     adminOptions() {
-      return this.adminList.map(admin => admin.name)
-    }
+      return this.adminList.map((admin) => admin.name)
+    },
   },
 
   mounted() {
@@ -514,16 +530,12 @@ export default {
     async loadActivityLogs() {
       this.loading = true
       try {
-        const q = query(
-          collection(db, 'activity_logs'),
-          orderBy('timestamp', 'desc'),
-          limit(500)
-        )
+        const q = query(collection(db, 'activity_logs'), orderBy('timestamp', 'desc'), limit(500))
 
         const snapshot = await getDocs(q)
-        this.logs = snapshot.docs.map(doc => ({
+        this.logs = snapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         }))
 
         this.calculateStats()
@@ -533,14 +545,14 @@ export default {
           type: 'positive',
           message: 'Activity logs loaded',
           position: 'top',
-          timeout: 2000
+          timeout: 2000,
         })
       } catch (error) {
         console.error('[Activity Logs] Error loading:', error)
         this.$q.notify({
           type: 'negative',
           message: 'Failed to load activity logs',
-          position: 'top'
+          position: 'top',
         })
       } finally {
         this.loading = false
@@ -558,10 +570,10 @@ export default {
         places: 0,
         events: 0,
         jeepneys: 0,
-        admins: 0
+        admins: 0,
       }
 
-      this.logs.forEach(log => {
+      this.logs.forEach((log) => {
         const logDate = log.timestamp?.toDate()
         if (!logDate) return
 
@@ -583,7 +595,7 @@ export default {
 
     extractAdminList() {
       const adminMap = new Map()
-      this.logs.forEach(log => {
+      this.logs.forEach((log) => {
         if (log.admin?.name && !adminMap.has(log.admin.name)) {
           adminMap.set(log.admin.name, log.admin)
         }
@@ -609,7 +621,7 @@ export default {
         login: 'purple',
         logout: 'grey',
         export: 'teal',
-        import: 'orange'
+        import: 'orange',
       }
       return colors[action] || 'grey'
     },
@@ -623,7 +635,7 @@ export default {
         login: 'login',
         logout: 'logout',
         export: 'download',
-        import: 'upload_file'
+        import: 'upload_file',
       }
       return icons[action] || 'info'
     },
@@ -636,7 +648,7 @@ export default {
         routes: 'indigo',
         admins: 'purple',
         photos: 'pink',
-        users: 'teal'
+        users: 'teal',
       }
       return colors[resource] || 'grey'
     },
@@ -649,7 +661,7 @@ export default {
         routes: 'route',
         admins: 'admin_panel_settings',
         photos: 'photo_library',
-        users: 'people'
+        users: 'people',
       }
       return icons[resource] || 'folder'
     },
@@ -671,7 +683,7 @@ export default {
         day: 'numeric',
         year: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
       })
     },
 
@@ -694,11 +706,19 @@ export default {
     async exportToCSV() {
       try {
         const date = new Date().toISOString().split('T')[0]
-        const headers = ['Timestamp', 'Admin Name', 'Admin Email', 'Action', 'Resource', 'Description', 'IP Address']
+        const headers = [
+          'Timestamp',
+          'Admin Name',
+          'Admin Email',
+          'Action',
+          'Resource',
+          'Description',
+          'IP Address',
+        ]
 
         const rows = [headers.join(',')]
 
-        this.filteredLogs.forEach(log => {
+        this.filteredLogs.forEach((log) => {
           const row = [
             log.timestamp?.toDate()?.toLocaleString() || '',
             log.admin?.name || '',
@@ -706,7 +726,7 @@ export default {
             log.action || '',
             log.resource || '',
             `"${(log.description || '').replace(/"/g, '""')}"`,
-            log.ipAddress || ''
+            log.ipAddress || '',
           ]
           rows.push(row.join(','))
         })
@@ -726,14 +746,14 @@ export default {
         this.$q.notify({
           type: 'positive',
           message: 'Activity logs exported to CSV successfully!',
-          position: 'top'
+          position: 'top',
         })
       } catch (error) {
         console.error('[Activity Logs] Error exporting CSV:', error)
         this.$q.notify({
           type: 'negative',
           message: 'Failed to export to CSV',
-          position: 'top'
+          position: 'top',
         })
       }
     },
@@ -742,57 +762,59 @@ export default {
       const thirtyDaysAgo = new Date()
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-      this.$q.dialog({
-        title: 'Clear Old Logs',
-        message: `Delete all activity logs older than 30 days? This action cannot be undone.`,
-        cancel: true,
-        persistent: true
-      }).onOk(async () => {
-        this.loading = true
-        try {
-          const q = query(collection(db, 'activity_logs'))
-          const snapshot = await getDocs(q)
+      this.$q
+        .dialog({
+          title: 'Clear Old Logs',
+          message: `Delete all activity logs older than 30 days? This action cannot be undone.`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          this.loading = true
+          try {
+            const q = query(collection(db, 'activity_logs'))
+            const snapshot = await getDocs(q)
 
-          let deletedCount = 0
-          const deletePromises = []
+            let deletedCount = 0
+            const deletePromises = []
 
-          snapshot.docs.forEach(doc => {
-            const data = doc.data()
-            const logDate = data.timestamp?.toDate()
-            if (logDate && logDate < thirtyDaysAgo) {
-              deletePromises.push(deleteDoc(doc(db, 'activity_logs', doc.id)))
-              deletedCount++
+            snapshot.docs.forEach((doc) => {
+              const data = doc.data()
+              const logDate = data.timestamp?.toDate()
+              if (logDate && logDate < thirtyDaysAgo) {
+                deletePromises.push(deleteDoc(doc(db, 'activity_logs', doc.id)))
+                deletedCount++
+              }
+            })
+
+            if (deletePromises.length > 0) {
+              await Promise.all(deletePromises)
+              this.$q.notify({
+                type: 'positive',
+                message: `Cleared ${deletedCount} old activity logs`,
+                position: 'top',
+              })
+              this.loadActivityLogs()
+            } else {
+              this.$q.notify({
+                type: 'info',
+                message: 'No logs older than 30 days found',
+                position: 'top',
+              })
             }
-          })
-
-          if (deletePromises.length > 0) {
-            await Promise.all(deletePromises)
+          } catch (error) {
+            console.error('[Activity Logs] Error clearing old logs:', error)
             this.$q.notify({
-              type: 'positive',
-              message: `Cleared ${deletedCount} old activity logs`,
-              position: 'top'
+              type: 'negative',
+              message: 'Failed to clear old logs',
+              position: 'top',
             })
-            this.loadActivityLogs()
-          } else {
-            this.$q.notify({
-              type: 'info',
-              message: 'No logs older than 30 days found',
-              position: 'top'
-            })
+          } finally {
+            this.loading = false
           }
-        } catch (error) {
-          console.error('[Activity Logs] Error clearing old logs:', error)
-          this.$q.notify({
-            type: 'negative',
-            message: 'Failed to clear old logs',
-            position: 'top'
-          })
-        } finally {
-          this.loading = false
-        }
-      })
-    }
-  }
+        })
+    },
+  },
 }
 </script>
 

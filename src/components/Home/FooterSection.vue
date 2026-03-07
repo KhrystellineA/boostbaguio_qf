@@ -133,11 +133,11 @@ export default {
 
 <style lang="scss" scoped>
 // Color Palette Variables
-$dark-green: #1B4332;
-$primary-green: #2E5D3E;
-$light-green: #9EC98F;
-$brown: #6B5344;
-$white: #FFFFFF;
+$dark-green: #1b4332;
+$primary-green: #2e5d3e;
+$light-green: #9ec98f;
+$brown: #6b5344;
+$white: #ffffff;
 
 // Contact CTA Bar
 .contact-cta-bar {
@@ -188,7 +188,7 @@ $white: #FFFFFF;
 
 // Contact Section
 .contact-section {
-  background: #1A1A1A;
+  background: #1a1a1a;
   padding: 5rem 0;
 }
 

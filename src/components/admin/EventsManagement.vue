@@ -36,13 +36,7 @@
 
     <q-card>
       <q-card-section>
-        <q-input
-          v-model="search"
-          outlined
-          placeholder="Search events..."
-          dense
-          class="q-mb-md"
-        >
+        <q-input v-model="search" outlined placeholder="Search events..." dense class="q-mb-md">
           <template #prepend>
             <q-icon name="search" />
           </template>
@@ -69,12 +63,7 @@
 
           <template #body-cell-featured="props">
             <q-td :props="props">
-              <q-icon 
-                v-if="props.value" 
-                name="star" 
-                color="amber" 
-                size="24px"
-              >
+              <q-icon v-if="props.value" name="star" color="amber" size="24px">
                 <q-tooltip>Featured Event</q-tooltip>
               </q-icon>
               <q-icon v-else name="star_border" color="grey-4" size="24px" />
@@ -120,13 +109,15 @@
     <q-dialog v-model="showAddDialog" @hide="onDialogHide">
       <q-card style="min-width: 500px; max-width: 600px">
         <q-card-section>
-          <div class="text-h6 text-pine-green">{{ editingEvent ? 'Edit Event' : 'Add New Event' }}</div>
+          <div class="text-h6 text-pine-green">
+            {{ editingEvent ? 'Edit Event' : 'Add New Event' }}
+          </div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
           <div class="q-mb-md">
             <div class="text-subtitle2 q-mb-sm">Event Image</div>
-            
+
             <div v-if="imagePreview || form.imageUrl" class="image-preview-container q-mb-sm">
               <img :src="imagePreview || form.imageUrl" class="image-preview" />
               <q-btn
@@ -155,9 +146,7 @@
               <template #prepend>
                 <q-icon name="image" />
               </template>
-              <template #hint>
-                Max 5MB (JPG, PNG, WebP)
-              </template>
+              <template #hint> Max 5MB (JPG, PNG, WebP) </template>
             </q-file>
           </div>
 
@@ -170,9 +159,12 @@
             label="Event Name *"
             class="q-mb-md"
             :rules="[
-              val => required(val, 'Event name').valid || required(val, 'Event name').message,
-              val => minLength(val, 3, 'Event name').valid || minLength(val, 3, 'Event name').message,
-              val => maxLength(val, 200, 'Event name').valid || maxLength(val, 200, 'Event name').message
+              (val) => required(val, 'Event name').valid || required(val, 'Event name').message,
+              (val) =>
+                minLength(val, 3, 'Event name').valid || minLength(val, 3, 'Event name').message,
+              (val) =>
+                maxLength(val, 200, 'Event name').valid ||
+                maxLength(val, 200, 'Event name').message,
             ]"
           />
 
@@ -183,9 +175,14 @@
             label="Event Organizer *"
             class="q-mb-md"
             :rules="[
-              val => required(val, 'Event organizer').valid || required(val, 'Event organizer').message,
-              val => minLength(val, 2, 'Event organizer').valid || minLength(val, 2, 'Event organizer').message,
-              val => maxLength(val, 100, 'Event organizer').valid || maxLength(val, 100, 'Event organizer').message
+              (val) =>
+                required(val, 'Event organizer').valid || required(val, 'Event organizer').message,
+              (val) =>
+                minLength(val, 2, 'Event organizer').valid ||
+                minLength(val, 2, 'Event organizer').message,
+              (val) =>
+                maxLength(val, 100, 'Event organizer').valid ||
+                maxLength(val, 100, 'Event organizer').message,
             ]"
           />
 
@@ -196,9 +193,14 @@
             label="Event Location *"
             class="q-mb-md"
             :rules="[
-              val => required(val, 'Event location').valid || required(val, 'Event location').message,
-              val => minLength(val, 5, 'Event location').valid || minLength(val, 5, 'Event location').message,
-              val => maxLength(val, 200, 'Event location').valid || maxLength(val, 200, 'Event location').message
+              (val) =>
+                required(val, 'Event location').valid || required(val, 'Event location').message,
+              (val) =>
+                minLength(val, 5, 'Event location').valid ||
+                minLength(val, 5, 'Event location').message,
+              (val) =>
+                maxLength(val, 200, 'Event location').valid ||
+                maxLength(val, 200, 'Event location').message,
             ]"
           />
 
@@ -211,8 +213,8 @@
                 type="date"
                 label="Start Date *"
                 :rules="[
-                  val => required(val, 'Start date').valid || required(val, 'Start date').message,
-                  val => notInPast(val).valid || notInPast(val).message
+                  (val) => required(val, 'Start date').valid || required(val, 'Start date').message,
+                  (val) => notInPast(val).valid || notInPast(val).message,
                 ]"
               />
             </div>
@@ -223,8 +225,10 @@
                 type="date"
                 label="End Date *"
                 :rules="[
-                  val => required(val, 'End date').valid || required(val, 'End date').message,
-                  val => dateOnOrAfter(val, this.form.startDate).valid || dateOnOrAfter(val, this.form.startDate).message
+                  (val) => required(val, 'End date').valid || required(val, 'End date').message,
+                  (val) =>
+                    dateOnOrAfter(val, this.form.startDate).valid ||
+                    dateOnOrAfter(val, this.form.startDate).message,
                 ]"
               />
             </div>
@@ -233,12 +237,7 @@
           <!-- Event Time -->
           <div class="row q-col-gutter-md q-mb-md">
             <div class="col-6">
-              <q-input
-                v-model="form.startTime"
-                outlined
-                type="time"
-                label="Start Time"
-              />
+              <q-input v-model="form.startTime" outlined type="time" label="Start Time" />
             </div>
             <div class="col-6">
               <q-input
@@ -247,7 +246,11 @@
                 type="time"
                 label="End Time"
                 :rules="[
-                  val => !val || !form.startTime || val >= form.startTime || 'End time must be on or after start time'
+                  (val) =>
+                    !val ||
+                    !form.startTime ||
+                    val >= form.startTime ||
+                    'End time must be on or after start time',
                 ]"
               />
             </div>
@@ -292,10 +295,25 @@
 
 <script>
 import { db } from 'src/boot/firebase'
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore'
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+} from 'firebase/firestore'
 import { useQuasar } from 'quasar'
 /* eslint-disable no-unused-vars */
-import { required, minLength, maxLength, notInPast, dateOnOrAfter, email } from 'src/utils/validation'
+import {
+  required,
+  minLength,
+  maxLength,
+  notInPast,
+  dateOnOrAfter,
+  email,
+} from 'src/utils/validation'
 /* eslint-enable no-unused-vars */
 
 export default {
@@ -328,7 +346,7 @@ export default {
         description: '',
         imageUrl: '',
         imagePublicId: '',
-        featured: false
+        featured: false,
       },
       statusOptions: ['Upcoming', 'Ongoing', 'Completed', 'Cancelled'],
       columns: [
@@ -337,25 +355,32 @@ export default {
         { name: 'title', label: 'Event Name', field: 'title', align: 'left', sortable: true },
         { name: 'organizer', label: 'Organizer', field: 'organizer', align: 'left' },
         { name: 'location', label: 'Location', field: 'location', align: 'left' },
-        { name: 'startDate', label: 'Start Date', field: 'startDate', align: 'left', sortable: true },
+        {
+          name: 'startDate',
+          label: 'Start Date',
+          field: 'startDate',
+          align: 'left',
+          sortable: true,
+        },
         { name: 'endDate', label: 'End Date', field: 'endDate', align: 'left' },
         { name: 'status', label: 'Status', field: 'status', align: 'left' },
-        { name: 'actions', label: 'Actions', field: 'actions', align: 'center' }
-      ]
+        { name: 'actions', label: 'Actions', field: 'actions', align: 'center' },
+      ],
     }
   },
 
   computed: {
     filteredEvents() {
       if (!this.search) return this.events
-      
+
       const searchLower = this.search.toLowerCase()
-      return this.events.filter(event => 
-        event.title?.toLowerCase().includes(searchLower) ||
-        event.location?.toLowerCase().includes(searchLower) ||
-        event.organizer?.toLowerCase().includes(searchLower)
+      return this.events.filter(
+        (event) =>
+          event.title?.toLowerCase().includes(searchLower) ||
+          event.location?.toLowerCase().includes(searchLower) ||
+          event.organizer?.toLowerCase().includes(searchLower)
       )
-    }
+    },
   },
 
   mounted() {
@@ -409,16 +434,16 @@ export default {
       this.loading = true
       try {
         const querySnapshot = await getDocs(collection(db, 'events'))
-        this.events = querySnapshot.docs.map(doc => ({
+        this.events = querySnapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         }))
       } catch (error) {
         console.error('[Events] Error loading:', error)
         this.$q.notify({
           type: 'negative',
           message: 'Failed to load events',
-          position: 'top'
+          position: 'top',
         })
       } finally {
         this.loading = false
@@ -438,17 +463,17 @@ export default {
     onImageRejected(rejectedEntries) {
       const reason = rejectedEntries[0]?.failedPropValidation
       let message = 'Image upload failed'
-      
+
       if (reason === 'max-file-size') {
         message = 'Image size must be less than 5MB'
       } else if (reason === 'accept') {
         message = 'Only image files are allowed'
       }
-      
+
       this.$q.notify({
         type: 'negative',
         message: message,
-        position: 'top'
+        position: 'top',
       })
     },
 
@@ -471,7 +496,7 @@ export default {
         description: '',
         imageUrl: '',
         imagePublicId: '',
-        featured: false
+        featured: false,
       }
       this.imageFile = null
       this.imagePreview = null
@@ -483,21 +508,17 @@ export default {
 
       try {
         const { uploadOptimizedImage } = await import('src/utils/cloudinary')
-        
-        const uploadResult = await uploadOptimizedImage(
-          this.imageFile,
-          'baguiboost/events',
-          {
-            maxWidth: 1920,
-            maxHeight: 1080,
-            quality: 0.85,
-            format: 'image/webp'
-          }
-        )
+
+        const uploadResult = await uploadOptimizedImage(this.imageFile, 'baguiboost/events', {
+          maxWidth: 1920,
+          maxHeight: 1080,
+          quality: 0.85,
+          format: 'image/webp',
+        })
 
         return {
           imageUrl: uploadResult.url,
-          imagePublicId: uploadResult.publicId
+          imagePublicId: uploadResult.publicId,
         }
       } catch (error) {
         console.error('[Events] Error uploading image:', error)
@@ -520,11 +541,17 @@ export default {
 
     async saveEvent() {
       // Validate required fields
-      if (!this.form.title || !this.form.organizer || !this.form.location || !this.form.startDate || !this.form.endDate) {
+      if (
+        !this.form.title ||
+        !this.form.organizer ||
+        !this.form.location ||
+        !this.form.startDate ||
+        !this.form.endDate
+      ) {
         this.$q.notify({
           type: 'warning',
           message: 'Please fill in all required fields',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -534,7 +561,7 @@ export default {
         this.$q.notify({
           type: 'negative',
           message: 'Start date cannot be in the past',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -543,7 +570,7 @@ export default {
         this.$q.notify({
           type: 'negative',
           message: 'End date must be on or after start date',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -553,7 +580,7 @@ export default {
         this.$q.notify({
           type: 'negative',
           message: 'End time must be on or after start time',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -574,14 +601,17 @@ export default {
 
         let imageData = {
           imageUrl: this.form.imageUrl || '',
-          imagePublicId: this.form.imagePublicId || ''
+          imagePublicId: this.form.imagePublicId || '',
         }
 
         if (this.imageFile) {
           // Delete old image if editing
           if (this.editingEvent?.imagePublicId) {
             // Note: Cloudinary deletion requires server-side API
-            console.log('[Events] Old image will remain in Cloudinary:', this.editingEvent.imagePublicId)
+            console.log(
+              '[Events] Old image will remain in Cloudinary:',
+              this.editingEvent.imagePublicId
+            )
           }
 
           const eventId = this.editingEvent?.id || `temp_${Date.now()}`
@@ -601,12 +631,12 @@ export default {
           imageUrl: imageData.imageUrl,
           imagePublicId: imageData.imagePublicId,
           featured: this.form.featured || false,
-          updatedAt: serverTimestamp()
+          updatedAt: serverTimestamp(),
         }
 
         if (this.editingEvent) {
           await updateDoc(doc(db, 'events', this.editingEvent.id), eventData)
-          
+
           // Log activity
           await logUpdate(
             { uid: adminUid, ...adminData },
@@ -614,32 +644,27 @@ export default {
             this.form.title,
             this.editingEvent.id
           )
-          
+
           this.$q.notify({
             type: 'positive',
             message: 'Event updated successfully',
             position: 'top',
             icon: 'check_circle',
-            timeout: 2000
+            timeout: 2000,
           })
         } else {
           eventData.createdAt = serverTimestamp()
           const docRef = await addDoc(collection(db, 'events'), eventData)
-          
+
           // Log activity
-          await logCreate(
-            { uid: adminUid, ...adminData },
-            'events',
-            this.form.title,
-            docRef.id
-          )
-          
+          await logCreate({ uid: adminUid, ...adminData }, 'events', this.form.title, docRef.id)
+
           this.$q.notify({
             type: 'positive',
             message: 'Event created successfully',
             position: 'top',
             icon: 'check_circle',
-            timeout: 2000
+            timeout: 2000,
           })
         }
 
@@ -652,7 +677,7 @@ export default {
           type: 'negative',
           message: 'Failed to save event: ' + error.message,
           position: 'top',
-          timeout: 5000
+          timeout: 5000,
         })
       } finally {
         this.saving = false
@@ -660,49 +685,46 @@ export default {
     },
 
     confirmDelete(event) {
-      this.$q.dialog({
-        title: 'Confirm Delete',
-        message: `Are you sure you want to delete "${event.title}"?`,
-        cancel: true,
-        persistent: true
-      }).onOk(async () => {
-        try {
-          const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
-          const adminUid = sessionStorage.getItem('adminUid')
-          const { logDelete } = await import('src/utils/activityLogger')
+      this.$q
+        .dialog({
+          title: 'Confirm Delete',
+          message: `Are you sure you want to delete "${event.title}"?`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          try {
+            const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+            const adminUid = sessionStorage.getItem('adminUid')
+            const { logDelete } = await import('src/utils/activityLogger')
 
-          if (event.imagePublicId) {
-            await this.deleteImage(event.imagePublicId)
+            if (event.imagePublicId) {
+              await this.deleteImage(event.imagePublicId)
+            }
+
+            await deleteDoc(doc(db, 'events', event.id))
+
+            // Log activity
+            await logDelete({ uid: adminUid, ...adminData }, 'events', event.title, event.id)
+
+            this.$q.notify({
+              type: 'positive',
+              message: 'Event deleted successfully',
+              position: 'top',
+              icon: 'delete',
+              timeout: 2000,
+            })
+            this.loadEvents()
+          } catch (error) {
+            console.error('[Events] Error deleting:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: 'Failed to delete event: ' + error.message,
+              position: 'top',
+              timeout: 5000,
+            })
           }
-
-          await deleteDoc(doc(db, 'events', event.id))
-
-          // Log activity
-          await logDelete(
-            { uid: adminUid, ...adminData },
-            'events',
-            event.title,
-            event.id
-          )
-
-          this.$q.notify({
-            type: 'positive',
-            message: 'Event deleted successfully',
-            position: 'top',
-            icon: 'delete',
-            timeout: 2000
-          })
-          this.loadEvents()
-        } catch (error) {
-          console.error('[Events] Error deleting:', error)
-          this.$q.notify({
-            type: 'negative',
-            message: 'Failed to delete event: ' + error.message,
-            position: 'top',
-            timeout: 5000
-          })
-        }
-      })
+        })
     },
 
     async bulkDelete() {
@@ -710,56 +732,58 @@ export default {
         this.$q.notify({
           type: 'warning',
           message: 'Please select events to delete',
-          position: 'top'
+          position: 'top',
         })
         return
       }
 
-      this.$q.dialog({
-        title: 'Confirm Bulk Delete',
-        message: `Are you sure you want to delete ${this.selectedEvents.length} event(s)? This action cannot be undone.`,
-        cancel: true,
-        persistent: true
-      }).onOk(async () => {
-        this.loading = true
-        try {
-          const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
-          const adminUid = sessionStorage.getItem('adminUid')
-          const { logBulkDelete } = await import('src/utils/activityLogger')
+      this.$q
+        .dialog({
+          title: 'Confirm Bulk Delete',
+          message: `Are you sure you want to delete ${this.selectedEvents.length} event(s)? This action cannot be undone.`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          this.loading = true
+          try {
+            const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+            const adminUid = sessionStorage.getItem('adminUid')
+            const { logBulkDelete } = await import('src/utils/activityLogger')
 
-          const deletePromises = this.selectedEvents.map(event => 
-            deleteDoc(doc(db, 'events', event.id))
-          )
-          await Promise.all(deletePromises)
+            const deletePromises = this.selectedEvents.map((event) =>
+              deleteDoc(doc(db, 'events', event.id))
+            )
+            await Promise.all(deletePromises)
 
-          // Log activity
-          await logBulkDelete(
-            { uid: adminUid, ...adminData },
-            'events',
-            this.selectedEvents.length,
-            this.selectedEvents.map(e => e.id)
-          )
+            // Log activity
+            await logBulkDelete(
+              { uid: adminUid, ...adminData },
+              'events',
+              this.selectedEvents.length,
+              this.selectedEvents.map((e) => e.id)
+            )
 
-          this.$q.notify({
-            type: 'positive',
-            message: `${this.selectedEvents.length} event(s) deleted successfully`,
-            position: 'top',
-            icon: 'delete'
-          })
+            this.$q.notify({
+              type: 'positive',
+              message: `${this.selectedEvents.length} event(s) deleted successfully`,
+              position: 'top',
+              icon: 'delete',
+            })
 
-          this.selectedEvents = []
-          this.loadEvents()
-        } catch (error) {
-          console.error('[Events] Error bulk deleting:', error)
-          this.$q.notify({
-            type: 'negative',
-            message: 'Failed to delete events',
-            position: 'top'
-          })
-        } finally {
-          this.loading = false
-        }
-      })
+            this.selectedEvents = []
+            this.loadEvents()
+          } catch (error) {
+            console.error('[Events] Error bulk deleting:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: 'Failed to delete events',
+              position: 'top',
+            })
+          } finally {
+            this.loading = false
+          }
+        })
     },
 
     async deleteAllEvents() {
@@ -767,59 +791,61 @@ export default {
         this.$q.notify({
           type: 'warning',
           message: 'No events to delete',
-          position: 'top'
+          position: 'top',
         })
         return
       }
 
-      this.$q.dialog({
-        title: 'Confirm Delete All',
-        message: `Are you sure you want to delete ALL ${this.filteredEvents.length} event(s)? This action cannot be undone.`,
-        cancel: true,
-        persistent: true
-      }).onOk(async () => {
-        this.loading = true
-        try {
-          const deletePromises = this.filteredEvents.map(event => 
-            deleteDoc(doc(db, 'events', event.id))
-          )
-          await Promise.all(deletePromises)
+      this.$q
+        .dialog({
+          title: 'Confirm Delete All',
+          message: `Are you sure you want to delete ALL ${this.filteredEvents.length} event(s)? This action cannot be undone.`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          this.loading = true
+          try {
+            const deletePromises = this.filteredEvents.map((event) =>
+              deleteDoc(doc(db, 'events', event.id))
+            )
+            await Promise.all(deletePromises)
 
-          this.$q.notify({
-            type: 'positive',
-            message: `${this.filteredEvents.length} event(s) deleted successfully`,
-            position: 'top',
-            icon: 'delete'
-          })
+            this.$q.notify({
+              type: 'positive',
+              message: `${this.filteredEvents.length} event(s) deleted successfully`,
+              position: 'top',
+              icon: 'delete',
+            })
 
-          this.selectedEvents = []
-          this.loadEvents()
-        } catch (error) {
-          console.error('[Events] Error deleting all:', error)
-          this.$q.notify({
-            type: 'negative',
-            message: 'Failed to delete events',
-            position: 'top'
-          })
-        } finally {
-          this.loading = false
-        }
-      })
+            this.selectedEvents = []
+            this.loadEvents()
+          } catch (error) {
+            console.error('[Events] Error deleting all:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: 'Failed to delete events',
+              position: 'top',
+            })
+          } finally {
+            this.loading = false
+          }
+        })
     },
 
     getStatusColor(status) {
       const colors = {
-        'Upcoming': 'blue',
-        'Ongoing': 'green',
-        'Completed': 'grey',
-        'Cancelled': 'red'
+        Upcoming: 'blue',
+        Ongoing: 'green',
+        Completed: 'grey',
+        Cancelled: 'red',
       }
       return colors[status] || 'grey'
     },
 
     onDialogHide() {
       this.resetForm()
-    }
+    },
   },
 
   watch: {
@@ -827,8 +853,8 @@ export default {
       if (!val) {
         this.resetForm()
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

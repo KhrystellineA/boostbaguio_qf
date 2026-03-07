@@ -7,7 +7,10 @@
       <div class="hero-overlay">
         <div class="hero-content animate-fade-in">
           <h1 class="hero-title">APANAM - Point to Point Navigation</h1>
-          <p class="hero-description">Plan your route between any two points in Baguio City using the jeepney system. We teach you how to navigate, not track vehicles!</p>
+          <p class="hero-description">
+            Plan your route between any two points in Baguio City using the jeepney system. We teach
+            you how to navigate, not track vehicles!
+          </p>
         </div>
       </div>
     </section>
@@ -19,13 +22,13 @@
           <div class="col-md-6 col-12 q-pa-xl">
             <h2 class="text-h4 text-weight-bold text-primary q-mb-lg">Point-to-Point Navigation</h2>
             <p class="text-body1 q-mb-md">
-              APANAM helps you navigate Baguio City by showing you which jeepneys to take
-              and how to get to their terminals. Our system focuses on teaching you the
-              route rather than tracking vehicles in real-time.
+              APANAM helps you navigate Baguio City by showing you which jeepneys to take and how to
+              get to their terminals. Our system focuses on teaching you the route rather than
+              tracking vehicles in real-time.
             </p>
             <p class="text-body1 q-mb-lg">
-              Input your starting point and destination to get step-by-step instructions
-              on how to navigate Baguio's jeepney system efficiently.
+              Input your starting point and destination to get step-by-step instructions on how to
+              navigate Baguio's jeepney system efficiently.
             </p>
             <div class="q-gutter-sm">
               <q-chip square color="primary" text-color="white">Route Planning</q-chip>
@@ -36,7 +39,7 @@
           </div>
           <div class="col-md-6 col-12 q-pa-xl">
             <div class="image-placeholder bg-grey-3 q-pa-xl rounded-borders">
-              <q-icon name="directions_bus" size="64px" color="grey-6"/>
+              <q-icon name="directions_bus" size="64px" color="grey-6" />
               <div class="text-center q-mt-md">Route Planning Visualization</div>
             </div>
           </div>
@@ -50,17 +53,17 @@
         <div class="navigation-wrapper">
           <div class="navigation-content">
             <div class="text-overline text-primary q-mb-sm">Plan Your Route</div>
-            
+
             <div class="row q-col-gutter-lg">
               <div class="col-md-6 col-12">
                 <div class="info-section">
                   <h3 class="text-h5 text-weight-bold text-primary q-mb-lg">How APANAM Works</h3>
                   <p class="text-body1 q-mb-md">
-                    APANAM helps you navigate Baguio City by showing you which jeepneys to take 
-                    and how to get to their terminals. Our system focuses on teaching you the 
-                    route rather than tracking vehicles in real-time.
+                    APANAM helps you navigate Baguio City by showing you which jeepneys to take and
+                    how to get to their terminals. Our system focuses on teaching you the route
+                    rather than tracking vehicles in real-time.
                   </p>
-                  
+
                   <div class="q-mt-lg">
                     <q-list>
                       <q-item>
@@ -84,14 +87,16 @@
                           <q-icon name="help_outline" color="primary" />
                         </q-item-section>
                         <q-item-section>
-                          <q-item-label>Get step-by-step instructions on how to get there</q-item-label>
+                          <q-item-label
+                            >Get step-by-step instructions on how to get there</q-item-label
+                          >
                         </q-item-section>
                       </q-item>
                     </q-list>
                   </div>
                 </div>
               </div>
-              
+
               <div class="col-md-6 col-12">
                 <div class="frosted-glass-card q-pa-lg">
                   <h4 class="text-primary text-weight-bold q-mb-lg">Enter Your Locations</h4>
@@ -121,7 +126,7 @@
                             color="primary"
                             size="sm"
                             @click="searchFromLocation"
-                            style="margin-right: -8px;"
+                            style="margin-right: -8px"
                           >
                             <q-tooltip>Search location</q-tooltip>
                           </q-btn>
@@ -148,7 +153,7 @@
                             color="primary"
                             size="sm"
                             @click="disableFromAutoDetect"
-                            style="margin-right: -8px;"
+                            style="margin-right: -8px"
                           >
                             <q-tooltip>Enter location manually</q-tooltip>
                           </q-btn>
@@ -157,7 +162,12 @@
                     </div>
 
                     <!-- TO Location -->
-                    <div class="text-caption text-weight-bold text-primary q-mb-xs" style="letter-spacing: 0.08em; text-transform: uppercase;">TO:</div>
+                    <div
+                      class="text-caption text-weight-bold text-primary q-mb-xs"
+                      style="letter-spacing: 0.08em; text-transform: uppercase"
+                    >
+                      TO:
+                    </div>
                     <q-select
                       filled
                       v-model="toLocation"
@@ -200,7 +210,9 @@
       <div class="container">
         <div class="text-center q-mb-xl">
           <h3 class="text-h4 text-weight-bold text-primary">Available Jeepney Options</h3>
-          <p class="text-body1">Choose from the available routes that connect your start and end points</p>
+          <p class="text-body1">
+            Choose from the available routes that connect your start and end points
+          </p>
         </div>
 
         <!-- Route Map Visualization -->
@@ -216,7 +228,7 @@
                 {{ selectedOption.estimatedDuration }} min
               </q-badge>
             </div>
-            <div id="route-map" style="height: 400px; width: 100%; border-radius: 12px;"></div>
+            <div id="route-map" style="height: 400px; width: 100%; border-radius: 12px"></div>
             <q-card-section class="q-pt-md">
               <div class="row q-col-gutter-md">
                 <div class="col-md-6 col-12">
@@ -279,16 +291,30 @@
                   <div class="text-subtitle2">To: {{ option.terminalEnd }}</div>
                   <div class="text-caption text-grey-7 q-mt-xs" v-if="jeepneyAvailability.status">
                     <q-icon name="schedule" size="xs" class="q-mr-xs" />
-                    Next: {{ jeepneyAvailability.nextJeepney }} mins | Frequency: {{ jeepneyAvailability.frequency }}
-                    <q-badge :color="jeepneyAvailability.status === 'high' ? 'positive' : jeepneyAvailability.status === 'limited' ? 'warning' : 'primary'" class="q-ml-xs">
-                      {{ jeepneyAvailability.status === 'high' ? 'High Frequency' : jeepneyAvailability.status === 'limited' ? 'Limited' : 'Available' }}
+                    Next: {{ jeepneyAvailability.nextJeepney }} mins | Frequency:
+                    {{ jeepneyAvailability.frequency }}
+                    <q-badge
+                      :color="
+                        jeepneyAvailability.status === 'high'
+                          ? 'positive'
+                          : jeepneyAvailability.status === 'limited'
+                            ? 'warning'
+                            : 'primary'
+                      "
+                      class="q-ml-xs"
+                    >
+                      {{
+                        jeepneyAvailability.status === 'high'
+                          ? 'High Frequency'
+                          : jeepneyAvailability.status === 'limited'
+                            ? 'Limited'
+                            : 'Available'
+                      }}
                     </q-badge>
                   </div>
                 </div>
                 <div class="col-auto">
-                  <q-badge color="primary" class="q-mr-sm">
-                    ₱{{ option.fare }}
-                  </q-badge>
+                  <q-badge color="primary" class="q-mr-sm"> ₱{{ option.fare }} </q-badge>
                   <q-badge color="secondary">
                     {{ travelTimeEstimate || option.estimatedDuration }} min
                   </q-badge>
@@ -309,14 +335,23 @@
       <div class="container">
         <div class="text-center q-mb-xl">
           <h3 class="text-h4 text-weight-bold text-primary">How to Get There</h3>
-          <p class="text-body1">Follow these steps to reach your destination using the {{ selectedOption.routeName }} jeepney</p>
+          <p class="text-body1">
+            Follow these steps to reach your destination using the
+            {{ selectedOption.routeName }} jeepney
+          </p>
         </div>
 
         <!-- Teaching Steps Overview -->
         <div class="teaching-steps-overview q-mb-xl">
           <div class="row q-col-gutter-md justify-center">
             <div class="col-md-3 col-6" v-for="(step, idx) in teachingSteps" :key="idx">
-              <div class="teaching-step-card" :class="{ 'step-active': currentStep === idx + 1, 'step-done': currentStep > idx + 1 }">
+              <div
+                class="teaching-step-card"
+                :class="{
+                  'step-active': currentStep === idx + 1,
+                  'step-done': currentStep > idx + 1,
+                }"
+              >
                 <div class="step-icon-wrapper">
                   <span class="step-emoji">{{ step.emoji }}</span>
                 </div>
@@ -347,10 +382,18 @@
                     <p class="text-body1 q-mb-md">
                       <strong>Starting Point:</strong> {{ selectedFromLocation.label }}
                     </p>
-                    
-                    <div v-if="getWalkingInstructions('from')" class="walking-instructions q-pa-md bg-blue-1 rounded-borders">
+
+                    <div
+                      v-if="getWalkingInstructions('from')"
+                      class="walking-instructions q-pa-md bg-blue-1 rounded-borders"
+                    >
                       <div class="row items-center q-mb-sm">
-                        <q-icon name="directions_walk" color="primary" size="24px" class="q-mr-sm" />
+                        <q-icon
+                          name="directions_walk"
+                          color="primary"
+                          size="24px"
+                          class="q-mr-sm"
+                        />
                         <span class="text-subtitle2 text-weight-bold">Walking Directions</span>
                       </div>
                       <p class="text-body2 mb-0">{{ getWalkingInstructions('from') }}</p>
@@ -412,17 +455,23 @@
                 >
                   <div class="step-content">
                     <p class="text-body1 q-mb-md">
-                      Take the {{ selectedOption.routeName }} jeepney from {{ selectedOption.terminalStart }} to {{ selectedOption.terminalEnd }}
+                      Take the {{ selectedOption.routeName }} jeepney from
+                      {{ selectedOption.terminalStart }} to {{ selectedOption.terminalEnd }}
                     </p>
 
                     <!-- WHAT TO TELL THE DRIVER CARD -->
-                    <div class="driver-phrase-card q-pa-lg bg-primary text-white rounded-borders q-mb-md shadow-2">
+                    <div
+                      class="driver-phrase-card q-pa-lg bg-primary text-white rounded-borders q-mb-md shadow-2"
+                    >
                       <div class="row items-center q-mb-sm">
                         <q-icon name="record_voice_over" size="28px" class="q-mr-sm" />
                         <span class="text-h6 text-weight-bold">What to Tell the Driver</span>
                       </div>
                       <p class="text-h5 text-weight-bold q-my-md">"{{ getDriverPhrase() }}"</p>
-                      <p class="text-body2 opacity-80">Say this clearly when boarding. Drivers will confirm if they pass by your destination.</p>
+                      <p class="text-body2 opacity-80">
+                        Say this clearly when boarding. Drivers will confirm if they pass by your
+                        destination.
+                      </p>
                     </div>
 
                     <div class="ride-details-grid row q-col-gutter-sm q-mt-md">
@@ -430,14 +479,18 @@
                         <div class="detail-card q-pa-sm bg-white rounded-borders text-center">
                           <q-icon name="payments" color="primary" size="24px" />
                           <div class="text-caption text-grey-7">Fare</div>
-                          <div class="text-h6 text-primary text-weight-bold">₱{{ selectedOption.fare }}</div>
+                          <div class="text-h6 text-primary text-weight-bold">
+                            ₱{{ selectedOption.fare }}
+                          </div>
                         </div>
                       </div>
                       <div class="col-6">
                         <div class="detail-card q-pa-sm bg-white rounded-borders text-center">
                           <q-icon name="schedule" color="primary" size="24px" />
                           <div class="text-caption text-grey-7">Duration</div>
-                          <div class="text-h6 text-primary text-weight-bold">{{ selectedOption.estimatedDuration }} min</div>
+                          <div class="text-h6 text-primary text-weight-bold">
+                            {{ selectedOption.estimatedDuration }} min
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -449,7 +502,10 @@
                       </q-badge>
                     </div>
 
-                    <div v-if="getCulturalContext()" class="cultural-context-card q-pa-md bg-green-1 rounded-borders q-mt-md">
+                    <div
+                      v-if="getCulturalContext()"
+                      class="cultural-context-card q-pa-md bg-green-1 rounded-borders q-mt-md"
+                    >
                       <div class="row items-center q-mb-sm">
                         <q-icon name="history_edu" color="positive" size="24px" class="q-mr-sm" />
                         <span class="text-subtitle2 text-weight-bold">Cultural Context</span>
@@ -463,11 +519,7 @@
                   </q-stepper-navigation>
                 </q-step>
 
-                <q-step
-                  :name="4"
-                  title="Arrive at Destination"
-                  icon="location_city"
-                >
+                <q-step :name="4" title="Arrive at Destination" icon="location_city">
                   <div class="step-content">
                     <p class="text-body1 q-mb-md">
                       <strong>Destination:</strong> {{ selectedToLocation.label }}
@@ -476,7 +528,9 @@
                     <div class="arrival-info-card q-pa-md bg-purple-1 rounded-borders q-mb-md">
                       <div class="row items-center q-mb-sm">
                         <q-icon name="flag" color="secondary" size="24px" class="q-mr-sm" />
-                        <span class="text-subtitle2 text-weight-bold">From Terminal to Destination</span>
+                        <span class="text-subtitle2 text-weight-bold"
+                          >From Terminal to Destination</span
+                        >
                       </div>
                       <p class="text-body1 q-mb-sm">{{ getWalkingInstructions('to') }}</p>
                     </div>
@@ -492,7 +546,10 @@
                       </q-badge>
                     </div>
 
-                    <div v-if="getDestinationHighlights()" class="destination-highlights q-pa-md bg-white rounded-borders shadow-1 q-mt-md">
+                    <div
+                      v-if="getDestinationHighlights()"
+                      class="destination-highlights q-pa-md bg-white rounded-borders shadow-1 q-mt-md"
+                    >
                       <div class="row items-center q-mb-sm">
                         <q-icon name="star" color="warning" size="24px" class="q-mr-sm" />
                         <span class="text-subtitle2 text-weight-bold">What to See Here</span>
@@ -510,7 +567,7 @@
           </div>
           <div class="col-md-4 col-12">
             <div class="map-container">
-              <div id="map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
+              <div id="map" style="height: 400px; width: 100%; border-radius: 8px"></div>
             </div>
 
             <!-- Quick Reference Card -->
@@ -649,27 +706,27 @@ export default defineComponent({
 
     // Walking instructions database (landmark-based)
     const walkingInstructionsDB = {
-      'sm': {
+      sm: {
         from: 'Head towards the main entrance of SM Baguio. Walk towards Session Road side.',
         to: 'From the terminal, walk straight for 2 blocks. You will see SM Baguio on your right.',
         landmarks: 'Near SM Baguio main entrance, beside BDO Bank',
       },
-      'burnham': {
+      burnham: {
         from: 'Walk towards Burnham Park main entrance. Look for the lagoon area.',
         to: 'From the terminal, cross the street and you will see Burnham Park lagoon. Walk straight for 100 meters.',
-        landmarks: 'Near the lagoon, beside the children\'s playground',
+        landmarks: "Near the lagoon, beside the children's playground",
       },
-      'session': {
+      session: {
         from: 'Head to Session Road. Look for the uphill/downhill slope - this is the main commercial strip.',
         to: 'From the terminal, walk along Session Road. You will see many shops and restaurants.',
         landmarks: 'Main Session Road strip, near Jollibee',
       },
-      'ub': {
+      ub: {
         from: 'Walk towards University of Baguio. Look for the main gate with UB signage.',
         to: 'From the terminal, enter the UB gate. The main building is straight ahead.',
         landmarks: 'UB Main Gate, near the guard house',
       },
-      'slu': {
+      slu: {
         from: 'Head to Saint Louis University main campus. Look for the SLU marker.',
         to: 'From the terminal, walk towards the SLU chapel. The campus is on your left.',
         landmarks: 'SLU Chapel area, near the student center',
@@ -689,7 +746,7 @@ export default defineComponent({
         to: 'From the terminal, climb the 252 steps or take the elevator. The shrine is at the top.',
         landmarks: 'Lourdes Grotto shrine, near the bell tower',
       },
-      'pma': {
+      pma: {
         from: 'Head to PMA main gate. This is a military academy - expect security checks.',
         to: 'From the gate, follow the main road. The PMA museum is on your right.',
         landmarks: 'PMA Main Gate, near the sentinel box',
@@ -698,41 +755,51 @@ export default defineComponent({
 
     // Driver phrases database (what to say in Tagalog/English)
     const driverPhrasesDB = {
-      'sm': 'SM Baguio po!',
-      'burnham': 'Burnham Park po!',
-      'session': 'Session Road po!',
-      'ub': 'University of Baguio po!',
-      'slu': 'SLU po! / Saint Louis University po!',
+      sm: 'SM Baguio po!',
+      burnham: 'Burnham Park po!',
+      session: 'Session Road po!',
+      ub: 'University of Baguio po!',
+      slu: 'SLU po! / Saint Louis University po!',
       'good-shepherd': 'Good Shepherd po!',
       'tam-awan': 'Tam-awan Village po!',
       'lourdes-grotto': 'Lourdes Grotto po!',
-      'pma': 'PMA po! / Philippine Military Academy po!',
+      pma: 'PMA po! / Philippine Military Academy po!',
     }
 
     // Cultural context for destinations
     const culturalContextDB = {
-      'sm': 'SM Baguio is the largest mall in Northern Luzon, built on what was once a military base.',
-      'burnham': 'Burnham Park was designed by American architect Daniel Burnham in 1905. The lagoon is perfect for boat rides!',
-      'session': 'Session Road is Baguio\'s main commercial hub, named after an American governor-general. It\'s the heart of Baguio\'s nightlife.',
-      'ub': 'University of Baguio, founded in 1948, is known for its strong criminology and medical programs.',
-      'slu': 'Saint Louis University is one of the oldest universities in the north, established by Belgian missionaries in 1911.',
-      'good-shepherd': 'Good Shepherd Convent is famous for its handmade pastillas (milk candies) and embroidered vestments.',
-      'tam-awan': 'Tam-awan Village showcases traditional Cordillera architecture with authentic Ifugao huts relocated from the mountains.',
-      'lourdes-grotto': 'The Our Lady of Lourdes Grotto has been a pilgrimage site since 1913. The view from the top offers a panoramic view of Baguio.',
-      'pma': 'The Philippine Military Academy is the country\'s premier military school, training future AFP officers since 1936.',
+      sm: 'SM Baguio is the largest mall in Northern Luzon, built on what was once a military base.',
+      burnham:
+        'Burnham Park was designed by American architect Daniel Burnham in 1905. The lagoon is perfect for boat rides!',
+      session:
+        "Session Road is Baguio's main commercial hub, named after an American governor-general. It's the heart of Baguio's nightlife.",
+      ub: 'University of Baguio, founded in 1948, is known for its strong criminology and medical programs.',
+      slu: 'Saint Louis University is one of the oldest universities in the north, established by Belgian missionaries in 1911.',
+      'good-shepherd':
+        'Good Shepherd Convent is famous for its handmade pastillas (milk candies) and embroidered vestments.',
+      'tam-awan':
+        'Tam-awan Village showcases traditional Cordillera architecture with authentic Ifugao huts relocated from the mountains.',
+      'lourdes-grotto':
+        'The Our Lady of Lourdes Grotto has been a pilgrimage site since 1913. The view from the top offers a panoramic view of Baguio.',
+      pma: "The Philippine Military Academy is the country's premier military school, training future AFP officers since 1936.",
     }
 
     // Destination highlights
     const destinationHighlightsDB = {
-      'sm': 'Check out the SM Baguio Food Court on the 3rd floor for local delicacies. Don\'t miss the strawberry taho!',
-      'burnham': 'Rent a boat at the lagoon, bike around the park, or have a picnic at the grassy areas. Great for photos!',
-      'session': 'Try the famous Baguio coffee at Volcano Island Coffee, shop at Session Road boutiques, and experience the night market.',
-      'ub': 'Visit the UB Museum to see Cordillera artifacts. The campus has beautiful views of the city.',
-      'slu': 'The SLU Museum houses indigenous artifacts. Don\'t miss the beautiful SLU Chapel architecture.',
-      'good-shepherd': 'Buy fresh pastillas at the convent shop. They have unique flavors like ube, strawberry, and cheese.',
-      'tam-awan': 'Explore the art galleries, try traditional Cordillera food, and enjoy the mountain view deck.',
-      'lourdes-grotto': 'Light a candle at the shrine, ring the bell tower, and enjoy the 360° view of Baguio City.',
-      'pma': 'Visit the PMA Museum to see military artifacts. The campus grounds are beautifully maintained with flowering trees.',
+      sm: "Check out the SM Baguio Food Court on the 3rd floor for local delicacies. Don't miss the strawberry taho!",
+      burnham:
+        'Rent a boat at the lagoon, bike around the park, or have a picnic at the grassy areas. Great for photos!',
+      session:
+        'Try the famous Baguio coffee at Volcano Island Coffee, shop at Session Road boutiques, and experience the night market.',
+      ub: 'Visit the UB Museum to see Cordillera artifacts. The campus has beautiful views of the city.',
+      slu: "The SLU Museum houses indigenous artifacts. Don't miss the beautiful SLU Chapel architecture.",
+      'good-shepherd':
+        'Buy fresh pastillas at the convent shop. They have unique flavors like ube, strawberry, and cheese.',
+      'tam-awan':
+        'Explore the art galleries, try traditional Cordillera food, and enjoy the mountain view deck.',
+      'lourdes-grotto':
+        'Light a candle at the shrine, ring the bell tower, and enjoy the 360° view of Baguio City.',
+      pma: 'Visit the PMA Museum to see military artifacts. The campus grounds are beautifully maintained with flowering trees.',
     }
 
     const fetchHeroImage = async () => {
@@ -821,15 +888,17 @@ export default defineComponent({
       }
 
       // Filter options based on selected locations
-      filteredOptions.value = allJeepneyOptions.value.filter(option => {
-        const fromMatch = selectedFromLocation.value?.coords && 
-          (Math.abs(option.startCoords[0] - selectedFromLocation.value.coords[0]) < 0.01 &&
-           Math.abs(option.startCoords[1] - selectedFromLocation.value.coords[1]) < 0.01)
-        
-        const toMatch = selectedToLocation.value?.coords &&
-          (Math.abs(option.endCoords[0] - selectedToLocation.value.coords[0]) < 0.01 &&
-           Math.abs(option.endCoords[1] - selectedToLocation.value.coords[1]) < 0.01)
-        
+      filteredOptions.value = allJeepneyOptions.value.filter((option) => {
+        const fromMatch =
+          selectedFromLocation.value?.coords &&
+          Math.abs(option.startCoords[0] - selectedFromLocation.value.coords[0]) < 0.01 &&
+          Math.abs(option.startCoords[1] - selectedFromLocation.value.coords[1]) < 0.01
+
+        const toMatch =
+          selectedToLocation.value?.coords &&
+          Math.abs(option.endCoords[0] - selectedToLocation.value.coords[0]) < 0.01 &&
+          Math.abs(option.endCoords[1] - selectedToLocation.value.coords[1]) < 0.01
+
         return fromMatch && toMatch
       })
 
@@ -854,15 +923,17 @@ export default defineComponent({
       const dLat = deg2rad(coords2[0] - coords1[0])
       const dLon = deg2rad(coords2[1] - coords1[1])
       const a =
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(deg2rad(coords1[0])) * Math.cos(deg2rad(coords2[0])) *
-        Math.sin(dLon/2) * Math.sin(dLon/2)
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(coords1[0])) *
+          Math.cos(deg2rad(coords2[0])) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2)
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
       return R * c
     }
 
     const deg2rad = (deg) => {
-      return deg * (Math.PI/180)
+      return deg * (Math.PI / 180)
     }
 
     const selectOption = (option) => {
@@ -884,17 +955,20 @@ export default defineComponent({
           map.value = L.map('map').setView([16.4122, 120.5948], 13)
 
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
           }).addTo(map.value)
 
           // Add markers for start and end locations
           if (selectedFromLocation.value?.coords) {
-            L.marker(selectedFromLocation.value.coords).addTo(map.value)
+            L.marker(selectedFromLocation.value.coords)
+              .addTo(map.value)
               .bindPopup(selectedFromLocation.value.label)
           }
 
           if (selectedToLocation.value?.coords) {
-            L.marker(selectedToLocation.value.coords).addTo(map.value)
+            L.marker(selectedToLocation.value.coords)
+              .addTo(map.value)
               .bindPopup(selectedToLocation.value.label)
           }
         }
@@ -915,7 +989,8 @@ export default defineComponent({
           routeMap.value = L.map('route-map').setView([16.4122, 120.5948], 14)
 
           L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
           }).addTo(routeMap.value)
 
           // Add custom icons
@@ -923,29 +998,33 @@ export default defineComponent({
             className: 'custom-div-icon',
             html: "<div style='background-color:#2196F3;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
             iconSize: [20, 20],
-            iconAnchor: [10, 10]
+            iconAnchor: [10, 10],
           })
 
           const endIcon = L.divIcon({
             className: 'custom-div-icon',
             html: "<div style='background-color:#FF5722;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
             iconSize: [20, 20],
-            iconAnchor: [10, 10]
+            iconAnchor: [10, 10],
           })
 
           // Get approximate coordinates for terminals (centered on Baguio for now)
           const startCoords = option.terminalStartCoords || [16.4122, 120.5948]
-          const endCoords = option.terminalEndCoords || [16.4200, 120.6000]
+          const endCoords = option.terminalEndCoords || [16.42, 120.6]
 
           // Calculate distance
           const distance = calculateDistance(startCoords, endCoords)
 
           // Add markers
-          L.marker(startCoords, { icon: startIcon }).addTo(routeMap.value)
-            .bindPopup(`<strong>Start:</strong> ${terminalStart}<br>Distance: ${distance.toFixed(2)} km`)
+          L.marker(startCoords, { icon: startIcon })
+            .addTo(routeMap.value)
+            .bindPopup(
+              `<strong>Start:</strong> ${terminalStart}<br>Distance: ${distance.toFixed(2)} km`
+            )
             .openPopup()
 
-          L.marker(endCoords, { icon: endIcon }).addTo(routeMap.value)
+          L.marker(endCoords, { icon: endIcon })
+            .addTo(routeMap.value)
             .bindPopup(`<strong>Destination:</strong> ${terminalEnd}`)
 
           // Draw animated route line
@@ -954,7 +1033,7 @@ export default defineComponent({
             weight: 4,
             opacity: 0.7,
             dashArray: '10, 10',
-            lineCap: 'round'
+            lineCap: 'round',
           }).addTo(routeMap.value)
 
           // Add animated jeepney marker
@@ -962,7 +1041,7 @@ export default defineComponent({
             className: 'jeepney-marker',
             html: "<div style='background-color:#4EA96D;width:24px;height:24px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:14px;'>🚌</div>",
             iconSize: [30, 30],
-            iconAnchor: [15, 15]
+            iconAnchor: [15, 15],
           })
 
           const jeepneyMarker = L.marker(startCoords, { icon: jeepneyIcon }).addTo(routeMap.value)
@@ -987,7 +1066,7 @@ export default defineComponent({
     // Calculate travel time estimate
     const calculateTravelTime = (option) => {
       const baseTime = option.estimatedDuration || 15
-      const trafficMultiplier = 1 + (Math.random() * 0.5) // Add 0-50% variance
+      const trafficMultiplier = 1 + Math.random() * 0.5 // Add 0-50% variance
       travelTimeEstimate.value = Math.round(baseTime * trafficMultiplier)
     }
 
@@ -1011,19 +1090,19 @@ export default defineComponent({
       jeepneyAvailability.value = {
         status: availability,
         frequency: frequency,
-        nextJeepney: Math.floor(Math.random() * 10) + 1
+        nextJeepney: Math.floor(Math.random() * 10) + 1,
       }
     }
 
     // Toggle favorite route
     const toggleFavoriteRoute = (option) => {
-      const index = favoriteRoutes.value.findIndex(r => r.id === option.id)
+      const index = favoriteRoutes.value.findIndex((r) => r.id === option.id)
       if (index > -1) {
         favoriteRoutes.value.splice(index, 1)
         $q.notify({
           type: 'info',
           message: 'Route removed from favorites',
-          position: 'top'
+          position: 'top',
         })
       } else {
         favoriteRoutes.value.push({
@@ -1033,12 +1112,12 @@ export default defineComponent({
           terminalEnd: option.terminalEnd,
           fare: option.fare,
           estimatedDuration: option.estimatedDuration,
-          savedAt: new Date()
+          savedAt: new Date(),
         })
         $q.notify({
           type: 'positive',
           message: 'Route added to favorites!',
-          position: 'top'
+          position: 'top',
         })
       }
       // Save to localStorage
@@ -1047,7 +1126,7 @@ export default defineComponent({
 
     // Check if route is favorite
     const isFavoriteRoute = (option) => {
-      return favoriteRoutes.value.some(r => r.id === option.id)
+      return favoriteRoutes.value.some((r) => r.id === option.id)
     }
 
     // Load favorite routes from localStorage
@@ -1084,7 +1163,7 @@ export default defineComponent({
       customToLocation.value = ''
       selectedFromLocation.value = null
       selectedToLocation.value = null
-      
+
       if (map.value) {
         map.value.remove()
         map.value = null
@@ -1094,7 +1173,7 @@ export default defineComponent({
     const enableFromAutoDetect = async () => {
       fromAutoDetect.value = true
       fromLocation.value = null
-      
+
       const loadingNotify = $q.notify({
         message: 'Detecting your location...',
         icon: 'gps_not_fixed',
@@ -1112,39 +1191,39 @@ export default defineComponent({
           navigator.geolocation.getCurrentPosition(resolve, reject, {
             enableHighAccuracy: true,
             timeout: 10000,
-            maximumAge: 0
+            maximumAge: 0,
           })
         })
 
         const { latitude, longitude } = position.coords
-        
+
         fromLocation.value = {
           label: '📍 Your Current Location',
           value: 'current-location',
           isCurrentLocation: true,
-          coords: [latitude, longitude]
+          coords: [latitude, longitude],
         }
 
         loadingNotify()
-        
+
         $q.notify({
           message: 'Location detected successfully!',
           icon: 'gps_fixed',
           color: 'positive',
           timeout: 2000,
-          position: 'top'
+          position: 'top',
         })
       } catch (error) {
         loadingNotify()
         fromAutoDetect.value = false
         fromLocation.value = null
-        
+
         $q.notify({
           message: error.message || 'Unable to detect your location',
           icon: 'warning',
           color: 'negative',
           timeout: 3000,
-          position: 'top'
+          position: 'top',
         })
       }
     }
@@ -1162,7 +1241,7 @@ export default defineComponent({
           icon: 'warning',
           color: 'warning',
           timeout: 2000,
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -1172,7 +1251,7 @@ export default defineComponent({
         label: fromLocationText.value,
         value: 'custom-location',
         isCurrentLocation: false,
-        coords: null
+        coords: null,
       }
 
       $q.notify({
@@ -1180,7 +1259,7 @@ export default defineComponent({
         icon: 'search',
         color: 'primary',
         timeout: 2000,
-        position: 'top'
+        position: 'top',
       })
     }
 
@@ -1188,7 +1267,7 @@ export default defineComponent({
       update(() => {
         const needle = val.toLowerCase()
         if (needle === '') {
-          locationOptions.value = locationOptions.value.filter(opt => opt.value !== 'other')
+          locationOptions.value = locationOptions.value.filter((opt) => opt.value !== 'other')
         } else {
           const filtered = locationOptions.value.filter(
             (loc) => loc.label.toLowerCase().indexOf(needle) > -1
@@ -1229,9 +1308,10 @@ export default defineComponent({
 
     // Helper function to get walking instructions
     const getWalkingInstructions = (direction) => {
-      const locationKey = direction === 'from' ? selectedFromLocation.value?.value : selectedToLocation.value?.value
+      const locationKey =
+        direction === 'from' ? selectedFromLocation.value?.value : selectedToLocation.value?.value
       if (!locationKey || !walkingInstructionsDB[locationKey]) {
-        return direction === 'from' 
+        return direction === 'from'
           ? 'Walk towards the nearest jeepney terminal. Look for signage or ask locals for directions.'
           : 'From the terminal, walk towards your destination. Use the map for guidance.'
       }
@@ -1240,7 +1320,8 @@ export default defineComponent({
 
     // Helper function to get terminal landmarks
     const getTerminalLandmarks = (position) => {
-      const locationKey = position === 'start' ? selectedFromLocation.value?.value : selectedToLocation.value?.value
+      const locationKey =
+        position === 'start' ? selectedFromLocation.value?.value : selectedToLocation.value?.value
       if (!locationKey || !walkingInstructionsDB[locationKey]) {
         return 'Look for jeepney signage and other passengers. Terminals are usually near main roads.'
       }
@@ -1277,20 +1358,21 @@ export default defineComponent({
     // Helper function to get estimated distance
     const getEstimatedDistance = (direction) => {
       // Simple estimation based on location value
-      const locationKey = direction === 'from' ? selectedFromLocation.value?.value : selectedToLocation.value?.value
+      const locationKey =
+        direction === 'from' ? selectedFromLocation.value?.value : selectedToLocation.value?.value
       if (!locationKey) return 'N/A'
-      
+
       // Mock distances - in production, calculate from actual coordinates
       const distances = {
-        'sm': '200m',
-        'burnham': '350m',
-        'session': '150m',
-        'ub': '500m',
-        'slu': '400m',
+        sm: '200m',
+        burnham: '350m',
+        session: '150m',
+        ub: '500m',
+        slu: '400m',
         'good-shepherd': '600m',
         'tam-awan': '800m',
         'lourdes-grotto': '1.2km',
-        'pma': '1.5km',
+        pma: '1.5km',
       }
       return distances[locationKey] || '500m'
     }
@@ -1299,13 +1381,13 @@ export default defineComponent({
     const getEstimatedWalkTime = (direction) => {
       const distance = getEstimatedDistance(direction)
       if (distance === 'N/A') return 'N/A'
-      
+
       // Rough estimate: 5 min per 400m
       const distanceNum = parseFloat(distance)
       if (distance.includes('km')) {
         return Math.round(distanceNum * 12) + ' min'
       }
-      return Math.round(distanceNum / 400 * 5) + ' min'
+      return Math.round((distanceNum / 400) * 5) + ' min'
     }
 
     onMounted(async () => {
@@ -1320,7 +1402,7 @@ export default defineComponent({
         toLocation.value = {
           label: route.query.toName,
           value: 'custom-from-query',
-          coords: toCoords
+          coords: toCoords,
         }
 
         // Set starting point if provided
@@ -1329,14 +1411,14 @@ export default defineComponent({
           fromLocation.value = {
             label: route.query.fromName,
             value: 'custom-from-query',
-            coords: fromCoords
+            coords: fromCoords,
           }
         } else if (route.query.fromLat && route.query.fromLng) {
           // Using current location
           fromLocation.value = {
             label: '📍 Current Location',
             value: 'current-location',
-            coords: [parseFloat(route.query.fromLat), parseFloat(route.query.fromLng)]
+            coords: [parseFloat(route.query.fromLat), parseFloat(route.query.fromLng)],
           }
         }
 
@@ -1354,7 +1436,8 @@ export default defineComponent({
         map.value = L.map('map').setView([16.4122, 120.5948], 13)
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(map.value)
       }
     })
@@ -1415,14 +1498,14 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 // Color Palette
-$dark-green: #1B4332;
-$primary-green: #2E5D3E;
-$light-green: #9EC98F;
-$soft-green: #E8F5E9;
-$mint-cream: #F1F8F4;
-$blush-pink: #FCE4EC;
-$white: #FFFFFF;
-$brown: #6B5344;
+$dark-green: #1b4332;
+$primary-green: #2e5d3e;
+$light-green: #9ec98f;
+$soft-green: #e8f5e9;
+$mint-cream: #f1f8f4;
+$blush-pink: #fce4ec;
+$white: #ffffff;
+$brown: #6b5344;
 
 // Glassmorphism
 $glass-bg: rgba(255, 255, 255, 0.85);
@@ -1464,7 +1547,7 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -1563,11 +1646,7 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
     left: 0;
     right: 0;
     height: 40%;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.4) 0%,
-      transparent 100%
-    );
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, transparent 100%);
     border-radius: 20px 20px 0 0;
     pointer-events: none;
   }
@@ -1622,11 +1701,7 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   :deep(.q-field__control) {
     border-radius: 10px;
     min-height: 48px;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 1) 0%,
-      rgba(248, 248, 248, 1) 100%
-    );
+    background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(248, 248, 248, 1) 100%);
     transition: all 0.3s ease;
     border: 1.5px solid rgba($primary-green, 0.15);
     box-shadow:
@@ -1662,11 +1737,7 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 }
 
 .start-nav-btn {
-  background: linear-gradient(
-    180deg,
-    $primary-green 0%,
-    $dark-green 100%
-  ) !important;
+  background: linear-gradient(180deg, $primary-green 0%, $dark-green 100%) !important;
   color: white !important;
   font-weight: 600;
   border-radius: 10px;
@@ -1689,11 +1760,7 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
     left: 0;
     right: 0;
     height: 40%;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.15) 0%,
-      transparent 100%
-    );
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
     border-radius: 10px 10px 0 0;
     pointer-events: none;
   }
@@ -1798,7 +1865,7 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  
+
   &:hover {
     transform: translateY(-8px);
     box-shadow: $bento-shadow-hover;
@@ -1838,8 +1905,14 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .map-container {
@@ -1877,7 +1950,7 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 }
 
 .teaching-step-card.step-done {
-  background: #F5F5F5;
+  background: #f5f5f5;
   opacity: 0.7;
 }
 
@@ -1898,7 +1971,7 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 }
 
 .step-done .step-icon-wrapper {
-  background: #9E9E9E;
+  background: #9e9e9e;
 }
 
 .step-emoji {
@@ -1927,18 +2000,18 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 }
 
 .walking-instructions {
-  border-left-color: #2196F3;
-  background: #E3F2FD;
+  border-left-color: #2196f3;
+  background: #e3f2fd;
 }
 
 .terminal-info-card {
-  border-left-color: #FFC107;
-  background: #FFF8E1;
+  border-left-color: #ffc107;
+  background: #fff8e1;
 }
 
 .arrival-info-card {
-  border-left-color: #9C27B0;
-  background: #F3E5F5;
+  border-left-color: #9c27b0;
+  background: #f3e5f5;
 }
 
 .mb-0 {
@@ -1974,7 +2047,7 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 }
 
 .detail-card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
 }
 
@@ -1987,8 +2060,8 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 
 /* Destination Highlights */
 .destination-highlights {
-  border-left: 4px solid #FF9800;
-  background: #FFF3E0;
+  border-left: 4px solid #ff9800;
+  background: #fff3e0;
   border-radius: 12px;
 }
 
@@ -2017,11 +2090,11 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 
 /* Background colors */
 .bg-blue-1 {
-  background-color: #E3F2FD !important;
+  background-color: #e3f2fd !important;
 }
 
 .bg-amber-1 {
-  background-color: #FFF8E1 !important;
+  background-color: #fff8e1 !important;
 }
 
 .bg-green-1 {
@@ -2029,16 +2102,16 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 }
 
 .bg-purple-1 {
-  background-color: #F3E5F5 !important;
+  background-color: #f3e5f5 !important;
 }
 
 /* Shadow utilities */
 .shadow-1 {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
 }
 
 .shadow-2 {
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
 }
 
 @media (max-width: 768px) {

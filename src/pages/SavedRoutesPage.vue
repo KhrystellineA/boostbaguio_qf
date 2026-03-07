@@ -30,11 +30,7 @@
       </div>
 
       <!-- Online/Offline Status Banner -->
-      <q-banner
-        v-if="!isOnline"
-        class="status-banner bg-warning text-white q-mb-md"
-        rounded
-      >
+      <q-banner v-if="!isOnline" class="status-banner bg-warning text-white q-mb-md" rounded>
         <template v-slot:avatar>
           <q-icon name="cloud_off" />
         </template>
@@ -66,40 +62,22 @@
       <!-- Routes List -->
       <div v-else class="routes-list">
         <div class="routes-grid">
-          <q-card
-            v-for="route in savedRoutes"
-            :key="route.id"
-            class="route-card"
-          >
+          <q-card v-for="route in savedRoutes" :key="route.id" class="route-card">
             <q-card-section class="route-header">
               <div class="route-title">
                 <div class="text-h6 text-weight-bold">{{ route.name }}</div>
                 <div class="text-body2 text-grey-7">{{ route.description }}</div>
               </div>
-              <q-btn-dropdown
-                flat
-                round
-                dense
-                icon="more_vert"
-                class="action-menu"
-              >
+              <q-btn-dropdown flat round dense icon="more_vert" class="action-menu">
                 <q-list>
-                  <q-item
-                    clickable
-                    v-close-popup
-                    @click="viewRoute(route)"
-                  >
+                  <q-item clickable v-close-popup @click="viewRoute(route)">
                     <q-item-section avatar>
                       <q-icon name="visibility" color="primary" />
                     </q-item-section>
                     <q-item-section>View Details</q-item-section>
                   </q-item>
 
-                  <q-item
-                    clickable
-                    v-close-popup
-                    @click="shareRoute(route)"
-                  >
+                  <q-item clickable v-close-popup @click="shareRoute(route)">
                     <q-item-section avatar>
                       <q-icon name="share" color="primary" />
                     </q-item-section>
@@ -108,11 +86,7 @@
 
                   <q-separator />
 
-                  <q-item
-                    clickable
-                    v-close-popup
-                    @click="removeRoute(route)"
-                  >
+                  <q-item clickable v-close-popup @click="removeRoute(route)">
                     <q-item-section avatar>
                       <q-icon name="delete" color="negative" />
                     </q-item-section>
@@ -158,13 +132,7 @@
             </q-card-section>
 
             <q-card-actions align="right" class="q-pr-md">
-              <q-btn
-                flat
-                color="primary"
-                label="View Route"
-                @click="viewRoute(route)"
-                size="sm"
-              />
+              <q-btn flat color="primary" label="View Route" @click="viewRoute(route)" size="sm" />
             </q-card-actions>
           </q-card>
         </div>
@@ -193,7 +161,8 @@
                 {{ storageInfo.usageInMB }} MB of {{ storageInfo.quotaInMB }} MB used
               </div>
               <div class="text-caption text-grey-7">
-                {{ Math.round((storageInfo.quotaInMB - storageInfo.usageInMB) * 100) / 100 }} MB available
+                {{ Math.round((storageInfo.quotaInMB - storageInfo.usageInMB) * 100) / 100 }} MB
+                available
               </div>
             </div>
           </div>
@@ -224,13 +193,8 @@ import { useOfflineMode } from 'src/composables/useOfflineMode'
 
 const router = useRouter()
 const $q = useQuasar()
-const {
-  isOnline,
-  getCachedRoutes,
-  removeCachedRoute,
-  clearAllCachedRoutes,
-  getCacheSize
-} = useOfflineMode()
+const { isOnline, getCachedRoutes, removeCachedRoute, clearAllCachedRoutes, getCacheSize } =
+  useOfflineMode()
 
 const savedRoutes = ref([])
 const loading = ref(false)
@@ -249,7 +213,7 @@ const loadRoutes = async () => {
     $q.notify({
       type: 'negative',
       message: 'Failed to load saved routes',
-      position: 'top'
+      position: 'top',
     })
   } finally {
     loading.value = false
@@ -263,12 +227,12 @@ const loadStorageInfo = async () => {
 const refreshRoutes = async () => {
   await loadRoutes()
   await loadStorageInfo()
-  
+
   $q.notify({
     type: 'positive',
     message: 'Routes refreshed',
     position: 'top',
-    timeout: 1500
+    timeout: 1500,
   })
 }
 
@@ -282,7 +246,7 @@ const shareRoute = async (route) => {
       await navigator.share({
         title: route.name,
         text: route.description,
-        url: window.location.origin + `/route/${route.id}`
+        url: window.location.origin + `/route/${route.id}`,
       })
     } catch {
       console.log('Share cancelled')
@@ -290,11 +254,11 @@ const shareRoute = async (route) => {
   } else {
     const url = window.location.origin + `/route/${route.id}`
     await navigator.clipboard.writeText(url)
-    
+
     $q.notify({
       type: 'positive',
       message: 'Route link copied to clipboard',
-      position: 'top'
+      position: 'top',
     })
   }
 }
@@ -307,24 +271,24 @@ const removeRoute = (route) => {
     persistent: true,
     ok: {
       label: 'Remove',
-      color: 'negative'
-    }
+      color: 'negative',
+    },
   }).onOk(() => {
     const success = removeCachedRoute(route.id)
-    
+
     if (success) {
-      savedRoutes.value = savedRoutes.value.filter(r => r.id !== route.id)
-      
+      savedRoutes.value = savedRoutes.value.filter((r) => r.id !== route.id)
+
       $q.notify({
         type: 'positive',
         message: 'Route removed',
-        position: 'top'
+        position: 'top',
       })
     } else {
       $q.notify({
         type: 'negative',
         message: 'Failed to remove route',
-        position: 'top'
+        position: 'top',
       })
     }
   })
@@ -338,24 +302,24 @@ const confirmClearAll = () => {
     persistent: true,
     ok: {
       color: 'negative',
-      label: 'Clear All'
-    }
+      label: 'Clear All',
+    },
   }).onOk(() => {
     const success = clearAllCachedRoutes()
-    
+
     if (success) {
       savedRoutes.value = []
-      
+
       $q.notify({
         type: 'positive',
         message: 'All routes cleared',
-        position: 'top'
+        position: 'top',
       })
     } else {
       $q.notify({
         type: 'negative',
         message: 'Failed to clear routes',
-        position: 'top'
+        position: 'top',
       })
     }
   })
@@ -366,16 +330,16 @@ const formatDate = (dateString) => {
   const now = new Date()
   const diffMs = now - date
   const diffMins = Math.floor(diffMs / 60000)
-  
+
   if (diffMins < 1) return 'Just now'
   if (diffMins < 60) return `${diffMins} min ago`
-  
+
   const diffHours = Math.floor(diffMins / 60)
   if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
-  
+
   const diffDays = Math.floor(diffHours / 24)
   if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
-  
+
   return date.toLocaleDateString()
 }
 </script>
@@ -528,11 +492,11 @@ const formatDate = (dateString) => {
 }
 
 .text-primary {
-  color: #2E5D3E !important;
+  color: #2e5d3e !important;
 }
 
 .bg-primary {
-  background-color: #2E5D3E !important;
+  background-color: #2e5d3e !important;
 }
 
 @media (max-width: 768px) {
@@ -541,30 +505,30 @@ const formatDate = (dateString) => {
     gap: 1rem;
     text-align: center;
   }
-  
+
   .header-info {
     justify-content: center;
   }
-  
+
   .routes-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .route-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .route-stats {
     justify-content: center;
     flex-wrap: wrap;
   }
-  
+
   .container {
     padding: 0 0.5rem;
   }
-  
+
   .saved-routes-page {
     padding: 1rem;
   }

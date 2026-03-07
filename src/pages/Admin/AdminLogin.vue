@@ -52,8 +52,8 @@
               type="email"
               class="q-mb-md"
               :rules="[
-                v => !!v || 'Email required',
-                v => /.+@.+\..+/.test(v) || 'Invalid email'
+                (v) => !!v || 'Email required',
+                (v) => /.+@.+\..+/.test(v) || 'Invalid email',
               ]"
               autocomplete="username"
               bg-color="grey-1"
@@ -71,8 +71,8 @@
                 :type="showPassword ? 'text' : 'password'"
                 class="q-mb-md"
                 :rules="[
-                  v => !!v || 'Password required',
-                  v => v.length >= 6 || 'Min 6 characters'
+                  (v) => !!v || 'Password required',
+                  (v) => v.length >= 6 || 'Min 6 characters',
                 ]"
                 autocomplete="current-password"
                 @keyup.enter="onSubmit"
@@ -157,14 +157,14 @@ export default {
       email: '',
       password: '',
       showPassword: false,
-      loading: false
+      loading: false,
     }
   },
 
   methods: {
     async onSubmit() {
       this.loading = true
-      
+
       try {
         const email = this.email.trim().toLowerCase()
         const password = this.password
@@ -208,7 +208,7 @@ export default {
           uid: user.uid,
           name: adminData.name,
           email: adminData.email,
-          role: adminData.role
+          role: adminData.role,
         })
 
         this.$q.notify({
@@ -216,7 +216,7 @@ export default {
           message: `Welcome back, ${adminData.name || 'Admin'}!`,
           icon: 'check_circle',
           position: 'top',
-          color: 'positive'
+          color: 'positive',
         })
 
         // Redirect to specific dashboard section based on role
@@ -231,7 +231,6 @@ export default {
         } else {
           this.$router.push('/admin/dashboard')
         }
-
       } catch (error) {
         console.error('[Admin Login] Error:', error)
         this.handleError(error)
@@ -249,10 +248,7 @@ export default {
           return uidSnap.data()
         }
 
-        const q = query(
-          collection(db, 'admins'),
-          where('email', '==', email)
-        )
+        const q = query(collection(db, 'admins'), where('email', '==', email))
         const querySnap = await getDocs(q)
 
         if (!querySnap.empty) {
@@ -277,7 +273,7 @@ export default {
         'auth/too-many-requests': 'Too many failed attempts. Try again later.',
         'auth/not-admin': error.message,
         'auth/invalid-role': error.message,
-        'auth/account-disabled': error.message
+        'auth/account-disabled': error.message,
       }
 
       message = errorMap[error?.code] || error?.message || message
@@ -287,7 +283,7 @@ export default {
         message: message,
         icon: 'error',
         position: 'top',
-        timeout: 5000
+        timeout: 5000,
       })
     },
 
@@ -295,8 +291,8 @@ export default {
       const error = new Error(message)
       error.code = code
       return error
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -345,7 +341,7 @@ export default {
     margin: 0
     letter-spacing: -1px
     line-height: 1
-    
+
     .text-accent
       color: #FFD60A !important
       font-weight: 800
@@ -388,16 +384,16 @@ export default {
   gap: 10px
   border: 1px solid rgba(255, 255, 255, 0.15)
   transition: all 0.3s ease
-  
+
   .q-icon
     color: white
-    
+
   span
     color: white
     font-size: 13px
     font-weight: 500
     text-align: center
-  
+
   &:hover
     background: rgba(255, 255, 255, 0.15)
     transform: translateY(-2px)
@@ -408,14 +404,14 @@ export default {
   background: white
   border-radius: 20px
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3)
-  
+
   .q-card__section
     padding: 50px
 
 .form-header
   text-align: center
   margin-bottom: 35px
-  
+
   .icon-wrapper
     background: linear-gradient(135deg, #d8f3dc 0%, #b7e4c7 100%)
     width: 80px
@@ -426,13 +422,13 @@ export default {
     justify-content: center
     margin: 0 auto 20px
     box-shadow: 0 4px 15px rgba(45, 106, 79, 0.2)
-  
+
   h3
     font-size: 28px
     font-weight: 700
     color: #1b4332
     margin: 0 0 5px 0
-  
+
   .subtitle
     font-size: 14px
     color: #6c757d
@@ -441,16 +437,16 @@ export default {
 .login-form
   .password-field-wrapper
     position: relative
-    
+
     .q-input
       margin-bottom: 8px !important
-    
+
     .password-toggle-btn
       position: absolute
       top: 12px
       right: 12px
       z-index: 1000 !important
-      
+
   .q-field
     :deep(.q-field__control)
       border-radius: 12px
@@ -472,7 +468,7 @@ export default {
   border-radius: 12px
   margin-top: 10px
   transition: all 0.3s ease
-  
+
   &:hover
     transform: translateY(-2px)
     box-shadow: 0 6px 20px rgba(45, 106, 79, 0.4)
@@ -487,13 +483,13 @@ export default {
     text-align: center
     font-size: 14px
     color: #6c757d
-    
+
     a
       color: #2E5D3E
       font-weight: 600
       cursor: pointer
       text-decoration: none
-      
+
       &:hover
         text-decoration: underline
 
@@ -568,14 +564,14 @@ export default {
   .main-container
     flex-direction: column
     gap: 50px
-    
+
   .branding-section
     align-items: center
     text-align: center
-    
+
   .brand-container
     flex-direction: column
-    
+
   .info-cards
     grid-template-columns: repeat(3, 1fr)
     width: 100%
@@ -583,21 +579,21 @@ export default {
 @media (max-width: 600px)
   .admin-login-page
     padding: 15px
-    
+
   .brand-text h1
     font-size: 42px
-    
+
   .info-cards
     grid-template-columns: 1fr
     max-width: 300px
-    
+
   .login-card
     min-width: 100%
     max-width: 100%
-    
+
     .q-card__section
       padding: 35px 25px
-      
+
   .decoration-elements
     display: none
 </style>

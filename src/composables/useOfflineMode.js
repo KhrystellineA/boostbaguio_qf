@@ -8,7 +8,7 @@ export function useOfflineMode() {
 
   const updateOnlineStatus = () => {
     isOnline.value = navigator.onLine
-    
+
     if (isOnline.value && offlineQueue.value.length > 0) {
       processOfflineQueue()
     }
@@ -23,34 +23,32 @@ export function useOfflineMode() {
 
     try {
       const cachedRoutes = JSON.parse(localStorage.getItem('cachedRoutes') || '[]')
-      
-      const existingIndex = cachedRoutes.findIndex(r => r.id === routeData.id)
-      
+
+      const existingIndex = cachedRoutes.findIndex((r) => r.id === routeData.id)
+
       if (existingIndex >= 0) {
         cachedRoutes[existingIndex] = {
           ...routeData,
-          cachedAt: new Date().toISOString()
+          cachedAt: new Date().toISOString(),
         }
       } else {
         cachedRoutes.push({
           ...routeData,
-          cachedAt: new Date().toISOString()
+          cachedAt: new Date().toISOString(),
         })
       }
 
       if (cachedRoutes.length > 50) {
-        cachedRoutes.sort((a, b) => 
-          new Date(b.cachedAt) - new Date(a.cachedAt)
-        )
+        cachedRoutes.sort((a, b) => new Date(b.cachedAt) - new Date(a.cachedAt))
         cachedRoutes.length = 50
       }
 
       localStorage.setItem('cachedRoutes', JSON.stringify(cachedRoutes))
-      
+
       if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller.postMessage({
           type: 'CACHE_ROUTE',
-          payload: routeData
+          payload: routeData,
         })
       }
 
@@ -72,13 +70,13 @@ export function useOfflineMode() {
 
   const getCachedRoute = (routeId) => {
     const routes = getCachedRoutes()
-    return routes.find(r => r.id === routeId)
+    return routes.find((r) => r.id === routeId)
   }
 
   const removeCachedRoute = (routeId) => {
     try {
       const routes = getCachedRoutes()
-      const filtered = routes.filter(r => r.id !== routeId)
+      const filtered = routes.filter((r) => r.id !== routeId)
       localStorage.setItem('cachedRoutes', JSON.stringify(filtered))
       return true
     } catch (error) {
@@ -100,28 +98,26 @@ export function useOfflineMode() {
   const queueForOnline = (request) => {
     offlineQueue.value.push({
       ...request,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
-    
+
     localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue.value))
   }
 
   const processOfflineQueue = async () => {
     const queue = [...offlineQueue.value]
-    
+
     for (const request of queue) {
       try {
         if (request.type === 'favorite') {
           await fetch(request.url, {
             method: request.method,
             body: JSON.stringify(request.data),
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
           })
         }
-        
-        offlineQueue.value = offlineQueue.value.filter(
-          r => r.timestamp !== request.timestamp
-        )
+
+        offlineQueue.value = offlineQueue.value.filter((r) => r.timestamp !== request.timestamp)
       } catch (error) {
         console.error('Error processing offline request:', error)
       }
@@ -138,7 +134,7 @@ export function useOfflineMode() {
         quota: estimate.quota,
         usageInMB: (estimate.usage / (1024 * 1024)).toFixed(2),
         quotaInMB: (estimate.quota / (1024 * 1024)).toFixed(2),
-        percentageUsed: ((estimate.usage / estimate.quota) * 100).toFixed(2)
+        percentageUsed: ((estimate.usage / estimate.quota) * 100).toFixed(2),
       }
     }
     return null
@@ -161,7 +157,7 @@ export function useOfflineMode() {
   onMounted(() => {
     window.addEventListener('online', updateOnlineStatus)
     window.addEventListener('offline', updateOnlineStatus)
-    
+
     try {
       const saved = localStorage.getItem('offlineQueue')
       if (saved) {
@@ -190,6 +186,6 @@ export function useOfflineMode() {
     clearAllCachedRoutes,
     queueForOnline,
     getCacheSize,
-    registerServiceWorker
+    registerServiceWorker,
   }
 }

@@ -34,7 +34,12 @@
                 :key="imgIndex"
                 class="gallery-image-wrapper"
               >
-                <q-img :src="image.imageUrl" :alt="`Gallery ${imgIndex + 1}`" class="gallery-image" fit="cover">
+                <q-img
+                  :src="image.imageUrl"
+                  :alt="`Gallery ${imgIndex + 1}`"
+                  class="gallery-image"
+                  fit="cover"
+                >
                   <template v-slot:loading>
                     <div class="absolute-full flex flex-center">
                       <q-spinner color="primary" size="30px" />
@@ -75,7 +80,7 @@ import { doc, getDoc } from 'firebase/firestore'
 
 export default {
   name: 'GallerySection',
-  
+
   setup() {
     const slide = ref(0)
     const galleryImages = ref([])
@@ -95,7 +100,7 @@ export default {
         console.log('[GallerySection] Loading images from Firebase...')
         const docRef = doc(db, 'pagePhotos', 'home-gallery')
         const docSnap = await getDoc(docRef)
-        
+
         if (docSnap.exists()) {
           const data = docSnap.data()
           if (data.images && Array.isArray(data.images)) {
@@ -144,11 +149,11 @@ export default {
 
 <style lang="scss" scoped>
 // Color Palette Variables
-$dark-green: #1B4332;
-$primary-green: #2E5D3E;
-$light-green: #9EC98F;
-$brown: #6B5344;
-$white: #FFFFFF;
+$dark-green: #1b4332;
+$primary-green: #2e5d3e;
+$light-green: #9ec98f;
+$brown: #6b5344;
+$white: #ffffff;
 
 .gallery-section {
   background: $white;
@@ -194,7 +199,7 @@ $white: #FFFFFF;
 .gallery-carousel {
   border-radius: 20px;
   overflow: visible;
-  box-shadow: 
+  box-shadow:
     0 20px 60px rgba(0, 0, 0, 0.1),
     0 0 0 1px rgba($primary-green, 0.1);
   background: $white;

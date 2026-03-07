@@ -8,18 +8,18 @@ Complete guide to setting up your Firestore database with all collections and sa
 
 ### **Collections Overview**
 
-| Collection | Feature | Purpose |
-|------------|---------|---------|
-| `events` | ARAMIDEM | Events & Festivals |
-| `places` | APANAM | Tourist Spots |
-| `places` | MAYKAN | Food & Restaurants |
-| `places` | AYANMO | Discovery & Places |
-| `routes` | PAGNAAM | Jeepney Routes |
-| `jeepneyOptions` | PAGNAAM | Jeepney Variants |
-| `photos` | Gallery | Photo Collection |
-| `users` | User Accounts | Regular Users |
-| `admins` | Admin Panel | Admin Users |
-| `contactMessages` | Contact Page | Form Submissions |
+| Collection        | Feature       | Purpose            |
+| ----------------- | ------------- | ------------------ |
+| `events`          | ARAMIDEM      | Events & Festivals |
+| `places`          | APANAM        | Tourist Spots      |
+| `places`          | MAYKAN        | Food & Restaurants |
+| `places`          | AYANMO        | Discovery & Places |
+| `routes`          | PAGNAAM       | Jeepney Routes     |
+| `jeepneyOptions`  | PAGNAAM       | Jeepney Variants   |
+| `photos`          | Gallery       | Photo Collection   |
+| `users`           | User Accounts | Regular Users      |
+| `admins`          | Admin Panel   | Admin Users        |
+| `contactMessages` | Contact Page  | Form Submissions   |
 
 ---
 
@@ -55,6 +55,7 @@ node setup-database.js
 Enter your admin password when prompted.
 
 This will create:
+
 - ✅ 4 sample events (ARAMIDEM)
 - ✅ 5 tourist spots (APANAM)
 - ✅ 3 food places (MAYKAN)
@@ -166,7 +167,7 @@ This will create:
   touristSpotsServiced: [],   // Array of tourist spots along the route
   isActive: boolean,          // Currently active route
   imageUrl: string,           // Jeepney/route image
-  
+
   // 🗺️ Route Coordinates for Map Visualization
   routeCoordinates: [         // Array of objects with lat/lng properties
     { lat: 16.4109, lng: 120.5964 },  // Session Road (starting point)
@@ -247,14 +248,14 @@ Click **"Start collection"**
 
 ## 📱 Feature-to-Collection Mapping
 
-| Feature Page | Collection | Data Displayed |
-|-------------|------------|----------------|
-| **ARAMIDEM** | `events` | Events list, event details, featured events |
-| **APANAM** | `places` (category: tourist-spot) | Tourist spots list, spot details, map view |
-| **MAYKAN** | `places` (category: restaurant, cafe) | Food places, cuisine types, price range |
-| **PAGNAAM** | `routes` + `jeepneyOptions` | Route list, route details, interactive map |
-| **AYANMO** | `places` (all categories) | Discovery quiz, recommended places |
-| **Home** | All collections | Featured events, top spots, gallery |
+| Feature Page | Collection                            | Data Displayed                              |
+| ------------ | ------------------------------------- | ------------------------------------------- |
+| **ARAMIDEM** | `events`                              | Events list, event details, featured events |
+| **APANAM**   | `places` (category: tourist-spot)     | Tourist spots list, spot details, map view  |
+| **MAYKAN**   | `places` (category: restaurant, cafe) | Food places, cuisine types, price range     |
+| **PAGNAAM**  | `routes` + `jeepneyOptions`           | Route list, route details, interactive map  |
+| **AYANMO**   | `places` (all categories)             | Discovery quiz, recommended places          |
+| **Home**     | All collections                       | Featured events, top spots, gallery         |
 
 ---
 
@@ -273,7 +274,7 @@ const q = query(
 )
 
 const snapshot = await getDocs(q)
-const events = snapshot.docs.map(doc => doc.data())
+const events = snapshot.docs.map((doc) => doc.data())
 ```
 
 ### **Get Tourist Spots**
@@ -286,19 +287,16 @@ const q = query(
 )
 
 const snapshot = await getDocs(q)
-const spots = snapshot.docs.map(doc => doc.data())
+const spots = snapshot.docs.map((doc) => doc.data())
 ```
 
 ### **Get Active Routes**
 
 ```javascript
-const q = query(
-  collection(db, 'routes'),
-  where('active', '==', true)
-)
+const q = query(collection(db, 'routes'), where('active', '==', true))
 
 const snapshot = await getDocs(q)
-const routes = snapshot.docs.map(doc => doc.data())
+const routes = snapshot.docs.map((doc) => doc.data())
 ```
 
 ---
@@ -313,7 +311,7 @@ import { doc, updateDoc } from 'firebase/firestore'
 const eventRef = doc(db, 'events', 'documentId')
 await updateDoc(eventRef, {
   status: 'ongoing',
-  lastUpdated: new Date().toISOString()
+  lastUpdated: new Date().toISOString(),
 })
 ```
 
@@ -353,6 +351,7 @@ await deleteDoc(eventRef)
 ### **Error: Permission denied**
 
 **Solution:**
+
 1. Check if security rules are deployed
 2. Verify admin user exists in Authentication
 3. Create admin document in Firestore `admins` collection

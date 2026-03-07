@@ -3,11 +3,7 @@
     <div class="container-custom">
       <div class="hero-box">
         <div class="hero-bg-wrapper">
-          <q-img
-            :src="heroImage || defaultHeroImage"
-            class="hero-bg"
-            :ratio="16/9"
-          >
+          <q-img :src="heroImage || defaultHeroImage" class="hero-bg" :ratio="16 / 9">
             <template v-slot:loading>
               <div class="absolute-full flex flex-center">
                 <q-spinner color="white" size="50px" />
@@ -22,8 +18,8 @@
             <div class="left-content scroll-animate" :class="{ 'animate-in': true }">
               <h1 class="hero-title">BOOST BAGUIO</h1>
               <p class="hero-description">
-                Commute like a local in Baguio with ease. Discover tourist spots, events, and nearby attractions
-                right at the palm of your hand!
+                Commute like a local in Baguio with ease. Discover tourist spots, events, and nearby
+                attractions right at the palm of your hand!
               </p>
               <p class="hero-tagline">Navigate. Connect. Sustain.</p>
             </div>
@@ -58,7 +54,7 @@
                       color="primary"
                       size="sm"
                       @click="searchFromLocation"
-                      style="margin-right: -8px;"
+                      style="margin-right: -8px"
                     >
                       <q-tooltip>Search location</q-tooltip>
                     </q-btn>
@@ -85,7 +81,7 @@
                       color="primary"
                       size="sm"
                       @click="disableFromAutoDetect"
-                      style="margin-right: -8px;"
+                      style="margin-right: -8px"
                     >
                       <q-tooltip>Enter location manually</q-tooltip>
                     </q-btn>
@@ -136,40 +132,48 @@ export default {
   props: {
     heroImage: {
       type: String,
-      default: ''
+      default: '',
     },
     fromLocationText: {
       type: String,
-      default: ''
+      default: '',
     },
     fromLocation: {
       type: [Object, null],
-      default: null
+      default: null,
     },
     toLocation: {
       type: [Object, null],
-      default: null
+      default: null,
     },
     fromLocationOptions: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     toLocationOptions: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     fromAutoDetect: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
-  emits: ['update:fromLocationText', 'update:fromLocation', 'update:toLocation', 'search', 'detect', 'disable-auto', 'start'],
+  emits: [
+    'update:fromLocationText',
+    'update:fromLocation',
+    'update:toLocation',
+    'search',
+    'detect',
+    'disable-auto',
+    'start',
+  ],
 
   computed: {
     defaultHeroImage() {
       return 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=1920'
-    }
+    },
   },
 
   methods: {
@@ -184,23 +188,23 @@ export default {
     },
     startNavigation() {
       this.$emit('start')
-    }
-  }
+    },
+  },
 }
 </script>
 
 <style lang="scss" scoped>
 // Import shared styles from IndexPage
-$dark-green: #1B4332;
-$primary-green: #2E5D3E;
-$light-green: #9EC98F;
-$white: #FFFFFF;
+$dark-green: #1b4332;
+$primary-green: #2e5d3e;
+$light-green: #9ec98f;
+$white: #ffffff;
 $glass-bg: rgba(255, 255, 255, 0.85);
 
 .hero-section {
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #E8F5E9 0%, #F1F8F4 100%);
+  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
   padding: 0;
 }
 
@@ -232,11 +236,7 @@ $glass-bg: rgba(255, 255, 255, 0.85);
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(
-      135deg,
-      rgba(27, 67, 50, 0.7) 0%,
-      rgba(46, 93, 62, 0.5) 100%
-    );
+    background: linear-gradient(135deg, rgba(27, 67, 50, 0.7) 0%, rgba(46, 93, 62, 0.5) 100%);
   }
 }
 

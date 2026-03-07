@@ -8,8 +8,9 @@
         <div class="hero-content animate-fade-in">
           <h1 class="hero-title">AYAN MO - Near Me</h1>
           <p class="hero-description">
-            With our Near Me feature, you can easily explore nearby attractions and local favorites in Baguio City. 
-            Get personalized recommendations based on your location and enjoy a seamless travel experience.
+            With our Near Me feature, you can easily explore nearby attractions and local favorites
+            in Baguio City. Get personalized recommendations based on your location and enjoy a
+            seamless travel experience.
           </p>
         </div>
       </div>
@@ -20,14 +21,17 @@
       <div class="container">
         <div class="row items-center">
           <div class="col-md-6 col-12 q-pa-xl">
-            <h2 class="text-h4 text-weight-bold text-primary q-mb-lg">Discover Baguio Around You</h2>
+            <h2 class="text-h4 text-weight-bold text-primary q-mb-lg">
+              Discover Baguio Around You
+            </h2>
             <p class="text-body1 q-mb-md">
-              AYAN MO helps you find places near your current location with category filtering. 
-              Whether you're looking for tourist spots, cafes, restaurants, parks, or other attractions, 
-              our system helps you discover what's nearby.
+              AYAN MO helps you find places near your current location with category filtering.
+              Whether you're looking for tourist spots, cafes, restaurants, parks, or other
+              attractions, our system helps you discover what's nearby.
             </p>
             <p class="text-body1 q-mb-lg">
-              Simply enable location services and explore the recommendations based on your current position.
+              Simply enable location services and explore the recommendations based on your current
+              position.
             </p>
             <div class="q-gutter-sm">
               <q-chip square color="primary" text-color="white">Nearby Places</q-chip>
@@ -38,7 +42,7 @@
           </div>
           <div class="col-md-6 col-12 q-pa-xl">
             <div class="image-placeholder bg-grey-3 q-pa-xl rounded-borders">
-              <q-icon name="my_location" size="64px" color="grey-6"/>
+              <q-icon name="my_location" size="64px" color="grey-6" />
               <div class="text-center q-mt-md">Nearby Place Discovery</div>
             </div>
           </div>
@@ -51,15 +55,36 @@
       <div class="container">
         <div class="text-center q-mb-xl">
           <h2 class="text-h3 text-weight-bold text-primary">Find Places Near You</h2>
-          <p class="text-body1">Explore nearby places with category filtering and distance sorting</p>
+          <p class="text-body1">
+            Explore nearby places with category filtering and distance sorting
+          </p>
         </div>
 
         <!-- Map Container - Full Width -->
-        <div class="map-wrapper" style="position: relative; width: 100%; height: 700px; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+        <div
+          class="map-wrapper"
+          style="
+            position: relative;
+            width: 100%;
+            height: 700px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+          "
+        >
           <!-- Full Map Background -->
-          <div id="map" style="width: 100%; height: 100%; background: #e0e0e0;">
-            <div class="map-placeholder-text text-center" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-              <q-icon name="map" size="64px" color="grey-6"/>
+          <div id="map" style="width: 100%; height: 100%; background: #e0e0e0">
+            <div
+              class="map-placeholder-text text-center"
+              style="
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                height: 100%;
+              "
+            >
+              <q-icon name="map" size="64px" color="grey-6" />
               <div class="q-mt-md text-h6">Interactive Map</div>
               <div class="text-caption">Shows nearby places based on your location</div>
             </div>
@@ -87,7 +112,9 @@
 
                 <!-- Category Filter -->
                 <div class="category-filter-section q-mb-md">
-                  <div class="text-subtitle2 text-weight-bold text-primary q-mb-sm">Filter by Category</div>
+                  <div class="text-subtitle2 text-weight-bold text-primary q-mb-sm">
+                    Filter by Category
+                  </div>
                   <div class="category-buttons">
                     <q-btn-group spread outline class="full-width">
                       <q-btn
@@ -127,7 +154,7 @@
 
               <!-- Places List Section -->
               <q-separator />
-              
+
               <q-card-section class="q-pa-md places-list-section">
                 <div class="row items-center justify-between q-mb-md">
                   <div class="text-subtitle2 text-weight-bold text-primary">Nearby Places</div>
@@ -151,7 +178,7 @@
                 <!-- Advanced Filters -->
                 <div v-if="showAdvancedFilters" class="advanced-filters q-mb-md">
                   <q-separator class="q-mb-md" />
-                  
+
                   <div class="row q-col-gutter-sm">
                     <div class="col-12">
                       <div class="text-caption text-grey-7 q-mb-xs">Sort By</div>
@@ -159,31 +186,31 @@
                         v-model="sortBy"
                         toggle-color="primary"
                         :options="[
-                          {label: 'Distance', value: 'distance'},
-                          {label: 'Name', value: 'name'},
-                          {label: 'Rating', value: 'rating'}
+                          { label: 'Distance', value: 'distance' },
+                          { label: 'Name', value: 'name' },
+                          { label: 'Rating', value: 'rating' },
                         ]"
                         size="sm"
                         class="full-width"
                         unelevated
                       />
                     </div>
-                    
+
                     <div class="col-12">
                       <div class="text-caption text-grey-7 q-mb-xs">Order</div>
                       <q-btn-toggle
                         v-model="sortOrder"
                         toggle-color="primary"
                         :options="[
-                          {label: 'Ascending', value: 'asc'},
-                          {label: 'Descending', value: 'desc'}
+                          { label: 'Ascending', value: 'asc' },
+                          { label: 'Descending', value: 'desc' },
                         ]"
                         size="sm"
                         class="full-width"
                         unelevated
                       />
                     </div>
-                    
+
                     <div class="col-12">
                       <div class="text-caption text-grey-7 q-mb-xs">
                         Min Rating: {{ minRating }} ⭐
@@ -198,7 +225,7 @@
                         class="q-my-sm"
                       />
                     </div>
-                    
+
                     <div class="col-12" v-if="userLocation">
                       <div class="text-caption text-grey-7 q-mb-xs">
                         Max Distance: {{ maxDistance }} km
@@ -220,14 +247,7 @@
                   <div class="row items-center q-mb-xs">
                     <div class="text-caption text-grey-7">Recent Searches</div>
                     <q-space />
-                    <q-btn
-                      icon="clear_all"
-                      size="xs"
-                      flat
-                      dense
-                      round
-                      @click="clearSearchHistory"
-                    >
+                    <q-btn icon="clear_all" size="xs" flat dense round @click="clearSearchHistory">
                       <q-tooltip>Clear History</q-tooltip>
                     </q-btn>
                   </div>
@@ -248,18 +268,14 @@
                 </div>
 
                 <!-- Recently Viewed -->
-                <div v-if="recentlyViewed.length > 0 && !selectedPlace" class="recently-viewed q-mb-md">
+                <div
+                  v-if="recentlyViewed.length > 0 && !selectedPlace"
+                  class="recently-viewed q-mb-md"
+                >
                   <div class="row items-center q-mb-xs">
                     <div class="text-caption text-grey-7">Recently Viewed</div>
                     <q-space />
-                    <q-btn
-                      icon="clear_all"
-                      size="xs"
-                      flat
-                      dense
-                      round
-                      @click="clearRecentlyViewed"
-                    >
+                    <q-btn icon="clear_all" size="xs" flat dense round @click="clearRecentlyViewed">
                       <q-tooltip>Clear History</q-tooltip>
                     </q-btn>
                   </div>
@@ -271,7 +287,7 @@
                       color="primary"
                       text-color="white"
                       size="sm"
-                      @click="selectPlace({id: item.id, name: item.name})"
+                      @click="selectPlace({ id: item.id, name: item.name })"
                     >
                       <q-avatar>
                         <img :src="item.imageUrl || '~assets/place-default.jpg'" />
@@ -289,11 +305,15 @@
                 <div v-else-if="filteredPlaces.length === 0" class="text-center q-py-md">
                   <q-icon name="place" size="40px" color="grey-5" />
                   <p class="q-mt-sm text-caption text-grey-6">
-                    {{ userLocation ? 'No places found near your location' : 'Select a location to see nearby places' }}
+                    {{
+                      userLocation
+                        ? 'No places found near your location'
+                        : 'Select a location to see nearby places'
+                    }}
                   </p>
                 </div>
 
-                <q-scroll-area style="height: 300px;" v-else>
+                <q-scroll-area style="height: 300px" v-else>
                   <div class="places-list">
                     <q-item
                       v-for="place in filteredPlaces"
@@ -309,8 +329,17 @@
                       <q-item-section>
                         <q-item-label class="text-weight-bold">{{ place.name }}</q-item-label>
                         <q-item-label caption>
-                          <q-badge :color="getCategoryColor(place.categories || [place.category])" class="q-mr-xs">
-                            {{ getCategoryLabel(Array.isArray(place.categories) ? place.categories[0] : place.category) }}
+                          <q-badge
+                            :color="getCategoryColor(place.categories || [place.category])"
+                            class="q-mr-xs"
+                          >
+                            {{
+                              getCategoryLabel(
+                                Array.isArray(place.categories)
+                                  ? place.categories[0]
+                                  : place.category
+                              )
+                            }}
                           </q-badge>
                           <span class="q-ml-xs">{{ calculateDistance(place) }} km away</span>
                         </q-item-label>
@@ -342,10 +371,14 @@
               <q-card-section>
                 <div class="row items-center q-mb-lg">
                   <div class="col">
-                    <div class="text-h4 text-weight-bold text-primary">{{ selectedPlace.name }}</div>
+                    <div class="text-h4 text-weight-bold text-primary">
+                      {{ selectedPlace.name }}
+                    </div>
                     <div class="text-subtitle1 q-gutter-xs">
                       <q-badge
-                        v-for="(cat, idx) in (Array.isArray(selectedPlace.categories) ? selectedPlace.categories : [selectedPlace.category].filter(Boolean))"
+                        v-for="(cat, idx) in Array.isArray(selectedPlace.categories)
+                          ? selectedPlace.categories
+                          : [selectedPlace.category].filter(Boolean)"
                         :key="idx"
                         color="secondary"
                         class="text-capitalize"
@@ -378,7 +411,9 @@
 
                 <div class="q-mt-lg">
                   <h4 class="text-h6 text-weight-bold text-primary q-mb-md">Description</h4>
-                  <p class="text-body1">{{ selectedPlace.description || 'No description available.' }}</p>
+                  <p class="text-body1">
+                    {{ selectedPlace.description || 'No description available.' }}
+                  </p>
                 </div>
 
                 <div class="q-mt-lg">
@@ -403,9 +438,11 @@
           </div>
           <div class="col-md-4 col-12 q-pa-lg">
             <div class="map-placeholder bg-grey-3 q-pa-xl rounded-borders">
-              <q-icon name="map" size="48px" color="grey-6"/>
+              <q-icon name="map" size="48px" color="grey-6" />
               <div class="text-center q-mt-md">Route Visualization</div>
-              <div class="text-center text-caption q-mt-sm">Shows route from your location to this place</div>
+              <div class="text-center text-caption q-mt-sm">
+                Shows route from your location to this place
+              </div>
             </div>
           </div>
         </div>
@@ -533,7 +570,7 @@ export default defineComponent({
     const isScrolled = ref(false)
     const mapInstance = ref(null)
     const userMarker = ref(null)
-    
+
     // Advanced search features
     const searchHistory = ref([])
     const recentlyViewed = ref([])
@@ -558,20 +595,24 @@ export default defineComponent({
     const faqs = [
       {
         question: 'How do I use the "Near Me" feature?',
-        answer: 'Simply enable location services to find places near your current location. You can filter by category and see distance information for each place.'
+        answer:
+          'Simply enable location services to find places near your current location. You can filter by category and see distance information for each place.',
       },
       {
         question: 'How accurate is the location detection?',
-        answer: 'Location accuracy depends on your device and network connection. For best results, ensure location services are enabled and you have a strong GPS signal.'
+        answer:
+          'Location accuracy depends on your device and network connection. For best results, ensure location services are enabled and you have a strong GPS signal.',
       },
       {
         question: 'Can I search for specific places?',
-        answer: 'Yes, use the search bar to find specific places by name or category. The search works with your current location context.'
+        answer:
+          'Yes, use the search bar to find specific places by name or category. The search works with your current location context.',
       },
       {
         question: 'How do I get directions to a place?',
-        answer: 'Click on any place in the results list, then use the "Get Directions via APANAM" button to navigate to the location.'
-      }
+        answer:
+          'Click on any place in the results list, then use the "Get Directions via APANAM" button to navigate to the location.',
+      },
     ]
 
     const leftFaqs = computed(() => faqs.slice(0, 2))
@@ -583,8 +624,10 @@ export default defineComponent({
 
       // Filter by category
       if (selectedCategory.value !== 'all') {
-        result = result.filter(place => {
-          const placeCategories = Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean)
+        result = result.filter((place) => {
+          const placeCategories = Array.isArray(place.categories)
+            ? place.categories
+            : [place.category].filter(Boolean)
           return placeCategories.includes(selectedCategory.value)
         })
       }
@@ -592,21 +635,25 @@ export default defineComponent({
       // Filter by search query
       if (searchQuery.value && searchQuery.value.trim()) {
         const query = searchQuery.value.toLowerCase().trim()
-        result = result.filter(place =>
-          place.name.toLowerCase().includes(query) ||
-          (Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean)).some(cat => cat.toLowerCase().includes(query)) ||
-          (place.description && place.description.toLowerCase().includes(query))
+        result = result.filter(
+          (place) =>
+            place.name.toLowerCase().includes(query) ||
+            (Array.isArray(place.categories)
+              ? place.categories
+              : [place.category].filter(Boolean)
+            ).some((cat) => cat.toLowerCase().includes(query)) ||
+            (place.description && place.description.toLowerCase().includes(query))
         )
       }
 
       // Filter by minimum rating
       if (minRating.value > 0) {
-        result = result.filter(place => place.rating && place.rating >= minRating.value)
+        result = result.filter((place) => place.rating && place.rating >= minRating.value)
       }
 
       // Filter by maximum distance
       if (userLocation.value && maxDistance.value < 50) {
-        result = result.filter(place => {
+        result = result.filter((place) => {
           const distance = calculateDistanceRaw(place)
           return distance !== Infinity && distance <= maxDistance.value
         })
@@ -639,24 +686,24 @@ export default defineComponent({
     // Add to search history
     const addToSearchHistory = (query) => {
       if (!query.trim()) return
-      
+
       // Remove if already exists
-      const index = searchHistory.value.findIndex(h => h.query === query)
+      const index = searchHistory.value.findIndex((h) => h.query === query)
       if (index > -1) {
         searchHistory.value.splice(index, 1)
       }
-      
+
       // Add to beginning
       searchHistory.value.unshift({
         query: query,
-        timestamp: new Date()
+        timestamp: new Date(),
       })
-      
+
       // Keep only last 10 searches
       if (searchHistory.value.length > 10) {
         searchHistory.value = searchHistory.value.slice(0, 10)
       }
-      
+
       // Save to localStorage
       localStorage.setItem('ayanmo-search-history', JSON.stringify(searchHistory.value))
     }
@@ -682,21 +729,21 @@ export default defineComponent({
     // Add to recently viewed
     const addToRecentlyViewed = (place) => {
       if (!place) return
-      
+
       // Remove if already exists
-      const index = recentlyViewed.value.findIndex(p => p.id === place.id)
+      const index = recentlyViewed.value.findIndex((p) => p.id === place.id)
       if (index > -1) {
         recentlyViewed.value.splice(index, 1)
       }
-      
+
       // Add to beginning
       recentlyViewed.value.unshift({
         id: place.id,
         name: place.name,
         imageUrl: place.imageUrl,
-        viewedAt: new Date()
+        viewedAt: new Date(),
       })
-      
+
       // Keep only last 8 viewed
       if (recentlyViewed.value.length > 8) {
         recentlyViewed.value = recentlyViewed.value.slice(0, 8)
@@ -730,9 +777,9 @@ export default defineComponent({
         console.log('[AyanMoPage] Fetching places from Firebase...')
         const q = query(collection(db, 'places'), orderBy('name', 'asc'))
         const querySnapshot = await getDocs(q)
-        places.value = querySnapshot.docs.map(doc => ({
+        places.value = querySnapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         }))
         console.log('[AyanMoPage] Loaded places:', places.value.length)
       } catch (error) {
@@ -740,7 +787,7 @@ export default defineComponent({
         $q.notify({
           type: 'negative',
           message: 'Failed to load places',
-          position: 'top'
+          position: 'top',
         })
       } finally {
         isLoadingPlaces.value = false
@@ -752,7 +799,7 @@ export default defineComponent({
         $q.notify({
           message: 'Geolocation is not supported by your browser',
           color: 'negative',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -763,21 +810,21 @@ export default defineComponent({
           userLocation.value = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy
+            accuracy: position.coords.accuracy,
           }
-          
+
           // Update map view and add marker
           if (mapInstance.value) {
             // Fly to user's location
             mapInstance.value.flyTo([position.coords.latitude, position.coords.longitude], 15, {
-              duration: 1.5
+              duration: 1.5,
             })
-            
+
             // Remove existing marker if any
             if (userMarker.value) {
               mapInstance.value.removeLayer(userMarker.value)
             }
-            
+
             // Add custom "You are here" marker
             const userIcon = L.divIcon({
               className: 'user-location-marker',
@@ -826,27 +873,31 @@ export default defineComponent({
                 </style>
               `,
               iconSize: [40, 55],
-              iconAnchor: [20, 55]
+              iconAnchor: [20, 55],
             })
-            
-            userMarker.value = L.marker([position.coords.latitude, position.coords.longitude], { icon: userIcon })
+
+            userMarker.value = L.marker([position.coords.latitude, position.coords.longitude], {
+              icon: userIcon,
+            })
               .addTo(mapInstance.value)
-              .bindPopup(`<strong>Your Location</strong><br>Accuracy: ${Math.round(position.coords.accuracy)}m`)
+              .bindPopup(
+                `<strong>Your Location</strong><br>Accuracy: ${Math.round(position.coords.accuracy)}m`
+              )
               .openPopup()
           }
-          
+
           $q.notify({
             type: 'positive',
             message: 'Location detected successfully!',
             icon: 'my_location',
-            position: 'top'
+            position: 'top',
           })
           isLoadingLocation.value = false
         },
         (error) => {
           console.error('[AyanMoPage] Geolocation error:', error)
           let errorMessage = 'Unable to get your location. '
-          
+
           if (error.code === 1) {
             errorMessage += 'Please allow location access in your browser settings.'
           } else if (error.code === 2) {
@@ -856,13 +907,13 @@ export default defineComponent({
           } else {
             errorMessage += error.message
           }
-          
+
           $q.notify({
             type: 'negative',
             message: errorMessage,
             icon: 'warning',
             position: 'top',
-            timeout: 5000
+            timeout: 5000,
           })
           isLoadingLocation.value = false
         }
@@ -871,47 +922,45 @@ export default defineComponent({
 
     const calculateDistance = (place) => {
       if (!userLocation.value || !place.coordinates) return 'N/A'
-      
+
       const lat1 = userLocation.value.latitude
       const lon1 = userLocation.value.longitude
       const lat2 = place.coordinates.latitude
       const lon2 = place.coordinates.longitude
-      
+
       // Haversine formula for distance calculation
       const R = 6371 // Earth's radius in km
       const dLat = deg2rad(lat2 - lat1)
       const dLon = deg2rad(lon2 - lon1)
-      const a = 
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-        Math.sin(dLon/2) * Math.sin(dLon/2)
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
       const distance = R * c
-      
+
       return distance.toFixed(2)
     }
 
     const calculateDistanceRaw = (place) => {
       if (!userLocation.value || !place.coordinates) return Infinity
-      
+
       const lat1 = userLocation.value.latitude
       const lon1 = userLocation.value.longitude
       const lat2 = place.coordinates.latitude
       const lon2 = place.coordinates.longitude
-      
+
       const R = 6371
       const dLat = deg2rad(lat2 - lat1)
       const dLon = deg2rad(lon2 - lon1)
-      const a = 
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-        Math.sin(dLon/2) * Math.sin(dLon/2)
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
       return R * c
     }
 
     const deg2rad = (deg) => {
-      return deg * (Math.PI/180)
+      return deg * (Math.PI / 180)
     }
 
     const truncateText = (text, maxLength) => {
@@ -957,18 +1006,18 @@ export default defineComponent({
     const getCategoryColor = (categories) => {
       const categoryArray = Array.isArray(categories) ? categories : [categories]
       const firstCategory = categoryArray[0] || 'other'
-      
+
       const colors = {
         'tourist-spot': 'green',
-        'restaurant': 'orange',
+        restaurant: 'orange',
         'park-nature': 'teal',
         'museum-culture': 'purple',
-        'shopping': 'pink',
+        shopping: 'pink',
         'hotel-lodging': 'blue',
-        'government': 'red',
-        'hospital': 'pink',
-        'school': 'indigo',
-        'other': 'grey'
+        government: 'red',
+        hospital: 'pink',
+        school: 'indigo',
+        other: 'grey',
       }
       return colors[firstCategory] || 'grey'
     }
@@ -976,15 +1025,15 @@ export default defineComponent({
     const getCategoryLabel = (category) => {
       const labels = {
         'tourist-spot': 'Tourist Spots',
-        'restaurant': 'Cafes & Restaurants',
+        restaurant: 'Cafes & Restaurants',
         'park-nature': 'Parks & Nature',
         'museum-culture': 'Museums & Culture',
-        'shopping': 'Shopping',
+        shopping: 'Shopping',
         'hotel-lodging': 'Hotels & Lodging',
-        'government': 'Government',
-        'hospital': 'Hospital',
-        'school': 'School',
-        'other': 'Other'
+        government: 'Government',
+        hospital: 'Hospital',
+        school: 'School',
+        other: 'Other',
       }
       return labels[category] || category
     }
@@ -1021,7 +1070,7 @@ export default defineComponent({
         $q.notify({
           type: 'warning',
           message: 'Please describe the issue',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -1030,7 +1079,7 @@ export default defineComponent({
         placeId: placeToReport.value?.id,
         placeName: placeToReport.value?.name,
         issue: reportIssueText.value,
-        timestamp: new Date()
+        timestamp: new Date(),
       })
 
       showReportDialog.value = false
@@ -1038,7 +1087,7 @@ export default defineComponent({
         type: 'positive',
         message: 'Thank you! Your report has been submitted.',
         position: 'top',
-        timeout: 3000
+        timeout: 3000,
       })
     }
 
@@ -1046,7 +1095,9 @@ export default defineComponent({
       if (!place) return
 
       // Navigate to APANAM with place as destination
-      router.push(`/apanam?start=${encodeURIComponent('Current Location')}&end=${encodeURIComponent(place.name)}`)
+      router.push(
+        `/apanam?start=${encodeURIComponent('Current Location')}&end=${encodeURIComponent(place.name)}`
+      )
     }
 
     const onScroll = (info) => {
@@ -1063,16 +1114,17 @@ export default defineComponent({
         // Default to Baguio City center
         const defaultLat = 16.4122
         const defaultLng = 120.5948
-        
+
         mapInstance.value = L.map('map').setView([defaultLat, defaultLng], 13)
-        
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
         }).addTo(mapInstance.value)
-        
+
         console.log('[AyanMoPage] Map initialized')
       }
-      
+
       // Auto-detect user location on page load (non-intrusive)
       if (navigator.geolocation && !userLocation.value) {
         navigator.geolocation.getCurrentPosition(
@@ -1080,9 +1132,9 @@ export default defineComponent({
             userLocation.value = {
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
-              accuracy: position.coords.accuracy
+              accuracy: position.coords.accuracy,
             }
-            
+
             // Add marker to map
             if (mapInstance.value) {
               const userIcon = L.divIcon({
@@ -1132,13 +1184,14 @@ export default defineComponent({
                   </style>
                 `,
                 iconSize: [40, 55],
-                iconAnchor: [20, 55]
+                iconAnchor: [20, 55],
               })
-              
-              userMarker.value = L.marker([position.coords.latitude, position.coords.longitude], { icon: userIcon })
-                .addTo(mapInstance.value)
+
+              userMarker.value = L.marker([position.coords.latitude, position.coords.longitude], {
+                icon: userIcon,
+              }).addTo(mapInstance.value)
             }
-            
+
             console.log('[AyanMoPage] Auto-detected user location')
           },
           () => {
@@ -1211,7 +1264,7 @@ export default defineComponent({
       addToSearchHistory,
       clearSearchHistory,
       addToRecentlyViewed,
-      clearRecentlyViewed
+      clearRecentlyViewed,
     }
   },
 })
@@ -1219,14 +1272,14 @@ export default defineComponent({
 
 <style scoped lang="scss">
 // Color Variables
-$dark-green: #1B4332;
-$primary-green: #2E5D3E;
-$light-green: #9EC98F;
-$soft-green: #E8F5E9;
-$mint-cream: #F1F8F4;
-$blush-pink: #FCE4EC;
-$white: #FFFFFF;
-$brown: #6B5344;
+$dark-green: #1b4332;
+$primary-green: #2e5d3e;
+$light-green: #9ec98f;
+$soft-green: #e8f5e9;
+$mint-cream: #f1f8f4;
+$blush-pink: #fce4ec;
+$white: #ffffff;
+$brown: #6b5344;
 $glass-bg: rgba(255, 255, 255, 0.85);
 $glass-border: rgba(255, 255, 255, 0.3);
 $bento-radius: 20px;
@@ -1351,7 +1404,7 @@ $bento-radius: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   border: 1px solid $glass-border;
   overflow: hidden;
-  
+
   :deep(.q-card__section) {
     padding: 20px;
   }
@@ -1365,21 +1418,21 @@ $bento-radius: 20px;
     border: 1px solid $glass-border;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
     transition: all 0.3s ease;
-    
+
     &:hover {
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
     }
-    
+
     &.q-field--focused {
       box-shadow: 0 4px 16px rgba($primary-green, 0.15);
       border-color: $primary-green;
     }
   }
-  
+
   :deep(.q-field__control) {
     border-radius: 14px;
   }
-  
+
   :deep(.q-field__prepend) {
     color: $primary-green;
   }
@@ -1414,17 +1467,17 @@ $bento-radius: 20px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background: $white;
   margin-bottom: 8px !important;
-  
+
   &:hover {
     background: linear-gradient(90deg, $soft-green 0%, rgba($soft-green, 0.5) 100%);
     transform: translateX(6px);
     box-shadow: 0 4px 16px rgba($primary-green, 0.1);
   }
-  
+
   :deep(.q-item__section--avatar) {
     padding: 8px;
   }
-  
+
   :deep(.q-avatar) {
     border-radius: 10px;
     overflow: hidden;
@@ -1482,7 +1535,7 @@ $bento-radius: 20px;
   border: 1px solid $glass-border;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   overflow: hidden;
-  
+
   :deep(.q-card__section) {
     padding: 24px;
   }
@@ -1520,7 +1573,7 @@ $faqs-bg: $brown;
   padding: 5rem 0;
   color: $white;
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -1615,7 +1668,7 @@ $faqs-bg: $brown;
   &:hover :deep(.q-icon) {
     transform: scale(1.15) rotate(90deg);
   }
-  
+
   :deep(.q-expansion-item__content) {
     padding: 0;
   }
@@ -1656,7 +1709,7 @@ $faqs-bg: $brown;
   font-size: 0.75rem;
   font-weight: 600;
   border-radius: 10px !important;
-  
+
   :deep(.q-chip__content) {
     font-weight: 500;
   }
@@ -1683,13 +1736,13 @@ $faqs-bg: $brown;
 }
 
 @keyframes fadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(30px); 
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -1735,7 +1788,9 @@ $faqs-bg: $brown;
     flex-direction: column;
   }
 
-  .col-md-6, .col-md-8, .col-md-4 {
+  .col-md-6,
+  .col-md-8,
+  .col-md-4 {
     width: 100%;
     margin-bottom: 1.5rem;
   }
@@ -1760,11 +1815,11 @@ $faqs-bg: $brown;
     height: 100vh;
     border-radius: 0;
   }
-  
+
   .faqs-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .container-faqs {
     padding: 0 20px;
   }

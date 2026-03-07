@@ -220,10 +220,18 @@
             <div class="col">
               <h4 class="q-my-none text-primary">Dashboard Overview</h4>
               <p class="text-grey-7 q-mb-none">
-                <span v-if="adminData.role === 'super_admin'">Full system access - Manage all aspects</span>
-                <span v-else-if="adminData.role === 'places_admin'">Manage tourist spots, restaurants, hotels, and other places</span>
-                <span v-else-if="adminData.role === 'routes_admin'">Manage jeepney routes and options</span>
-                <span v-else-if="adminData.role === 'events_admin'">Manage events and festivals</span>
+                <span v-if="adminData.role === 'super_admin'"
+                  >Full system access - Manage all aspects</span
+                >
+                <span v-else-if="adminData.role === 'places_admin'"
+                  >Manage tourist spots, restaurants, hotels, and other places</span
+                >
+                <span v-else-if="adminData.role === 'routes_admin'"
+                  >Manage jeepney routes and options</span
+                >
+                <span v-else-if="adminData.role === 'events_admin'"
+                  >Manage events and festivals</span
+                >
                 <span v-else>Welcome back, {{ adminData.name }}!</span>
               </p>
             </div>
@@ -390,9 +398,7 @@
         </div>
 
         <!-- Component Sections -->
-        <JeepneyManagement
-          v-else-if="activeMenu === 'routes'"
-        />
+        <JeepneyManagement v-else-if="activeMenu === 'routes'" />
 
         <PlacesManagement
           v-else-if="activeMenu === 'places'"
@@ -477,7 +483,7 @@ export default {
         role: null,
         permissions: [],
         name: '',
-        email: ''
+        email: '',
       },
       stats: {
         routes: 0,
@@ -506,44 +512,56 @@ export default {
 
     canManageRoutes() {
       // Super admin and routes admin can manage routes
-      return this.adminData.role === 'super_admin' ||
-             this.adminData.role === 'routes_admin' ||
-             this.adminData.permissions?.includes('routes:write') ||
-             this.adminData.permissions?.includes('super_admin:all') ||
-             false
+      return (
+        this.adminData.role === 'super_admin' ||
+        this.adminData.role === 'routes_admin' ||
+        this.adminData.permissions?.includes('routes:write') ||
+        this.adminData.permissions?.includes('super_admin:all') ||
+        false
+      )
     },
 
     canManagePlaces() {
       // Super admin and places admin can manage places
-      return this.adminData.role === 'super_admin' ||
-             this.adminData.role === 'places_admin' ||
-             this.adminData.permissions?.includes('places:write') ||
-             this.adminData.permissions?.includes('super_admin:all') ||
-             false
+      return (
+        this.adminData.role === 'super_admin' ||
+        this.adminData.role === 'places_admin' ||
+        this.adminData.permissions?.includes('places:write') ||
+        this.adminData.permissions?.includes('super_admin:all') ||
+        false
+      )
     },
 
     canManageEvents() {
       // Super admin and events admin can manage events
-      return this.adminData.role === 'super_admin' ||
-             this.adminData.role === 'events_admin' ||
-             this.adminData.permissions?.includes('events:write') ||
-             this.adminData.permissions?.includes('super_admin:all') ||
-             false
+      return (
+        this.adminData.role === 'super_admin' ||
+        this.adminData.role === 'events_admin' ||
+        this.adminData.permissions?.includes('events:write') ||
+        this.adminData.permissions?.includes('super_admin:all') ||
+        false
+      )
     },
 
     canManageAdmins() {
       // Only super admin can manage admins
-      return this.adminData.role === 'super_admin' ||
-             this.adminData.permissions?.includes('super_admin:all') ||
-             false
+      return (
+        this.adminData.role === 'super_admin' ||
+        this.adminData.permissions?.includes('super_admin:all') ||
+        false
+      )
     },
 
     canViewAnalytics() {
       // All admins can view analytics
-      return this.adminData.permissions?.includes('analytics:read') ||
-             this.adminData.permissions?.includes('super_admin:all') ||
-             ['super_admin', 'routes_admin', 'places_admin', 'events_admin'].includes(this.adminData.role) ||
-             false
+      return (
+        this.adminData.permissions?.includes('analytics:read') ||
+        this.adminData.permissions?.includes('super_admin:all') ||
+        ['super_admin', 'routes_admin', 'places_admin', 'events_admin'].includes(
+          this.adminData.role
+        ) ||
+        false
+      )
     },
   },
 
@@ -571,9 +589,9 @@ export default {
         const section = hash.replace('#', '')
         // Map hash to menu items
         const sectionMap = {
-          'places': 'places',
-          'routes': 'routes',
-          'events': 'events',
+          places: 'places',
+          routes: 'routes',
+          events: 'events',
         }
 
         if (sectionMap[section] && this[sectionMap[section]]) {
@@ -586,7 +604,7 @@ export default {
       try {
         // Check if user is admin using Firebase Custom Claims
         const isAdmin = await checkIsAdmin()
-        
+
         if (!isAdmin) {
           console.warn('[AdminDashboard] User is not an admin')
           this.$router.push('/admin/adminlogin')
@@ -601,7 +619,7 @@ export default {
         const user = auth.currentUser
         if (user) {
           const adminDoc = await getDoc(doc(db, 'admins', user.uid))
-          
+
           if (adminDoc.exists()) {
             const adminData = adminDoc.data()
             this.adminData = {
@@ -609,9 +627,9 @@ export default {
               email: adminData.email || user.email || '',
               name: adminData.name || user.displayName || 'Admin',
               role: role || adminData.role || '',
-              permissions: permissions || adminData.permissions || []
+              permissions: permissions || adminData.permissions || [],
             }
-            
+
             // Store in sessionStorage for temporary access during session
             // Note: This is now just for caching, not for security
             sessionStorage.setItem('adminData', JSON.stringify(this.adminData))
@@ -620,7 +638,7 @@ export default {
             this.$q.notify({
               type: 'negative',
               message: 'Admin profile not found',
-              position: 'top'
+              position: 'top',
             })
             this.$router.push('/admin/adminlogin')
           }
@@ -633,7 +651,7 @@ export default {
         this.$q.notify({
           type: 'negative',
           message: 'Failed to load admin profile',
-          position: 'top'
+          position: 'top',
         })
         this.$router.push('/admin/adminlogin')
       }
@@ -671,12 +689,12 @@ export default {
         const { getRecentActivityLogs } = await import('src/utils/activityLogger')
         const logs = await getRecentActivityLogs(10)
 
-        this.recentActivities = logs.map(log => ({
+        this.recentActivities = logs.map((log) => ({
           id: log.id,
           title: log.description,
           time: this.formatRelativeTime(log.timestamp),
           icon: this.getActivityIcon(log.action),
-          color: this.getActionColor(log.action)
+          color: this.getActionColor(log.action),
         }))
       } catch (error) {
         console.error('[Dashboard] Error loading recent activity:', error)
@@ -709,7 +727,7 @@ export default {
         login: 'login',
         logout: 'logout',
         export: 'download',
-        import: 'upload_file'
+        import: 'upload_file',
       }
       return icons[action] || 'info'
     },
@@ -723,7 +741,7 @@ export default {
         login: 'purple',
         logout: 'grey',
         export: 'teal',
-        import: 'orange'
+        import: 'orange',
       }
       return colors[action] || 'grey'
     },
@@ -771,14 +789,14 @@ export default {
         // Log admin logout
         const adminData = this.adminData
         const adminUid = sessionStorage.getItem('adminUid')
-        
+
         if (adminUid && adminData) {
           const { logAdminLogout } = await import('src/utils/activityLogger')
           await logAdminLogout({
             uid: adminUid,
             name: adminData.name,
             email: adminData.email,
-            role: adminData.role
+            role: adminData.role,
           })
         }
 

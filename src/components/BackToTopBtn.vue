@@ -26,24 +26,24 @@ export default {
     // Show button after scrolling this many pixels
     threshold: {
       type: Number,
-      default: 300
+      default: 300,
     },
     // Button position
     position: {
       type: String,
       default: 'bottom-right',
-      validator: (val) => ['bottom-right', 'bottom-left', 'top-right', 'top-left'].includes(val)
+      validator: (val) => ['bottom-right', 'bottom-left', 'top-right', 'top-left'].includes(val),
     },
     // Offset from edge
     offset: {
       type: Number,
-      default: 24
+      default: 24,
     },
     // Scroll target selector (defaults to window)
     scrollTarget: {
       type: String,
-      default: null
-    }
+      default: null,
+    },
   },
 
   setup(props) {
@@ -54,7 +54,7 @@ export default {
       const styles = {
         position: 'fixed',
         zIndex: 9999,
-        transition: 'all 0.3s ease'
+        transition: 'all 0.3s ease',
       }
 
       const offset = `${props.offset}px`
@@ -127,9 +127,9 @@ export default {
     return {
       show,
       btnStyle,
-      scrollToTop
+      scrollToTop,
     }
-  }
+  },
 }
 </script>
 

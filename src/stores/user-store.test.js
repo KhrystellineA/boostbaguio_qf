@@ -94,9 +94,7 @@ describe('User Store', () => {
 
   describe('signUp', () => {
     it('creates a new user successfully', async () => {
-      const { createUserWithEmailAndPassword, updateProfile } = await import(
-        'firebase/auth'
-      )
+      const { createUserWithEmailAndPassword, updateProfile } = await import('firebase/auth')
       const { setDoc } = await import('firebase/firestore')
 
       const mockUserCredential = {
@@ -111,11 +109,7 @@ describe('User Store', () => {
       updateProfile.mockResolvedValue()
       setDoc.mockResolvedValue()
 
-      const result = await store.signUp(
-        'newuser@example.com',
-        'password123',
-        'New User'
-      )
+      const result = await store.signUp('newuser@example.com', 'password123', 'New User')
 
       expect(result.success).toBe(true)
       expect(createUserWithEmailAndPassword).toHaveBeenCalledWith(
@@ -123,10 +117,9 @@ describe('User Store', () => {
         'newuser@example.com',
         'password123'
       )
-      expect(updateProfile).toHaveBeenCalledWith(
-        mockUserCredential.user,
-        { displayName: 'New User' }
-      )
+      expect(updateProfile).toHaveBeenCalledWith(mockUserCredential.user, {
+        displayName: 'New User',
+      })
       expect(store.user).toEqual(mockUserCredential.user)
     })
 

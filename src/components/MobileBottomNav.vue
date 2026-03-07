@@ -7,36 +7,11 @@
       active-color="amber"
       indicator-color="transparent"
     >
-      <q-route-tab
-        name="home"
-        to="/"
-        label="Home"
-        icon="home"
-      />
-      <q-route-tab
-        name="apanam"
-        to="/apanam"
-        label="APANAM"
-        icon="directions_bus"
-      />
-      <q-route-tab
-        name="ayanmo"
-        to="/ayanmo"
-        label="AYAN MO"
-        icon="my_location"
-      />
-      <q-route-tab
-        name="maykan"
-        to="/maykan"
-        label="MAYKAN"
-        icon="restaurant"
-      />
-      <q-route-tab
-        name="account"
-        to="/account"
-        label="Account"
-        icon="person"
-      />
+      <q-route-tab name="home" to="/" label="Home" icon="home" />
+      <q-route-tab name="apanam" to="/apanam" label="APANAM" icon="directions_bus" />
+      <q-route-tab name="ayanmo" to="/ayanmo" label="AYAN MO" icon="my_location" />
+      <q-route-tab name="maykan" to="/maykan" label="MAYKAN" icon="restaurant" />
+      <q-route-tab name="account" to="/account" label="Account" icon="person" />
     </q-tabs>
   </div>
 </template>
@@ -57,9 +32,9 @@ export default defineComponent({
 
     return {
       activeTab,
-      showOnMobile
+      showOnMobile,
     }
-  }
+  },
 })
 </script>
 

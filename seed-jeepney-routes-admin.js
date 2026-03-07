@@ -1,14 +1,22 @@
 /**
  * Seed Jeepney Routes with Route Coordinates (Admin Version)
- * 
+ *
  * This script uses Firebase Admin SDK to bypass security rules.
  * Requires GOOGLE_APPLICATION_CREDENTIALS or service account file.
- * 
+ *
  * Usage: node seed-jeepney-routes-admin.js
  */
 
 import { initializeApp, getApps, cert } from 'firebase-admin/app'
-import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, query } from 'firebase-admin/firestore'
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  addDoc,
+  query,
+} from 'firebase-admin/firestore'
 import dotenv from 'dotenv'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'

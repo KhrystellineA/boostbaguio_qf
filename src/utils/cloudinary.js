@@ -23,13 +23,7 @@ const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || 'BoostBagu
  * @returns {string} Optimized image URL
  */
 export function getOptimizedImageUrl(publicId, options = {}) {
-  const {
-    width = 1920,
-    height = 1080,
-    quality = 85,
-    format = 'auto',
-    crop = 'fill'
-  } = options
+  const { width = 1920, height = 1080, quality = 85, format = 'auto', crop = 'fill' } = options
 
   // If it's already a full Cloudinary URL, extract the public ID
   if (publicId.includes('cloudinary.com')) {
@@ -45,13 +39,7 @@ export function getOptimizedImageUrl(publicId, options = {}) {
   }
 
   // Build transformation string
-  const transforms = [
-    `w_${width}`,
-    `h_${height}`,
-    `q_${quality}`,
-    `f_${format}`,
-    `c_${crop}`
-  ]
+  const transforms = [`w_${width}`, `h_${height}`, `q_${quality}`, `f_${format}`, `c_${crop}`]
 
   const transformation = transforms.join(',')
 
@@ -65,9 +53,7 @@ export function getOptimizedImageUrl(publicId, options = {}) {
  * @returns {string} Srcset string
  */
 export function getSrcSet(publicId, widths = [400, 800, 1200, 1600, 2000]) {
-  return widths
-    .map(w => `${getOptimizedImageUrl(publicId, { width: w })} ${w}w`)
-    .join(', ')
+  return widths.map((w) => `${getOptimizedImageUrl(publicId, { width: w })} ${w}w`).join(', ')
 }
 
 /**
@@ -85,7 +71,7 @@ export function getUploadUrl() {
 export function getUploadParams() {
   return {
     cloud_name: cloudName,
-    upload_preset: uploadPreset
+    upload_preset: uploadPreset,
   }
 }
 
@@ -127,7 +113,7 @@ export const ImagePresets = {
     height: 1080,
     quality: 85,
     format: 'auto',
-    crop: 'fill'
+    crop: 'fill',
   },
 
   /** Card/thumbnail images */
@@ -136,7 +122,7 @@ export const ImagePresets = {
     height: 300,
     quality: 80,
     format: 'webp',
-    crop: 'fill'
+    crop: 'fill',
   },
 
   /** Gallery images */
@@ -145,7 +131,7 @@ export const ImagePresets = {
     height: 600,
     quality: 85,
     format: 'auto',
-    crop: 'fill'
+    crop: 'fill',
   },
 
   /** Profile/avatar images */
@@ -154,7 +140,7 @@ export const ImagePresets = {
     height: 200,
     quality: 80,
     format: 'auto',
-    crop: 'fill'
+    crop: 'fill',
   },
 
   /** Product/item images */
@@ -163,7 +149,7 @@ export const ImagePresets = {
     height: 600,
     quality: 85,
     format: 'auto',
-    crop: 'fill'
+    crop: 'fill',
   },
 
   /** Background images */
@@ -172,6 +158,6 @@ export const ImagePresets = {
     height: 1080,
     quality: 75,
     format: 'auto',
-    crop: 'fill'
-  }
+    crop: 'fill',
+  },
 }

@@ -150,9 +150,7 @@ export function hasClass(element, className) {
  * Find element by text content
  */
 export function findByText(container, text) {
-  return Array.from(container.querySelectorAll('*')).find(
-    (el) => el.textContent?.trim() === text
-  )
+  return Array.from(container.querySelectorAll('*')).find((el) => el.textContent?.trim() === text)
 }
 
 /**

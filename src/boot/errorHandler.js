@@ -27,8 +27,8 @@ export default async ({ app, router }) => {
       error,
       severity: 'high',
       metadata: {
-        type: 'promise-rejection'
-      }
+        type: 'promise-rejection',
+      },
     })
 
     // Don't prevent default in production to avoid double logging
@@ -48,7 +48,7 @@ export default async ({ app, router }) => {
       filename,
       lineno,
       colno,
-      error
+      error,
     })
 
     // Log to monitoring
@@ -63,8 +63,8 @@ export default async ({ app, router }) => {
         colno,
         message,
         url: window.location.href,
-        online: isOnline()
-      }
+        online: isOnline(),
+      },
     })
   })
 
@@ -86,8 +86,8 @@ export default async ({ app, router }) => {
         type: 'vue-error',
         info,
         component: componentName,
-        url: window.location.href
-      }
+        url: window.location.href,
+      },
     })
 
     // In development, show error overlay
@@ -122,8 +122,8 @@ export default async ({ app, router }) => {
         metadata: {
           type: 'navigation-error',
           from: from?.fullPath,
-          to: to?.fullPath
-        }
+          to: to?.fullPath,
+        },
       })
     })
   }
@@ -138,8 +138,8 @@ export default async ({ app, router }) => {
       error: new Error('User went offline'),
       severity: 'low',
       metadata: {
-        type: 'network-status'
-      }
+        type: 'network-status',
+      },
     })
   })
 

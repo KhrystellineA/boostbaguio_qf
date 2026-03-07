@@ -85,22 +85,22 @@ export default {
         routes: 0,
         places: 0,
         events: 0,
-        admins: 0
-      })
+        admins: 0,
+      }),
     },
     showRoutes: {
       type: Boolean,
-      default: true
+      default: true,
     },
     showPlaces: {
       type: Boolean,
-      default: true
+      default: true,
     },
     showEvents: {
       type: Boolean,
-      default: true
-    }
-  }
+      default: true,
+    },
+  },
 }
 </script>
 

@@ -282,9 +282,12 @@
                   <q-icon name="search" />
                 </template>
                 <template v-slot:append>
-                  <q-btn 
+                  <q-btn
                     v-if="locationSearch"
-                    flat dense round icon="close" 
+                    flat
+                    dense
+                    round
+                    icon="close"
                     @click="locationSearch = ''"
                   />
                 </template>
@@ -356,7 +359,7 @@
               Search for a location above or click on the map
             </div>
             <div v-if="tempCoords" class="text-body2 q-mt-xs">
-              <strong>Selected:</strong> 
+              <strong>Selected:</strong>
               <span class="text-primary">
                 {{ tempCoords.lat.toFixed(6) }}, {{ tempCoords.lng.toFixed(6) }}
               </span>
@@ -542,7 +545,7 @@ export default {
         $q.notify({
           type: 'warning',
           message: 'Please enter a location to search',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -561,17 +564,17 @@ export default {
 
         const response = await fetch(
           `https://nominatim.openstreetmap.org/search?` +
-          `q=${encodeURIComponent(searchQuery)}` +
-          `&format=json` +
-          `&limit=5` +
-          `&addressdetails=1` +
-          `&bounded=1` +
-          `&viewbox=120.50,16.35,120.65,16.45`,
+            `q=${encodeURIComponent(searchQuery)}` +
+            `&format=json` +
+            `&limit=5` +
+            `&addressdetails=1` +
+            `&bounded=1` +
+            `&viewbox=120.50,16.35,120.65,16.45`,
           {
             headers: {
-              'Accept': 'application/json',
-              'User-Agent': 'BoostBaguioPH/1.0'
-            }
+              Accept: 'application/json',
+              'User-Agent': 'BoostBaguioPH/1.0',
+            },
           }
         )
 
@@ -588,13 +591,13 @@ export default {
           $q.notify({
             type: 'info',
             message: 'No results found. Try a different search term.',
-            position: 'top'
+            position: 'top',
           })
         } else {
           $q.notify({
             type: 'positive',
             message: `Found ${data.length} result(s)`,
-            position: 'top'
+            position: 'top',
           })
         }
       } catch (error) {
@@ -602,7 +605,7 @@ export default {
         $q.notify({
           type: 'negative',
           message: 'Failed to search location. Please try again.',
-          position: 'top'
+          position: 'top',
         })
       } finally {
         searching.value = false
@@ -633,12 +636,12 @@ export default {
       }
 
       searchResults.value = []
-      
+
       $q.notify({
         type: 'positive',
         message: 'Location selected',
         icon: 'place',
-        position: 'top'
+        position: 'top',
       })
     }
 
@@ -840,7 +843,7 @@ export default {
         $q.notify({
           type: 'info',
           message: 'Location selected from map',
-          position: 'top'
+          position: 'top',
         })
       })
     }

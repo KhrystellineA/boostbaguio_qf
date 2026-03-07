@@ -5,7 +5,10 @@
       <div class="hero-overlay">
         <div class="hero-content animate-fade-in">
           <h1 class="hero-title">ARAMIDEM - Events</h1>
-          <p class="hero-description">Discover upcoming events in Baguio City with transportation details and navigation instructions.</p>
+          <p class="hero-description">
+            Discover upcoming events in Baguio City with transportation details and navigation
+            instructions.
+          </p>
         </div>
       </div>
     </section>
@@ -18,7 +21,9 @@
             <q-icon name="star" color="amber" size="32px" class="q-mr-sm" />
             Top Events
           </h2>
-          <p class="text-body1 text-grey-7">Don't miss these featured events happening this month</p>
+          <p class="text-body1 text-grey-7">
+            Don't miss these featured events happening this month
+          </p>
         </div>
 
         <div v-if="loading" class="text-center q-pa-xl">
@@ -54,7 +59,11 @@
                 <q-icon name="event" color="primary" size="sm" class="q-mr-sm" />
                 <span>
                   {{ formatDate(event.startDate) }}
-                  <span v-if="event.endDate && formatDate(event.endDate) !== formatDate(event.startDate)">
+                  <span
+                    v-if="
+                      event.endDate && formatDate(event.endDate) !== formatDate(event.startDate)
+                    "
+                  >
                     - {{ formatDate(event.endDate) }}
                   </span>
                 </span>
@@ -87,7 +96,14 @@
             <q-card class="calendar-card">
               <q-card-section class="bg-primary text-white">
                 <div class="row items-center justify-between">
-                  <q-btn flat dense round icon="chevron_left" color="white" @click="previousMonth" />
+                  <q-btn
+                    flat
+                    dense
+                    round
+                    icon="chevron_left"
+                    color="white"
+                    @click="previousMonth"
+                  />
                   <div class="text-h5 text-weight-bold">
                     {{ currentMonthName }} {{ currentYear }}
                   </div>
@@ -124,7 +140,7 @@
                         'empty-day': day.isEmpty,
                         'has-event': day.hasEvents,
                         'selected-day': isSelectedDay(day),
-                        'today': isToday(day)
+                        today: isToday(day),
                       }"
                       @click="selectDay(day)"
                     >
@@ -157,7 +173,10 @@
                   <p class="q-mt-md">Click on a highlighted date to view events</p>
                 </div>
 
-                <div v-else-if="eventsForSelectedDate.length === 0" class="text-center q-pa-xl text-grey-7">
+                <div
+                  v-else-if="eventsForSelectedDate.length === 0"
+                  class="text-center q-pa-xl text-grey-7"
+                >
                   <q-icon name="event_busy" size="60px" color="grey-5" />
                   <p class="q-mt-md">No events scheduled for this day</p>
                 </div>
@@ -181,14 +200,22 @@
                           <q-icon name="event" color="primary" size="xs" class="q-mr-sm" />
                           <span class="text-caption">
                             {{ formatDate(event.startDate) }}
-                            <span v-if="event.endDate && formatDate(event.endDate) !== formatDate(event.startDate)">
+                            <span
+                              v-if="
+                                event.endDate &&
+                                formatDate(event.endDate) !== formatDate(event.startDate)
+                              "
+                            >
                               - {{ formatDate(event.endDate) }}
                             </span>
                           </span>
                         </div>
                         <div class="row items-center q-mb-xs">
                           <q-icon name="schedule" color="secondary" size="xs" class="q-mr-sm" />
-                          <span class="text-caption">{{ formatTime(event.startDate) }} - {{ formatTime(event.endDate) }}</span>
+                          <span class="text-caption"
+                            >{{ formatTime(event.startDate) }} -
+                            {{ formatTime(event.endDate) }}</span
+                          >
                         </div>
                         <q-btn
                           label="View Details"
@@ -250,14 +277,20 @@
                 <q-icon name="event" color="primary" size="xs" class="q-mr-sm" />
                 <span class="text-caption">
                   {{ formatDate(event.startDate) }}
-                  <span v-if="event.endDate && formatDate(event.endDate) !== formatDate(event.startDate)">
+                  <span
+                    v-if="
+                      event.endDate && formatDate(event.endDate) !== formatDate(event.startDate)
+                    "
+                  >
                     - {{ formatDate(event.endDate) }}
                   </span>
                 </span>
               </div>
               <div class="row items-center q-mb-xs">
                 <q-icon name="schedule" color="secondary" size="xs" class="q-mr-sm" />
-                <span class="text-caption">{{ formatTime(event.startDate) }} - {{ formatTime(event.endDate) }}</span>
+                <span class="text-caption"
+                  >{{ formatTime(event.startDate) }} - {{ formatTime(event.endDate) }}</span
+                >
               </div>
               <div class="row items-center">
                 <q-icon name="location_on" color="grey-7" size="xs" class="q-mr-sm" />
@@ -271,14 +304,19 @@
 
     <!-- EVENT DETAILS DIALOG -->
     <q-dialog v-model="showEventDialog" transition-show="fade" transition-hide="fade">
-      <q-card class="event-details-dialog" style="width: 90%; max-width: 900px;">
+      <q-card class="event-details-dialog" style="width: 90%; max-width: 900px">
         <q-card-section class="bg-primary text-white">
           <div class="row items-center">
             <div class="col">
               <div class="text-h5 text-weight-bold">{{ selectedEvent?.name }}</div>
               <div class="text-subtitle2">
                 {{ formatDate(selectedEvent?.startDate) }}
-                <span v-if="selectedEvent?.endDate && formatDate(selectedEvent?.endDate) !== formatDate(selectedEvent?.startDate)">
+                <span
+                  v-if="
+                    selectedEvent?.endDate &&
+                    formatDate(selectedEvent?.endDate) !== formatDate(selectedEvent?.startDate)
+                  "
+                >
                   - {{ formatDate(selectedEvent?.endDate) }}
                 </span>
               </div>
@@ -299,7 +337,9 @@
               <div class="row q-col-gutter-lg">
                 <div class="col-12 col-md-8">
                   <h4 class="text-h6 text-weight-bold text-primary q-mb-md">About This Event</h4>
-                  <p class="text-body1 q-mb-lg">{{ selectedEvent.description || 'No description available.' }}</p>
+                  <p class="text-body1 q-mb-lg">
+                    {{ selectedEvent.description || 'No description available.' }}
+                  </p>
 
                   <h4 class="text-h6 text-weight-bold text-primary q-mb-md">Event Details</h4>
                   <q-list bordered separator>
@@ -311,7 +351,13 @@
                         <q-item-label class="text-weight-bold">Date</q-item-label>
                         <q-item-label caption>
                           <span>{{ formatDate(selectedEvent.startDate) }}</span>
-                          <span v-if="selectedEvent.endDate && formatDate(selectedEvent.endDate) !== formatDate(selectedEvent.startDate)">
+                          <span
+                            v-if="
+                              selectedEvent.endDate &&
+                              formatDate(selectedEvent.endDate) !==
+                                formatDate(selectedEvent.startDate)
+                            "
+                          >
                             to {{ formatDate(selectedEvent.endDate) }}
                           </span>
                         </q-item-label>
@@ -323,7 +369,10 @@
                       </q-item-section>
                       <q-item-section>
                         <q-item-label class="text-weight-bold">Time</q-item-label>
-                        <q-item-label caption>{{ formatTime(selectedEvent.startDate) }} - {{ formatTime(selectedEvent.endDate) }}</q-item-label>
+                        <q-item-label caption
+                          >{{ formatTime(selectedEvent.startDate) }} -
+                          {{ formatTime(selectedEvent.endDate) }}</q-item-label
+                        >
                       </q-item-section>
                     </q-item>
                     <q-item>
@@ -350,7 +399,9 @@
                       </q-item-section>
                       <q-item-section>
                         <q-item-label class="text-weight-bold">Last Updated</q-item-label>
-                        <q-item-label caption>{{ formatDate(selectedEvent.updatedAt) }}</q-item-label>
+                        <q-item-label caption>{{
+                          formatDate(selectedEvent.updatedAt)
+                        }}</q-item-label>
                       </q-item-section>
                     </q-item>
                     <q-item v-if="selectedEvent.contactEmail || selectedEvent.contactPhone">
@@ -360,8 +411,12 @@
                       <q-item-section>
                         <q-item-label class="text-weight-bold">Contact</q-item-label>
                         <q-item-label caption>
-                          <div v-if="selectedEvent.contactEmail">{{ selectedEvent.contactEmail }}</div>
-                          <div v-if="selectedEvent.contactPhone">{{ selectedEvent.contactPhone }}</div>
+                          <div v-if="selectedEvent.contactEmail">
+                            {{ selectedEvent.contactEmail }}
+                          </div>
+                          <div v-if="selectedEvent.contactPhone">
+                            {{ selectedEvent.contactPhone }}
+                          </div>
                         </q-item-label>
                       </q-item-section>
                     </q-item>
@@ -402,7 +457,9 @@
 
                   <q-card flat bordered>
                     <q-card-section>
-                      <h5 class="text-subtitle1 text-weight-bold q-mb-sm text-negative">Report Issue</h5>
+                      <h5 class="text-subtitle1 text-weight-bold q-mb-sm text-negative">
+                        Report Issue
+                      </h5>
                       <q-btn
                         label="Report Issue"
                         color="negative"
@@ -537,7 +594,7 @@ export default defineComponent({
     const showReportDialog = ref(false)
     const eventToReport = ref(null)
     const reportIssueText = ref('')
-    
+
     // Calendar state
     const currentDate = ref(new Date()) // Start with current month/year
     const selectedYear = ref(new Date().getFullYear())
@@ -565,7 +622,7 @@ export default defineComponent({
         const q = query(collection(db, 'events'), orderBy('startDate', 'asc'))
         const querySnapshot = await getDocs(q)
 
-        const firebaseEvents = querySnapshot.docs.map(doc => {
+        const firebaseEvents = querySnapshot.docs.map((doc) => {
           const data = doc.data()
           return {
             id: doc.id,
@@ -578,13 +635,13 @@ export default defineComponent({
             featured: data.featured || false,
             organizer: data.organizer,
             contactEmail: data.contactEmail,
-            contactPhone: data.contactPhone
+            contactPhone: data.contactPhone,
           }
         })
 
         // Remove duplicates based on event ID
         const uniqueEventsMap = new Map()
-        firebaseEvents.forEach(event => {
+        firebaseEvents.forEach((event) => {
           uniqueEventsMap.set(event.id, event)
         })
         const uniqueEvents = Array.from(uniqueEventsMap.values())
@@ -602,7 +659,7 @@ export default defineComponent({
         $q.notify({
           type: 'negative',
           message: 'Failed to load events',
-          position: 'top'
+          position: 'top',
         })
         events.value = []
       } finally {
@@ -612,25 +669,37 @@ export default defineComponent({
 
     // Get featured events
     const featuredEvents = computed(() => {
-      return events.value.filter(e => e.featured).slice(0, 3)
+      return events.value.filter((e) => e.featured).slice(0, 3)
     })
 
     // Get events for selected date
     const eventsForSelectedDate = computed(() => {
       if (!selectedDate.value) return []
-      
+
       // Normalize selected date to start of day
-      const selectedDateObj = new Date(selectedDate.value.getFullYear(), selectedDate.value.getMonth(), selectedDate.value.getDate())
-      
+      const selectedDateObj = new Date(
+        selectedDate.value.getFullYear(),
+        selectedDate.value.getMonth(),
+        selectedDate.value.getDate()
+      )
+
       // Filter events that fall on the selected date (considering start AND end dates)
-      return events.value.filter(event => {
+      return events.value.filter((event) => {
         const eventStart = new Date(event.startDate)
         const eventEnd = new Date(event.endDate)
-        
+
         // Normalize event dates
-        const eventStartDay = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate())
-        const eventEndDay = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate())
-        
+        const eventStartDay = new Date(
+          eventStart.getFullYear(),
+          eventStart.getMonth(),
+          eventStart.getDate()
+        )
+        const eventEndDay = new Date(
+          eventEnd.getFullYear(),
+          eventEnd.getMonth(),
+          eventEnd.getDate()
+        )
+
         // Check if selected date is within event date range
         return selectedDateObj >= eventStartDay && selectedDateObj <= eventEndDay
       })
@@ -666,16 +735,24 @@ export default defineComponent({
         const date = new Date(year, month, day)
         // Normalize to start of day for comparison (avoid timezone issues)
         const checkDate = new Date(year, month, day, 0, 0, 0, 0)
-        
+
         // Check if any event falls on this date (considering start AND end dates)
-        const hasEvents = events.value.some(event => {
+        const hasEvents = events.value.some((event) => {
           const eventStart = new Date(event.startDate)
           const eventEnd = new Date(event.endDate)
-          
+
           // Normalize event dates to start of day
-          const eventStartDay = new Date(eventStart.getFullYear(), eventStart.getMonth(), eventStart.getDate())
-          const eventEndDay = new Date(eventEnd.getFullYear(), eventEnd.getMonth(), eventEnd.getDate())
-          
+          const eventStartDay = new Date(
+            eventStart.getFullYear(),
+            eventStart.getMonth(),
+            eventStart.getDate()
+          )
+          const eventEndDay = new Date(
+            eventEnd.getFullYear(),
+            eventEnd.getMonth(),
+            eventEnd.getDate()
+          )
+
           // Check if current day is within event date range
           return checkDate >= eventStartDay && checkDate <= eventEndDay
         })
@@ -684,7 +761,7 @@ export default defineComponent({
           date: day,
           hasEvents,
           isEmpty: false,
-          fullDate: date
+          fullDate: date,
         })
       }
 
@@ -698,11 +775,19 @@ export default defineComponent({
 
     // Methods
     const previousMonth = () => {
-      currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() - 1, 1)
+      currentDate.value = new Date(
+        currentDate.value.getFullYear(),
+        currentDate.value.getMonth() - 1,
+        1
+      )
     }
 
     const nextMonth = () => {
-      currentDate.value = new Date(currentDate.value.getFullYear(), currentDate.value.getMonth() + 1, 1)
+      currentDate.value = new Date(
+        currentDate.value.getFullYear(),
+        currentDate.value.getMonth() + 1,
+        1
+      )
     }
 
     const selectDay = (day) => {
@@ -727,7 +812,9 @@ export default defineComponent({
     }
 
     const navigateToEvent = (location) => {
-      router.push(`/apanam?start=${encodeURIComponent('Current Location')}&end=${encodeURIComponent(location)}`)
+      router.push(
+        `/apanam?start=${encodeURIComponent('Current Location')}&end=${encodeURIComponent(location)}`
+      )
       showEventDialog.value = false
     }
 
@@ -744,11 +831,11 @@ export default defineComponent({
             { label: 'Copy Link', icon: 'content_copy', value: 'copy' },
             { label: 'Facebook', icon: 'facebook', value: 'facebook' },
             { label: 'Twitter', icon: 'rss_feed', value: 'twitter' },
-            { label: 'Messenger', icon: 'chat', value: 'messenger' }
-          ]
+            { label: 'Messenger', icon: 'chat', value: 'messenger' },
+          ],
         },
         cancel: true,
-        persistent: true
+        persistent: true,
       }).onOk(async (data) => {
         if (data === 'copy') {
           await navigator.clipboard.writeText(eventUrl)
@@ -756,12 +843,20 @@ export default defineComponent({
             message: 'Event link copied to clipboard!',
             color: 'positive',
             position: 'top',
-            icon: 'check'
+            icon: 'check',
           })
         } else if (data === 'facebook') {
-          window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(eventUrl), '_blank', 'width=600,height=400')
+          window.open(
+            'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(eventUrl),
+            '_blank',
+            'width=600,height=400'
+          )
         } else if (data === 'twitter') {
-          window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(eventText), '_blank', 'width=600,height=400')
+          window.open(
+            'https://twitter.com/intent/tweet?text=' + encodeURIComponent(eventText),
+            '_blank',
+            'width=600,height=400'
+          )
         } else if (data === 'messenger') {
           window.open('fb-messenger://share?link=' + encodeURIComponent(eventUrl), '_blank')
         }
@@ -779,7 +874,7 @@ export default defineComponent({
         $q.notify({
           type: 'warning',
           message: 'Please describe the issue',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -788,7 +883,7 @@ export default defineComponent({
         eventId: eventToReport.value?.id,
         eventName: eventToReport.value?.name,
         issue: reportIssueText.value,
-        timestamp: new Date()
+        timestamp: new Date(),
       })
 
       showReportDialog.value = false
@@ -796,7 +891,7 @@ export default defineComponent({
         type: 'positive',
         message: 'Thank you! Your report has been submitted.',
         position: 'top',
-        timeout: 3000
+        timeout: 3000,
       })
     }
 
@@ -807,7 +902,7 @@ export default defineComponent({
         weekday: 'long',
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
       })
     }
 
@@ -816,7 +911,7 @@ export default defineComponent({
         weekday: 'long',
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
+        day: 'numeric',
       })
     }
 
@@ -825,31 +920,36 @@ export default defineComponent({
       const date = new Date(dateString)
       return date.toLocaleTimeString('en-US', {
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
       })
     }
 
     const faqs = [
       {
         question: 'How do I find events in Baguio?',
-        answer: 'Browse the event calendar or scroll through the list of all events. You can filter by date and see featured events at the top.'
+        answer:
+          'Browse the event calendar or scroll through the list of all events. You can filter by date and see featured events at the top.',
       },
       {
         question: 'Are events free to attend?',
-        answer: 'Many events are free, but some may require tickets or registration. Check the event details for specific information about fees or registration requirements.'
+        answer:
+          'Many events are free, but some may require tickets or registration. Check the event details for specific information about fees or registration requirements.',
       },
       {
         question: 'How do I get directions to an event?',
-        answer: 'Click on any event and use the "Get Directions" button. This will open APANAM navigation to guide you to the event location.'
+        answer:
+          'Click on any event and use the "Get Directions" button. This will open APANAM navigation to guide you to the event location.',
       },
       {
         question: 'Can I share events with friends?',
-        answer: 'Yes! Click the "Share" button on any event to share via Facebook, Twitter, Messenger, or copy the link.'
+        answer:
+          'Yes! Click the "Share" button on any event to share via Facebook, Twitter, Messenger, or copy the link.',
       },
       {
         question: 'How do I stay updated on events?',
-        answer: 'Check back regularly or follow event organizers. Event information is regularly updated with new festivals, concerts, and cultural activities.'
-      }
+        answer:
+          'Check back regularly or follow event organizers. Event information is regularly updated with new festivals, concerts, and cultural activities.',
+      },
     ]
 
     const leftFaqs = computed(() => faqs.slice(0, 3))
@@ -864,7 +964,20 @@ export default defineComponent({
     const getMonth = (dateStr) => {
       if (!dateStr) return 'JAN'
       const date = new Date(dateStr)
-      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+      const months = [
+        'JAN',
+        'FEB',
+        'MAR',
+        'APR',
+        'MAY',
+        'JUN',
+        'JUL',
+        'AUG',
+        'SEP',
+        'OCT',
+        'NOV',
+        'DEC',
+      ]
       return months[date.getMonth()]
     }
 
@@ -909,7 +1022,7 @@ export default defineComponent({
       rightFaqs,
       showReportDialog,
       eventToReport,
-      reportIssueText
+      reportIssueText,
     }
   },
 })
@@ -917,14 +1030,14 @@ export default defineComponent({
 
 <style scoped lang="scss">
 // Color Variables
-$dark-green: #1B4332;
-$primary-green: #2E5D3E;
-$light-green: #9EC98F;
-$soft-green: #E8F5E9;
-$mint-cream: #F1F8F4;
-$blush-pink: #FCE4EC;
-$white: #FFFFFF;
-$brown: #6B5344;
+$dark-green: #1b4332;
+$primary-green: #2e5d3e;
+$light-green: #9ec98f;
+$soft-green: #e8f5e9;
+$mint-cream: #f1f8f4;
+$blush-pink: #fce4ec;
+$white: #ffffff;
+$brown: #6b5344;
 $glass-bg: rgba(255, 255, 255, 0.85);
 $glass-border: rgba(255, 255, 255, 0.3);
 $bento-radius: 20px;
@@ -1010,18 +1123,18 @@ $bento-radius: 20px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  
+
   &:hover {
     transform: translateY(-8px);
     box-shadow: 0 12px 32px rgba($primary-green, 0.15);
     border-color: rgba($primary-green, 0.3);
   }
-  
+
   :deep(.q-img) {
     height: 220px;
     position: relative;
   }
-  
+
   :deep(.q-card__section) {
     padding: 20px;
   }
@@ -1061,11 +1174,11 @@ $bento-radius: 20px;
 
 .year-selector {
   width: 160px;
-  
+
   :deep(.q-field) {
     background: $white;
     border-radius: 12px;
-    
+
     &.q-field--outlined {
       border: 1px solid $glass-border;
     }
@@ -1108,7 +1221,7 @@ $bento-radius: 20px;
   border: 1px solid rgba($primary-green, 0.08);
   transition: all 0.2s ease;
   position: relative;
-  
+
   &:hover:not(.empty-day) {
     background: $soft-green;
   }
@@ -1126,7 +1239,7 @@ $bento-radius: 20px;
 .calendar-day.selected-day {
   background: linear-gradient(135deg, $primary-green 0%, $dark-green 100%);
   color: white;
-  
+
   .day-number {
     color: white;
   }
@@ -1179,13 +1292,13 @@ $bento-radius: 20px;
   border-left: 4px solid $primary-green;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   margin-bottom: 12px;
-  
+
   &:hover {
     transform: translateX(6px);
     box-shadow: 0 4px 16px rgba($primary-green, 0.15);
     background: $soft-green;
   }
-  
+
   :deep(.q-card__section) {
     padding: 12px;
   }
@@ -1214,17 +1327,17 @@ $bento-radius: 20px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  
+
   &:hover {
     transform: translateY(-8px);
     box-shadow: 0 12px 32px rgba($primary-green, 0.15);
     border-color: rgba($primary-green, 0.3);
   }
-  
+
   :deep(.q-img) {
     height: 180px;
   }
-  
+
   :deep(.q-card__section) {
     padding: 18px;
   }
@@ -1276,7 +1389,7 @@ $faqs-bg: $brown;
   padding: 5rem 0;
   color: $white;
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -1371,7 +1484,7 @@ $faqs-bg: $brown;
   &:hover :deep(.q-icon) {
     transform: scale(1.15) rotate(90deg);
   }
-  
+
   :deep(.q-expansion-item__content) {
     padding: 0;
   }
@@ -1390,13 +1503,13 @@ $faqs-bg: $brown;
 }
 
 @keyframes fadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(30px); 
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -1430,7 +1543,7 @@ $faqs-bg: $brown;
   .faqs-title {
     font-size: 1.75rem;
   }
-  
+
   .calendar-card,
   .events-list-card {
     margin-bottom: 16px;

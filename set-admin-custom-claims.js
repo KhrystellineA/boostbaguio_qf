@@ -1,12 +1,12 @@
 /**
  * Script to set Firebase Custom Claims for admin users
- * 
+ *
  * This script reads admin documents from Firestore and sets
  * corresponding Firebase Custom Claims for each admin user.
- * 
+ *
  * Usage:
  *   node set-admin-custom-claims.js
- * 
+ *
  * Requirements:
  *   - Firebase Admin SDK initialized
  *   - Service account credentials in .env file
@@ -27,7 +27,7 @@ if (!getApps().length) {
       projectId: process.env.VITE_FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
       privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    })
+    }),
   })
 }
 
@@ -36,26 +36,26 @@ const auth = getAuth()
 
 // Role mapping from old sessionStorage roles to custom claims
 const ROLE_MAPPING = {
-  'super_admin': {
+  super_admin: {
     role: 'super_admin',
-    permissions: ['super_admin:all']
+    permissions: ['super_admin:all'],
   },
-  'routes_admin': {
+  routes_admin: {
     role: 'routes_admin',
-    permissions: ['routes:write', 'routes:read']
+    permissions: ['routes:write', 'routes:read'],
   },
-  'places_admin': {
+  places_admin: {
     role: 'places_admin',
-    permissions: ['places:write', 'places:read']
+    permissions: ['places:write', 'places:read'],
   },
-  'events_admin': {
+  events_admin: {
     role: 'events_admin',
-    permissions: ['events:write', 'events:read']
+    permissions: ['events:write', 'events:read'],
   },
-  'photos_admin': {
+  photos_admin: {
     role: 'photos_admin',
-    permissions: ['photos:write', 'photos:read']
-  }
+    permissions: ['photos:write', 'photos:read'],
+  },
 }
 
 /**
@@ -100,23 +100,25 @@ async function setAdminCustomClaims() {
       const adminData = adminDoc.data()
       const uid = adminDoc.id
 
-      console.log(`Processing: ${adminData.name || adminData.email} (${adminData.role || 'unknown role'})`)
+      console.log(
+        `Processing: ${adminData.name || adminData.email} (${adminData.role || 'unknown role'})`
+      )
 
       // Get claims based on role
       const roleClaims = ROLE_MAPPING[adminData.role] || {
         role: adminData.role || 'admin',
-        permissions: adminData.permissions || ['admin:read']
+        permissions: adminData.permissions || ['admin:read'],
       }
 
       // Create custom claims object
       const customClaims = {
         admin: true,
-        ...roleClaims
+        ...roleClaims,
       }
 
       // Set custom claims
       const success = await setCustomClaimsForUser(uid, customClaims)
-      
+
       if (success) {
         successCount++
       } else {
@@ -124,7 +126,7 @@ async function setAdminCustomClaims() {
       }
 
       // Add small delay to avoid rate limiting
-      await new Promise(resolve => setTimeout(resolve, 100))
+      await new Promise((resolve) => setTimeout(resolve, 100))
     }
 
     console.log('\n✅ Completed!')
@@ -132,9 +134,10 @@ async function setAdminCustomClaims() {
     console.log(`   Errors: ${errorCount}`)
     console.log(`   Total: ${adminsSnapshot.size}`)
 
-    console.log('\n⚠️ IMPORTANT: Users need to sign out and sign back in for claims to take effect.')
+    console.log(
+      '\n⚠️ IMPORTANT: Users need to sign out and sign back in for claims to take effect.'
+    )
     console.log('   The custom claims are included in the ID token, which is refreshed on login.\n')
-
   } catch (error) {
     console.error('\n❌ Fatal error:', error)
     process.exit(1)

@@ -1,13 +1,13 @@
 /**
  * Boost Baguio - Admin & User Seeder
- * 
+ *
  * This script creates admin and user accounts with specific roles:
  * 1. admin@baguioboosters.com - Places Admin (CRUD for places/tourist spots)
  * 2. routesadmin@baguioboosters.com - Routes Admin (CRUD for jeepney routes)
  * 3. eventsadmin@baguioboosters.com - Events Admin (CRUD for events)
  * 4. regularuser@email.com - Regular User
  * 5. premiumuser@email.com - Premium User
- * 
+ *
  * Usage: node seed-admin-users.js
  */
 
@@ -25,7 +25,7 @@ const firebaseConfig = {
   storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.VITE_FIREBASE_APP_ID,
-  measurementId: process.env.VITE_FIREBASE_MEASUREMENT_ID
+  measurementId: process.env.VITE_FIREBASE_MEASUREMENT_ID,
 }
 
 // Validate configuration
@@ -50,15 +50,21 @@ const usersToCreate = [
     displayName: 'Places Administrator',
     role: 'places_admin',
     permissions: ['places:read', 'places:write', 'places:delete', 'places:update'],
-    description: 'Can manage all places (tourist spots, restaurants, hotels, etc.)'
+    description: 'Can manage all places (tourist spots, restaurants, hotels, etc.)',
   },
   {
     email: 'routesadmin@baguioboosters.com',
     password: '',
     displayName: 'Routes Administrator',
     role: 'routes_admin',
-    permissions: ['routes:read', 'routes:write', 'routes:delete', 'routes:update', 'jeepneyOptions:all'],
-    description: 'Can manage all jeepney routes and options'
+    permissions: [
+      'routes:read',
+      'routes:write',
+      'routes:delete',
+      'routes:update',
+      'jeepneyOptions:all',
+    ],
+    description: 'Can manage all jeepney routes and options',
   },
   {
     email: 'eventsadmin@baguioboosters.com',
@@ -66,7 +72,7 @@ const usersToCreate = [
     displayName: 'Events Administrator',
     role: 'events_admin',
     permissions: ['events:read', 'events:write', 'events:delete', 'events:update'],
-    description: 'Can manage all events and festivals'
+    description: 'Can manage all events and festivals',
   },
   {
     email: 'regularuser@email.com',
@@ -75,7 +81,7 @@ const usersToCreate = [
     role: 'user',
     isPremium: false,
     permissions: ['basic:access'],
-    description: 'Regular user with basic access'
+    description: 'Regular user with basic access',
   },
   {
     email: 'premiumuser@email.com',
@@ -84,14 +90,14 @@ const usersToCreate = [
     role: 'user',
     isPremium: true,
     permissions: ['basic:access', 'premium:access', 'offline:access'],
-    description: 'Premium user with full access to premium features'
-  }
+    description: 'Premium user with full access to premium features',
+  },
 ]
 
 // readline for password
 const rl = createInterface({
   input: process.stdin,
-  output: process.stdout
+  output: process.stdout,
 })
 
 const question = (query) => new Promise((resolve) => rl.question(query, resolve))
@@ -147,7 +153,7 @@ async function createUsers() {
             premiumExpiry: userData.isPremium ? null : null,
             permissions: userData.permissions,
             createdAt: serverTimestamp(),
-            lastUpdated: serverTimestamp()
+            lastUpdated: serverTimestamp(),
           })
 
           console.log(`   ✅ Created user: ${userData.displayName}`)
@@ -163,7 +169,7 @@ async function createUsers() {
             isActive: true,
             createdBy: auth.currentUser.uid,
             createdAt: serverTimestamp(),
-            description: userData.description
+            description: userData.description,
           })
 
           console.log(`   ✅ Created admin: ${userData.displayName}`)
@@ -179,7 +185,6 @@ async function createUsers() {
 
         // Sign back in as super admin
         await signInWithEmailAndPassword(auth, SUPER_ADMIN_EMAIL, password)
-
       } catch (error) {
         errorCount++
         console.error(`   ❌ Error creating ${userData.email}:`, error.message)
@@ -229,7 +234,6 @@ async function createUsers() {
     console.log('🔑 All accounts use the same password as super admin')
     console.log()
     console.log('✅ You can now login with any of these accounts!\n')
-
   } catch (error) {
     console.error('\n❌ Error:', error.message)
     if (error.code === 'auth/wrong-password') {

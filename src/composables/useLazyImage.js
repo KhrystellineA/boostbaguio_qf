@@ -23,7 +23,7 @@ export function useLazyImage(src, options = {}) {
   const {
     placeholder = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZTVlN2ViIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjE0IiBmaWxsPSIjOWE5ZWE2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+TG9hZGluZy4uLjwvdGV4dD48L3N2Zz4=',
     rootMargin = '50px',
-    threshold = 0.1
+    threshold = 0.1,
   } = options
 
   const imageSrc = ref(placeholder)
@@ -72,7 +72,7 @@ export function useLazyImage(src, options = {}) {
     if ('IntersectionObserver' in window) {
       observer = new IntersectionObserver(handleIntersection, {
         rootMargin,
-        threshold
+        threshold,
       })
 
       // Create a dummy element to observe
@@ -100,7 +100,7 @@ export function useLazyImage(src, options = {}) {
     isLoaded,
     isError,
     isInView,
-    reload: loadImage
+    reload: loadImage,
   }
 }
 
@@ -110,32 +110,32 @@ export function useLazyImage(src, options = {}) {
 export const lazyImageProps = {
   src: {
     type: String,
-    required: true
+    required: true,
   },
   alt: {
     type: String,
-    default: ''
+    default: '',
   },
   placeholder: {
     type: String,
-    default: undefined
+    default: undefined,
   },
   fit: {
     type: String,
     default: 'cover',
-    validator: (value) => ['cover', 'contain', 'fill', 'none', 'scale-down'].includes(value)
+    validator: (value) => ['cover', 'contain', 'fill', 'none', 'scale-down'].includes(value),
   },
   height: {
     type: [String, Number],
-    default: 'auto'
+    default: 'auto',
   },
   width: {
     type: [String, Number],
-    default: '100%'
-  }
+    default: '100%',
+  },
 }
 
 export default {
   useLazyImage,
-  lazyImageProps
+  lazyImageProps,
 }

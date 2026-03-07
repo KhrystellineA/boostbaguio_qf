@@ -10,7 +10,7 @@ export default defineConfig({
       sassVariables: 'src/css/quasar-variables.sass',
     }),
   ],
-  
+
   resolve: {
     alias: {
       src: fileURLToPath(new URL('./src', import.meta.url)),
@@ -26,21 +26,21 @@ export default defineConfig({
       assets: fileURLToPath(new URL('./src/assets', import.meta.url)),
     },
   },
-  
+
   test: {
     // Test environment
     environment: 'jsdom',
-    
+
     // Global test setup
     globals: true,
-    
+
     // Setup files
     setupFiles: ['./src/test/setup.js'],
-    
+
     // Include test files
     include: ['src/**/*.{test,spec}.{js,ts,jsx,tsx}'],
     exclude: [...configDefaults.exclude, 'e2e/**'],
-    
+
     // Coverage configuration
     coverage: {
       provider: 'v8',
@@ -57,16 +57,16 @@ export default defineConfig({
         'src/components/admin/**',
       ],
     },
-    
+
     // Test timeout
     testTimeout: 10000,
-    
+
     // Hook timeout
     hookTimeout: 10000,
-    
+
     // Restore mocks after each test
     restoreMocks: true,
-    
+
     // Clear mocks after each test
     clearMocks: true,
   },

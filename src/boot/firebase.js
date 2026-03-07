@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth'
 import {
   initializeFirestore,
   persistentLocalCache,
-  persistentMultipleTabManager
+  persistentMultipleTabManager,
 } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
 
@@ -16,7 +16,7 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 }
 
 // Validate required config
@@ -26,21 +26,14 @@ const requiredConfigKeys = [
   'VITE_FIREBASE_PROJECT_ID',
   'VITE_FIREBASE_STORAGE_BUCKET',
   'VITE_FIREBASE_MESSAGING_SENDER_ID',
-  'VITE_FIREBASE_APP_ID'
+  'VITE_FIREBASE_APP_ID',
 ]
 
-const missingConfig = requiredConfigKeys.filter(
-  (key) => !import.meta.env[key]
-)
+const missingConfig = requiredConfigKeys.filter((key) => !import.meta.env[key])
 
 if (missingConfig.length > 0) {
-  console.error(
-    '[Firebase] Missing required environment variables:',
-    missingConfig.join(', ')
-  )
-  console.error(
-    '[Firebase] Please check your .env file'
-  )
+  console.error('[Firebase] Missing required environment variables:', missingConfig.join(', '))
+  console.error('[Firebase] Please check your .env file')
   // Don't throw - let app continue in case of partial config
 }
 
@@ -50,19 +43,19 @@ let app, auth, db, storage
 try {
   if (firebaseConfig.apiKey) {
     app = initializeApp(firebaseConfig)
-    
+
     // Initialize services
     auth = getAuth(app)
-    
+
     db = initializeFirestore(app, {
       localCache: persistentLocalCache({
         cacheSizeBytes: 50 * 1024 * 1024, // 50MB cache
-        tabManager: persistentMultipleTabManager()
-      })
+        tabManager: persistentMultipleTabManager(),
+      }),
     })
-    
+
     storage = getStorage(app)
-    
+
     console.log('[Firebase] ✅ Initialized successfully')
     console.log('[Firebase] 📦 Offline persistence enabled (50MB cache)')
     console.log('[Firebase] 🗄️ Project ID:', firebaseConfig.projectId || 'NOT CONFIGURED')

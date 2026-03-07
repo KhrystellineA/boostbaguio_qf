@@ -133,13 +133,7 @@
         <div class="row q-mt-md">
           <q-space />
           <q-btn label="Cancel" color="grey" flat v-close-popup />
-          <q-btn
-            label="Save Route"
-            type="submit"
-            color="primary"
-            unelevated
-            :loading="saving"
-          />
+          <q-btn label="Save Route" type="submit" color="primary" unelevated :loading="saving" />
         </div>
       </q-form>
     </q-card-section>
@@ -155,12 +149,12 @@ export default defineComponent({
   props: {
     routeData: {
       type: Object,
-      default: null
+      default: null,
     },
     editMode: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: ['save', 'close'],
@@ -180,7 +174,7 @@ export default defineComponent({
       pwdSeniorFare: 0,
       terminalLat: 0,
       terminalLng: 0,
-      imageUrl: ''
+      imageUrl: '',
     })
 
     // Watch for route data changes
@@ -199,7 +193,7 @@ export default defineComponent({
             pwdSeniorFare: newData.pwdSeniorFare || 0,
             terminalLat: newData.terminalLat || 0,
             terminalLng: newData.terminalLng || 0,
-            imageUrl: newData.imageUrl || ''
+            imageUrl: newData.imageUrl || '',
           }
         } else {
           resetForm()
@@ -221,7 +215,7 @@ export default defineComponent({
         pwdSeniorFare: 0,
         terminalLat: 0,
         terminalLng: 0,
-        imageUrl: ''
+        imageUrl: '',
       }
     }
 
