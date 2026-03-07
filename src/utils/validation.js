@@ -43,7 +43,8 @@ export function email(email) {
   }
 
   // RFC 5322 compliant email regex (simplified but robust)
-  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+  const emailRegex =
+    /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
 
   if (!emailRegex.test(email)) {
     return { valid: false, message: 'Please enter a valid email address' }
@@ -56,7 +57,7 @@ export function email(email) {
     'hotmail.com': true,
     'outlook.com': true,
     'icloud.com': true,
-    'protonmail.com': true
+    'protonmail.com': true,
   }
 
   const domain = email.split('@')[1]?.toLowerCase()
@@ -68,13 +69,13 @@ export function email(email) {
       'yahooo.com': 'yahoo.com',
       'yaho.com': 'yahoo.com',
       'hotmial.com': 'hotmail.com',
-      'outlok.com': 'outlook.com'
+      'outlok.com': 'outlook.com',
     }
 
     if (typos[domain]) {
       return {
         valid: false,
-        message: `Did you mean ${email.replace(domain, typos[domain])}?`
+        message: `Did you mean ${email.replace(domain, typos[domain])}?`,
       }
     }
   }
@@ -107,15 +108,15 @@ export function phone(phone) {
   // DITO: 0991, 0992, 0993, 0994
   const patterns = [
     /^(\+63|63)?9[1-9]\d{7}$/, // International format
-    /^09[1-9]\d{7}$/ // Local format
+    /^09[1-9]\d{7}$/, // Local format
   ]
 
-  const isValid = patterns.some(pattern => pattern.test(cleaned))
+  const isValid = patterns.some((pattern) => pattern.test(cleaned))
 
   if (!isValid) {
     return {
       valid: false,
-      message: 'Please enter a valid Philippine mobile number (e.g., 09171234567)'
+      message: 'Please enter a valid Philippine mobile number (e.g., 09171234567)',
     }
   }
 
@@ -144,7 +145,7 @@ export function url(url, options = {}) {
     if (!allowedProtocols.includes(urlObj.protocol.replace(':', ''))) {
       return {
         valid: false,
-        message: `URL must start with ${allowedProtocols.join(' or ')}`
+        message: `URL must start with ${allowedProtocols.join(' or ')}`,
       }
     }
 
@@ -152,7 +153,7 @@ export function url(url, options = {}) {
     if (requireHttps && urlObj.protocol !== 'https:') {
       return {
         valid: false,
-        message: 'URL must use HTTPS protocol for security'
+        message: 'URL must use HTTPS protocol for security',
       }
     }
 
@@ -160,7 +161,7 @@ export function url(url, options = {}) {
     if (!urlObj.hostname || urlObj.hostname === 'localhost') {
       return {
         valid: false,
-        message: 'Please enter a valid URL with a domain name'
+        message: 'Please enter a valid URL with a domain name',
       }
     }
 
@@ -193,12 +194,13 @@ export function imageUrl(url) {
   try {
     const urlObj = new URL(url)
     const hasImageExtension = imageExtensions.test(urlObj.pathname)
-    const isImageHost = imageHosts.some(host => urlObj.hostname.includes(host))
+    const isImageHost = imageHosts.some((host) => urlObj.hostname.includes(host))
 
     if (!hasImageExtension && !isImageHost) {
       return {
         valid: false,
-        message: 'URL must point to an image file (JPG, PNG, GIF, WebP, etc.) or image hosting service'
+        message:
+          'URL must point to an image file (JPG, PNG, GIF, WebP, etc.) or image hosting service',
       }
     }
 
@@ -224,7 +226,7 @@ export function minLength(value, min, fieldName = 'Field') {
   if (length < min) {
     return {
       valid: false,
-      message: `${fieldName} must be at least ${min} character${min > 1 ? 's' : ''}`
+      message: `${fieldName} must be at least ${min} character${min > 1 ? 's' : ''}`,
     }
   }
   return { valid: true }
@@ -246,7 +248,7 @@ export function maxLength(value, max, fieldName = 'Field') {
   if (length > max) {
     return {
       valid: false,
-      message: `${fieldName} must not exceed ${max} character${max > 1 ? 's' : ''}`
+      message: `${fieldName} must not exceed ${max} character${max > 1 ? 's' : ''}`,
     }
   }
   return { valid: true }
@@ -276,14 +278,14 @@ export function range(value, options = {}, fieldName = 'Value') {
   if (min !== undefined && num < min) {
     return {
       valid: false,
-      message: `${fieldName} must be at least ${min}`
+      message: `${fieldName} must be at least ${min}`,
     }
   }
 
   if (max !== undefined && num > max) {
     return {
       valid: false,
-      message: `${fieldName} must not exceed ${max}`
+      message: `${fieldName} must not exceed ${max}`,
     }
   }
 
@@ -456,5 +458,5 @@ export default {
   dateOnOrAfter,
   quasarValidator,
   composeValidators,
-  validateForm
+  validateForm,
 }

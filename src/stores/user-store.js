@@ -12,7 +12,7 @@ import {
   updateProfile,
   updatePassword,
   EmailAuthProvider,
-  reauthenticateWithCredential
+  reauthenticateWithCredential,
 } from 'firebase/auth'
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore'
 import { auth, db } from 'src/boot/firebase'
@@ -39,7 +39,7 @@ export const useUserStore = defineStore('user', {
     user: null,
     isPremium: false,
     loading: true,
-    premiumExpiry: null
+    premiumExpiry: null,
   }),
 
   getters: {
@@ -102,9 +102,9 @@ export const useUserStore = defineStore('user', {
     async signUp(email, password, displayName) {
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-        
+
         await updateProfile(userCredential.user, {
-          displayName: displayName
+          displayName: displayName,
         })
 
         await setDoc(doc(db, 'users', userCredential.user.uid), {
@@ -112,7 +112,7 @@ export const useUserStore = defineStore('user', {
           displayName: displayName,
           isPremium: false,
           createdAt: new Date().toISOString(),
-          premiumExpiry: null
+          premiumExpiry: null,
         })
 
         this.user = userCredential.user
@@ -121,13 +121,13 @@ export const useUserStore = defineStore('user', {
         Notify.create({
           type: 'positive',
           message: 'Account created successfully!',
-          position: 'top'
+          position: 'top',
         })
 
         return { success: true }
       } catch (error) {
         let message = 'Failed to create account'
-        
+
         if (error.code === 'auth/email-already-in-use') {
           message = 'Email already in use'
         } else if (error.code === 'auth/weak-password') {
@@ -139,7 +139,7 @@ export const useUserStore = defineStore('user', {
         Notify.create({
           type: 'negative',
           message: message,
-          position: 'top'
+          position: 'top',
         })
 
         return { success: false, error: message }
@@ -156,22 +156,22 @@ export const useUserStore = defineStore('user', {
       try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password)
         this.user = userCredential.user
-        
+
         // ✅ IMPROVED: Check premium status but don't let it fail login
         await this.checkPremiumStatus()
 
         Notify.create({
           type: 'positive',
           message: 'Welcome back!',
-          position: 'top'
+          position: 'top',
         })
 
         return { success: true }
       } catch (error) {
         console.error('[UserStore] Sign in error:', error.code, error.message)
-        
+
         let message = 'Failed to sign in'
-        
+
         if (error.code === 'auth/user-not-found') {
           message = 'No account found with this email'
         } else if (error.code === 'auth/wrong-password') {
@@ -185,7 +185,7 @@ export const useUserStore = defineStore('user', {
         Notify.create({
           type: 'negative',
           message: message,
-          position: 'top'
+          position: 'top',
         })
 
         return { success: false, error: message }
@@ -206,17 +206,17 @@ export const useUserStore = defineStore('user', {
         Notify.create({
           type: 'info',
           message: 'Signed out successfully',
-          position: 'top'
+          position: 'top',
         })
 
         return { success: true }
       } catch (error) {
         console.error('[UserStore] Logout error:', error)
-        
+
         Notify.create({
           type: 'negative',
           message: 'Failed to sign out',
-          position: 'top'
+          position: 'top',
         })
 
         return { success: false }
@@ -228,7 +228,7 @@ export const useUserStore = defineStore('user', {
 
       try {
         const userDoc = await getDoc(doc(db, 'users', this.user.uid))
-        
+
         if (userDoc.exists()) {
           const userData = userDoc.data()
           this.isPremium = userData.isPremium || false
@@ -244,7 +244,7 @@ export const useUserStore = defineStore('user', {
               Notify.create({
                 type: 'warning',
                 message: 'Your premium subscription has expired',
-                position: 'top'
+                position: 'top',
               })
             }
           }
@@ -270,7 +270,7 @@ export const useUserStore = defineStore('user', {
           role: 'user',
           isPremium: false,
           createdAt: new Date().toISOString(),
-          premiumExpiry: null
+          premiumExpiry: null,
         })
 
         this.isPremium = false
@@ -289,7 +289,7 @@ export const useUserStore = defineStore('user', {
         await updateDoc(doc(db, 'users', this.user.uid), {
           isPremium: isPremium,
           premiumExpiry: expiryDate,
-          lastUpdated: new Date().toISOString()
+          lastUpdated: new Date().toISOString(),
         })
 
         this.isPremium = isPremium
@@ -311,7 +311,7 @@ export const useUserStore = defineStore('user', {
       Notify.create({
         type: 'positive',
         message: `Premium activated until ${expiryDate.toLocaleDateString()}`,
-        position: 'top'
+        position: 'top',
       })
     },
 
@@ -320,7 +320,7 @@ export const useUserStore = defineStore('user', {
         Notify.create({
           type: 'negative',
           message: 'User not authenticated',
-          position: 'top'
+          position: 'top',
         })
         return { success: false }
       }
@@ -339,7 +339,7 @@ export const useUserStore = defineStore('user', {
           await updateDoc(userDocRef, {
             displayName: displayName !== undefined ? displayName : this.user.displayName,
             photoURL: photoURL !== undefined ? photoURL : this.user.photoURL,
-            lastUpdated: new Date().toISOString()
+            lastUpdated: new Date().toISOString(),
           })
         } else {
           await setDoc(userDocRef, {
@@ -350,7 +350,7 @@ export const useUserStore = defineStore('user', {
             isPremium: false,
             createdAt: new Date().toISOString(),
             premiumExpiry: null,
-            lastUpdated: new Date().toISOString()
+            lastUpdated: new Date().toISOString(),
           })
         }
 
@@ -363,7 +363,7 @@ export const useUserStore = defineStore('user', {
         Notify.create({
           type: 'positive',
           message: 'Profile updated successfully!',
-          position: 'top'
+          position: 'top',
         })
 
         return { success: true }
@@ -378,7 +378,7 @@ export const useUserStore = defineStore('user', {
         Notify.create({
           type: 'negative',
           message: message,
-          position: 'top'
+          position: 'top',
         })
 
         return { success: false, error: message }
@@ -390,7 +390,7 @@ export const useUserStore = defineStore('user', {
         Notify.create({
           type: 'negative',
           message: 'User not authenticated',
-          position: 'top'
+          position: 'top',
         })
         return { success: false }
       }
@@ -399,7 +399,7 @@ export const useUserStore = defineStore('user', {
         Notify.create({
           type: 'warning',
           message: 'Please fill in all password fields',
-          position: 'top'
+          position: 'top',
         })
         return { success: false }
       }
@@ -408,16 +408,13 @@ export const useUserStore = defineStore('user', {
         Notify.create({
           type: 'warning',
           message: 'New password must be at least 6 characters',
-          position: 'top'
+          position: 'top',
         })
         return { success: false }
       }
 
       try {
-        const credential = EmailAuthProvider.credential(
-          this.user.email,
-          currentPassword
-        )
+        const credential = EmailAuthProvider.credential(this.user.email, currentPassword)
 
         await reauthenticateWithCredential(this.user, credential)
 
@@ -426,7 +423,7 @@ export const useUserStore = defineStore('user', {
         Notify.create({
           type: 'positive',
           message: 'Password changed successfully!',
-          position: 'top'
+          position: 'top',
         })
 
         return { success: true }
@@ -445,11 +442,11 @@ export const useUserStore = defineStore('user', {
         Notify.create({
           type: 'negative',
           message: message,
-          position: 'top'
+          position: 'top',
         })
 
         return { success: false, error: message }
       }
-    }
-  }
+    },
+  },
 })

@@ -18,7 +18,7 @@ export const ErrorCategory = {
   VALIDATION: 'validation',
   NOT_FOUND: 'not_found',
   SERVER: 'server',
-  UNKNOWN: 'unknown'
+  UNKNOWN: 'unknown',
 }
 
 /**
@@ -29,7 +29,7 @@ const errorMessages = {
   'network/online': 'You appear to be offline. Please check your internet connection.',
   'network/timeout': 'Request timed out. Please try again.',
   'network/server-unreachable': 'Server is temporarily unavailable. Please try again later.',
-  
+
   // Firebase/Auth errors
   'auth/invalid-credential': 'Invalid email or password. Please check your credentials.',
   'auth/user-not-found': 'No account found with this email address.',
@@ -41,22 +41,23 @@ const errorMessages = {
   'auth/too-many-requests': 'Too many failed attempts. Please try again later.',
   'auth/unauthorized-domain': 'This domain is not authorized for authentication.',
   'auth/popup-closed-by-user': 'Sign-in popup was closed. Please try again.',
-  'auth/network-request-failed': 'Network error during authentication. Please check your connection.',
+  'auth/network-request-failed':
+    'Network error during authentication. Please check your connection.',
   'auth/requires-recent-login': 'This action requires recent authentication. Please log in again.',
-  
+
   // Firestore errors
   'firestore/permission-denied': 'You do not have permission to perform this action.',
   'firestore/unavailable': 'Database is temporarily unavailable. Please try again.',
   'firestore/not-found': 'The requested data was not found.',
   'firestore/already-exists': 'This document already exists.',
-  
+
   // Storage errors
   'storage/unauthorized': 'You do not have permission to upload files.',
   'storage/canceled': 'File upload was canceled.',
   'storage/invalid-format': 'Invalid file format. Please upload a valid image.',
   'storage/size-limit': 'File is too large. Please upload a file under 5MB.',
   'storage/quota-exceeded': 'Storage quota exceeded. Please contact support.',
-  
+
   // Validation errors
   'validation/required': 'This field is required.',
   'validation/invalid-format': 'Invalid format. Please check your input.',
@@ -64,11 +65,11 @@ const errorMessages = {
   'validation/too-long': 'Input is too long.',
   'validation/invalid-date': 'Invalid date. Please select a valid date.',
   'validation/invalid-number': 'Please enter a valid number.',
-  
+
   // General errors
   'generic/unknown': 'An unexpected error occurred. Please try again.',
   'generic/retry': 'Something went wrong. You can retry this action.',
-  'generic/contact-support': 'An error occurred. If this persists, please contact support.'
+  'generic/contact-support': 'An error occurred. If this persists, please contact support.',
 }
 
 /**
@@ -79,40 +80,51 @@ const errorMessages = {
 export function categorizeError(error) {
   const code = error?.code || error?.error?.code || ''
   const message = (error?.message || error?.error?.message || '').toLowerCase()
-  
+
   // Network errors
-  if (code.includes('network') || message.includes('network') || 
-      message.includes('offline') || message.includes('connection')) {
+  if (
+    code.includes('network') ||
+    message.includes('network') ||
+    message.includes('offline') ||
+    message.includes('connection')
+  ) {
     return ErrorCategory.NETWORK
   }
-  
+
   // Auth errors
   if (code.includes('auth/')) {
     return ErrorCategory.AUTH
   }
-  
+
   // Permission errors
   if (code.includes('permission-denied') || message.includes('permission')) {
     return ErrorCategory.PERMISSION
   }
-  
+
   // Not found errors
   if (code.includes('not-found') || code.includes('404')) {
     return ErrorCategory.NOT_FOUND
   }
-  
+
   // Validation errors
-  if (code.includes('invalid-argument') || message.includes('invalid') || 
-      message.includes('required')) {
+  if (
+    code.includes('invalid-argument') ||
+    message.includes('invalid') ||
+    message.includes('required')
+  ) {
     return ErrorCategory.VALIDATION
   }
-  
+
   // Server errors
-  if (code.includes('unavailable') || code.includes('internal') || 
-      code.includes('500') || code.includes('503')) {
+  if (
+    code.includes('unavailable') ||
+    code.includes('internal') ||
+    code.includes('500') ||
+    code.includes('503')
+  ) {
     return ErrorCategory.SERVER
   }
-  
+
   return ErrorCategory.UNKNOWN
 }
 
@@ -124,19 +136,19 @@ export function categorizeError(error) {
  */
 export function getErrorMessage(error, fallback = null) {
   const code = error?.code || error?.error?.code || ''
-  
+
   // Check for exact match
   if (errorMessages[code]) {
     return errorMessages[code]
   }
-  
+
   // Check for partial matches
   for (const [key, message] of Object.entries(errorMessages)) {
     if (code.includes(key) || (error?.message || '').toLowerCase().includes(key)) {
       return message
     }
   }
-  
+
   // Return custom message or fallback
   return error?.message || fallback || errorMessages['generic/unknown']
 }
@@ -153,51 +165,45 @@ export function getErrorMessage(error, fallback = null) {
  * @returns {Promise<any>} Result of the operation
  */
 export async function withRetry(operation, options = {}) {
-  const {
-    maxRetries = 3,
-    initialDelay = 1000,
-    maxDelay = 10000,
-    factor = 2,
-    onRetry
-  } = options
-  
+  const { maxRetries = 3, initialDelay = 1000, maxDelay = 10000, factor = 2, onRetry } = options
+
   let lastError
   let delay = initialDelay
-  
+
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       return await operation()
     } catch (error) {
       lastError = error
-      
+
       // Don't retry on certain errors
       const category = categorizeError(error)
-      if (category === ErrorCategory.AUTH || 
-          category === ErrorCategory.PERMISSION ||
-          category === ErrorCategory.VALIDATION) {
+      if (
+        category === ErrorCategory.AUTH ||
+        category === ErrorCategory.PERMISSION ||
+        category === ErrorCategory.VALIDATION
+      ) {
         throw error
       }
-      
+
       // Last attempt
       if (attempt === maxRetries) {
         break
       }
-      
+
       // Call retry callback
       if (onRetry) {
         onRetry({ attempt: attempt + 1, maxRetries, error })
       }
-      
+
       // Wait with exponential backoff
-      await new Promise(resolve => 
-        setTimeout(resolve, Math.min(delay, maxDelay))
-      )
-      
+      await new Promise((resolve) => setTimeout(resolve, Math.min(delay, maxDelay)))
+
       // Increase delay for next attempt
       delay *= factor
     }
   }
-  
+
   throw lastError
 }
 
@@ -220,24 +226,24 @@ export function waitForOnline(timeout = 30000) {
       resolve(true)
       return
     }
-    
+
     const checkOnline = () => {
       if (isOnline()) {
         cleanup()
         resolve(true)
       }
     }
-    
+
     const timeoutId = setTimeout(() => {
       cleanup()
       resolve(false)
     }, timeout)
-    
+
     const cleanup = () => {
       clearTimeout(timeoutId)
       window.removeEventListener('online', checkOnline)
     }
-    
+
     window.addEventListener('online', checkOnline)
   })
 }
@@ -250,7 +256,7 @@ export function waitForOnline(timeout = 30000) {
  */
 export async function executeWithOnlineCheck(operation, options = {}) {
   const { retryOffline = false, timeout = 30000 } = options
-  
+
   if (!isOnline()) {
     if (retryOffline) {
       const online = await waitForOnline(timeout)
@@ -261,7 +267,7 @@ export async function executeWithOnlineCheck(operation, options = {}) {
       throw new Error('You appear to be offline. Please check your internet connection.')
     }
   }
-  
+
   return operation()
 }
 
@@ -275,18 +281,18 @@ export async function fetchWithRetry(url, options = {}) {
   return withRetry(
     async () => {
       const response = await fetch(url, options)
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
       }
-      
+
       return response
     },
     {
       maxRetries: 3,
       onRetry: ({ attempt, maxRetries }) => {
         console.log(`[Fetch] Retry ${attempt}/${maxRetries} for ${url}`)
-      }
+      },
     }
   )
 }
@@ -303,7 +309,7 @@ export function formatError(error) {
     rawMessage: error?.message || error?.error?.message || 'Unknown error',
     category: categorizeError(error),
     timestamp: new Date().toISOString(),
-    stack: error?.stack || null
+    stack: error?.stack || null,
   }
 }
 
@@ -315,7 +321,7 @@ export function formatError(error) {
  */
 export function logError(context, error, metadata = {}) {
   const formatted = formatError(error)
-  
+
   console.group(`[Error] ${context}`)
   console.error('Category:', formatted.category)
   console.error('Code:', formatted.code)
@@ -340,5 +346,5 @@ export default {
   executeWithOnlineCheck,
   fetchWithRetry,
   formatError,
-  logError
+  logError,
 }

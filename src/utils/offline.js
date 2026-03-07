@@ -62,10 +62,10 @@ function notifyListeners() {
   const status = {
     isOnline,
     connectionQuality,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   }
 
-  listeners.forEach(callback => callback(status))
+  listeners.forEach((callback) => callback(status))
 }
 
 /**
@@ -161,7 +161,7 @@ export function addToOfflineQueue(action) {
     ...action,
     id: Date.now().toString(),
     timestamp: new Date().toISOString(),
-    retries: 0
+    retries: 0,
   }
 
   offlineQueue.push(queuedAction)
@@ -234,7 +234,7 @@ export function clearOfflineQueue() {
  * @param {string} actionId
  */
 export function removeFromQueue(actionId) {
-  offlineQueue = offlineQueue.filter(action => action.id !== actionId)
+  offlineQueue = offlineQueue.filter((action) => action.id !== actionId)
   LocalStorage.set(QUEUE_KEY, offlineQueue)
   notifyListeners()
 }
@@ -252,7 +252,7 @@ export function getOfflineStats() {
     savedEventsCount: savedEvents.length,
     queuedActionsCount: offlineQueue.length,
     lastSyncTime: LocalStorage.getItem('last-sync-time'),
-    isOfflineMode: !isOnline
+    isOfflineMode: !isOnline,
   }
 }
 
@@ -322,5 +322,5 @@ export default {
   removeFromQueue,
   getOfflineStats,
   initOfflineDetection,
-  cleanupOfflineDetection
+  cleanupOfflineDetection,
 }

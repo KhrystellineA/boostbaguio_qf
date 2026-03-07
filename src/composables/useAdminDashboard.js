@@ -57,13 +57,13 @@ export function useAdminDashboard() {
     email: '',
     name: 'Admin',
     role: null,
-    permissions: []
+    permissions: [],
   })
   const stats = ref({
     routes: 0,
     places: 0,
     events: 0,
-    admins: 0
+    admins: 0,
   })
   const notifications = ref([])
   const loading = ref(true)
@@ -72,12 +72,12 @@ export function useAdminDashboard() {
   const loadAdminData = async () => {
     try {
       const isAdmin = await checkIsAdmin()
-      
+
       if (!isAdmin) {
         $q.notify({
           type: 'negative',
           message: 'Admin access required',
-          position: 'top'
+          position: 'top',
         })
         return false
       }
@@ -86,18 +86,18 @@ export function useAdminDashboard() {
       if (!user) return false
 
       const adminDoc = await getDocs(collection(db, 'admins'))
-      const admin = adminDoc.docs.find(doc => doc.id === user.uid)
-      
+      const admin = adminDoc.docs.find((doc) => doc.id === user.uid)
+
       if (admin?.exists()) {
         const data = admin.data()
         adminData.value = {
           uid: user.uid,
           email: data.email || user.email || '',
           name: data.name || user.displayName || 'Admin',
-          role: await getAdminRole() || data.role || '',
-          permissions: await getPermissions() || data.permissions || []
+          role: (await getAdminRole()) || data.role || '',
+          permissions: (await getPermissions()) || data.permissions || [],
         }
-        
+
         // Cache in sessionStorage for quick access
         sessionStorage.setItem('adminData', JSON.stringify(adminData.value))
       }
@@ -136,11 +136,11 @@ export function useAdminDashboard() {
       await signOut(auth)
       sessionStorage.removeItem('adminData')
       sessionStorage.removeItem('adminRole')
-      
+
       $q.notify({
         type: 'info',
         message: 'Signed out successfully',
-        position: 'top'
+        position: 'top',
       })
     } catch (error) {
       console.error('[AdminDashboard] Logout error:', error)
@@ -152,7 +152,7 @@ export function useAdminDashboard() {
     $q.notify({
       type: 'info',
       message: 'Profile feature coming soon',
-      position: 'top'
+      position: 'top',
     })
   }
 
@@ -179,7 +179,7 @@ export function useAdminDashboard() {
     stats,
     notifications,
     loading,
-    
+
     // Methods
     loadAdminData,
     loadStats,

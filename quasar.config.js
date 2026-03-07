@@ -64,14 +64,19 @@ export default defineConfig((/* ctx */) => {
             // Core dependencies
             'vendor-core': ['vue', 'vue-router', 'pinia', 'quasar'],
             // Firebase - lazy loaded
-            'vendor-firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+            'vendor-firebase': [
+              'firebase/app',
+              'firebase/auth',
+              'firebase/firestore',
+              'firebase/storage',
+            ],
             // Heavy libraries - lazy loaded
             'vendor-maps': ['leaflet'],
             'vendor-charts': ['chart.js', 'vue-chartjs'],
             // Utilities
-            'vendor-utils': ['cropperjs', 'vue-cropperjs']
-          }
-        }
+            'vendor-utils': ['cropperjs', 'vue-cropperjs'],
+          },
+        },
       },
 
       env: {
@@ -80,7 +85,7 @@ export default defineConfig((/* ctx */) => {
         FIREBASE_PROJECT_ID: process.env.FIREBASE_PROJECT_ID,
         FIREBASE_STORAGE_BUCKET: process.env.FIREBASE_STORAGE_BUCKET,
         FIREBASE_MESSAGING_SENDER_ID: process.env.FIREBASE_MESSAGING_SENDER_ID,
-        FIREBASE_APP_ID: process.env.FIREBASE_APP_ID
+        FIREBASE_APP_ID: process.env.FIREBASE_APP_ID,
       },
 
       vitePlugins: [
@@ -114,8 +119,8 @@ export default defineConfig((/* ctx */) => {
           timeout: 2500,
           textColor: 'white',
           classes: 'rounded-borders',
-          actions: [{ icon: 'close', color: 'white' }]
-        }
+          actions: [{ icon: 'close', color: 'white' }],
+        },
       },
 
       // iconSet: 'material-icons', // Quasar icon set
@@ -175,142 +180,142 @@ export default defineConfig((/* ctx */) => {
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-pwa/configuring-pwa
     pwa: {
-  workboxMode: 'GenerateSW',
-  injectPwaMetaTags: true,
-  swFilename: 'sw.js',
-  manifestFilename: 'manifest.json',
-  useCredentialsForManifestTag: false,
+      workboxMode: 'GenerateSW',
+      injectPwaMetaTags: true,
+      swFilename: 'sw.js',
+      manifestFilename: 'manifest.json',
+      useCredentialsForManifestTag: false,
 
-  extendGenerateSWOptions (cfg) {
-    cfg.skipWaiting = true
-    cfg.clientsClaim = true
-    cfg.cleanupOutdatedCaches = true
-    cfg.navigateFallback = '/index.html'
-    cfg.offlineGoogleAnalytics = false
-    
-    // Enhanced caching strategies
-    cfg.runtimeCaching = [
-      // Google Fonts
-      {
-        urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-        handler: 'StaleWhileRevalidate',
-        options: {
-          cacheName: 'google-fonts-stylesheets',
-          expiration: {
-            maxEntries: 10,
-            maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-          },
-          cacheableResponse: {
-            statuses: [0, 200]
-          }
-        }
-      },
-      {
-        urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-        handler: 'CacheFirst',
-        options: {
-          cacheName: 'gstatic-fonts-cache',
-          expiration: {
-            maxEntries: 30,
-            maxAgeSeconds: 60 * 60 * 24 * 365
-          },
-          cacheableResponse: {
-            statuses: [0, 200]
-          }
-        }
-      },
-      // Images - Cache First with fallback
-      {
-        urlPattern: /\.(?:png|gif|jpg|jpeg|svg|webp|ico|avif)$/,
-        handler: 'CacheFirst',
-        options: {
-          cacheName: 'images-cache',
-          expiration: {
-            maxEntries: 100,
-            maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-          },
-          cacheableResponse: {
-            statuses: [0, 200]
-          }
-        }
-      },
-      // Firebase Storage - Network First
-      {
-        urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\/.*/i,
-        handler: 'NetworkFirst',
-        options: {
-          cacheName: 'firebase-storage-cache',
-          networkTimeoutSeconds: 10,
-          expiration: {
-            maxEntries: 50,
-            maxAgeSeconds: 60 * 60 * 24 * 7 // 7 days
-          },
-          cacheableResponse: {
-            statuses: [0, 200]
-          }
-        }
-      },
-      // Cloudinary Images
-      {
-        urlPattern: /^https:\/\/res\.cloudinary\.com\/.*/i,
-        handler: 'CacheFirst',
-        options: {
-          cacheName: 'cloudinary-images-cache',
-          expiration: {
-            maxEntries: 100,
-            maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-          },
-          cacheableResponse: {
-            statuses: [0, 200]
-          }
-        }
-      },
-      // API Calls - Network First with cache fallback
-      {
-        urlPattern: /^https:\/\/.*\.firebaseio\.com\/.*/i,
-        handler: 'NetworkFirst',
-        options: {
-          cacheName: 'firebase-data-cache',
-          networkTimeoutSeconds: 5,
-          expiration: {
-            maxEntries: 100,
-            maxAgeSeconds: 60 * 5 // 5 minutes
-          },
-          cacheableResponse: {
-            statuses: [0, 200]
-          }
-        }
-      },
-      // Static Assets - Cache First
-      {
-        urlPattern: /\.(?:js|css|woff|woff2|ttf|otf|eot)$/,
-        handler: 'CacheFirst',
-        options: {
-          cacheName: 'static-assets-cache',
-          expiration: {
-            maxEntries: 60,
-            maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
-          },
-          cacheableResponse: {
-            statuses: [0, 200]
-          }
-        }
-      }
-    ]
-  },
+      extendGenerateSWOptions(cfg) {
+        cfg.skipWaiting = true
+        cfg.clientsClaim = true
+        cfg.cleanupOutdatedCaches = true
+        cfg.navigateFallback = '/index.html'
+        cfg.offlineGoogleAnalytics = false
 
-  // Manifest configuration
-  extendManifestJson (json) {
-    json.name = 'Boost Baguio - Jeepney Navigation'
-    json.short_name = 'Boost Baguio'
-    json.description = 'Premium jeepney navigation app for Baguio City'
-    json.display = 'standalone'
-    json.orientation = 'portrait'
-    json.background_color = '#ffffff'
-    json.theme_color = '#667eea'
-    json.categories = ['navigation', 'travel', 'utilities']
-  }
-},
+        // Enhanced caching strategies
+        cfg.runtimeCaching = [
+          // Google Fonts
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'google-fonts-stylesheets',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gstatic-fonts-cache',
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 60 * 60 * 24 * 365,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // Images - Cache First with fallback
+          {
+            urlPattern: /\.(?:png|gif|jpg|jpeg|svg|webp|ico|avif)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'images-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // Firebase Storage - Network First
+          {
+            urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'firebase-storage-cache',
+              networkTimeoutSeconds: 10,
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // Cloudinary Images
+          {
+            urlPattern: /^https:\/\/res\.cloudinary\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'cloudinary-images-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // API Calls - Network First with cache fallback
+          {
+            urlPattern: /^https:\/\/.*\.firebaseio\.com\/.*/i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'firebase-data-cache',
+              networkTimeoutSeconds: 5,
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 5, // 5 minutes
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // Static Assets - Cache First
+          {
+            urlPattern: /\.(?:js|css|woff|woff2|ttf|otf|eot)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'static-assets-cache',
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 60 * 60 * 24 * 365, // 1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+        ]
+      },
+
+      // Manifest configuration
+      extendManifestJson(json) {
+        json.name = 'Boost Baguio - Jeepney Navigation'
+        json.short_name = 'Boost Baguio'
+        json.description = 'Premium jeepney navigation app for Baguio City'
+        json.display = 'standalone'
+        json.orientation = 'portrait'
+        json.background_color = '#ffffff'
+        json.theme_color = '#667eea'
+        json.categories = ['navigation', 'travel', 'utilities']
+      },
+    },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-cordova-apps/configuring-cordova
     cordova: {

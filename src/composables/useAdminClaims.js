@@ -53,9 +53,11 @@ export async function checkIsSuperAdmin() {
   if (!claims) return false
 
   // Check for super_admin role in custom claims
-  return !!claims.super_admin ||
-         (claims.role && claims.role === 'super_admin') ||
-         (claims.permissions && claims.permissions.includes('super-admin'))
+  return (
+    !!claims.super_admin ||
+    (claims.role && claims.role === 'super_admin') ||
+    (claims.permissions && claims.permissions.includes('super-admin'))
+  )
 }
 
 /**
@@ -98,6 +100,6 @@ export function useAdminClaims() {
     isAdmin,
     isSuperAdmin,
     getRole,
-    refreshClaims
+    refreshClaims,
   }
 }

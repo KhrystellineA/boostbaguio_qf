@@ -25,6 +25,7 @@ This document describes the complete deployment steps for Phase 1 (Security Fixe
 ## Files Changed
 
 ### Security Files
+
 - `firestore.rules` - Updated security rules
 - `src/router/index.js` - Custom claims integration
 - `src/boot/router-guards.js` - Simplified auth initialization
@@ -33,6 +34,7 @@ This document describes the complete deployment steps for Phase 1 (Security Fixe
 - `set-admin-custom-claims.js` - NEW: Script to set claims
 
 ### Testing Files
+
 - `vitest.config.js` - NEW: Vitest configuration
 - `src/test/setup.js` - NEW: Global test mocks
 - `src/test/utils.js` - NEW: Test utilities
@@ -75,6 +77,7 @@ firebase deploy --only firestore:rules
 1. **Set up environment variables for Admin SDK:**
 
    Create a `.env.admin` file (or add to your existing `.env`):
+
    ```env
    FIREBASE_ADMIN_CLIENT_EMAIL=your-service-account@project.iam.gserviceaccount.com
    FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
@@ -103,17 +106,17 @@ If you can't run the script, you can set custom claims manually in your Firebase
 
 ```javascript
 // In any server-side code or Cloud Function
-const admin = require('firebase-admin');
-admin.initializeApp();
+const admin = require('firebase-admin')
+admin.initializeApp()
 
-const auth = admin.auth();
+const auth = admin.auth()
 
 // For each admin user
 await auth.setCustomUserClaims('USER_UID', {
   admin: true,
-  role: 'super_admin',  // or 'routes_admin', 'places_admin', 'events_admin'
-  permissions: ['super_admin:all']  // or ['routes:write'], etc.
-});
+  role: 'super_admin', // or 'routes_admin', 'places_admin', 'events_admin'
+  permissions: ['super_admin:all'], // or ['routes:write'], etc.
+})
 ```
 
 ---
@@ -137,6 +140,7 @@ firebase deploy --only hosting
 ⚠️ **CRITICAL:** Firebase Custom Claims are included in the ID token, which is refreshed when users log in.
 
 **All admin users must:**
+
 1. Sign out
 2. Sign back in
 
@@ -149,26 +153,27 @@ This ensures their new custom claims are included in their ID token.
 ### Test Security Rules
 
 1. **Test admin access:**
+
    ```javascript
    // In browser console (logged in as admin)
-   const db = firebase.firestore();
+   const db = firebase.firestore()
    await db.collection('events').add({
      title: 'Test Event',
      startDate: new Date(),
-     endDate: new Date()
-   });
+     endDate: new Date(),
+   })
    // Should succeed ✅
    ```
 
 2. **Test non-admin access:**
    ```javascript
    // In browser console (logged in as regular user)
-   const db = firebase.firestore();
+   const db = firebase.firestore()
    await db.collection('events').add({
      title: 'Test Event',
      startDate: new Date(),
-     endDate: new Date()
-   });
+     endDate: new Date(),
+   })
    // Should fail with PERMISSION_DENIED ❌
    ```
 
@@ -215,7 +220,7 @@ If custom claims cause issues, temporarily modify `src/router/index.js`:
 
 ```javascript
 // TEMPORARY: Bypass custom claims check
-const isAdmin = true; // Remove this line after fixing
+const isAdmin = true // Remove this line after fixing
 ```
 
 ⚠️ **This is insecure - only use for emergency debugging!**
@@ -243,13 +248,17 @@ const isAdmin = true; // Remove this line after fixing
 **Cause:** Custom claims not set or user hasn't re-logged in
 
 **Solution:**
+
 1. Run `node set-admin-custom-claims.js`
 2. Have admin user sign out and sign back in
 3. Check claims in browser console:
    ```javascript
-   firebase.auth().currentUser.getIdTokenResult().then(result => {
-     console.log(result.claims);
-   });
+   firebase
+     .auth()
+     .currentUser.getIdTokenResult()
+     .then((result) => {
+       console.log(result.claims)
+     })
    ```
 
 ### Admin dashboard shows "Admin profile not found"
@@ -257,6 +266,7 @@ const isAdmin = true; // Remove this line after fixing
 **Cause:** Admin document missing from Firestore
 
 **Solution:**
+
 1. Check Firestore → `admins` collection
 2. Verify document exists with user's UID
 3. If missing, create it or run your admin creation script
@@ -266,6 +276,7 @@ const isAdmin = true; // Remove this line after fixing
 **Cause:** Browser cache
 
 **Solution:**
+
 1. Hard refresh (Ctrl+Shift+R / Cmd+Shift+R)
 2. Clear browser cache
 3. Rebuild and redeploy
@@ -285,6 +296,7 @@ After successfully deploying Phase 1:
 ## Support
 
 If you encounter issues:
+
 1. Check Firebase Console → Firestore → Rules → Usage
 2. Check Firebase Console → Authentication → Users
 3. Review browser console logs

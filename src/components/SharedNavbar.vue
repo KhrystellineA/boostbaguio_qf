@@ -11,319 +11,307 @@
       </div>
     </div>
 
-      <q-space />
+    <q-space />
 
-      <!-- Navigation Links - Bento Style (Desktop) -->
-      <div class="nav-bento">
-        <q-btn
-          flat
-          class="nav-btn"
-          :class="{ 'active': isActiveRoute('/apanam') }"
-          @click="navigateTo('/apanam')"
-        >
-          <q-icon name="route" size="18px" class="q-mr-xs" />
-          Apanam
-        </q-btn>
-        <q-separator vertical class="nav-separator" />
-        <q-btn
-          flat
-          class="nav-btn"
-          :class="{ 'active': isActiveRoute('/pagnaam') }"
-          @click="navigateTo('/pagnaam')"
-        >
-          <q-icon name="directions_bus" size="18px" class="q-mr-xs" />
-          Pagnaam
-        </q-btn>
-        <q-separator vertical class="nav-separator" />
-        <q-btn
-          flat
-          class="nav-btn"
-          :class="{ 'active': isActiveRoute('/maykan') }"
-          @click="navigateTo('/maykan')"
-        >
-          <q-icon name="place" size="18px" class="q-mr-xs" />
-          Maykan
-        </q-btn>
-        <q-separator vertical class="nav-separator" />
-        <q-btn
-          flat
-          class="nav-btn"
-          :class="{ 'active': isActiveRoute('/aramidem') }"
-          @click="navigateTo('/aramidem')"
-        >
-          <q-icon name="event" size="18px" class="q-mr-xs" />
-          Aramidem
-        </q-btn>
-        <q-separator vertical class="nav-separator" />
-        <q-btn
-          flat
-          class="nav-btn"
-          :class="{ 'active': isActiveRoute('/ayanmo') }"
-          @click="navigateTo('/ayanmo')"
-        >
-          <q-icon name="my_location" size="18px" class="q-mr-xs" />
-          Ayan Mo
-        </q-btn>
-      </div>
+    <!-- Navigation Links - Bento Style (Desktop) -->
+    <div class="nav-bento">
+      <q-btn
+        flat
+        class="nav-btn"
+        :class="{ active: isActiveRoute('/apanam') }"
+        @click="navigateTo('/apanam')"
+      >
+        <q-icon name="route" size="18px" class="q-mr-xs" />
+        Apanam
+      </q-btn>
+      <q-separator vertical class="nav-separator" />
+      <q-btn
+        flat
+        class="nav-btn"
+        :class="{ active: isActiveRoute('/pagnaam') }"
+        @click="navigateTo('/pagnaam')"
+      >
+        <q-icon name="directions_bus" size="18px" class="q-mr-xs" />
+        Pagnaam
+      </q-btn>
+      <q-separator vertical class="nav-separator" />
+      <q-btn
+        flat
+        class="nav-btn"
+        :class="{ active: isActiveRoute('/maykan') }"
+        @click="navigateTo('/maykan')"
+      >
+        <q-icon name="place" size="18px" class="q-mr-xs" />
+        Maykan
+      </q-btn>
+      <q-separator vertical class="nav-separator" />
+      <q-btn
+        flat
+        class="nav-btn"
+        :class="{ active: isActiveRoute('/aramidem') }"
+        @click="navigateTo('/aramidem')"
+      >
+        <q-icon name="event" size="18px" class="q-mr-xs" />
+        Aramidem
+      </q-btn>
+      <q-separator vertical class="nav-separator" />
+      <q-btn
+        flat
+        class="nav-btn"
+        :class="{ active: isActiveRoute('/ayanmo') }"
+        @click="navigateTo('/ayanmo')"
+      >
+        <q-icon name="my_location" size="18px" class="q-mr-xs" />
+        Ayan Mo
+      </q-btn>
+    </div>
 
-      <q-space />
+    <q-space />
 
-      <!-- Auth Buttons -->
-      <div class="auth-buttons desktop-only">
-        <template v-if="userStore.isAuthenticated">
-          <q-btn-dropdown
-            flat
-            class="profile-dropdown"
-            no-caps
-            :label="userInitials"
+    <!-- Auth Buttons -->
+    <div class="auth-buttons desktop-only">
+      <template v-if="userStore.isAuthenticated">
+        <q-btn-dropdown flat class="profile-dropdown" no-caps :label="userInitials">
+          <template #label>
+            <div class="profile-label">
+              <div class="avatar-bento">{{ userInitials }}</div>
+              <span class="user-name">{{ userStore.userName }}</span>
+              <q-icon name="keyboard_arrow_down" size="16px" />
+            </div>
+          </template>
+          <q-list class="profile-menu">
+            <q-item clickable v-close-popup @click="navigateTo('/account')" class="menu-item">
+              <q-item-section avatar class="menu-icon-section">
+                <div class="icon-bento">
+                  <q-icon name="account_circle" size="18px" />
+                </div>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="menu-label">My Profile</q-item-label>
+                <q-item-label caption class="menu-caption">Manage your account</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-separator />
+            <q-item clickable v-close-popup @click="navigateTo('/saved-routes')" class="menu-item">
+              <q-item-section avatar class="menu-icon-section">
+                <div class="icon-bento saved">
+                  <q-icon name="bookmark" size="18px" />
+                </div>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="menu-label">Saved Routes</q-item-label>
+                <q-item-label caption class="menu-caption">Your bookmarked routes</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-separator />
+            <q-item clickable v-close-popup @click="handleLogout" class="menu-item logout">
+              <q-item-section avatar class="menu-icon-section">
+                <div class="icon-bento logout">
+                  <q-icon name="logout" size="18px" />
+                </div>
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="menu-label">Logout</q-item-label>
+                <q-item-label caption class="menu-caption">Sign out of your account</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
+      </template>
+      <template v-else>
+        <div class="auth-bento-group">
+          <q-btn flat label="Login" class="auth-btn login-btn" @click="navigateTo('/login')" />
+          <q-btn
+            color="primary"
+            unelevated
+            label="Sign Up"
+            class="auth-btn signup-btn"
+            @click="navigateTo('/login')"
+          />
+        </div>
+      </template>
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <q-btn flat dense round icon="menu" class="mobile-menu-btn" @click="toggleMobileMenu" />
+  </div>
+
+  <!-- Mobile Drawer Menu -->
+  <q-dialog v-model="showMobileMenu" persistent>
+    <q-card class="mobile-menu-card">
+      <q-card-section class="mobile-menu-header">
+        <div class="logo-section">
+          <div class="logo-bento">
+            <img src="/logo.svg" alt="Logo" />
+          </div>
+          <div class="brand-text">
+            <span class="brand-name">Baguio <span class="text-accent">Boost</span></span>
+            <span class="brand-tagline">Navigate with Joy</span>
+          </div>
+        </div>
+        <q-btn flat round dense icon="close" @click="toggleMobileMenu" />
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-section class="mobile-nav-section">
+        <q-list>
+          <q-item
+            clickable
+            v-close-popup
+            @click="navigateTo('/apanam')"
+            class="mobile-nav-item"
+            :class="{ active: isActiveRoute('/apanam') }"
           >
-            <template #label>
-              <div class="profile-label">
-                <div class="avatar-bento">{{ userInitials }}</div>
-                <span class="user-name">{{ userStore.userName }}</span>
-                <q-icon name="keyboard_arrow_down" size="16px" />
+            <q-item-section avatar>
+              <div class="mobile-icon-bento">
+                <q-icon name="route" size="20px" />
               </div>
-            </template>
-            <q-list class="profile-menu">
-              <q-item clickable v-close-popup @click="navigateTo('/account')" class="menu-item">
-                <q-item-section avatar class="menu-icon-section">
-                  <div class="icon-bento">
-                    <q-icon name="account_circle" size="18px" />
-                  </div>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label class="menu-label">My Profile</q-item-label>
-                  <q-item-label caption class="menu-caption">Manage your account</q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-separator />
-              <q-item clickable v-close-popup @click="navigateTo('/saved-routes')" class="menu-item">
-                <q-item-section avatar class="menu-icon-section">
-                  <div class="icon-bento saved">
-                    <q-icon name="bookmark" size="18px" />
-                  </div>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label class="menu-label">Saved Routes</q-item-label>
-                  <q-item-label caption class="menu-caption">Your bookmarked routes</q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-separator />
-              <q-item clickable v-close-popup @click="handleLogout" class="menu-item logout">
-                <q-item-section avatar class="menu-icon-section">
-                  <div class="icon-bento logout">
-                    <q-icon name="logout" size="18px" />
-                  </div>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label class="menu-label">Logout</q-item-label>
-                  <q-item-label caption class="menu-caption">Sign out of your account</q-item-label>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-btn-dropdown>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="mobile-nav-label">Apanam</q-item-label>
+              <q-item-label caption>P2P Navigation</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item
+            clickable
+            v-close-popup
+            @click="navigateTo('/pagnaam')"
+            class="mobile-nav-item"
+            :class="{ active: isActiveRoute('/pagnaam') }"
+          >
+            <q-item-section avatar>
+              <div class="mobile-icon-bento">
+                <q-icon name="directions_bus" size="20px" />
+              </div>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="mobile-nav-label">Pagnaam</q-item-label>
+              <q-item-label caption>City Jeeps</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item
+            clickable
+            v-close-popup
+            @click="navigateTo('/maykan')"
+            class="mobile-nav-item"
+            :class="{ active: isActiveRoute('/maykan') }"
+          >
+            <q-item-section avatar>
+              <div class="mobile-icon-bento">
+                <q-icon name="place" size="20px" />
+              </div>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="mobile-nav-label">Maykan</q-item-label>
+              <q-item-label caption>Places</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item
+            clickable
+            v-close-popup
+            @click="navigateTo('/aramidem')"
+            class="mobile-nav-item"
+            :class="{ active: isActiveRoute('/aramidem') }"
+          >
+            <q-item-section avatar>
+              <div class="mobile-icon-bento">
+                <q-icon name="event" size="20px" />
+              </div>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="mobile-nav-label">Aramidem</q-item-label>
+              <q-item-label caption>Events</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item
+            clickable
+            v-close-popup
+            @click="navigateTo('/ayanmo')"
+            class="mobile-nav-item"
+            :class="{ active: isActiveRoute('/ayanmo') }"
+          >
+            <q-item-section avatar>
+              <div class="mobile-icon-bento">
+                <q-icon name="my_location" size="20px" />
+              </div>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="mobile-nav-label">Ayan Mo</q-item-label>
+              <q-item-label caption>Near Me</q-item-label>
+            </q-item-section>
+          </q-item>
+        </q-list>
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-section class="mobile-auth-section">
+        <template v-if="userStore.isAuthenticated">
+          <q-item clickable v-close-popup @click="$router.push('/account')" class="mobile-nav-item">
+            <q-item-section avatar>
+              <div class="mobile-icon-bento">
+                <q-icon name="account_circle" size="20px" />
+              </div>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="mobile-nav-label">My Profile</q-item-label>
+              <q-item-label caption>{{ userStore.userEmail }}</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item
+            clickable
+            v-close-popup
+            @click="$router.push('/saved-routes')"
+            class="mobile-nav-item"
+          >
+            <q-item-section avatar>
+              <div class="mobile-icon-bento saved">
+                <q-icon name="bookmark" size="20px" />
+              </div>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="mobile-nav-label">Saved Routes</q-item-label>
+              <q-item-label caption>Your bookmarks</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item clickable v-close-popup @click="handleLogout" class="mobile-nav-item logout">
+            <q-item-section avatar>
+              <div class="mobile-icon-bento logout">
+                <q-icon name="logout" size="20px" />
+              </div>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="mobile-nav-label">Logout</q-item-label>
+            </q-item-section>
+          </q-item>
         </template>
         <template v-else>
-          <div class="auth-bento-group">
+          <div class="mobile-auth-buttons">
             <q-btn
               flat
               label="Login"
-              class="auth-btn login-btn"
-              @click="navigateTo('/login')"
+              to="/login"
+              class="mobile-auth-btn"
+              @click="toggleMobileMenu"
             />
             <q-btn
               color="primary"
               unelevated
               label="Sign Up"
-              class="auth-btn signup-btn"
-              @click="navigateTo('/login')"
+              to="/login"
+              class="mobile-auth-btn"
+              @click="toggleMobileMenu"
             />
           </div>
         </template>
-      </div>
-
-      <!-- Mobile Menu Button -->
-      <q-btn
-        flat
-        dense
-        round
-        icon="menu"
-        class="mobile-menu-btn"
-        @click="toggleMobileMenu"
-      />
-    </div>
-
-    <!-- Mobile Drawer Menu -->
-    <q-dialog v-model="showMobileMenu" persistent>
-      <q-card class="mobile-menu-card">
-        <q-card-section class="mobile-menu-header">
-          <div class="logo-section">
-            <div class="logo-bento">
-              <img src="/logo.svg" alt="Logo" />
-            </div>
-            <div class="brand-text">
-              <span class="brand-name">Baguio <span class="text-accent">Boost</span></span>
-              <span class="brand-tagline">Navigate with Joy</span>
-            </div>
-          </div>
-          <q-btn flat round dense icon="close" @click="toggleMobileMenu" />
-        </q-card-section>
-
-        <q-separator />
-
-        <q-card-section class="mobile-nav-section">
-          <q-list>
-            <q-item
-              clickable
-              v-close-popup
-              @click="navigateTo('/apanam')"
-              class="mobile-nav-item"
-              :class="{ 'active': isActiveRoute('/apanam') }"
-            >
-              <q-item-section avatar>
-                <div class="mobile-icon-bento">
-                  <q-icon name="route" size="20px" />
-                </div>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="mobile-nav-label">Apanam</q-item-label>
-                <q-item-label caption>P2P Navigation</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item
-              clickable
-              v-close-popup
-              @click="navigateTo('/pagnaam')"
-              class="mobile-nav-item"
-              :class="{ 'active': isActiveRoute('/pagnaam') }"
-            >
-              <q-item-section avatar>
-                <div class="mobile-icon-bento">
-                  <q-icon name="directions_bus" size="20px" />
-                </div>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="mobile-nav-label">Pagnaam</q-item-label>
-                <q-item-label caption>City Jeeps</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item
-              clickable
-              v-close-popup
-              @click="navigateTo('/maykan')"
-              class="mobile-nav-item"
-              :class="{ 'active': isActiveRoute('/maykan') }"
-            >
-              <q-item-section avatar>
-                <div class="mobile-icon-bento">
-                  <q-icon name="place" size="20px" />
-                </div>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="mobile-nav-label">Maykan</q-item-label>
-                <q-item-label caption>Places</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item
-              clickable
-              v-close-popup
-              @click="navigateTo('/aramidem')"
-              class="mobile-nav-item"
-              :class="{ 'active': isActiveRoute('/aramidem') }"
-            >
-              <q-item-section avatar>
-                <div class="mobile-icon-bento">
-                  <q-icon name="event" size="20px" />
-                </div>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="mobile-nav-label">Aramidem</q-item-label>
-                <q-item-label caption>Events</q-item-label>
-              </q-item-section>
-            </q-item>
-
-            <q-item
-              clickable
-              v-close-popup
-              @click="navigateTo('/ayanmo')"
-              class="mobile-nav-item"
-              :class="{ 'active': isActiveRoute('/ayanmo') }"
-            >
-              <q-item-section avatar>
-                <div class="mobile-icon-bento">
-                  <q-icon name="my_location" size="20px" />
-                </div>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="mobile-nav-label">Ayan Mo</q-item-label>
-                <q-item-label caption>Near Me</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-card-section>
-
-        <q-separator />
-
-        <q-card-section class="mobile-auth-section">
-          <template v-if="userStore.isAuthenticated">
-            <q-item clickable v-close-popup @click="$router.push('/account')" class="mobile-nav-item">
-              <q-item-section avatar>
-                <div class="mobile-icon-bento">
-                  <q-icon name="account_circle" size="20px" />
-                </div>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="mobile-nav-label">My Profile</q-item-label>
-                <q-item-label caption>{{ userStore.userEmail }}</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="$router.push('/saved-routes')" class="mobile-nav-item">
-              <q-item-section avatar>
-                <div class="mobile-icon-bento saved">
-                  <q-icon name="bookmark" size="20px" />
-                </div>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="mobile-nav-label">Saved Routes</q-item-label>
-                <q-item-label caption>Your bookmarks</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="handleLogout" class="mobile-nav-item logout">
-              <q-item-section avatar>
-                <div class="mobile-icon-bento logout">
-                  <q-icon name="logout" size="20px" />
-                </div>
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="mobile-nav-label">Logout</q-item-label>
-              </q-item-section>
-            </q-item>
-          </template>
-          <template v-else>
-            <div class="mobile-auth-buttons">
-              <q-btn
-                flat
-                label="Login"
-                to="/login"
-                class="mobile-auth-btn"
-                @click="toggleMobileMenu"
-              />
-              <q-btn
-                color="primary"
-                unelevated
-                label="Sign Up"
-                to="/login"
-                class="mobile-auth-btn"
-                @click="toggleMobileMenu"
-              />
-            </div>
-          </template>
-        </q-card-section>
-      </q-card>
-    </q-dialog>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup>
@@ -380,16 +368,16 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 // Color Variables
-$primary: #2E5D3E;
-$primary-light: #4A7D5D;
-$accent: #FFD60A;
-$bg-light: #F8F9FA;
-$text-dark: #2D3436;
-$text-muted: #636E72;
-$white: #FFFFFF;
-$dark-green: #1B4332;
-$light-green: #9EC98F;
-$brown: #6B5344;
+$primary: #2e5d3e;
+$primary-light: #4a7d5d;
+$accent: #ffd60a;
+$bg-light: #f8f9fa;
+$text-dark: #2d3436;
+$text-muted: #636e72;
+$white: #ffffff;
+$dark-green: #1b4332;
+$light-green: #9ec98f;
+$brown: #6b5344;
 
 .main-toolbar {
   background: $white !important;
@@ -528,8 +516,13 @@ $brown: #6B5344;
 }
 
 @keyframes bounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
 }
 
 // Auth Buttons
@@ -638,7 +631,7 @@ $brown: #6B5344;
       background: rgba(211, 47, 47, 0.08);
 
       .menu-label {
-        color: #D32F2F;
+        color: #d32f2f;
       }
     }
 
@@ -660,12 +653,12 @@ $brown: #6B5344;
 
       &.saved {
         background: rgba(255, 193, 7, 0.15);
-        color: #FFC107;
+        color: #ffc107;
       }
 
       &.logout {
         background: rgba(211, 47, 47, 0.1);
-        color: #D32F2F;
+        color: #d32f2f;
       }
     }
 
@@ -804,14 +797,14 @@ $brown: #6B5344;
       &.logout {
         .mobile-icon-bento {
           background: rgba(211, 47, 47, 0.1);
-          color: #D32F2F;
+          color: #d32f2f;
         }
 
         &:hover {
           background: rgba(211, 47, 47, 0.08);
 
           .mobile-nav-label {
-            color: #D32F2F;
+            color: #d32f2f;
           }
         }
       }
@@ -829,12 +822,12 @@ $brown: #6B5344;
 
         &.saved {
           background: rgba(255, 193, 7, 0.15);
-          color: #FFC107;
+          color: #ffc107;
         }
 
         &.logout {
           background: rgba(211, 47, 47, 0.1);
-          color: #D32F2F;
+          color: #d32f2f;
         }
       }
 

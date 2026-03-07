@@ -16,12 +16,7 @@
         <!-- Step 1 -->
         <div class="step-card">
           <div class="step-image">
-            <q-img
-              v-if="stepImages[0]"
-              :src="stepImages[0]"
-              class="step-img"
-              fit="cover"
-            >
+            <q-img v-if="stepImages[0]" :src="stepImages[0]" class="step-img" fit="cover">
               <template v-slot:loading>
                 <div class="absolute-full flex flex-center">
                   <q-spinner color="primary" size="30px" />
@@ -37,12 +32,7 @@
         <!-- Step 2 -->
         <div class="step-card">
           <div class="step-image">
-            <q-img
-              v-if="stepImages[1]"
-              :src="stepImages[1]"
-              class="step-img"
-              fit="cover"
-            >
+            <q-img v-if="stepImages[1]" :src="stepImages[1]" class="step-img" fit="cover">
               <template v-slot:loading>
                 <div class="absolute-full flex flex-center">
                   <q-spinner color="primary" size="30px" />
@@ -58,12 +48,7 @@
         <!-- Step 3 -->
         <div class="step-card">
           <div class="step-image">
-            <q-img
-              v-if="stepImages[2]"
-              :src="stepImages[2]"
-              class="step-img"
-              fit="cover"
-            >
+            <q-img v-if="stepImages[2]" :src="stepImages[2]" class="step-img" fit="cover">
               <template v-slot:loading>
                 <div class="absolute-full flex flex-center">
                   <q-spinner color="primary" size="30px" />
@@ -79,7 +64,7 @@
 
       <!-- Action Buttons -->
       <div class="guide-actions">
-        <q-btn label="Start" unelevated rounded class="start-btn" size="md" to="/pagnaam"/>
+        <q-btn label="Start" unelevated rounded class="start-btn" size="md" to="/pagnaam" />
       </div>
     </div>
   </section>
@@ -92,7 +77,7 @@ import { doc, getDoc } from 'firebase/firestore'
 
 export default {
   name: 'GuideSection',
-  
+
   setup() {
     const stepImages = ref([])
 
@@ -101,15 +86,14 @@ export default {
         console.log('[GuideSection] Loading images from Firebase...')
         const docRef = doc(db, 'pagePhotos', 'home-guide')
         const docSnap = await getDoc(docRef)
-        
+
         if (docSnap.exists()) {
           const data = docSnap.data()
-          
+
           if (data.images && Array.isArray(data.images)) {
-            stepImages.value = data.images.map(img => img.imageUrl)
+            stepImages.value = data.images.map((img) => img.imageUrl)
             console.log('[GuideSection] Loaded', data.images.length, 'step images')
-          } 
-          else if (data.imageUrl) {
+          } else if (data.imageUrl) {
             stepImages.value = [data.imageUrl, data.imageUrl, data.imageUrl]
             console.log('[GuideSection] Using single image for all steps')
           }

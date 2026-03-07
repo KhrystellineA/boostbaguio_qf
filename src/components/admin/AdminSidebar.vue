@@ -153,67 +153,81 @@ export default {
   props: {
     modelValue: {
       type: Boolean,
-      default: true
+      default: true,
     },
     activeMenu: {
       type: String,
-      default: 'dashboard'
+      default: 'dashboard',
     },
     adminData: {
       type: Object,
       default: () => ({
         role: null,
-        permissions: []
-      })
-    }
+        permissions: [],
+      }),
+    },
   },
 
   emits: ['update:modelValue', 'update:activeMenu'],
 
   computed: {
     canManageRoutes() {
-      return this.adminData.role === 'super_admin' ||
-             this.adminData.role === 'routes_admin' ||
-             this.adminData.permissions?.includes('routes:write') ||
-             this.adminData.permissions?.includes('super_admin:all') ||
-             false
+      return (
+        this.adminData.role === 'super_admin' ||
+        this.adminData.role === 'routes_admin' ||
+        this.adminData.permissions?.includes('routes:write') ||
+        this.adminData.permissions?.includes('super_admin:all') ||
+        false
+      )
     },
 
     canManagePlaces() {
-      return this.adminData.role === 'super_admin' ||
-             this.adminData.role === 'places_admin' ||
-             this.adminData.permissions?.includes('places:write') ||
-             this.adminData.permissions?.includes('super_admin:all') ||
-             false
+      return (
+        this.adminData.role === 'super_admin' ||
+        this.adminData.role === 'places_admin' ||
+        this.adminData.permissions?.includes('places:write') ||
+        this.adminData.permissions?.includes('super_admin:all') ||
+        false
+      )
     },
 
     canManageEvents() {
-      return this.adminData.role === 'super_admin' ||
-             this.adminData.role === 'events_admin' ||
-             this.adminData.permissions?.includes('events:write') ||
-             this.adminData.permissions?.includes('super_admin:all') ||
-             false
+      return (
+        this.adminData.role === 'super_admin' ||
+        this.adminData.role === 'events_admin' ||
+        this.adminData.permissions?.includes('events:write') ||
+        this.adminData.permissions?.includes('super_admin:all') ||
+        false
+      )
     },
 
     canManagePhotos() {
-      return this.adminData.role === 'super_admin' ||
-             this.adminData.permissions?.includes('photos:write') ||
-             this.adminData.permissions?.includes('super_admin:all') ||
-             false
+      return (
+        this.adminData.role === 'super_admin' ||
+        this.adminData.permissions?.includes('photos:write') ||
+        this.adminData.permissions?.includes('super_admin:all') ||
+        false
+      )
     },
 
     canManageAdmins() {
-      return this.adminData.role === 'super_admin' ||
-             this.adminData.permissions?.includes('super_admin:all') ||
-             false
+      return (
+        this.adminData.role === 'super_admin' ||
+        this.adminData.permissions?.includes('super_admin:all') ||
+        false
+      )
     },
 
     canViewAnalytics() {
-      return this.adminData.permissions?.includes('analytics:read') ||
-             this.adminData.permissions?.includes('super_admin:all') ||
-             ['super_admin', 'routes_admin', 'places_admin', 'events_admin'].includes(this.adminData.role) ||
-             false
-    }
-  }
+      return (
+        this.adminData.permissions?.includes('analytics:read') ||
+        this.adminData.permissions?.includes('super_admin:all') ||
+        ['super_admin', 'routes_admin', 'places_admin', 'events_admin'].includes(
+          this.adminData.role
+        ) ||
+        false
+      )
+    },
+  },
 }
 </script>

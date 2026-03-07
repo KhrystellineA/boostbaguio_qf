@@ -50,9 +50,7 @@ export function focusElement(target, options = {}) {
   const { delay = 0, preventScroll = false } = options
 
   setTimeout(() => {
-    const element = typeof target === 'string' 
-      ? document.querySelector(target) 
-      : target
+    const element = typeof target === 'string' ? document.querySelector(target) : target
 
     if (element) {
       // Make element focusable if not already
@@ -63,10 +61,11 @@ export function focusElement(target, options = {}) {
       element.focus({ preventScroll })
 
       // Announce to screen readers if element has aria-label or text content
-      const label = element.getAttribute('aria-label') || 
-                    element.getAttribute('aria-labelledby') ||
-                    element.textContent?.trim()
-      
+      const label =
+        element.getAttribute('aria-label') ||
+        element.getAttribute('aria-labelledby') ||
+        element.textContent?.trim()
+
       if (label) {
         announceToScreenReader(`${label} focused`)
       }
@@ -88,7 +87,7 @@ export function trapFocus(container) {
     'a[href]',
     '[tabindex]:not([tabindex="-1"])',
     'details',
-    'summary'
+    'summary',
   ].join(', ')
 
   const focusableElements = container.querySelectorAll(focusableSelectors)
@@ -150,7 +149,7 @@ export function getFocusableElements(container) {
     'a[href]',
     '[tabindex]:not([tabindex="-1"])',
     'details',
-    'summary'
+    'summary',
   ].join(', ')
 
   return Array.from(container.querySelectorAll(focusableSelectors))
@@ -230,7 +229,7 @@ export function getAccessibleButtonProps(options = {}) {
     'aria-busy': loading,
     'aria-pressed': pressed,
     role: 'button',
-    tabindex: (disabled || loading) ? '-1' : '0'
+    tabindex: disabled || loading ? '-1' : '0',
   }
 }
 
@@ -247,7 +246,7 @@ export function getAccessibleInputProps(options = {}) {
     'aria-invalid': !!error,
     'aria-required': required,
     'aria-describedby': describedBy,
-    role: 'textbox'
+    role: 'textbox',
   }
 }
 
@@ -258,7 +257,7 @@ export function getAccessibleInputProps(options = {}) {
 export function announceFormErrors(errors) {
   if (!errors || errors.length === 0) return
 
-  const messages = errors.map(e => `${e.field}: ${e.message}`)
+  const messages = errors.map((e) => `${e.field}: ${e.message}`)
   announceToScreenReader(
     `Form has ${errors.length} error${errors.length > 1 ? 's' : ''}. ${messages.join('. ')}`,
     'assertive'
@@ -273,9 +272,7 @@ export function announceFormErrors(errors) {
  */
 export function announceActionResult(action, success, details = '') {
   const status = success ? 'successfully' : 'failed to'
-  const message = details 
-    ? `${action} ${status}. ${details}`
-    : `${action} ${status}`
+  const message = details ? `${action} ${status}. ${details}` : `${action} ${status}`
 
   announceToScreenReader(message, success ? 'polite' : 'assertive')
 }
@@ -320,7 +317,7 @@ export function initSkipLink() {
     e.preventDefault()
     const targetId = skipLink.getAttribute('href').replace('#', '')
     const target = document.getElementById(targetId)
-    
+
     if (target) {
       target.setAttribute('tabindex', '-1')
       target.focus()
@@ -343,5 +340,5 @@ export default {
   prefersReducedMotion,
   prefersHighContrast,
   createSkipLink,
-  initSkipLink
+  initSkipLink,
 }

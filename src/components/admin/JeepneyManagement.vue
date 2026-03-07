@@ -52,13 +52,7 @@
 
     <q-card>
       <q-card-section>
-        <q-input
-          v-model="search"
-          outlined
-          placeholder="Search jeepneys..."
-          dense
-          class="q-mb-md"
-        >
+        <q-input v-model="search" outlined placeholder="Search jeepneys..." dense class="q-mb-md">
           <template #prepend>
             <q-icon name="search" />
           </template>
@@ -115,7 +109,9 @@
     <q-dialog v-model="showAddDialog" @hide="onDialogHide">
       <q-card style="min-width: 700px; max-width: 800px">
         <q-card-section>
-          <div class="text-h6 text-pine-green">{{ editingJeepney ? 'Edit Jeepney' : 'Add New Jeepney' }}</div>
+          <div class="text-h6 text-pine-green">
+            {{ editingJeepney ? 'Edit Jeepney' : 'Add New Jeepney' }}
+          </div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
@@ -148,9 +144,7 @@
               <template #prepend>
                 <q-icon name="image" />
               </template>
-              <template #hint>
-                Max 5MB (JPG, PNG, WebP)
-              </template>
+              <template #hint> Max 5MB (JPG, PNG, WebP) </template>
             </q-file>
           </div>
 
@@ -162,7 +156,7 @@
             outlined
             label="Jeepney Name *"
             class="q-mb-md"
-            :rules="[val => !!val || 'Jeepney name is required']"
+            :rules="[(val) => !!val || 'Jeepney name is required']"
             hint="e.g., J-001, Market-SM Jeep"
           />
 
@@ -172,16 +166,10 @@
             outlined
             label="Terminal Location *"
             class="q-mb-md"
-            :rules="[val => !!val || 'Terminal location is required']"
+            :rules="[(val) => !!val || 'Terminal location is required']"
           >
             <template #append>
-              <q-btn
-                flat
-                dense
-                icon="my_location"
-                color="primary"
-                @click="useCurrentLocation"
-              >
+              <q-btn flat dense icon="my_location" color="primary" @click="useCurrentLocation">
                 <q-tooltip>Use Current Location</q-tooltip>
               </q-btn>
             </template>
@@ -221,8 +209,8 @@
                 type="number"
                 label="Regular Fare *"
                 :rules="[
-                  val => val !== undefined && val !== null || 'Required',
-                  val => val >= 0 || 'Must be 0 or higher'
+                  (val) => (val !== undefined && val !== null) || 'Required',
+                  (val) => val >= 0 || 'Must be 0 or higher',
                 ]"
               />
             </div>
@@ -233,8 +221,8 @@
                 type="number"
                 label="Student Fare *"
                 :rules="[
-                  val => val !== undefined && val !== null || 'Required',
-                  val => val >= 0 || 'Must be 0 or higher'
+                  (val) => (val !== undefined && val !== null) || 'Required',
+                  (val) => val >= 0 || 'Must be 0 or higher',
                 ]"
               />
             </div>
@@ -245,8 +233,8 @@
                 type="number"
                 label="Senior Citizen Fare *"
                 :rules="[
-                  val => val !== undefined && val !== null || 'Required',
-                  val => val >= 0 || 'Must be 0 or higher'
+                  (val) => (val !== undefined && val !== null) || 'Required',
+                  (val) => val >= 0 || 'Must be 0 or higher',
                 ]"
               />
             </div>
@@ -257,8 +245,8 @@
                 type="number"
                 label="PWD Fare *"
                 :rules="[
-                  val => val !== undefined && val !== null || 'Required',
-                  val => val >= 0 || 'Must be 0 or higher'
+                  (val) => (val !== undefined && val !== null) || 'Required',
+                  (val) => val >= 0 || 'Must be 0 or higher',
                 ]"
               />
             </div>
@@ -313,7 +301,12 @@
 
           <!-- 7. Route Taken on Map -->
           <div class="text-subtitle2 q-mb-sm">Route Taken (Pin on Map)</div>
-          <div class="map-container q-mb-md" ref="mapContainer" id="jeepney-map" style="height: 300px;"></div>
+          <div
+            class="map-container q-mb-md"
+            ref="mapContainer"
+            id="jeepney-map"
+            style="height: 300px"
+          ></div>
           <div v-if="form.routePoints && form.routePoints.length > 0" class="q-mb-md">
             <q-chip
               v-for="(point, index) in form.routePoints"
@@ -326,7 +319,9 @@
             >
               Point {{ index + 1 }}: {{ point.lat.toFixed(4) }}, {{ point.lng.toFixed(4) }}
             </q-chip>
-            <div class="text-caption text-grey-7">Click on map to add route points. Click chip to remove.</div>
+            <div class="text-caption text-grey-7">
+              Click on map to add route points. Click chip to remove.
+            </div>
           </div>
 
           <!-- 8. End Point -->
@@ -335,7 +330,7 @@
             outlined
             label="End Point *"
             class="q-mb-md"
-            :rules="[val => !!val || 'End point is required']"
+            :rules="[(val) => !!val || 'End point is required']"
             hint="Final destination of this route"
           />
         </q-card-section>
@@ -369,7 +364,7 @@
             <div class="text-body2 q-mb-md">
               Upload a CSV file containing jeepney data. Make sure to follow the template format.
             </div>
-            
+
             <q-file
               v-model="csvFile"
               outlined
@@ -381,30 +376,23 @@
               <template #prepend>
                 <q-icon name="attach_file" />
               </template>
-              <template #hint>
-                Only .csv files are accepted
-              </template>
+              <template #hint> Only .csv files are accepted </template>
             </q-file>
 
-            <q-banner 
-              v-if="csvError" 
-              class="bg-negative text-white q-mb-md"
-              rounded
-            >
+            <q-banner v-if="csvError" class="bg-negative text-white q-mb-md" rounded>
               <q-icon name="error" size="md" />
               {{ csvError }}
             </q-banner>
 
-            <q-banner 
-              class="bg-info text-white q-mb-md"
-              rounded
-            >
+            <q-banner class="bg-info text-white q-mb-md" rounded>
               <q-icon name="info" size="md" />
               <div class="text-body2">
-                <strong>Required CSV columns:</strong><br>
-                jeep_name, terminal_location, terminal_lat, terminal_lng, fare_regular, fare_student, fare_senior, fare_pwd, end_point<br><br>
-                <strong>Optional columns:</strong><br>
-                operating_hours_open, operating_hours_close, tourist_spots_serviced (comma-separated list)
+                <strong>Required CSV columns:</strong><br />
+                jeep_name, terminal_location, terminal_lat, terminal_lng, fare_regular,
+                fare_student, fare_senior, fare_pwd, end_point<br /><br />
+                <strong>Optional columns:</strong><br />
+                operating_hours_open, operating_hours_close, tourist_spots_serviced (comma-separated
+                list)
               </div>
             </q-banner>
           </div>
@@ -441,16 +429,15 @@
             <div v-if="invalidCount > 0" class="q-mt-md">
               <q-banner class="bg-warning text-white" rounded>
                 <q-icon name="warning" size="md" />
-                <strong>{{ invalidCount }} invalid row(s) detected.</strong> These will be skipped during import.
+                <strong>{{ invalidCount }} invalid row(s) detected.</strong> These will be skipped
+                during import.
               </q-banner>
             </div>
           </div>
 
           <!-- Step 3: Progress -->
           <div v-if="importStep === 3">
-            <div class="text-body2 q-mb-md text-center">
-              Importing jeepneys... Please wait.
-            </div>
+            <div class="text-body2 q-mb-md text-center">Importing jeepneys... Please wait.</div>
 
             <q-linear-progress :value="importProgress" color="primary" class="q-mb-md" />
 
@@ -463,7 +450,10 @@
             <q-list class="q-mt-md" style="max-height: 300px; overflow-y: auto">
               <q-item v-for="(log, index) in importLogs" :key="index">
                 <q-item-section avatar>
-                  <q-icon :name="log.success ? 'check_circle' : 'error'" :color="log.success ? 'positive' : 'negative'" />
+                  <q-icon
+                    :name="log.success ? 'check_circle' : 'error'"
+                    :color="log.success ? 'positive' : 'negative'"
+                  />
                 </q-item-section>
                 <q-item-section>
                   <q-item-label>{{ log.message }}</q-item-label>
@@ -474,41 +464,35 @@
         </q-card-section>
 
         <q-card-actions align="right" class="q-pa-md">
-          <q-btn 
-            v-if="importStep === 1" 
-            flat 
-            label="Cancel" 
-            color="grey-7" 
-            @click="closeCsvImportDialog" 
+          <q-btn
+            v-if="importStep === 1"
+            flat
+            label="Cancel"
+            color="grey-7"
+            @click="closeCsvImportDialog"
           />
-          <q-btn 
-            v-if="importStep === 1" 
-            unelevated 
-            label="Preview Import" 
-            color="primary" 
+          <q-btn
+            v-if="importStep === 1"
+            unelevated
+            label="Preview Import"
+            color="primary"
             @click="parseCsvFile"
             :disable="!csvFile"
           />
-          <q-btn 
-            v-if="importStep === 2" 
-            flat 
-            label="Back" 
-            color="grey-7" 
-            @click="importStep = 1" 
-          />
-          <q-btn 
-            v-if="importStep === 2" 
-            unelevated 
-            label="Start Import" 
-            color="primary" 
+          <q-btn v-if="importStep === 2" flat label="Back" color="grey-7" @click="importStep = 1" />
+          <q-btn
+            v-if="importStep === 2"
+            unelevated
+            label="Start Import"
+            color="primary"
             @click="startImport"
             :disable="validCount === 0"
           />
-          <q-btn 
-            v-if="importStep === 3" 
-            flat 
-            label="Close" 
-            color="grey-7" 
+          <q-btn
+            v-if="importStep === 3"
+            flat
+            label="Close"
+            color="grey-7"
             @click="closeCsvImportDialog"
             :disable="isImporting"
           />
@@ -520,7 +504,15 @@
 
 <script>
 import { db } from 'src/boot/firebase'
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore'
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+} from 'firebase/firestore'
 import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -558,13 +550,13 @@ export default {
         farePWD: null,
         operatingHours: {
           open: '',
-          close: ''
+          close: '',
         },
         touristSpotsServiced: [],
         routePoints: [],
         endPoint: '',
         imageUrl: '',
-        imagePublicId: ''
+        imagePublicId: '',
       },
       touristSpotsOptions: [
         'Burnham Park',
@@ -584,14 +576,20 @@ export default {
         'PMA (Philippine Military Academy)',
         'Teachers Camp',
         'Baguio Convention Center',
-        'Mirador House'
+        'Mirador House',
       ],
       columns: [
         { name: 'image', label: 'Image', field: 'imageUrl', align: 'center' },
-        { name: 'jeepName', label: 'Jeepney Name', field: 'jeepName', align: 'left', sortable: true },
+        {
+          name: 'jeepName',
+          label: 'Jeepney Name',
+          field: 'jeepName',
+          align: 'left',
+          sortable: true,
+        },
         { name: 'terminalLocation', label: 'Terminal', field: 'terminalLocation', align: 'left' },
         { name: 'endPoint', label: 'End Point', field: 'endPoint', align: 'left' },
-        { name: 'actions', label: 'Actions', field: 'actions', align: 'center' }
+        { name: 'actions', label: 'Actions', field: 'actions', align: 'center' },
       ],
 
       // CSV Import
@@ -606,13 +604,19 @@ export default {
       importLogs: [],
       selectedJeepneys: [],
       previewColumns: [
-        { name: 'jeepName', label: 'Jeepney Name', field: 'jeepName', align: 'left', sortable: true },
+        {
+          name: 'jeepName',
+          label: 'Jeepney Name',
+          field: 'jeepName',
+          align: 'left',
+          sortable: true,
+        },
         { name: 'terminalLocation', label: 'Terminal', field: 'terminalLocation', align: 'left' },
         { name: 'endPoint', label: 'End Point', field: 'endPoint', align: 'left' },
         { name: 'fareRegular', label: 'Regular Fare', field: 'fareRegular', align: 'center' },
         { name: 'valid', label: 'Status', field: 'valid', align: 'center' },
-        { name: 'error', label: 'Error', field: 'error', align: 'left' }
-      ]
+        { name: 'error', label: 'Error', field: 'error', align: 'left' },
+      ],
     }
   },
 
@@ -623,10 +627,11 @@ export default {
       // Filter by search query
       if (this.search) {
         const searchLower = this.search.toLowerCase()
-        result = result.filter(jeepney =>
-          jeepney.jeepName?.toLowerCase().includes(searchLower) ||
-          jeepney.terminalLocation?.toLowerCase().includes(searchLower) ||
-          jeepney.endPoint?.toLowerCase().includes(searchLower)
+        result = result.filter(
+          (jeepney) =>
+            jeepney.jeepName?.toLowerCase().includes(searchLower) ||
+            jeepney.terminalLocation?.toLowerCase().includes(searchLower) ||
+            jeepney.endPoint?.toLowerCase().includes(searchLower)
         )
       }
 
@@ -641,12 +646,12 @@ export default {
     },
 
     validCount() {
-      return this.parsedJeepneys.filter(j => j.valid).length
+      return this.parsedJeepneys.filter((j) => j.valid).length
     },
 
     invalidCount() {
-      return this.parsedJeepneys.filter(j => !j.valid).length
-    }
+      return this.parsedJeepneys.filter((j) => !j.valid).length
+    },
   },
 
   mounted() {
@@ -660,7 +665,7 @@ export default {
           this.initMap()
         })
       }
-    }
+    },
   },
 
   methods: {
@@ -668,16 +673,16 @@ export default {
       this.loading = true
       try {
         const querySnapshot = await getDocs(collection(db, 'jeepneys'))
-        this.jeepneys = querySnapshot.docs.map(doc => ({
+        this.jeepneys = querySnapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         }))
       } catch (error) {
         console.error('[Jeepneys] Error loading:', error)
         this.$q.notify({
           type: 'negative',
           message: 'Failed to load jeepneys',
-          position: 'top'
+          position: 'top',
         })
       } finally {
         this.loading = false
@@ -707,7 +712,7 @@ export default {
       this.$q.notify({
         type: 'negative',
         message: message,
-        position: 'top'
+        position: 'top',
       })
     },
 
@@ -723,21 +728,17 @@ export default {
 
       try {
         const { uploadOptimizedImage } = await import('src/utils/cloudinary')
-        
-        const uploadResult = await uploadOptimizedImage(
-          this.imageFile,
-          'baguiboost/jeepneys',
-          {
-            maxWidth: 1920,
-            maxHeight: 1080,
-            quality: 0.85,
-            format: 'image/webp'
-          }
-        )
+
+        const uploadResult = await uploadOptimizedImage(this.imageFile, 'baguiboost/jeepneys', {
+          maxWidth: 1920,
+          maxHeight: 1080,
+          quality: 0.85,
+          format: 'image/webp',
+        })
 
         return {
           imageUrl: uploadResult.url,
-          imagePublicId: uploadResult.publicId
+          imagePublicId: uploadResult.publicId,
         }
       } catch (error) {
         console.error('[Jeepneys] Error uploading image:', error)
@@ -748,23 +749,23 @@ export default {
     useCurrentLocation() {
       if (navigator.geolocation) {
         this.$q.loading.show({ message: 'Getting your location...' })
-        
+
         navigator.geolocation.getCurrentPosition(
           (position) => {
             this.form.terminalLat = position.coords.latitude
             this.form.terminalLng = position.coords.longitude
-            
+
             this.$q.notify({
               type: 'positive',
               message: 'Location acquired!',
-              position: 'top'
+              position: 'top',
             })
           },
           (error) => {
             this.$q.notify({
               type: 'negative',
               message: 'Unable to get location: ' + error.message,
-              position: 'top'
+              position: 'top',
             })
           }
         )
@@ -772,7 +773,7 @@ export default {
         this.$q.notify({
           type: 'negative',
           message: 'Geolocation is not supported by this browser',
-          position: 'top'
+          position: 'top',
         })
       }
     },
@@ -780,7 +781,7 @@ export default {
     initMap() {
       // Wait for DOM to be ready
       if (!document.getElementById('jeepney-map')) return
-      
+
       // Destroy existing map if any
       if (this.map) {
         this.map.remove()
@@ -788,10 +789,10 @@ export default {
       }
 
       // Initialize map centered on Baguio
-      this.map = L.map('jeepney-map').setView([16.4023, 120.5960], 14)
+      this.map = L.map('jeepney-map').setView([16.4023, 120.596], 14)
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
+        attribution: '© OpenStreetMap contributors',
       }).addTo(this.map)
 
       // Add click handler to add route points
@@ -801,7 +802,7 @@ export default {
         }
         this.form.routePoints.push({
           lat: e.latlng.lat,
-          lng: e.latlng.lng
+          lng: e.latlng.lng,
         })
         this.updateRouteLine()
       })
@@ -822,16 +823,16 @@ export default {
         this.map.removeLayer(this.routeLine)
       }
       if (this.routeMarkers) {
-        this.routeMarkers.forEach(marker => this.map.removeLayer(marker))
+        this.routeMarkers.forEach((marker) => this.map.removeLayer(marker))
       }
       this.routeMarkers = []
 
       // Draw polyline
-      const latlngs = this.form.routePoints.map(point => [point.lat, point.lng])
-      this.routeLine = L.polyline(latlngs, { 
-        color: 'red', 
+      const latlngs = this.form.routePoints.map((point) => [point.lat, point.lng])
+      this.routeLine = L.polyline(latlngs, {
+        color: 'red',
         weight: 4,
-        opacity: 0.8
+        opacity: 0.8,
       }).addTo(this.map)
 
       // Add markers for each point
@@ -869,10 +870,10 @@ export default {
         routePoints: jeepney.routePoints || [],
         endPoint: jeepney.endPoint || '',
         imageUrl: jeepney.imageUrl || '',
-        imagePublicId: jeepney.imagePublicId || ''
+        imagePublicId: jeepney.imagePublicId || '',
       }
       this.showAddDialog = true
-      
+
       // Initialize map after dialog is shown
       this.$nextTick(() => {
         this.initMap()
@@ -888,18 +889,22 @@ export default {
         this.$q.notify({
           type: 'warning',
           message: 'Please fill in all required fields',
-          position: 'top'
+          position: 'top',
         })
         return
       }
 
       // Validate fares
-      if (this.form.fareRegular === null || this.form.fareStudent === null || 
-          this.form.fareSenior === null || this.form.farePWD === null) {
+      if (
+        this.form.fareRegular === null ||
+        this.form.fareStudent === null ||
+        this.form.fareSenior === null ||
+        this.form.farePWD === null
+      ) {
         this.$q.notify({
           type: 'warning',
           message: 'Please fill in all fare values',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -911,7 +916,7 @@ export default {
 
         let imageData = {
           imageUrl: this.form.imageUrl || '',
-          imagePublicId: this.form.imagePublicId || ''
+          imagePublicId: this.form.imagePublicId || '',
         }
 
         if (this.imageFile) {
@@ -934,7 +939,7 @@ export default {
           endPoint: this.form.endPoint,
           imageUrl: imageData.imageUrl,
           imagePublicId: imageData.imagePublicId,
-          updatedAt: serverTimestamp()
+          updatedAt: serverTimestamp(),
         }
 
         if (this.editingJeepney) {
@@ -944,7 +949,7 @@ export default {
             message: 'Jeepney updated successfully',
             position: 'top',
             icon: 'check_circle',
-            timeout: 2000
+            timeout: 2000,
           })
         } else {
           jeepneyData.createdAt = serverTimestamp()
@@ -954,7 +959,7 @@ export default {
             message: 'Jeepney created successfully with ID: ' + uniqueId,
             position: 'top',
             icon: 'check_circle',
-            timeout: 3000
+            timeout: 3000,
           })
         }
 
@@ -967,7 +972,7 @@ export default {
           type: 'negative',
           message: 'Failed to save jeepney: ' + error.message,
           position: 'top',
-          timeout: 5000
+          timeout: 5000,
         })
       } finally {
         this.saving = false
@@ -975,173 +980,179 @@ export default {
     },
 
     confirmDelete(jeepney) {
-      this.$q.dialog({
-        title: 'Confirm Delete',
-        message: `Are you sure you want to delete "${jeepney.jeepName}"?`,
-        cancel: true,
-        persistent: true
-      }).onOk(async () => {
-        try {
-          await deleteDoc(doc(db, 'jeepneys', jeepney.id))
-          this.$q.notify({
-            type: 'positive',
-            message: 'Jeepney deleted successfully',
-            position: 'top',
-            icon: 'delete',
-            timeout: 2000
-          })
-          this.loadJeepneys()
-        } catch (error) {
-          console.error('[Jeepneys] Error deleting:', error)
-          this.$q.notify({
-            type: 'negative',
-            message: 'Failed to delete jeepney: ' + error.message,
-            position: 'top',
-            timeout: 5000
-          })
-        }
-      })
+      this.$q
+        .dialog({
+          title: 'Confirm Delete',
+          message: `Are you sure you want to delete "${jeepney.jeepName}"?`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          try {
+            await deleteDoc(doc(db, 'jeepneys', jeepney.id))
+            this.$q.notify({
+              type: 'positive',
+              message: 'Jeepney deleted successfully',
+              position: 'top',
+              icon: 'delete',
+              timeout: 2000,
+            })
+            this.loadJeepneys()
+          } catch (error) {
+            console.error('[Jeepneys] Error deleting:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: 'Failed to delete jeepney: ' + error.message,
+              position: 'top',
+              timeout: 5000,
+            })
+          }
+        })
     },
 
     async bulkDelete() {
       if (this.selectedJeepneys.length === 0) return
 
-      this.$q.dialog({
-        title: 'Confirm Bulk Delete',
-        message: `Are you sure you want to delete ${this.selectedJeepneys.length} selected jeepney(s)? This action cannot be undone.`,
-        cancel: true,
-        persistent: true,
-        ok: {
-          label: 'Delete All',
-          color: 'negative',
-          push: true
-        }
-      }).onOk(async () => {
-        const loadingDialog = this.$q.loading.show({
-          message: `Deleting ${this.selectedJeepneys.length} jeepney(s)...`
+      this.$q
+        .dialog({
+          title: 'Confirm Bulk Delete',
+          message: `Are you sure you want to delete ${this.selectedJeepneys.length} selected jeepney(s)? This action cannot be undone.`,
+          cancel: true,
+          persistent: true,
+          ok: {
+            label: 'Delete All',
+            color: 'negative',
+            push: true,
+          },
         })
-
-        try {
-          let successCount = 0
-          let failCount = 0
-
-          for (const jeepney of this.selectedJeepneys) {
-            try {
-              await deleteDoc(doc(db, 'jeepneys', jeepney.id))
-              successCount++
-            } catch (error) {
-              console.error('[Jeepneys] Error deleting:', jeepney.jeepName, error)
-              failCount++
-            }
-          }
-
-          this.selectedJeepneys = []
-          this.loadJeepneys()
-
-          loadingDialog.hide()
-
-          if (successCount > 0) {
-            this.$q.notify({
-              type: 'positive',
-              message: `Successfully deleted ${successCount} jeepney(s)`,
-              position: 'top',
-              timeout: 3000
-            })
-          }
-
-          if (failCount > 0) {
-            this.$q.notify({
-              type: 'warning',
-              message: `Failed to delete ${failCount} jeepney(s)`,
-              position: 'top',
-              timeout: 5000
-            })
-          }
-        } catch (error) {
-          console.error('[Jeepneys] Bulk delete error:', error)
-          loadingDialog.hide()
-          this.$q.notify({
-            type: 'negative',
-            message: 'Bulk delete failed: ' + error.message,
-            position: 'top',
-            timeout: 5000
+        .onOk(async () => {
+          const loadingDialog = this.$q.loading.show({
+            message: `Deleting ${this.selectedJeepneys.length} jeepney(s)...`,
           })
-        }
-      })
+
+          try {
+            let successCount = 0
+            let failCount = 0
+
+            for (const jeepney of this.selectedJeepneys) {
+              try {
+                await deleteDoc(doc(db, 'jeepneys', jeepney.id))
+                successCount++
+              } catch (error) {
+                console.error('[Jeepneys] Error deleting:', jeepney.jeepName, error)
+                failCount++
+              }
+            }
+
+            this.selectedJeepneys = []
+            this.loadJeepneys()
+
+            loadingDialog.hide()
+
+            if (successCount > 0) {
+              this.$q.notify({
+                type: 'positive',
+                message: `Successfully deleted ${successCount} jeepney(s)`,
+                position: 'top',
+                timeout: 3000,
+              })
+            }
+
+            if (failCount > 0) {
+              this.$q.notify({
+                type: 'warning',
+                message: `Failed to delete ${failCount} jeepney(s)`,
+                position: 'top',
+                timeout: 5000,
+              })
+            }
+          } catch (error) {
+            console.error('[Jeepneys] Bulk delete error:', error)
+            loadingDialog.hide()
+            this.$q.notify({
+              type: 'negative',
+              message: 'Bulk delete failed: ' + error.message,
+              position: 'top',
+              timeout: 5000,
+            })
+          }
+        })
     },
 
     async deleteAllJeepneys() {
       const total = this.filteredJeepneys.length
       if (total === 0) return
 
-      this.$q.dialog({
-        title: '⚠️ DANGER: Delete ALL Jeepneys',
-        message: `WARNING: This will permanently delete ALL ${total} jeepney(s) from the database. This action CANNOT be undone and will remove all routes and data. Type "DELETE ALL" to confirm:`,
-        cancel: true,
-        persistent: true,
-        prompt: {
-          model: '',
-          isValid: (val) => val === 'DELETE ALL'
-        },
-        ok: {
-          label: 'DELETE ALL',
-          color: 'negative',
-          push: true
-        }
-      }).onOk(async (confirmText) => {
-        if (confirmText !== 'DELETE ALL') return
-
-        const loadingDialog = this.$q.loading.show({
-          message: `Deleting ALL ${total} jeepney(s)... Please wait.`
+      this.$q
+        .dialog({
+          title: '⚠️ DANGER: Delete ALL Jeepneys',
+          message: `WARNING: This will permanently delete ALL ${total} jeepney(s) from the database. This action CANNOT be undone and will remove all routes and data. Type "DELETE ALL" to confirm:`,
+          cancel: true,
+          persistent: true,
+          prompt: {
+            model: '',
+            isValid: (val) => val === 'DELETE ALL',
+          },
+          ok: {
+            label: 'DELETE ALL',
+            color: 'negative',
+            push: true,
+          },
         })
+        .onOk(async (confirmText) => {
+          if (confirmText !== 'DELETE ALL') return
 
-        try {
-          let successCount = 0
-          let failCount = 0
-
-          for (const jeepney of this.filteredJeepneys) {
-            try {
-              await deleteDoc(doc(db, 'jeepneys', jeepney.id))
-              successCount++
-            } catch (error) {
-              console.error('[Jeepneys] Error deleting:', jeepney.jeepName, error)
-              failCount++
-            }
-          }
-
-          this.selectedJeepneys = []
-          this.loadJeepneys()
-
-          loadingDialog.hide()
-
-          if (successCount > 0) {
-            this.$q.notify({
-              type: 'positive',
-              message: `Successfully deleted ${successCount} jeepney(s)`,
-              position: 'top',
-              timeout: 5000
-            })
-          }
-
-          if (failCount > 0) {
-            this.$q.notify({
-              type: 'warning',
-              message: `Failed to delete ${failCount} jeepney(s)`,
-              position: 'top',
-              timeout: 5000
-            })
-          }
-        } catch (error) {
-          console.error('[Jeepneys] Delete all error:', error)
-          loadingDialog.hide()
-          this.$q.notify({
-            type: 'negative',
-            message: 'Delete all failed: ' + error.message,
-            position: 'top',
-            timeout: 5000
+          const loadingDialog = this.$q.loading.show({
+            message: `Deleting ALL ${total} jeepney(s)... Please wait.`,
           })
-        }
-      })
+
+          try {
+            let successCount = 0
+            let failCount = 0
+
+            for (const jeepney of this.filteredJeepneys) {
+              try {
+                await deleteDoc(doc(db, 'jeepneys', jeepney.id))
+                successCount++
+              } catch (error) {
+                console.error('[Jeepneys] Error deleting:', jeepney.jeepName, error)
+                failCount++
+              }
+            }
+
+            this.selectedJeepneys = []
+            this.loadJeepneys()
+
+            loadingDialog.hide()
+
+            if (successCount > 0) {
+              this.$q.notify({
+                type: 'positive',
+                message: `Successfully deleted ${successCount} jeepney(s)`,
+                position: 'top',
+                timeout: 5000,
+              })
+            }
+
+            if (failCount > 0) {
+              this.$q.notify({
+                type: 'warning',
+                message: `Failed to delete ${failCount} jeepney(s)`,
+                position: 'top',
+                timeout: 5000,
+              })
+            }
+          } catch (error) {
+            console.error('[Jeepneys] Delete all error:', error)
+            loadingDialog.hide()
+            this.$q.notify({
+              type: 'negative',
+              message: 'Delete all failed: ' + error.message,
+              position: 'top',
+              timeout: 5000,
+            })
+          }
+        })
     },
 
     resetForm() {
@@ -1156,18 +1167,18 @@ export default {
         farePWD: null,
         operatingHours: {
           open: '',
-          close: ''
+          close: '',
         },
         touristSpotsServiced: [],
         routePoints: [],
         endPoint: '',
         imageUrl: '',
-        imagePublicId: ''
+        imagePublicId: '',
       }
       this.imageFile = null
       this.imagePreview = null
       this.editingJeepney = null
-      
+
       if (this.map) {
         this.map.remove()
         this.map = null
@@ -1195,7 +1206,7 @@ export default {
         'end_point',
         'operating_hours_open',
         'operating_hours_close',
-        'tourist_spots_serviced'
+        'tourist_spots_serviced',
       ]
 
       const sampleData = [
@@ -1210,18 +1221,15 @@ export default {
         'SM City Baguio',
         '06:00',
         '22:00',
-        'Burnham Park;Session Road;SM City Baguio'
+        'Burnham Park;Session Road;SM City Baguio',
       ]
 
-      const csvContent = [
-        headers.join(','),
-        sampleData.join(',')
-      ].join('\n')
+      const csvContent = [headers.join(','), sampleData.join(',')].join('\n')
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
       const link = document.createElement('a')
       const url = URL.createObjectURL(blob)
-      
+
       link.setAttribute('href', url)
       link.setAttribute('download', 'jeepney_import_template.csv')
       link.style.visibility = 'hidden'
@@ -1232,7 +1240,7 @@ export default {
       this.$q.notify({
         type: 'positive',
         message: 'CSV template downloaded',
-        position: 'top'
+        position: 'top',
       })
     },
 
@@ -1253,17 +1261,25 @@ export default {
       reader.onload = (e) => {
         try {
           const csvText = e.target.result
-          const lines = csvText.split(/\r?\n/).filter(line => line.trim() !== '')
-          
+          const lines = csvText.split(/\r?\n/).filter((line) => line.trim() !== '')
+
           if (lines.length < 2) {
             this.csvError = 'CSV file is empty or invalid'
             return
           }
 
           const headers = this.parseCsvLine(lines[0])
-          const requiredHeaders = ['jeep_name', 'terminal_location', 'fare_regular', 'fare_student', 'fare_senior', 'fare_pwd', 'end_point']
-          
-          const missingHeaders = requiredHeaders.filter(h => !headers.includes(h))
+          const requiredHeaders = [
+            'jeep_name',
+            'terminal_location',
+            'fare_regular',
+            'fare_student',
+            'fare_senior',
+            'fare_pwd',
+            'end_point',
+          ]
+
+          const missingHeaders = requiredHeaders.filter((h) => !headers.includes(h))
           if (missingHeaders.length > 0) {
             this.csvError = `Missing required columns: ${missingHeaders.join(', ')}`
             return
@@ -1282,7 +1298,7 @@ export default {
           this.$q.notify({
             type: 'positive',
             message: `Parsed ${parsed.length} jeepney(s)`,
-            position: 'top'
+            position: 'top',
           })
         } catch (error) {
           console.error('[CSV] Parse error:', error)
@@ -1304,7 +1320,7 @@ export default {
 
       for (let i = 0; i < line.length; i++) {
         const char = line[i]
-        
+
         if (char === '"') {
           if (inQuotes && line[i + 1] === '"') {
             current += '"'
@@ -1326,7 +1342,7 @@ export default {
 
     mapCsvRow(headers, values, rowIndex) {
       // Normalize headers (trim spaces, convert to lowercase)
-      const normalizedHeaders = headers.map(h => h.trim().toLowerCase().replace(/\s+/g, '_'))
+      const normalizedHeaders = headers.map((h) => h.trim().toLowerCase().replace(/\s+/g, '_'))
 
       const getValue = (key) => {
         const index = normalizedHeaders.indexOf(key)
@@ -1345,7 +1361,12 @@ export default {
       const operatingHoursOpen = getValue('operating_hours_open')
       const operatingHoursClose = getValue('operating_hours_close')
 
-      console.log('[CSV] Operating Hours - Open:', operatingHoursOpen, 'Close:', operatingHoursClose)
+      console.log(
+        '[CSV] Operating Hours - Open:',
+        operatingHoursOpen,
+        'Close:',
+        operatingHoursClose
+      )
 
       const jeepney = {
         index: rowIndex,
@@ -1360,11 +1381,11 @@ export default {
         endPoint: getValue('end_point'),
         operatingHours: {
           open: operatingHoursOpen,
-          close: operatingHoursClose
+          close: operatingHoursClose,
         },
         touristSpotsServiced: [],
         valid: true,
-        error: ''
+        error: '',
       }
 
       // Parse tourist spots (semicolon or comma separated)
@@ -1373,8 +1394,8 @@ export default {
         const separator = touristSpotsStr.includes(';') ? ';' : ','
         jeepney.touristSpotsServiced = touristSpotsStr
           .split(separator)
-          .map(s => s.trim())
-          .filter(s => s !== '')
+          .map((s) => s.trim())
+          .filter((s) => s !== '')
       }
 
       // Validate
@@ -1387,8 +1408,12 @@ export default {
       } else if (!jeepney.endPoint) {
         jeepney.valid = false
         jeepney.error = 'Missing end point'
-      } else if (jeepney.fareRegular === null || jeepney.fareStudent === null ||
-                 jeepney.fareSenior === null || jeepney.farePWD === null) {
+      } else if (
+        jeepney.fareRegular === null ||
+        jeepney.fareStudent === null ||
+        jeepney.fareSenior === null ||
+        jeepney.farePWD === null
+      ) {
         jeepney.valid = false
         jeepney.error = 'Missing fare values'
       }
@@ -1403,18 +1428,18 @@ export default {
       this.importProgress = 0
       this.importLogs = []
 
-      const validJeepneys = this.parsedJeepneys.filter(j => j.valid)
+      const validJeepneys = this.parsedJeepneys.filter((j) => j.valid)
       const total = validJeepneys.length
 
       for (let i = 0; i < validJeepneys.length; i++) {
         const jeepney = validJeepneys[i]
-        
+
         try {
           const uniqueId = `JEEP-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
 
           console.log('[CSV Import] Before save:', {
             jeepName: jeepney.jeepName,
-            operatingHours: jeepney.operatingHours
+            operatingHours: jeepney.operatingHours,
           })
 
           const jeepneyData = {
@@ -1429,7 +1454,7 @@ export default {
             farePWD: jeepney.farePWD,
             operatingHours: {
               open: jeepney.operatingHours.open || '',
-              close: jeepney.operatingHours.close || ''
+              close: jeepney.operatingHours.close || '',
             },
             touristSpotsServiced: jeepney.touristSpotsServiced,
             routePoints: [],
@@ -1438,24 +1463,24 @@ export default {
             imageUrl: '',
             imagePublicId: '',
             createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
+            updatedAt: serverTimestamp(),
           }
 
           console.log('[CSV Import] Saving to Firebase:', jeepneyData.operatingHours)
 
           await addDoc(collection(db, 'jeepneys'), jeepneyData)
-          
+
           this.importLogs.push({
             success: true,
-            message: `Imported: ${jeepney.jeepName}`
+            message: `Imported: ${jeepney.jeepName}`,
           })
-          
+
           this.importedCount++
         } catch (error) {
           console.error('[CSV Import] Error:', error)
           this.importLogs.push({
             success: false,
-            message: `Failed to import ${jeepney.jeepName}: ${error.message}`
+            message: `Failed to import ${jeepney.jeepName}: ${error.message}`,
           })
         }
 
@@ -1468,7 +1493,7 @@ export default {
         type: 'positive',
         message: `Import completed: ${this.importedCount}/${total} jeepneys added`,
         position: 'top',
-        timeout: 5000
+        timeout: 5000,
       })
 
       this.loadJeepneys()
@@ -1484,8 +1509,8 @@ export default {
       this.importedCount = 0
       this.isImporting = false
       this.importLogs = []
-    }
-  }
+    },
+  },
 }
 </script>
 

@@ -5,7 +5,10 @@
       <div class="hero-overlay">
         <div class="hero-content animate-fade-in">
           <h1 class="hero-title">PAGNAAM - City Jeeps</h1>
-          <p class="hero-description">Discover all jeepney routes operating in Baguio City with comprehensive information about terminals, fares, and operating hours.</p>
+          <p class="hero-description">
+            Discover all jeepney routes operating in Baguio City with comprehensive information
+            about terminals, fares, and operating hours.
+          </p>
         </div>
       </div>
     </section>
@@ -17,10 +20,14 @@
           <div class="col-md-6 col-12 q-pa-xl">
             <h2 class="text-h4 text-weight-bold text-primary q-mb-lg">Baguio's Jeepney System</h2>
             <p class="text-body1 q-mb-md">
-              Baguio City's transportation system centers around its iconic jeepneys - the colorful Filipino public utility vehicles that have become a symbol of the city. Our PAGNAAM feature provides comprehensive information about all routes operating in Baguio City.
+              Baguio City's transportation system centers around its iconic jeepneys - the colorful
+              Filipino public utility vehicles that have become a symbol of the city. Our PAGNAAM
+              feature provides comprehensive information about all routes operating in Baguio City.
             </p>
             <p class="text-body1 q-mb-lg">
-              Unlike conventional public transportation systems, Baguio's jeepneys operate with unique routes and terminologies. Our system focuses on teaching you how to navigate this system effectively.
+              Unlike conventional public transportation systems, Baguio's jeepneys operate with
+              unique routes and terminologies. Our system focuses on teaching you how to navigate
+              this system effectively.
             </p>
             <div class="q-gutter-sm">
               <q-chip square color="primary" text-color="white">Route Information</q-chip>
@@ -30,7 +37,7 @@
           </div>
           <div class="col-md-6 col-12 q-pa-xl">
             <div class="image-placeholder bg-grey-3 q-pa-xl rounded-borders">
-              <q-icon name="directions_bus" size="64px" color="grey-6"/>
+              <q-icon name="directions_bus" size="64px" color="grey-6" />
               <div class="text-center q-mt-md">Jeepney Route Visualization</div>
             </div>
           </div>
@@ -58,13 +65,7 @@
               <q-icon name="search" />
             </template>
             <template v-slot:append>
-              <q-btn
-                v-if="searchQuery"
-                flat
-                dense
-                icon="clear"
-                @click="searchQuery = ''"
-              >
+              <q-btn v-if="searchQuery" flat dense icon="clear" @click="searchQuery = ''">
                 <q-tooltip>Clear Search</q-tooltip>
               </q-btn>
             </template>
@@ -74,9 +75,7 @@
               <span v-if="searchQuery">
                 Found {{ filteredRoutes.length }} jeepney(s) matching "{{ searchQuery }}"
               </span>
-              <span v-else>
-                Showing all {{ allRoutes.length }} jeepney(s) - Sorted A-Z
-              </span>
+              <span v-else> Showing all {{ allRoutes.length }} jeepney(s) - Sorted A-Z </span>
             </div>
           </div>
         </div>
@@ -94,7 +93,9 @@
               class="route-image"
             />
             <q-card-section>
-              <div class="text-h6 text-primary text-weight-bold">{{ route.jeepName || route.routeName }}</div>
+              <div class="text-h6 text-primary text-weight-bold">
+                {{ route.jeepName || route.routeName }}
+              </div>
               <div class="text-subtitle2 text-grey-7 q-mt-xs">
                 <q-icon name="location_on" size="14px" class="q-mr-xs" color="primary" />
                 Terminal: {{ route.terminalLocation }}
@@ -103,7 +104,7 @@
                 <q-icon name="flag" size="14px" class="q-mr-xs" color="secondary" />
                 Destination: {{ route.endPoint }}
               </div>
-              
+
               <!-- Fare Matrix -->
               <div class="fare-matrix q-mt-md">
                 <div class="text-caption text-grey-7 q-mb-xs">Fare Matrix:</div>
@@ -134,7 +135,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <!-- Operating Hours -->
               <div class="row items-center q-mt-md">
                 <q-icon name="schedule" color="primary" size="xs" class="q-mr-sm" />
@@ -145,9 +146,12 @@
                   <span v-else class="text-grey-7">Operating hours not specified</span>
                 </span>
               </div>
-              
+
               <!-- Tourist Spots Serviced -->
-              <div v-if="route.touristSpotsServiced && route.touristSpotsServiced.length > 0" class="q-mt-md">
+              <div
+                v-if="route.touristSpotsServiced && route.touristSpotsServiced.length > 0"
+                class="q-mt-md"
+              >
                 <div class="text-caption text-grey-7 q-mb-xs">Tourist Spots:</div>
                 <div class="row q-gutter-xs">
                   <q-badge
@@ -177,7 +181,7 @@
 
     <!-- JEEPNEY DETAILS DIALOG -->
     <q-dialog v-model="showRouteDialog">
-      <q-card class="route-dialog-card" style="min-width: 1100px;">
+      <q-card class="route-dialog-card" style="min-width: 1100px">
         <q-card-section class="row items-center q-pb-none bg-primary text-white">
           <div class="text-h6 text-weight-bold">
             <q-icon name="directions_bus" class="q-mr-sm" />
@@ -193,7 +197,7 @@
               <q-card flat bordered class="q-pa-md">
                 <q-card-section class="q-pa-none">
                   <div class="text-h5 text-primary text-weight-bold q-mb-md">Route Information</div>
-                  
+
                   <div class="row q-col-gutter-md">
                     <div class="col-12">
                       <q-item>
@@ -202,7 +206,9 @@
                         </q-item-section>
                         <q-item-section>
                           <q-item-label class="text-weight-bold">Terminal Start</q-item-label>
-                          <q-item-label caption>{{ selectedRoute?.terminalStart || selectedRoute?.terminalLocation }}</q-item-label>
+                          <q-item-label caption>{{
+                            selectedRoute?.terminalStart || selectedRoute?.terminalLocation
+                          }}</q-item-label>
                         </q-item-section>
                       </q-item>
                     </div>
@@ -213,7 +219,9 @@
                         </q-item-section>
                         <q-item-section>
                           <q-item-label class="text-weight-bold">Terminal End</q-item-label>
-                          <q-item-label caption>{{ selectedRoute?.terminalEnd || selectedRoute?.endPoint }}</q-item-label>
+                          <q-item-label caption>{{
+                            selectedRoute?.terminalEnd || selectedRoute?.endPoint
+                          }}</q-item-label>
                         </q-item-section>
                       </q-item>
                     </div>
@@ -265,9 +273,14 @@
                   <q-separator class="q-my-md" />
 
                   <div class="q-pa-md bg-grey-2 rounded-borders">
-                    <h4 class="text-h6 text-weight-bold text-primary q-mb-md">How to Identify This Jeepney</h4>
+                    <h4 class="text-h6 text-weight-bold text-primary q-mb-md">
+                      How to Identify This Jeepney
+                    </h4>
                     <ul class="q-pl-md">
-                      <li class="q-mb-sm">Look for "{{ selectedRoute?.routeName || selectedRoute?.jeepName }}" signage on the front and sides</li>
+                      <li class="q-mb-sm">
+                        Look for "{{ selectedRoute?.routeName || selectedRoute?.jeepName }}" signage
+                        on the front and sides
+                      </li>
                       <li class="q-mb-sm">Check for route number indicators</li>
                       <li class="q-mb-sm">The driver will call out major stops along the route</li>
                       <li class="q-mb-sm">To get off, tap the side or say "para"</li>
@@ -276,8 +289,16 @@
 
                   <q-separator class="q-my-md" />
 
-                  <div v-if="selectedRoute?.touristSpotsServiced && selectedRoute.touristSpotsServiced.length > 0" class="q-mt-md">
-                    <h4 class="text-h6 text-weight-bold text-primary q-mb-md">Tourist Spots Along the Route</h4>
+                  <div
+                    v-if="
+                      selectedRoute?.touristSpotsServiced &&
+                      selectedRoute.touristSpotsServiced.length > 0
+                    "
+                    class="q-mt-md"
+                  >
+                    <h4 class="text-h6 text-weight-bold text-primary q-mb-md">
+                      Tourist Spots Along the Route
+                    </h4>
                     <div class="row q-gutter-sm">
                       <q-badge
                         v-for="(spot, idx) in selectedRoute.touristSpotsServiced"
@@ -301,19 +322,17 @@
                     @click="navigateToTerminal"
                     class="q-mr-sm"
                   />
-                  <q-btn
-                    flat
-                    label="Close"
-                    color="grey"
-                    v-close-popup
-                  />
+                  <q-btn flat label="Close" color="grey" v-close-popup />
                 </q-card-actions>
               </q-card>
             </div>
 
             <div class="col-lg-7 col-12">
-              <q-card flat bordered class="map-card" style="height: 550px;">
-                <div id="route-map" style="height: 100%; width: 100%; min-height: 550px; background: #e8e8e8;"></div>
+              <q-card flat bordered class="map-card" style="height: 550px">
+                <div
+                  id="route-map"
+                  style="height: 100%; width: 100%; min-height: 550px; background: #e8e8e8"
+                ></div>
               </q-card>
             </div>
           </div>
@@ -403,20 +422,24 @@ export default defineComponent({
     const faqs = [
       {
         question: 'How do I identify the correct jeepney?',
-        answer: 'Look for the route name and number on the front and sides of the jeepney. Drivers usually call out major stops along the route.'
+        answer:
+          'Look for the route name and number on the front and sides of the jeepney. Drivers usually call out major stops along the route.',
       },
       {
         question: 'What is the typical fare for Baguio jeepneys?',
-        answer: 'Fares typically range from ₱12-20 depending on the route length. Always have exact change as drivers may not have change.'
+        answer:
+          'Fares typically range from ₱12-20 depending on the route length. Always have exact change as drivers may not have change.',
       },
       {
         question: 'When do jeepneys operate?',
-        answer: 'Most jeepneys operate from 5:00 AM to 10:00 PM. Operating hours may vary by route and season.'
+        answer:
+          'Most jeepneys operate from 5:00 AM to 10:00 PM. Operating hours may vary by route and season.',
       },
       {
         question: 'Can I use this for navigation?',
-        answer: 'Yes! PAGNAAM provides comprehensive information about routes and terminals. Combine this with APANAM for complete navigation instructions.'
-      }
+        answer:
+          'Yes! PAGNAAM provides comprehensive information about routes and terminals. Combine this with APANAM for complete navigation instructions.',
+      },
     ]
 
     const leftFaqs = computed(() => faqs.slice(0, 2))
@@ -429,11 +452,12 @@ export default defineComponent({
       // Filter by search query
       if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase()
-        result = result.filter(route =>
-          (route.jeepName || route.routeName)?.toLowerCase().includes(query) ||
-          route.terminalLocation?.toLowerCase().includes(query) ||
-          route.endPoint?.toLowerCase().includes(query) ||
-          route.touristSpotsServiced?.some(spot => spot.toLowerCase().includes(query))
+        result = result.filter(
+          (route) =>
+            (route.jeepName || route.routeName)?.toLowerCase().includes(query) ||
+            route.terminalLocation?.toLowerCase().includes(query) ||
+            route.endPoint?.toLowerCase().includes(query) ||
+            route.touristSpotsServiced?.some((spot) => spot.toLowerCase().includes(query))
         )
       }
 
@@ -449,7 +473,7 @@ export default defineComponent({
 
     const formatOperatingHours = (hours) => {
       if (!hours || !hours.open || !hours.close) return 'Not specified'
-      
+
       const formatTime = (timeStr) => {
         if (!timeStr) return ''
         const [hours, minutes] = timeStr.split(':')
@@ -457,10 +481,10 @@ export default defineComponent({
         const displayHours = parseInt(hours) % 12 || 12
         return `${displayHours}:${minutes || '00'}${period}`
       }
-      
+
       const openTime = formatTime(hours.open)
       const closeTime = formatTime(hours.close)
-      
+
       return `${openTime} - ${closeTime}`
     }
 
@@ -513,7 +537,7 @@ export default defineComponent({
           fare: 15,
           operatingHours: '5:00 AM - 10:00 PM',
           isActive: true,
-          imageUrl: '~assets/jeepney.png'
+          imageUrl: '~assets/jeepney.png',
         },
         {
           id: 'route-2',
@@ -523,7 +547,7 @@ export default defineComponent({
           fare: 20,
           operatingHours: '5:00 AM - 10:00 PM',
           isActive: true,
-          imageUrl: '~assets/jeepney.png'
+          imageUrl: '~assets/jeepney.png',
         },
         {
           id: 'route-3',
@@ -533,7 +557,7 @@ export default defineComponent({
           fare: 18,
           operatingHours: '5:00 AM - 10:00 PM',
           isActive: true,
-          imageUrl: '~assets/jeepney.png'
+          imageUrl: '~assets/jeepney.png',
         },
         {
           id: 'route-4',
@@ -543,8 +567,8 @@ export default defineComponent({
           fare: 16,
           operatingHours: '5:00 AM - 9:30 PM',
           isActive: true,
-          imageUrl: '~assets/jeepney.png'
-        }
+          imageUrl: '~assets/jeepney.png',
+        },
       ]
     }
 
@@ -560,7 +584,9 @@ export default defineComponent({
     const navigateToTerminal = () => {
       if (selectedRoute.value) {
         // Navigate to APANAM with terminal as destination
-        router.push(`/apanam?start=${encodeURIComponent('Current Location')}&end=${encodeURIComponent(selectedRoute.value.terminalStart)}`)
+        router.push(
+          `/apanam?start=${encodeURIComponent('Current Location')}&end=${encodeURIComponent(selectedRoute.value.terminalStart)}`
+        )
       }
     }
 
@@ -574,7 +600,7 @@ export default defineComponent({
       if (newVal) {
         console.log('=== [PagnaamPage] === DIALOG OPENED ===')
         // Wait for dialog to fully render
-        await new Promise(resolve => setTimeout(resolve, 500))
+        await new Promise((resolve) => setTimeout(resolve, 500))
         initMap()
       } else {
         console.log('[PagnaamPage] Dialog closed, cleaning up map...')
@@ -589,33 +615,42 @@ export default defineComponent({
     const initMap = () => {
       console.log('[PagnaamPage] Initializing map...')
       console.log('[PagnaamPage] Selected route:', selectedRoute.value?.routeName)
-      
+
       const mapElement = document.getElementById('route-map')
       console.log('[PagnaamPage] Map element:', mapElement)
-      console.log('[PagnaamPage] Map element dimensions:', mapElement?.offsetWidth, 'x', mapElement?.offsetHeight)
-      console.log('[PagnaamPage] Map element computed style:', window.getComputedStyle(mapElement).height)
-      
+      console.log(
+        '[PagnaamPage] Map element dimensions:',
+        mapElement?.offsetWidth,
+        'x',
+        mapElement?.offsetHeight
+      )
+      console.log(
+        '[PagnaamPage] Map element computed style:',
+        window.getComputedStyle(mapElement).height
+      )
+
       if (mapElement) {
         if (map) {
           map.remove()
           map = null
           console.log('[PagnaamPage] Previous map removed')
         }
-        
+
         console.log('[PagnaamPage] Creating new map instance...')
-        
+
         // Create map
         map = L.map('route-map', {
           center: [16.4122, 120.5948],
-          zoom: 13
+          zoom: 13,
         })
 
         console.log('[PagnaamPage] Map instance created:', map)
 
         // Add tile layer
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-          maxZoom: 19
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          maxZoom: 19,
         }).addTo(map)
 
         console.log('[PagnaamPage] Tile layer added')
@@ -626,10 +661,14 @@ export default defineComponent({
 
         // Draw route polyline if coordinates are available
         if (route?.routeCoordinates && route.routeCoordinates.length > 0) {
-          console.log('[PagnaamPage] Drawing polyline with', route.routeCoordinates.length, 'points')
-          
+          console.log(
+            '[PagnaamPage] Drawing polyline with',
+            route.routeCoordinates.length,
+            'points'
+          )
+
           // Convert coordinates to [lat, lng] format for Leaflet
-          const latlngs = route.routeCoordinates.map(coord => {
+          const latlngs = route.routeCoordinates.map((coord) => {
             const point = [coord.lat, coord.lng]
             return point
           })
@@ -642,7 +681,7 @@ export default defineComponent({
             weight: 5,
             opacity: 0.8,
             dashArray: '10, 10',
-            lineCap: 'round'
+            lineCap: 'round',
           }).addTo(map)
 
           console.log('[PagnaamPage] Polyline created:', routePath)
@@ -654,14 +693,15 @@ export default defineComponent({
 
           // Add a popup to the polyline
           routePath.bindPopup(`<b>${route.routeName || route.jeepName}</b><br>Route Path`)
-          
+
           console.log('[PagnaamPage] ✅ Polyline drawn successfully!')
         } else {
           console.log('[PagnaamPage] ⚠️ No route coordinates available')
         }
 
         // Add markers for start and end terminals
-        const startCoords = route?.terminalCoordinates || route?.originCoordinates || { lat: 16.4122, lng: 120.5948 }
+        const startCoords = route?.terminalCoordinates ||
+          route?.originCoordinates || { lat: 16.4122, lng: 120.5948 }
         const endCoords = route?.destinationCoordinates || { lat: 16.4178, lng: 120.6012 }
 
         console.log('[PagnaamPage] Start coords:', startCoords, 'End coords:', endCoords)
@@ -671,12 +711,16 @@ export default defineComponent({
         const endLatLng = [endCoords.lat, endCoords.lng]
 
         if (route?.terminalStart || route?.terminalLocation) {
-          L.marker(startLatLng).addTo(map)
-            .bindPopup(`<b>${route.terminalStart || route.terminalLocation}</b><br>Starting Terminal`)
+          L.marker(startLatLng)
+            .addTo(map)
+            .bindPopup(
+              `<b>${route.terminalStart || route.terminalLocation}</b><br>Starting Terminal`
+            )
         }
 
         if (route?.terminalEnd || route?.endPoint) {
-          L.marker(endLatLng).addTo(map)
+          L.marker(endLatLng)
+            .addTo(map)
             .bindPopup(`<b>${route.terminalEnd || route.endPoint}</b><br>Destination Terminal`)
         }
 
@@ -685,7 +729,7 @@ export default defineComponent({
           const bounds = L.latLngBounds([startLatLng, endLatLng])
           map.fitBounds(bounds, { padding: [50, 50] })
         }
-        
+
         // Invalidate map size to ensure proper rendering
         setTimeout(() => {
           map.invalidateSize()
@@ -730,14 +774,14 @@ export default defineComponent({
 
 <style scoped lang="scss">
 // Color Variables
-$dark-green: #1B4332;
-$primary-green: #2E5D3E;
-$light-green: #9EC98F;
-$soft-green: #E8F5E9;
-$mint-cream: #F1F8F4;
-$blush-pink: #FCE4EC;
-$white: #FFFFFF;
-$brown: #6B5344;
+$dark-green: #1b4332;
+$primary-green: #2e5d3e;
+$light-green: #9ec98f;
+$soft-green: #e8f5e9;
+$mint-cream: #f1f8f4;
+$blush-pink: #fce4ec;
+$white: #ffffff;
+$brown: #6b5344;
 $glass-bg: rgba(255, 255, 255, 0.85);
 $glass-border: rgba(255, 255, 255, 0.3);
 $bento-radius: 20px;
@@ -814,7 +858,7 @@ $bento-radius: 20px;
 .search-bar-section {
   max-width: 700px;
   margin: 0 auto 2rem;
-  
+
   :deep(.q-field) {
     background: $glass-bg;
     backdrop-filter: blur(20px);
@@ -822,21 +866,21 @@ $bento-radius: 20px;
     border: 1px solid $glass-border;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
     transition: all 0.3s ease;
-    
+
     &:hover {
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     }
-    
+
     &.q-field--focused {
       box-shadow: 0 8px 24px rgba($primary-green, 0.15);
       border-color: $primary-green;
     }
   }
-  
+
   :deep(.q-field__control) {
     border-radius: $bento-radius;
   }
-  
+
   :deep(.q-field__prepend) {
     color: $primary-green;
   }
@@ -859,18 +903,18 @@ $bento-radius: 20px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  
+
   &:hover {
     transform: translateY(-8px);
     box-shadow: 0 12px 32px rgba($primary-green, 0.15);
     border-color: rgba($primary-green, 0.3);
   }
-  
+
   :deep(.q-img) {
     border-radius: $bento-radius $bento-radius 0 0;
     height: 180px;
   }
-  
+
   :deep(.q-card__section) {
     padding: 20px;
   }
@@ -893,16 +937,16 @@ $bento-radius: 20px;
   overflow: hidden;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
   border: 1px solid $glass-border;
-  
+
   :deep(.q-card__section) {
     background: linear-gradient(135deg, $soft-green 0%, $mint-cream 100%);
   }
-  
+
   .map-card {
     border-radius: $bento-radius;
     overflow: hidden;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    
+
     #route-map {
       min-height: 550px;
       background: #f0f0f0;
@@ -919,7 +963,7 @@ $faqs-bg: $brown;
   padding: 5rem 0;
   color: $white;
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -1014,7 +1058,7 @@ $faqs-bg: $brown;
   &:hover :deep(.q-icon) {
     transform: scale(1.15) rotate(90deg);
   }
-  
+
   :deep(.q-expansion-item__content) {
     padding: 0;
   }
@@ -1053,13 +1097,13 @@ $faqs-bg: $brown;
 }
 
 @keyframes fadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(30px); 
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -1096,11 +1140,11 @@ $faqs-bg: $brown;
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .faqs-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .container-faqs {
     padding: 0 20px;
   }
@@ -1109,7 +1153,9 @@ $faqs-bg: $brown;
     flex-direction: column;
   }
 
-  .col-md-6, .col-md-4, .col-md-8 {
+  .col-md-6,
+  .col-md-4,
+  .col-md-8 {
     width: 100%;
     margin-bottom: 1.5rem;
   }

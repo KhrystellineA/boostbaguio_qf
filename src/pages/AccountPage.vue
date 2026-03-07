@@ -8,11 +8,11 @@
             <div class="row items-center">
               <div class="col-12 col-sm-3 text-center q-mb-sm q-sm-mb-none">
                 <q-avatar size="100px" class="shadow-5">
-                  <img 
-                    v-if="userStore.userPhotoURL" 
-                    :src="userStore.userPhotoURL" 
+                  <img
+                    v-if="userStore.userPhotoURL"
+                    :src="userStore.userPhotoURL"
                     alt="User Avatar"
-                  >
+                  />
                   <q-icon v-else name="person" size="50px" color="white" />
                   <q-badge color="green" text-color="white" floating>
                     <q-icon name="check_circle" size="xs" />
@@ -22,24 +22,24 @@
               <div class="col-12 col-sm-9 q-px-lg">
                 <div class="text-h4 text-weight-bold">Welcome, {{ userStore.userName }}!</div>
                 <div class="text-subtitle1 q-mt-sm">{{ userStore.userEmail }}</div>
-                
+
                 <div class="row items-center q-mt-md">
-                  <q-icon 
-                    :name="userStore.isPremium ? 'workspace_premium' : 'lock_open'" 
-                    :color="userStore.isPremium ? 'amber' : 'white'" 
-                    size="24px" 
+                  <q-icon
+                    :name="userStore.isPremium ? 'workspace_premium' : 'lock_open'"
+                    :color="userStore.isPremium ? 'amber' : 'white'"
+                    size="24px"
                     class="q-mr-sm"
                   />
                   <div class="text-h6 text-weight-bold">
                     {{ userStore.isPremium ? 'Premium Member' : 'Free Account' }}
                   </div>
                 </div>
-                
+
                 <div v-if="userStore.isPremium && userStore.premiumExpiry" class="q-mt-sm">
-                  <q-chip 
-                    icon="schedule" 
-                    color="white" 
-                    text-color="primary" 
+                  <q-chip
+                    icon="schedule"
+                    color="white"
+                    text-color="primary"
                     class="text-weight-bold"
                   >
                     Valid until {{ formatDate(userStore.premiumExpiry) }}
@@ -64,7 +64,7 @@
               </q-card-section>
             </q-card>
           </div>
-          
+
           <div class="col-12 col-md-6">
             <q-card class="stats-card">
               <q-card-section class="text-center">
@@ -72,10 +72,10 @@
                   {{ userStore.isPremium ? 'Unlimited' : 'Limited' }}
                 </div>
                 <div class="stat-label text-grey-7 text-h6">Offline Maps</div>
-                <q-icon 
-                  :name="isOnline ? 'cloud_done' : 'cloud_off'" 
-                  :color="isOnline ? 'positive' : 'warning'" 
-                  size="48px" 
+                <q-icon
+                  :name="isOnline ? 'cloud_done' : 'cloud_off'"
+                  :color="isOnline ? 'positive' : 'warning'"
+                  size="48px"
                   class="q-mt-md"
                 />
               </q-card-section>
@@ -103,9 +103,7 @@
                     </q-item-section>
                     <q-item-section>
                       <q-item-label class="text-weight-bold">My Saves</q-item-label>
-                      <q-item-label caption>
-                        {{ savedItemsCount }} saved item(s)
-                      </q-item-label>
+                      <q-item-label caption> {{ savedItemsCount }} saved item(s) </q-item-label>
                     </q-item-section>
                     <q-item-section side>
                       <q-icon name="chevron_right" size="24px" color="grey" />
@@ -115,9 +113,9 @@
                   <!-- Offline Mode -->
                   <q-item>
                     <q-item-section avatar>
-                      <q-icon 
-                        :name="isOnline ? 'cloud_done' : 'cloud_off'" 
-                        :color="isOnline ? 'positive' : 'warning'" 
+                      <q-icon
+                        :name="isOnline ? 'cloud_done' : 'cloud_off'"
+                        :color="isOnline ? 'positive' : 'warning'"
                         size="28px"
                       />
                     </q-item-section>
@@ -147,18 +145,10 @@
                     </q-item-section>
                     <q-item-section>
                       <q-item-label class="text-weight-bold">Install PWA</q-item-label>
-                      <q-item-label caption>
-                        Install Boost Baguio on your device
-                      </q-item-label>
+                      <q-item-label caption> Install Boost Baguio on your device </q-item-label>
                     </q-item-section>
                     <q-item-section side>
-                      <q-btn
-                        flat
-                        dense
-                        color="primary"
-                        label="Install"
-                        @click="installPWA"
-                      />
+                      <q-btn flat dense color="primary" label="Install" @click="installPWA" />
                     </q-item-section>
                   </q-item>
 
@@ -169,18 +159,10 @@
                     </q-item-section>
                     <q-item-section>
                       <q-item-label class="text-weight-bold">Offline Data</q-item-label>
-                      <q-item-label caption>
-                        {{ cacheSize }} cached
-                      </q-item-label>
+                      <q-item-label caption> {{ cacheSize }} cached </q-item-label>
                     </q-item-section>
                     <q-item-section side>
-                      <q-btn
-                        flat
-                        dense
-                        color="negative"
-                        label="Clear"
-                        @click="clearCache"
-                      />
+                      <q-btn flat dense color="negative" label="Clear" @click="clearCache" />
                     </q-item-section>
                   </q-item>
                 </q-list>
@@ -210,8 +192,12 @@
                       <q-icon name="check_circle" color="positive" />
                     </q-item-section>
                     <q-item-section>
-                      <q-item-label class="text-weight-medium">Save unlimited places & routes</q-item-label>
-                      <q-item-label caption>Bookmark your favorite spots and routes for quick access</q-item-label>
+                      <q-item-label class="text-weight-medium"
+                        >Save unlimited places & routes</q-item-label
+                      >
+                      <q-item-label caption
+                        >Bookmark your favorite spots and routes for quick access</q-item-label
+                      >
                     </q-item-section>
                   </q-item>
 
@@ -302,21 +288,25 @@
             <div class="text-h6">Subscription Status</div>
           </q-card-section>
           <q-card-section>
-            <q-banner 
-              :class="userStore.isPremium ? 'bg-positive text-white' : 'bg-warning text-black'" 
+            <q-banner
+              :class="userStore.isPremium ? 'bg-positive text-white' : 'bg-warning text-black'"
               rounded
               class="q-mb-md"
             >
               <template v-slot:avatar>
-                <q-icon 
-                  :name="userStore.isPremium ? 'check_circle' : 'warning'" 
-                  size="28px" 
-                  :color="userStore.isPremium ? 'white' : 'black'" 
+                <q-icon
+                  :name="userStore.isPremium ? 'check_circle' : 'warning'"
+                  size="28px"
+                  :color="userStore.isPremium ? 'white' : 'black'"
                 />
               </template>
-              {{ userStore.isPremium ? 'You are a Premium Member' : 'Free account - Upgrade to unlock all features' }}
+              {{
+                userStore.isPremium
+                  ? 'You are a Premium Member'
+                  : 'Free account - Upgrade to unlock all features'
+              }}
             </q-banner>
-            
+
             <div v-if="userStore.isPremium" class="text-center q-mt-lg">
               <q-btn
                 label="Manage Subscription"
@@ -342,12 +332,7 @@
 
         <q-card-section class="q-pt-none">
           <q-list separator>
-            <q-item 
-              clickable
-              v-ripple
-              @click="activatePremium(1)"
-              class="plan-item"
-            >
+            <q-item clickable v-ripple @click="activatePremium(1)" class="plan-item">
               <q-item-section>
                 <q-item-label class="text-h6">1 Month</q-item-label>
                 <q-item-label caption>Perfect for a short trip</q-item-label>
@@ -357,12 +342,7 @@
               </q-item-section>
             </q-item>
 
-            <q-item 
-              clickable
-              v-ripple
-              @click="activatePremium(6)"
-              class="plan-item bg-amber-1"
-            >
+            <q-item clickable v-ripple @click="activatePremium(6)" class="plan-item bg-amber-1">
               <q-item-section>
                 <q-item-label class="text-h6">6 Months</q-item-label>
                 <q-item-label caption>Save 15% - Most Popular</q-item-label>
@@ -372,7 +352,7 @@
               </q-item-section>
             </q-item>
 
-            <q-item 
+            <q-item
               clickable
               v-ripple
               @click="activatePremium(12)"
@@ -438,8 +418,22 @@
                 <div class="row q-col-gutter-lg">
                   <div class="col-12 col-md-6" v-for="place in savedPlaces" :key="place.id">
                     <q-card class="saved-place-card" @click="viewPlace(place)">
-                      <q-img v-if="place.imageUrl" :src="place.imageUrl" spinner-color="primary" style="height: 200px;" />
-                      <div v-else class="bg-grey-3" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                      <q-img
+                        v-if="place.imageUrl"
+                        :src="place.imageUrl"
+                        spinner-color="primary"
+                        style="height: 200px"
+                      />
+                      <div
+                        v-else
+                        class="bg-grey-3"
+                        style="
+                          height: 200px;
+                          display: flex;
+                          align-items: center;
+                          justify-content: center;
+                        "
+                      >
                         <q-icon name="place" size="48px" color="grey-6" />
                       </div>
 
@@ -449,7 +443,9 @@
                             <div class="text-h6 text-weight-bold">{{ place.name }}</div>
                             <div class="text-caption text-grey-7">
                               <q-badge
-                                v-for="(cat, idx) in (Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean))"
+                                v-for="(cat, idx) in Array.isArray(place.categories)
+                                  ? place.categories
+                                  : [place.category].filter(Boolean)"
                                 :key="idx"
                                 color="secondary"
                                 class="text-capitalize q-mr-xs"
@@ -485,8 +481,12 @@
                       <q-card-section>
                         <div class="row items-center justify-between">
                           <div>
-                            <div class="text-h6 text-weight-bold">{{ route.from }} → {{ route.to }}</div>
-                            <div class="text-caption text-grey-7">Saved on {{ formatDate(route.savedAt) }}</div>
+                            <div class="text-h6 text-weight-bold">
+                              {{ route.from }} → {{ route.to }}
+                            </div>
+                            <div class="text-caption text-grey-7">
+                              Saved on {{ formatDate(route.savedAt) }}
+                            </div>
                           </div>
                           <q-btn
                             flat
@@ -528,8 +528,22 @@
               <div class="row q-col-gutter-lg">
                 <div class="col-12 col-md-6" v-for="place in savedPlaces" :key="place.id">
                   <q-card class="saved-place-card" @click="viewPlace(place)">
-                    <q-img v-if="place.imageUrl" :src="place.imageUrl" spinner-color="primary" style="height: 200px;" />
-                    <div v-else class="bg-grey-3" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                    <q-img
+                      v-if="place.imageUrl"
+                      :src="place.imageUrl"
+                      spinner-color="primary"
+                      style="height: 200px"
+                    />
+                    <div
+                      v-else
+                      class="bg-grey-3"
+                      style="
+                        height: 200px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
                       <q-icon name="place" size="48px" color="grey-6" />
                     </div>
 
@@ -539,7 +553,9 @@
                           <div class="text-h6 text-weight-bold">{{ place.name }}</div>
                           <div class="text-caption text-grey-7">
                             <q-badge
-                              v-for="(cat, idx) in (Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean))"
+                              v-for="(cat, idx) in Array.isArray(place.categories)
+                                ? place.categories
+                                : [place.category].filter(Boolean)"
                               :key="idx"
                               color="secondary"
                               class="text-capitalize q-mr-xs"
@@ -590,8 +606,12 @@
                     <q-card-section>
                       <div class="row items-center justify-between">
                         <div>
-                          <div class="text-h6 text-weight-bold">{{ route.from }} → {{ route.to }}</div>
-                          <div class="text-caption text-grey-7">Saved on {{ formatDate(route.savedAt) }}</div>
+                          <div class="text-h6 text-weight-bold">
+                            {{ route.from }} → {{ route.to }}
+                          </div>
+                          <div class="text-caption text-grey-7">
+                            Saved on {{ formatDate(route.savedAt) }}
+                          </div>
                         </div>
                         <q-btn
                           flat
@@ -630,7 +650,11 @@
         <q-bar class="bg-primary text-white">
           <q-icon :name="selectedItemType === 'place' ? 'place' : 'directions'" />
           <div class="text-weight-bold q-ml-sm">
-            {{ selectedItemType === 'place' ? selectedItem?.name : `${selectedItem?.from} → ${selectedItem?.to}` }}
+            {{
+              selectedItemType === 'place'
+                ? selectedItem?.name
+                : `${selectedItem?.from} → ${selectedItem?.to}`
+            }}
           </div>
           <q-space />
           <q-btn dense flat icon="close" v-close-popup />
@@ -638,13 +662,23 @@
 
         <q-card-section class="q-pa-none" v-if="selectedItemType === 'place' && selectedItem">
           <q-scroll-area style="height: calc(90vh - 50px)">
-            <div style="height: 300px; overflow: hidden;">
-              <img 
-                v-if="selectedItem.imageUrl" 
-                :src="selectedItem.imageUrl" 
-                style="width: 100%; height: 100%; object-fit: cover;"
+            <div style="height: 300px; overflow: hidden">
+              <img
+                v-if="selectedItem.imageUrl"
+                :src="selectedItem.imageUrl"
+                style="width: 100%; height: 100%; object-fit: cover"
               />
-              <div v-else style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #f5f5f5;">
+              <div
+                v-else
+                style="
+                  width: 100%;
+                  height: 100%;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  background: #f5f5f5;
+                "
+              >
                 <q-icon name="place" size="80px" color="grey-5" />
               </div>
             </div>
@@ -652,7 +686,9 @@
             <div class="q-pa-lg">
               <div class="q-gutter-xs q-mb-md">
                 <q-chip
-                  v-for="(cat, idx) in (Array.isArray(selectedItem.categories) ? selectedItem.categories : [selectedItem.category].filter(Boolean))"
+                  v-for="(cat, idx) in Array.isArray(selectedItem.categories)
+                    ? selectedItem.categories
+                    : [selectedItem.category].filter(Boolean)"
                   :key="idx"
                   color="primary"
                   text-color="white"
@@ -670,7 +706,9 @@
                     <q-icon name="schedule" size="24px" color="primary" class="q-mr-sm" />
                     <span class="text-weight-bold">Operating Hours</span>
                   </div>
-                  <div class="text-body2">{{ formatOperatingHours(selectedItem.operatingHours) }}</div>
+                  <div class="text-body2">
+                    {{ formatOperatingHours(selectedItem.operatingHours) }}
+                  </div>
                 </q-card-section>
               </q-card>
 
@@ -681,7 +719,9 @@
                     <span class="text-weight-bold">Location</span>
                   </div>
                   <div class="text-body2">{{ selectedItem.address }}</div>
-                  <div class="text-caption text-grey-7 q-mt-xs" v-if="selectedItem.area">Area: {{ selectedItem.area }}</div>
+                  <div class="text-caption text-grey-7 q-mt-xs" v-if="selectedItem.area">
+                    Area: {{ selectedItem.area }}
+                  </div>
                 </q-card-section>
               </q-card>
 
@@ -695,7 +735,12 @@
                 </q-card-section>
               </q-card>
 
-              <q-card flat bordered class="q-mb-md" v-if="selectedItem.phone || selectedItem.website">
+              <q-card
+                flat
+                bordered
+                class="q-mb-md"
+                v-if="selectedItem.phone || selectedItem.website"
+              >
                 <q-card-section>
                   <div class="row items-center q-mb-sm">
                     <q-icon name="phone" size="24px" color="primary" class="q-mr-sm" />
@@ -706,7 +751,9 @@
                   </div>
                   <div class="text-body2" v-if="selectedItem.website">
                     <q-icon name="language" size="16px" />
-                    <a :href="selectedItem.website" target="_blank" class="text-primary">Visit Website</a>
+                    <a :href="selectedItem.website" target="_blank" class="text-primary"
+                      >Visit Website</a
+                    >
                   </div>
                 </q-card-section>
               </q-card>
@@ -725,7 +772,8 @@
               </div>
 
               <div class="text-caption text-grey-7 q-mb-md">
-                <q-icon name="bookmark" size="16px" /> Saved on {{ formatDate(selectedItem.savedAt) }}
+                <q-icon name="bookmark" size="16px" /> Saved on
+                {{ formatDate(selectedItem.savedAt) }}
               </div>
 
               <q-btn
@@ -743,7 +791,9 @@
         <q-card-section v-if="selectedItemType === 'route' && selectedItem">
           <q-scroll-area style="height: calc(90vh - 100px)">
             <div class="text-h5 q-mb-md">{{ selectedItem.from }} → {{ selectedItem.to }}</div>
-            <div class="text-subtitle1 text-grey-7 q-mb-lg">{{ selectedItem.routeName || 'Direct Route' }}</div>
+            <div class="text-subtitle1 text-grey-7 q-mb-lg">
+              {{ selectedItem.routeName || 'Direct Route' }}
+            </div>
 
             <q-card flat bordered class="q-mb-md">
               <q-card-section>
@@ -752,7 +802,9 @@
                   <span class="text-weight-bold">Starting Point</span>
                 </div>
                 <div class="text-body1">{{ selectedItem.from }}</div>
-                <div class="text-caption text-grey-7" v-if="selectedItem.fromAddress">{{ selectedItem.fromAddress }}</div>
+                <div class="text-caption text-grey-7" v-if="selectedItem.fromAddress">
+                  {{ selectedItem.fromAddress }}
+                </div>
               </q-card-section>
             </q-card>
 
@@ -763,7 +815,9 @@
                   <span class="text-weight-bold">Destination</span>
                 </div>
                 <div class="text-body1">{{ selectedItem.to }}</div>
-                <div class="text-caption text-grey-7" v-if="selectedItem.toAddress">{{ selectedItem.toAddress }}</div>
+                <div class="text-caption text-grey-7" v-if="selectedItem.toAddress">
+                  {{ selectedItem.toAddress }}
+                </div>
               </q-card-section>
             </q-card>
 
@@ -777,7 +831,12 @@
               </q-card-section>
             </q-card>
 
-            <q-card flat bordered class="q-mb-lg" v-if="selectedItem.distance || selectedItem.duration">
+            <q-card
+              flat
+              bordered
+              class="q-mb-lg"
+              v-if="selectedItem.distance || selectedItem.duration"
+            >
               <q-card-section>
                 <div class="row items-center q-mb-sm">
                   <q-icon name="info" size="24px" color="primary" class="q-mr-sm" />
@@ -840,7 +899,7 @@ const savedRoutes = ref([])
 
 const showDetailsModal = ref(false)
 const selectedItem = ref(null)
-const selectedItemType = ref(null) 
+const selectedItemType = ref(null)
 
 const savedItemsCount = computed(() => {
   return savedPlaces.value.length + savedRoutes.value.length
@@ -849,7 +908,7 @@ const savedItemsCount = computed(() => {
 onMounted(() => {
   window.addEventListener('online', updateOnlineStatus)
   window.addEventListener('offline', updateOnlineStatus)
-  
+
   if (window.matchMedia('(display-mode: standalone)').matches) {
     isPWAInstalled.value = true
   }
@@ -871,26 +930,26 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('en-PH', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   })
 }
 
 const formatOperatingHours = (operatingHours) => {
   if (!operatingHours) return ''
-  
+
   // If it's already a formatted string, return as is
   if (typeof operatingHours === 'string') {
     return operatingHours
   }
-  
+
   // If it's an object with open/close/days
   if (typeof operatingHours === 'object') {
     const { open, close, days } = operatingHours
-    
+
     if (!open || !close) {
       return days || ''
     }
-    
+
     // Convert 24-hour to 12-hour format
     const formatTime = (timeStr) => {
       if (!timeStr) return ''
@@ -899,28 +958,28 @@ const formatOperatingHours = (operatingHours) => {
       const displayHours = hours % 12 || 12
       return `${displayHours}:${minutes.toString().padStart(2, '0')}${period}`
     }
-    
+
     const openTime = formatTime(open)
     const closeTime = formatTime(close)
-    
+
     return `${days || ''} | ${openTime} - ${closeTime}`.trim()
   }
-  
+
   return ''
 }
 
 const getCategoryLabel = (category) => {
   const labels = {
     'tourist-spot': 'Tourist Spots',
-    'restaurant': 'Cafes & Restaurants',
+    restaurant: 'Cafes & Restaurants',
     'park-nature': 'Parks & Nature',
     'museum-culture': 'Museums & Culture',
-    'shopping': 'Shopping',
+    shopping: 'Shopping',
     'hotel-lodging': 'Hotels & Lodging',
-    'government': 'Government',
-    'hospital': 'Hospital',
-    'school': 'School',
-    'other': 'Other'
+    government: 'Government',
+    hospital: 'Hospital',
+    school: 'School',
+    other: 'Other',
   }
   return labels[category] || category
 }
@@ -934,7 +993,7 @@ const loadSavedItems = async () => {
     storeUserId: userStore.userId,
     storeUserUid: userStore.user?.uid,
     storeId: userStore.id,
-    finalUserId: userId
+    finalUserId: userId,
   })
 
   if (!userId) {
@@ -950,19 +1009,19 @@ const loadSavedItems = async () => {
     const savedPlacesRef = collection(db, 'users', userId, 'savedPlaces')
     const placesQuery = query(savedPlacesRef, orderBy('savedAt', 'desc'))
     const placesSnapshot = await getDocs(placesQuery)
-    
-    savedPlaces.value = placesSnapshot.docs.map(doc => ({
+
+    savedPlaces.value = placesSnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }))
 
     const savedRoutesRef = collection(db, 'users', userId, 'savedRoutes')
     const routesQuery = query(savedRoutesRef, orderBy('savedAt', 'desc'))
     const routesSnapshot = await getDocs(routesQuery)
-    
-    savedRoutes.value = routesSnapshot.docs.map(doc => ({
+
+    savedRoutes.value = routesSnapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }))
 
     localStorage.setItem('savedPlaces', JSON.stringify(savedPlaces.value))
@@ -970,15 +1029,15 @@ const loadSavedItems = async () => {
 
     console.log('[Account] ✅ Loaded saved items:', {
       places: savedPlaces.value.length,
-      routes: savedRoutes.value.length
+      routes: savedRoutes.value.length,
     })
   } catch (error) {
     console.error('[Account] Error loading saved items:', error)
     console.error('[Account] Error details:', {
       code: error.code,
-      message: error.message
+      message: error.message,
     })
-    
+
     const savedPlacesData = localStorage.getItem('savedPlaces')
     const savedRoutesData = localStorage.getItem('savedRoutes')
 
@@ -993,7 +1052,7 @@ const loadSavedItems = async () => {
     $q.notify({
       type: 'warning',
       message: 'Loading from offline storage',
-      position: 'top'
+      position: 'top',
     })
   } finally {
     loadingSavedItems.value = false
@@ -1002,7 +1061,7 @@ const loadSavedItems = async () => {
 
 const openSavedItems = () => {
   showSavedItems.value = true
-  loadSavedItems() 
+  loadSavedItems()
 }
 
 const viewPlace = (place) => {
@@ -1025,8 +1084,8 @@ const navigateToPlace = (place) => {
     path: '/apanam',
     query: {
       to: place.name,
-      toAddress: place.address
-    }
+      toAddress: place.address,
+    },
   })
 }
 
@@ -1036,38 +1095,38 @@ const useRoute = (route) => {
     path: '/apanam',
     query: {
       from: route.from,
-      to: route.to
-    }
+      to: route.to,
+    },
   })
 }
 
 const navigateToPlaceFromModal = () => {
   if (!selectedItem.value) return
-  
+
   showDetailsModal.value = false
   showSavedItems.value = false
-  
+
   router.push({
     path: '/apanam',
     query: {
       to: selectedItem.value.name,
-      toAddress: selectedItem.value.address
-    }
+      toAddress: selectedItem.value.address,
+    },
   })
 }
 
 const navigateToRouteFromModal = () => {
   if (!selectedItem.value) return
-  
+
   showDetailsModal.value = false
   showSavedItems.value = false
-  
+
   router.push({
     path: '/apanam',
     query: {
       from: selectedItem.value.from,
-      to: selectedItem.value.to
-    }
+      to: selectedItem.value.to,
+    },
   })
 }
 
@@ -1079,7 +1138,7 @@ const removeSavedItem = async (type, id) => {
     $q.notify({
       type: 'negative',
       message: 'User not authenticated',
-      position: 'top'
+      position: 'top',
     })
     return
   }
@@ -1088,16 +1147,16 @@ const removeSavedItem = async (type, id) => {
     title: 'Remove Item',
     message: `Are you sure you want to remove this ${type}?`,
     cancel: true,
-    persistent: true
+    persistent: true,
   }).onOk(async () => {
     try {
       if (type === 'place') {
         await deleteDoc(doc(db, 'users', userId, 'savedPlaces', id))
-        savedPlaces.value = savedPlaces.value.filter(p => p.id !== id)
+        savedPlaces.value = savedPlaces.value.filter((p) => p.id !== id)
         localStorage.setItem('savedPlaces', JSON.stringify(savedPlaces.value))
       } else if (type === 'route') {
         await deleteDoc(doc(db, 'users', userId, 'savedRoutes', id))
-        savedRoutes.value = savedRoutes.value.filter(r => r.id !== id)
+        savedRoutes.value = savedRoutes.value.filter((r) => r.id !== id)
         localStorage.setItem('savedRoutes', JSON.stringify(savedRoutes.value))
       }
 
@@ -1105,14 +1164,14 @@ const removeSavedItem = async (type, id) => {
         type: 'positive',
         message: `${type.charAt(0).toUpperCase() + type.slice(1)} removed successfully`,
         icon: 'delete',
-        position: 'top'
+        position: 'top',
       })
     } catch (error) {
       console.error('[Account] Error removing item:', error)
       $q.notify({
         type: 'negative',
         message: 'Failed to remove item',
-        position: 'top'
+        position: 'top',
       })
     }
   })
@@ -1123,7 +1182,7 @@ const handleLogout = async () => {
     title: 'Confirm Logout',
     message: 'Are you sure you want to logout?',
     cancel: true,
-    persistent: true
+    persistent: true,
   }).onOk(async () => {
     await userStore.logout()
     router.push('/login')
@@ -1140,12 +1199,12 @@ const toggleOfflineMode = async (value) => {
     $q.notify({
       type: 'positive',
       message: 'Offline mode enabled',
-      caption: 'Routes and data will be cached'
+      caption: 'Routes and data will be cached',
     })
   } else {
     $q.notify({
       type: 'info',
-      message: 'Offline mode disabled'
+      message: 'Offline mode disabled',
     })
   }
 }
@@ -1155,22 +1214,22 @@ const installPWA = async () => {
     $q.notify({
       type: 'warning',
       message: 'PWA installation not available',
-      caption: 'Try accessing from a mobile browser'
+      caption: 'Try accessing from a mobile browser',
     })
     return
   }
 
   deferredPrompt.prompt()
   const { outcome } = await deferredPrompt.userChoice
-  
+
   if (outcome === 'accepted') {
     $q.notify({
       type: 'positive',
-      message: 'App installed successfully!'
+      message: 'App installed successfully!',
     })
     isPWAInstalled.value = true
   }
-  
+
   deferredPrompt = null
 }
 
@@ -1187,17 +1246,17 @@ const clearCache = async () => {
     title: 'Clear Offline Data',
     message: 'This will remove all cached routes and data. Continue?',
     cancel: true,
-    persistent: true
+    persistent: true,
   }).onOk(async () => {
     if ('caches' in window) {
       const cacheNames = await caches.keys()
-      await Promise.all(cacheNames.map(name => caches.delete(name)))
-      
+      await Promise.all(cacheNames.map((name) => caches.delete(name)))
+
       $q.notify({
         type: 'positive',
-        message: 'Cache cleared successfully'
+        message: 'Cache cleared successfully',
       })
-      
+
       getCacheSize()
     }
   })
@@ -1206,29 +1265,29 @@ const clearCache = async () => {
 // New methods added for enhanced UX
 const openProfileEditor = () => {
   showProfileEditor.value = true
-};
+}
 
 const manageSubscription = () => {
   $q.notify({
     type: 'info',
     message: 'Subscription management feature coming soon!',
-    position: 'top'
-  });
-};
+    position: 'top',
+  })
+}
 </script>
 
 <style scoped>
 .bg-gradient-primary {
-  background: linear-gradient(135deg, #2E5D3E 0%, #4A7D5D 100%);
+  background: linear-gradient(135deg, #2e5d3e 0%, #4a7d5d 100%);
 }
 
 .bg-gradient-premium {
-  background: linear-gradient(135deg, #8D6E63 0%, #A1887F 100%);
+  background: linear-gradient(135deg, #8d6e63 0%, #a1887f 100%);
 }
 
 .stats-card {
   border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s ease;
 }
 
@@ -1255,16 +1314,18 @@ const manageSubscription = () => {
   background-color: rgba(45, 93, 62, 0.05);
 }
 
-.saved-place-card, .saved-route-card {
+.saved-place-card,
+.saved-route-card {
   border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   cursor: pointer;
 }
 
-.saved-place-card:hover, .saved-route-card:hover {
+.saved-place-card:hover,
+.saved-route-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
 }
 
 .q-card {

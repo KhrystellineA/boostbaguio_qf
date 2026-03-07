@@ -9,6 +9,7 @@ All page images are stored in Firebase Storage (via Cloudinary) and metadata is 
 ## Firestore Collection: `pagePhotos`
 
 ### Security Rules (Updated)
+
 ```javascript
 match /pagePhotos/{photoId} {
   // Anyone can read page photos (for public pages)
@@ -22,20 +23,20 @@ match /pagePhotos/{photoId} {
 
 ## Document ID Mapping
 
-| Document ID | Admin Label | User Page/Component | Fallback Image |
-|-------------|-------------|---------------------|----------------|
-| `home` | HOME (Hero Section) | `IndexPage.vue` | Unsplash default |
-| `home-features` | HOME (Features Section) | `FeaturesSection.vue` | Unsplash image |
-| `home-guide` | HOME (Guide Steps - 3 Images) | `GuideSection.vue` | None (uses icons) |
-| `home-about` | HOME (About Section) | `AboutSection.vue` | Unsplash image |
-| `home-gallery` | HOME (Gallery Section) | `GallerySection.vue` | None (empty) |
-| `apanam` | APANAM | `ApanamPage.vue` | `src/assets/44.png` |
-| `maykan` | MAYKAN | `MaykanPage.vue` | `src/assets/456.png` |
-| `pagnaam` | PAGNAAM (Hero) | `PagnaamPage.vue` | `src/assets/44.png` |
-| `pagnaam-features` | PAGNAAM (Features Section) | *Not yet implemented* | N/A |
-| `ayanmo` | AYAN MO (Hero) | `AyanMoPage.vue` | Fallback image |
-| `ayanmo-discovery` | AYAN MO (Discovery Section) | *Not yet implemented* | N/A |
-| `aramidem` | ARAMIDEM | `AramidemPage.vue` | `src/assets/bakery.png` |
+| Document ID        | Admin Label                   | User Page/Component   | Fallback Image          |
+| ------------------ | ----------------------------- | --------------------- | ----------------------- |
+| `home`             | HOME (Hero Section)           | `IndexPage.vue`       | Unsplash default        |
+| `home-features`    | HOME (Features Section)       | `FeaturesSection.vue` | Unsplash image          |
+| `home-guide`       | HOME (Guide Steps - 3 Images) | `GuideSection.vue`    | None (uses icons)       |
+| `home-about`       | HOME (About Section)          | `AboutSection.vue`    | Unsplash image          |
+| `home-gallery`     | HOME (Gallery Section)        | `GallerySection.vue`  | None (empty)            |
+| `apanam`           | APANAM                        | `ApanamPage.vue`      | `src/assets/44.png`     |
+| `maykan`           | MAYKAN                        | `MaykanPage.vue`      | `src/assets/456.png`    |
+| `pagnaam`          | PAGNAAM (Hero)                | `PagnaamPage.vue`     | `src/assets/44.png`     |
+| `pagnaam-features` | PAGNAAM (Features Section)    | _Not yet implemented_ | N/A                     |
+| `ayanmo`           | AYAN MO (Hero)                | `AyanMoPage.vue`      | Fallback image          |
+| `ayanmo-discovery` | AYAN MO (Discovery Section)   | _Not yet implemented_ | N/A                     |
+| `aramidem`         | ARAMIDEM                      | `AramidemPage.vue`    | `src/assets/bakery.png` |
 
 ## Image Upload Flow (Admin Side)
 
@@ -67,7 +68,7 @@ const loadHeroImage = async () => {
   try {
     const docRef = doc(db, 'pagePhotos', 'home')
     const docSnap = await getDoc(docRef)
-    
+
     if (docSnap.exists() && docSnap.data().imageUrl) {
       heroImage.value = docSnap.data().imageUrl
     } else {
@@ -83,7 +84,9 @@ const loadHeroImage = async () => {
 ## Special Cases
 
 ### home-guide (Guide Steps)
+
 Stores an array of 3 images:
+
 ```javascript
 {
   pageName: 'home-guide',
@@ -97,7 +100,9 @@ Stores an array of 3 images:
 ```
 
 ### home-gallery (Gallery Section)
+
 Stores an array of gallery images:
+
 ```javascript
 {
   pageName: 'home-gallery',
@@ -114,6 +119,7 @@ Stores an array of gallery images:
 ### Issue: Default image shows instead of uploaded image
 
 **Possible causes:**
+
 1. **Firestore rules blocking reads** - Fixed: Rules now allow public read access
 2. **Image upload failed** - Check admin console for error messages
 3. **Page not refreshed** - Refresh the browser after uploading
@@ -121,6 +127,7 @@ Stores an array of gallery images:
 5. **Wrong document ID** - Verify admin is saving to correct document ID
 
 **Debugging steps:**
+
 ```javascript
 // Check browser console for logs like:
 [IndexPage] Loading hero image from Firebase...
@@ -130,6 +137,7 @@ Stores an array of gallery images:
 ### Issue: Upload fails in admin
 
 **Possible causes:**
+
 1. **File too large** - Image must be < 10MB
 2. **Invalid format** - Only JPG, PNG, WebP allowed
 3. **Network error** - Check internet connection

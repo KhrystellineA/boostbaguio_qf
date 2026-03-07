@@ -6,7 +6,8 @@
         <div class="hero-content animate-fade-in">
           <h1 class="hero-title">MAYKAN - Places</h1>
           <p class="hero-description">
-            Discover Baguio's gems! Uncover curated tourist spots with easy commute guides tailored for your Baguio adventure.
+            Discover Baguio's gems! Uncover curated tourist spots with easy commute guides tailored
+            for your Baguio adventure.
           </p>
         </div>
       </div>
@@ -19,23 +20,30 @@
           <div class="col-md-6 col-12 q-pa-xl">
             <h2 class="text-h4 text-weight-bold text-primary q-mb-lg">Baguio's Hidden Gems</h2>
             <p class="text-body1 q-mb-md">
-              Baguio City is filled with breathtaking sights and experiences waiting to be discovered.
-              Our curated list of tourist spots ensures you navigate the city effortlessly while enjoying its rich culture.
+              Baguio City is filled with breathtaking sights and experiences waiting to be
+              discovered. Our curated list of tourist spots ensures you navigate the city
+              effortlessly while enjoying its rich culture.
             </p>
             <p class="text-body1 q-mb-lg">
               From iconic landmarks to hidden gems, MAYKAN provides comprehensive information about
               places to visit in Baguio City with integrated navigation instructions.
             </p>
             <div class="q-gutter-sm">
-              <q-chip square color="primary" text-color="white" icon="location_on">Tourist Spots</q-chip>
-              <q-chip square color="secondary" text-color="white" icon="restaurant">Cafes & Restaurants</q-chip>
+              <q-chip square color="primary" text-color="white" icon="location_on"
+                >Tourist Spots</q-chip
+              >
+              <q-chip square color="secondary" text-color="white" icon="restaurant"
+                >Cafes & Restaurants</q-chip
+              >
               <q-chip square color="primary" text-color="white" icon="park">Parks & Nature</q-chip>
-              <q-chip square color="secondary" text-color="white" icon="museum">Cultural Sites</q-chip>
+              <q-chip square color="secondary" text-color="white" icon="museum"
+                >Cultural Sites</q-chip
+              >
             </div>
           </div>
           <div class="col-md-6 col-12 q-pa-xl">
             <div class="image-placeholder bg-grey-3 q-pa-xl rounded-borders">
-              <q-icon name="location_on" size="64px" color="grey-6"/>
+              <q-icon name="location_on" size="64px" color="grey-6" />
               <div class="text-center q-mt-md">Place Discovery</div>
             </div>
           </div>
@@ -88,7 +96,13 @@
                     <h3 class="slide-title">{{ place.name }}</h3>
                     <p class="slide-area">{{ place.area }}</p>
                     <div class="slide-tags">
-                      <q-badge v-for="(tag, idx) in place.tags" :key="idx" color="white" text-color="primary" class="q-mr-xs q-mb-xs">
+                      <q-badge
+                        v-for="(tag, idx) in place.tags"
+                        :key="idx"
+                        color="white"
+                        text-color="primary"
+                        class="q-mr-xs q-mb-xs"
+                      >
                         {{ tag }}
                       </q-badge>
                     </div>
@@ -115,11 +129,7 @@
 
             <template v-slot:control>
               <div class="custom-controls">
-                <q-carousel-control
-                  position="bottom-right"
-                  :offset="[10, 10]"
-                  class="q-gutter-xs"
-                >
+                <q-carousel-control position="bottom-right" :offset="[10, 10]" class="q-gutter-xs">
                   <q-btn
                     round
                     dense
@@ -148,7 +158,7 @@
             v-for="(place, index) in topTouristPlaces"
             :key="index"
             class="indicator-item"
-            :class="{ 'active': slide === index }"
+            :class="{ active: slide === index }"
             @click="slide = index"
           >
             <q-img :src="place.imageUrl || '~assets/place-default.jpg'" class="indicator-image" />
@@ -164,7 +174,8 @@
           <div class="col-md-8 col-12 q-pa-md">
             <div class="text-h6 text-weight-bold">Want more organic content?</div>
             <p class="text-body2">
-              Visit Sa Baguio Facebook group to see more personal and unique suggestions and experiences!
+              Visit Sa Baguio Facebook group to see more personal and unique suggestions and
+              experiences!
             </p>
           </div>
           <div class="col-md-4 col-12 q-pa-md text-right">
@@ -188,7 +199,9 @@
       <div class="container">
         <div class="text-center q-mb-xl">
           <h2 class="text-h3 text-weight-bold text-primary">Discover Baguio's Places</h2>
-          <p class="text-body1">Browse our curated collection of tourist spots, cafes, parks, and more</p>
+          <p class="text-body1">
+            Browse our curated collection of tourist spots, cafes, parks, and more
+          </p>
         </div>
 
         <div class="category-filter-section q-mb-xl">
@@ -218,7 +231,11 @@
         <div v-else-if="filteredPlaces.length === 0" class="text-center q-py-xl">
           <q-icon name="place" size="80px" color="grey-5" />
           <h3 class="text-grey-7 q-mt-md">No Places Found</h3>
-          <p class="text-grey-6">{{ selectedCategory === 'all' ? 'No places available yet' : 'No places in this category' }}</p>
+          <p class="text-grey-6">
+            {{
+              selectedCategory === 'all' ? 'No places available yet' : 'No places in this category'
+            }}
+          </p>
         </div>
 
         <div v-else class="places-grid">
@@ -238,7 +255,7 @@
                   <q-spinner color="primary" size="30px" />
                 </div>
               </template>
-              
+
               <!-- Save Button Overlay -->
               <div class="save-btn-overlay">
                 <q-btn
@@ -253,11 +270,13 @@
                 />
               </div>
             </q-img>
-            
+
             <!-- Category Badge -->
             <div class="category-badge">
               <q-badge
-                v-for="(cat, idx) in (Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean))"
+                v-for="(cat, idx) in Array.isArray(place.categories)
+                  ? place.categories
+                  : [place.category].filter(Boolean)"
                 :key="idx"
                 color="secondary"
                 class="text-capitalize q-mr-xs"
@@ -276,7 +295,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <!-- Tags -->
               <div class="tags-container q-mb-sm" v-if="place.tags && place.tags.length">
                 <q-badge
@@ -305,20 +324,10 @@
             </q-card-section>
 
             <q-card-actions align="right">
-              <q-btn
-                flat
-                color="primary"
-                @click.stop="selectPlace(place)"
-                icon="visibility"
-              >
+              <q-btn flat color="primary" @click.stop="selectPlace(place)" icon="visibility">
                 Details
               </q-btn>
-              <q-btn 
-                flat 
-                color="secondary" 
-                @click.stop="navigateToPlace(place)"
-                icon="navigation"
-              >
+              <q-btn flat color="secondary" @click.stop="navigateToPlace(place)" icon="navigation">
                 Go There
               </q-btn>
             </q-card-actions>
@@ -329,7 +338,7 @@
 
     <!-- PLACE DETAILS MODAL (Section 6) -->
     <q-dialog v-model="showPlaceDetail" transition-show="fade" transition-hide="fade">
-      <q-card class="place-detail-card" style="width: 90%; max-width: 900px;">
+      <q-card class="place-detail-card" style="width: 90%; max-width: 900px">
         <q-card-section class="bg-primary text-white">
           <div class="row items-center">
             <div class="col">
@@ -355,7 +364,9 @@
               <div class="row q-col-gutter-lg">
                 <div class="col-12 col-md-8">
                   <h4 class="text-h6 text-weight-bold text-primary q-mb-md">About this Place</h4>
-                  <p class="text-body1 q-mb-lg">{{ selectedPlace.description || 'No description available.' }}</p>
+                  <p class="text-body1 q-mb-lg">
+                    {{ selectedPlace.description || 'No description available.' }}
+                  </p>
 
                   <h4 class="text-h6 text-weight-bold text-primary q-mb-md">Place Details</h4>
                   <q-list bordered separator>
@@ -374,7 +385,9 @@
                       </q-item-section>
                       <q-item-section>
                         <q-item-label class="text-weight-bold">Operating Hours</q-item-label>
-                        <q-item-label caption>{{ formatOperatingHours(selectedPlace.operatingHours) }}</q-item-label>
+                        <q-item-label caption>{{
+                          formatOperatingHours(selectedPlace.operatingHours)
+                        }}</q-item-label>
                       </q-item-section>
                     </q-item>
                     <q-item v-if="selectedPlace.phone">
@@ -391,7 +404,7 @@
 
                 <div class="col-12 col-md-4">
                   <h4 class="text-h6 text-weight-bold text-primary q-mb-md">Actions</h4>
-                  
+
                   <q-card flat bordered class="q-mb-lg">
                     <q-card-section>
                       <p class="text-body2 q-mb-md">
@@ -534,7 +547,17 @@ import { defineComponent, ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import { db } from 'src/boot/firebase'
-import { collection, getDocs, query, orderBy, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore'
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  doc,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  serverTimestamp,
+} from 'firebase/firestore'
 import { useUserStore } from 'stores/user-store'
 import FooterSection from '../components/Home/FooterSection.vue'
 import { defaultBaguioPlaces } from 'src/composables/useBaguioPlaces'
@@ -566,20 +589,24 @@ export default defineComponent({
     const faqs = [
       {
         question: 'How do I get directions to a place?',
-        answer: 'Click on any place and use the "Get Directions" button to navigate to the location using APANAM navigation.'
+        answer:
+          'Click on any place and use the "Get Directions" button to navigate to the location using APANAM navigation.',
       },
       {
         question: 'Can I save places for later?',
-        answer: 'Yes! Click the bookmark icon on any place card to save it. You can view all your saved places from your account page.'
+        answer:
+          'Yes! Click the bookmark icon on any place card to save it. You can view all your saved places from your account page.',
       },
       {
         question: 'How do I share a place?',
-        answer: 'Click on a place to open details, then click the "Share" button to share the place details with others.'
+        answer:
+          'Click on a place to open details, then click the "Share" button to share the place details with others.',
       },
       {
         question: 'What if a place is closed?',
-        answer: 'Place information is regularly updated. We recommend checking the operating hours before visiting.'
-      }
+        answer:
+          'Place information is regularly updated. We recommend checking the operating hours before visiting.',
+      },
     ]
 
     const leftFaqs = computed(() => faqs.slice(0, 2))
@@ -596,7 +623,7 @@ export default defineComponent({
 
     // Get top tourist places for carousel (filter by category or popularity)
     const topTouristPlaces = computed(() => {
-      const touristSpots = places.value.filter(p => p.category === 'Tourist Spots')
+      const touristSpots = places.value.filter((p) => p.category === 'Tourist Spots')
       return touristSpots.length > 0 ? touristSpots : places.value.slice(0, 10)
     })
 
@@ -608,9 +635,11 @@ export default defineComponent({
       if (selectedCategory.value === 'all') {
         return places.value
       }
-      return places.value.filter(place => {
+      return places.value.filter((place) => {
         // Support both single category (string) and multiple categories (array)
-        const placeCategories = Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean)
+        const placeCategories = Array.isArray(place.categories)
+          ? place.categories
+          : [place.category].filter(Boolean)
         return placeCategories.includes(selectedCategory.value)
       })
     })
@@ -637,15 +666,17 @@ export default defineComponent({
         console.log('[MaykanPage] Fetching places from Firebase...')
         const q = query(collection(db, 'places'), orderBy('name', 'asc'))
         const querySnapshot = await getDocs(q)
-        const firebasePlaces = querySnapshot.docs.map(doc => ({
+        const firebasePlaces = querySnapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         }))
         console.log('[MaykanPage] Loaded places from Firebase:', firebasePlaces.length)
-        
+
         // Always use default data (30 tourist spots) - merge with Firebase if needed
         if (firebasePlaces.length > 0 && firebasePlaces.length < 30) {
-          console.log('[MaykanPage] Firebase has fewer than 30 places, using default 30 tourist spots')
+          console.log(
+            '[MaykanPage] Firebase has fewer than 30 places, using default 30 tourist spots'
+          )
           places.value = defaultBaguioPlaces
         } else if (firebasePlaces.length >= 30) {
           console.log('[MaykanPage] Using Firebase places')
@@ -654,7 +685,7 @@ export default defineComponent({
           console.log('[MaykanPage] No Firebase places, using default data')
           places.value = defaultBaguioPlaces
         }
-        
+
         console.log('[MaykanPage] Total places to display:', places.value.length)
       } catch (error) {
         console.error('[MaykanPage] Error loading places:', error)
@@ -664,7 +695,7 @@ export default defineComponent({
         $q.notify({
           type: 'info',
           message: 'Showing default Baguio places',
-          position: 'top'
+          position: 'top',
         })
       } finally {
         loading.value = false
@@ -698,7 +729,7 @@ export default defineComponent({
           toName: place.name,
           toLat: place.coords ? place.coords[0] : '',
           toLng: place.coords ? place.coords[1] : '',
-        }
+        },
       })
       showPlaceDetail.value = false
     }
@@ -713,18 +744,18 @@ export default defineComponent({
             {
               label: 'Login',
               color: 'white',
-              handler: () => router.push('/login')
-            }
-          ]
+              handler: () => router.push('/login'),
+            },
+          ],
         })
         return
       }
 
       const isSaved = savedPlacesIds.value.has(place.id)
-      
+
       try {
         const savedPlaceRef = doc(db, 'savedPlaces', `${userStore.user.uid}_${place.id}`)
-        
+
         if (isSaved) {
           // Unsave place
           await deleteDoc(savedPlaceRef)
@@ -732,7 +763,7 @@ export default defineComponent({
           $q.notify({
             type: 'info',
             message: 'Place removed from saved',
-            position: 'top'
+            position: 'top',
           })
         } else {
           // Save place
@@ -741,7 +772,9 @@ export default defineComponent({
             placeId: place.id,
             name: place.name,
             area: place.area,
-            categories: Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean),
+            categories: Array.isArray(place.categories)
+              ? place.categories
+              : [place.category].filter(Boolean),
             tags: place.tags || [],
             description: place.description,
             address: place.address,
@@ -750,13 +783,13 @@ export default defineComponent({
             phone: place.phone,
             imageUrl: place.imageUrl,
             coords: place.coords,
-            savedAt: serverTimestamp()
+            savedAt: serverTimestamp(),
           })
           savedPlacesIds.value.add(place.id)
           $q.notify({
             type: 'positive',
             message: 'Place saved successfully!',
-            position: 'top'
+            position: 'top',
           })
         }
       } catch (error) {
@@ -764,7 +797,7 @@ export default defineComponent({
         $q.notify({
           type: 'negative',
           message: 'Failed to save place',
-          position: 'top'
+          position: 'top',
         })
       }
     }
@@ -776,12 +809,9 @@ export default defineComponent({
       }
 
       try {
-        const q = query(
-          collection(db, 'savedPlaces'),
-          orderBy('savedAt', 'desc')
-        )
+        const q = query(collection(db, 'savedPlaces'), orderBy('savedAt', 'desc'))
         const querySnapshot = await getDocs(q)
-        querySnapshot.docs.forEach(doc => {
+        querySnapshot.docs.forEach((doc) => {
           const data = doc.data()
           if (data.userId === userStore.user.uid) {
             savedPlacesIds.value.add(data.placeId)
@@ -810,11 +840,11 @@ export default defineComponent({
             { label: 'Copy Link', icon: 'content_copy', value: 'copy' },
             { label: 'Facebook', icon: 'facebook', value: 'facebook' },
             { label: 'Twitter', icon: 'rss_feed', value: 'twitter' },
-            { label: 'Messenger', icon: 'chat', value: 'messenger' }
-          ]
+            { label: 'Messenger', icon: 'chat', value: 'messenger' },
+          ],
         },
         cancel: true,
-        persistent: true
+        persistent: true,
       }).onOk(async (data) => {
         const placeUrl = window.location.href.split('?')[0] + '?place=' + selectedPlace.value.id
         const placeText = 'Check out ' + selectedPlace.value.name + ' in Baguio City! ' + placeUrl
@@ -825,12 +855,20 @@ export default defineComponent({
             message: 'Link copied to clipboard!',
             color: 'positive',
             position: 'top',
-            icon: 'check'
+            icon: 'check',
           })
         } else if (data === 'facebook') {
-          window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(placeUrl), '_blank', 'width=600,height=400')
+          window.open(
+            'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(placeUrl),
+            '_blank',
+            'width=600,height=400'
+          )
         } else if (data === 'twitter') {
-          window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(placeText), '_blank', 'width=600,height=400')
+          window.open(
+            'https://twitter.com/intent/tweet?text=' + encodeURIComponent(placeText),
+            '_blank',
+            'width=600,height=400'
+          )
         } else if (data === 'messenger') {
           window.open('fb-messenger://share?link=' + encodeURIComponent(placeUrl), '_blank')
         }
@@ -848,7 +886,7 @@ export default defineComponent({
         $q.notify({
           type: 'warning',
           message: 'Please describe the issue',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -858,7 +896,7 @@ export default defineComponent({
         placeId: placeToReport.value?.id,
         placeName: placeToReport.value?.name,
         issue: reportIssueText.value,
-        timestamp: new Date()
+        timestamp: new Date(),
       })
 
       showReportDialog.value = false
@@ -866,7 +904,7 @@ export default defineComponent({
         type: 'positive',
         message: 'Thank you! Your report has been submitted.',
         position: 'top',
-        timeout: 3000
+        timeout: 3000,
       })
     }
 
@@ -907,15 +945,15 @@ export default defineComponent({
     const getCategoryLabel = (category) => {
       const labels = {
         'tourist-spot': 'Tourist Spots',
-        'restaurant': 'Cafes & Restaurants',
+        restaurant: 'Cafes & Restaurants',
         'park-nature': 'Parks & Nature',
         'museum-culture': 'Museums & Culture',
-        'shopping': 'Shopping',
+        shopping: 'Shopping',
         'hotel-lodging': 'Hotels & Lodging',
-        'government': 'Government',
-        'hospital': 'Hospital',
-        'school': 'School',
-        'other': 'Other'
+        government: 'Government',
+        hospital: 'Hospital',
+        school: 'School',
+        other: 'Other',
       }
       return labels[category] || category
     }
@@ -928,7 +966,7 @@ export default defineComponent({
         month: 'long',
         day: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
+        minute: '2-digit',
       })
     }
 
@@ -969,7 +1007,7 @@ export default defineComponent({
       submitReport,
       showReportDialog,
       placeToReport,
-      reportIssueText
+      reportIssueText,
     }
   },
 })
@@ -977,14 +1015,14 @@ export default defineComponent({
 
 <style scoped lang="scss">
 // Color Variables
-$dark-green: #1B4332;
-$primary-green: #2E5D3E;
-$light-green: #9EC98F;
-$soft-green: #E8F5E9;
-$mint-cream: #F1F8F4;
-$blush-pink: #FCE4EC;
-$white: #FFFFFF;
-$brown: #6B5344;
+$dark-green: #1b4332;
+$primary-green: #2e5d3e;
+$light-green: #9ec98f;
+$soft-green: #e8f5e9;
+$mint-cream: #f1f8f4;
+$blush-pink: #fce4ec;
+$white: #ffffff;
+$brown: #6b5344;
 $glass-bg: rgba(255, 255, 255, 0.85);
 $glass-border: rgba(255, 255, 255, 0.3);
 $bento-radius: 20px;
@@ -1079,7 +1117,12 @@ $bento-radius: 20px;
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba($dark-green, 0.95) 0%, rgba($dark-green, 0.7) 50%, transparent 100%);
+  background: linear-gradient(
+    to top,
+    rgba($dark-green, 0.95) 0%,
+    rgba($dark-green, 0.7) 50%,
+    transparent 100%
+  );
   padding: 80px 24px 24px;
   display: flex;
   align-items: flex-end;
@@ -1113,7 +1156,7 @@ $bento-radius: 20px;
 .slide-actions {
   display: flex;
   gap: 10px;
-  
+
   :deep(.q-btn) {
     border-radius: 12px;
     font-weight: 600;
@@ -1139,7 +1182,7 @@ $bento-radius: 20px;
   transition: all 0.3s ease;
   border: 2px solid transparent;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  
+
   &:hover {
     opacity: 0.85;
     transform: scale(1.08);
@@ -1207,18 +1250,18 @@ $bento-radius: 20px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
-  
+
   &:hover {
     transform: translateY(-8px);
     box-shadow: 0 12px 32px rgba($primary-green, 0.15);
     border-color: rgba($primary-green, 0.3);
   }
-  
+
   :deep(.q-img) {
     height: 220px;
     position: relative;
   }
-  
+
   :deep(.q-card__section) {
     padding: 20px;
   }
@@ -1242,7 +1285,7 @@ $bento-radius: 20px;
   backdrop-filter: blur(8px);
   transition: all 0.3s ease;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-  
+
   &:hover {
     background: rgba(255, 255, 255, 1);
     transform: scale(1.15);
@@ -1255,7 +1298,7 @@ $bento-radius: 20px;
   top: 12px;
   right: 12px;
   z-index: 10;
-  
+
   :deep(.q-badge) {
     border-radius: 12px;
     padding: 6px 12px;
@@ -1299,7 +1342,7 @@ $faqs-bg: $brown;
   padding: 5rem 0;
   color: $white;
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -1394,7 +1437,7 @@ $faqs-bg: $brown;
   &:hover :deep(.q-icon) {
     transform: scale(1.15) rotate(90deg);
   }
-  
+
   :deep(.q-expansion-item__content) {
     padding: 0;
   }
@@ -1433,13 +1476,13 @@ $faqs-bg: $brown;
 }
 
 @keyframes fadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(30px); 
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -1461,7 +1504,7 @@ $faqs-bg: $brown;
   transition: all 0.3s ease;
   font-size: 0.85rem;
   padding: 10px 20px !important;
-  
+
   &:not(.q-btn--unelevated) {
     border: 2px solid $primary-green;
   }
@@ -1511,7 +1554,7 @@ $faqs-bg: $brown;
   .slide-actions {
     flex-direction: column;
     gap: 10px;
-    
+
     :deep(.q-btn) {
       width: 100%;
       min-height: 48px !important;
@@ -1547,7 +1590,9 @@ $faqs-bg: $brown;
     flex-direction: column;
   }
 
-  .col-md-6, .col-md-8, .col-md-4 {
+  .col-md-6,
+  .col-md-8,
+  .col-md-4 {
     width: 100%;
   }
 
@@ -1555,11 +1600,11 @@ $faqs-bg: $brown;
   .category-btn {
     min-width: 130px;
   }
-  
+
   .faqs-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .container-faqs {
     padding: 0 20px;
   }

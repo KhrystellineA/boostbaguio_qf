@@ -45,8 +45,8 @@ describe('PineSkeletonLoader', () => {
     it('accepts custom height', async () => {
       const wrapper = mount(PineSkeletonLoader, {
         props: {
-          height: '400px'
-        }
+          height: '400px',
+        },
       })
       expect(wrapper.props('height')).toBe('400px')
     })
@@ -60,8 +60,8 @@ describe('PineSkeletonLoader', () => {
       const wrapper = mount(PineSkeletonLoader, {
         props: {
           showProgress: true,
-          progress: 50
-        }
+          progress: 50,
+        },
       })
       expect(wrapper.find('.pine-progress-bar').exists()).toBe(true)
     })
@@ -69,8 +69,8 @@ describe('PineSkeletonLoader', () => {
     it('uses default progress of 0', () => {
       const wrapper = mount(PineSkeletonLoader, {
         props: {
-          showProgress: true
-        }
+          showProgress: true,
+        },
       })
       const progressFill = wrapper.find('.pine-progress-fill')
       expect(progressFill.attributes('style')).toContain('width: 0%')
@@ -80,8 +80,8 @@ describe('PineSkeletonLoader', () => {
       const wrapper = mount(PineSkeletonLoader, {
         props: {
           showProgress: true,
-          progress: 75
-        }
+          progress: 75,
+        },
       })
       const progressFill = wrapper.find('.pine-progress-fill')
       expect(progressFill.attributes('style')).toContain('width: 75%')
@@ -117,8 +117,8 @@ describe('PineSkeletonLoader', () => {
       const customText = 'Custom loading message'
       const wrapper = mount(PineSkeletonLoader, {
         slots: {
-          text: customText
-        }
+          text: customText,
+        },
       })
       expect(wrapper.text()).toContain(customText)
     })
@@ -126,8 +126,8 @@ describe('PineSkeletonLoader', () => {
     it('renders custom slot content with HTML', () => {
       const wrapper = mount(PineSkeletonLoader, {
         slots: {
-          text: '<span class="custom-loading">Loading...</span>'
-        }
+          text: '<span class="custom-loading">Loading...</span>',
+        },
       })
       expect(wrapper.find('.custom-loading').exists()).toBe(true)
     })
@@ -136,10 +136,10 @@ describe('PineSkeletonLoader', () => {
   describe('Structure', () => {
     it('has correct tree structure', () => {
       const wrapper = mount(PineSkeletonLoader)
-      
+
       // Check tree trunk
       expect(wrapper.find('.pine-trunk').exists()).toBe(true)
-      
+
       // Check tree layers
       expect(wrapper.find('.pine-layers').exists()).toBe(true)
       expect(wrapper.find('.pine-layer-1').exists()).toBe(true)
@@ -178,8 +178,8 @@ describe('PineSkeletonLoader', () => {
     it('can be customized with aria labels via slots', () => {
       const wrapper = mount(PineSkeletonLoader, {
         slots: {
-          text: '<span aria-live="polite">Loading content...</span>'
-        }
+          text: '<span aria-live="polite">Loading content...</span>',
+        },
       })
       expect(wrapper.find('[aria-live="polite"]').exists()).toBe(true)
     })

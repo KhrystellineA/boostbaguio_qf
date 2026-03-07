@@ -4,11 +4,7 @@
       <div class="container-custom">
         <div class="hero-box">
           <div class="hero-bg-wrapper">
-            <q-img
-              :src="heroImage || defaultHeroImage"
-              class="hero-bg"
-              :ratio="16/9"
-            >
+            <q-img :src="heroImage || defaultHeroImage" class="hero-bg" :ratio="16 / 9">
               <template v-slot:loading>
                 <div class="absolute-full flex flex-center">
                   <q-spinner color="white" size="50px" />
@@ -23,8 +19,8 @@
               <div class="left-content">
                 <h1 class="hero-title scroll-animate">BOOST BAGUIO</h1>
                 <p class="hero-description scroll-animate">
-                  Commute like a local in Baguio with ease. Discover tourist spots, events, and nearby attractions
-                  right at the palm of your hand!
+                  Commute like a local in Baguio with ease. Discover tourist spots, events, and
+                  nearby attractions right at the palm of your hand!
                 </p>
                 <p class="hero-tagline scroll-animate">Navigate. Connect. Sustain.</p>
               </div>
@@ -59,7 +55,7 @@
                           color="primary"
                           size="sm"
                           @click="searchFromLocation"
-                          style="margin-right: -8px;"
+                          style="margin-right: -8px"
                         >
                           <q-tooltip>Search location</q-tooltip>
                         </q-btn>
@@ -86,7 +82,7 @@
                           color="primary"
                           size="sm"
                           @click="disableFromAutoDetect"
-                          style="margin-right: -8px;"
+                          style="margin-right: -8px"
                         >
                           <q-tooltip>Enter location manually</q-tooltip>
                         </q-btn>
@@ -200,12 +196,13 @@ export default {
     const toLocationOptions = ref([])
     const fromAutoDetect = ref(false)
     const heroImage = ref('')
-    const defaultHeroImage = 'https://images.unsplash.com/photo-1511497584788-876760111969?w=1920&h=900&fit=crop'
+    const defaultHeroImage =
+      'https://images.unsplash.com/photo-1511497584788-876760111969?w=1920&h=900&fit=crop'
 
     const partners = [
       { name: 'University of the Cordilleras', icon: 'school' },
       { name: 'Baguio Tourism Office', icon: 'tour' },
-      { name: 'Baguio City Engineer\'s Office', icon: 'engineering' },
+      { name: "Baguio City Engineer's Office", icon: 'engineering' },
       { name: 'Baguio City Hall', icon: 'domain' },
       { name: 'Baguio MITD', icon: 'business' },
     ]
@@ -251,7 +248,7 @@ export default {
         console.log('[IndexPage] Loading hero image from Firebase...')
         const docRef = doc(db, 'pagePhotos', 'home')
         const docSnap = await getDoc(docRef)
-        
+
         if (docSnap.exists()) {
           const data = docSnap.data()
           if (data.imageUrl) {
@@ -269,7 +266,7 @@ export default {
           type: 'warning',
           message: 'Using default hero image',
           position: 'top',
-          timeout: 2000
+          timeout: 2000,
         })
       }
     }
@@ -302,7 +299,7 @@ export default {
 
     const enableFromAutoDetect = async () => {
       fromAutoDetect.value = true
-      
+
       const loadingNotify = $q.notify({
         message: 'Detecting your location...',
         icon: 'gps_not_fixed',
@@ -320,41 +317,41 @@ export default {
           navigator.geolocation.getCurrentPosition(resolve, reject, {
             enableHighAccuracy: true,
             timeout: 10000,
-            maximumAge: 0
+            maximumAge: 0,
           })
         })
 
         const { latitude, longitude } = position.coords
-        
+
         fromLocationText.value = 'Your Current Location'
         fromLocation.value = {
           label: '📍 Your Current Location',
           value: 'current-location',
           isCurrentLocation: true,
-          coords: [latitude, longitude]
+          coords: [latitude, longitude],
         }
 
         loadingNotify()
-        
+
         $q.notify({
           message: 'Location detected successfully!',
           icon: 'gps_fixed',
           color: 'positive',
           timeout: 2000,
-          position: 'top'
+          position: 'top',
         })
       } catch (error) {
         loadingNotify()
         fromAutoDetect.value = false
         fromLocationText.value = ''
         fromLocation.value = null
-        
+
         $q.notify({
           message: error.message || 'Unable to detect your location',
           icon: 'warning',
           color: 'negative',
           timeout: 3000,
-          position: 'top'
+          position: 'top',
         })
       }
     }
@@ -371,7 +368,7 @@ export default {
           icon: 'warning',
           color: 'warning',
           timeout: 2000,
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -382,7 +379,7 @@ export default {
         label: fromLocationText.value,
         value: 'custom-location',
         isCurrentLocation: false,
-        coords: null // Would get from geocoding API
+        coords: null, // Would get from geocoding API
       }
 
       $q.notify({
@@ -390,7 +387,7 @@ export default {
         icon: 'search',
         color: 'primary',
         timeout: 2000,
-        position: 'top'
+        position: 'top',
       })
     }
 
@@ -428,11 +425,11 @@ export default {
     }
 
     const scrollToFeatures = () => {
-      const featuresSection = document.querySelector('#features');
+      const featuresSection = document.querySelector('#features')
       if (featuresSection) {
-        featuresSection.scrollIntoView({ behavior: 'smooth' });
+        featuresSection.scrollIntoView({ behavior: 'smooth' })
       }
-    };
+    }
 
     const observeElements = () => {
       const options = {
@@ -508,18 +505,18 @@ export default {
 
 <style lang="scss" scoped>
 // Color Palette Variables
-$dark-green: #1B4332;
-$primary-green: #2E5D3E;
-$light-green: #9EC98F;
-$brown: #6B5344;
-$white: #FFFFFF;
+$dark-green: #1b4332;
+$primary-green: #2e5d3e;
+$light-green: #9ec98f;
+$brown: #6b5344;
+$white: #ffffff;
 
 // Cute minimalist colors
-$soft-green: #E8F5E9;
-$mint-cream: #F1F8F4;
-$blush-pink: #FCE4EC;
-$soft-peach: #FFE5D9;
-$lavender-mist: #F3E5F5;
+$soft-green: #e8f5e9;
+$mint-cream: #f1f8f4;
+$blush-pink: #fce4ec;
+$soft-peach: #ffe5d9;
+$lavender-mist: #f3e5f5;
 
 // Glassmorphism
 $glass-bg: rgba(255, 255, 255, 0.85);
@@ -636,7 +633,7 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   &.animate-in {
     opacity: 1;
     transform: translateY(0);
@@ -769,7 +766,7 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 
 .learn-more-btn {
   background: white !important;
-  color: #2E5D3E !important;
+  color: #2e5d3e !important;
   font-weight: 600;
   padding: 0.625rem 1.75rem;
   border-radius: 50px;
@@ -814,11 +811,7 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     left: 0;
     right: 0;
     height: 40%;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.4) 0%,
-      transparent 100%
-    );
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, transparent 100%);
     border-radius: 20px 20px 0 0;
     pointer-events: none;
   }
@@ -881,11 +874,7 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   :deep(.q-field__control) {
     border-radius: 10px;
     min-height: 48px;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 1) 0%,
-      rgba(248, 248, 248, 1) 100%
-    );
+    background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(248, 248, 248, 1) 100%);
     transition: all 0.3s ease;
     border: 1.5px solid rgba($primary-green, 0.15);
     box-shadow:
@@ -921,11 +910,7 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
 }
 
 .start-nav-btn {
-  background: linear-gradient(
-    180deg,
-    $primary-green 0%,
-    $dark-green 100%
-  ) !important;
+  background: linear-gradient(180deg, $primary-green 0%, $dark-green 100%) !important;
   color: white !important;
   font-weight: 600;
   border-radius: 10px;
@@ -948,11 +933,7 @@ $glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     left: 0;
     right: 0;
     height: 40%;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.15) 0%,
-      transparent 100%
-    );
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
     border-radius: 10px 10px 0 0;
     pointer-events: none;
   }

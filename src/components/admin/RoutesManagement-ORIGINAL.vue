@@ -5,7 +5,7 @@
       <q-btn
         label="Add New Route"
         icon="add"
-        style="background: #4EA96D; color: white"
+        style="background: #4ea96d; color: white"
         unelevated
         @click="showDialog = true"
       />
@@ -14,10 +14,7 @@
     <q-card class="q-mt-md">
       <q-card-section>
         <!-- Conflict Warning Banner -->
-        <q-banner 
-          v-if="detectedConflicts.length > 0" 
-          class="bg-warning text-white q-mb-md"
-        >
+        <q-banner v-if="detectedConflicts.length > 0" class="bg-warning text-white q-mb-md">
           <template v-slot:avatar>
             <q-icon name="warning" color="white" />
           </template>
@@ -25,8 +22,8 @@
             {{ detectedConflicts.length }} route conflict(s) detected
           </div>
           <div class="q-mt-xs">
-            <q-chip 
-              v-for="(conflict, index) in detectedConflicts" 
+            <q-chip
+              v-for="(conflict, index) in detectedConflicts"
               :key="index"
               dense
               color="white"
@@ -37,12 +34,7 @@
             </q-chip>
           </div>
           <template v-slot:action>
-            <q-btn 
-              flat 
-              color="white" 
-              label="Review Conflicts" 
-              @click="showConflictDialog = true" 
-            />
+            <q-btn flat color="white" label="Review Conflicts" @click="showConflictDialog = true" />
           </template>
         </q-banner>
 
@@ -57,13 +49,7 @@
             <q-icon name="search" />
           </template>
           <template v-slot:append>
-            <q-btn
-              v-if="searchFilter"
-              flat
-              dense
-              icon="clear"
-              @click="searchFilter = ''"
-            />
+            <q-btn v-if="searchFilter" flat dense icon="clear" @click="searchFilter = ''" />
           </template>
         </q-input>
 
@@ -113,21 +99,19 @@
             <q-icon name="warning" class="q-mr-sm" />
             Resolve Route Conflicts
           </div>
-          <div class="text-caption">
-            Review conflicts before saving this route
-          </div>
+          <div class="text-caption">Review conflicts before saving this route</div>
         </q-card-section>
 
         <q-card-section style="max-height: 70vh; overflow-y: auto">
           <div v-for="(conflict, index) in detectedConflicts" :key="index" class="q-mb-lg">
-            <q-banner 
+            <q-banner
               :class="conflict.severity === 'high' ? 'bg-red-1' : 'bg-orange-1'"
               class="q-mb-sm"
             >
               <template v-slot:avatar>
-                <q-icon 
-                  :name="conflict.severity === 'high' ? 'error' : 'warning'" 
-                  :color="conflict.severity === 'high' ? 'negative' : 'orange'" 
+                <q-icon
+                  :name="conflict.severity === 'high' ? 'error' : 'warning'"
+                  :color="conflict.severity === 'high' ? 'negative' : 'orange'"
                 />
               </template>
               <div class="text-weight-bold">{{ conflict.message }}</div>
@@ -151,7 +135,10 @@
                     </div>
                   </q-card-section>
                   <q-card-section v-if="conflict.existing.imageUrl" class="q-pt-none">
-                    <q-img :src="conflict.existing.imageUrl" style="max-height: 120px; border-radius: 8px" />
+                    <q-img
+                      :src="conflict.existing.imageUrl"
+                      style="max-height: 120px; border-radius: 8px"
+                    />
                   </q-card-section>
                 </q-card>
               </div>
@@ -182,8 +169,8 @@
             <div class="q-mt-md">
               <div class="text-caption text-grey-7 q-mb-sm">Choose an action:</div>
               <q-btn-group unelevated spread>
-                <q-btn 
-                  label="Keep Both" 
+                <q-btn
+                  label="Keep Both"
                   color="primary"
                   icon="done_all"
                   @click="resolveConflict(conflict, 'keep-both')"
@@ -191,8 +178,8 @@
                 >
                   <q-tooltip>Save both routes as separate entries</q-tooltip>
                 </q-btn>
-                <q-btn 
-                  label="Create Variant" 
+                <q-btn
+                  label="Create Variant"
                   color="orange"
                   icon="alt_route"
                   @click="resolveConflict(conflict, 'variant')"
@@ -200,8 +187,8 @@
                 >
                   <q-tooltip>Save as Express/Regular variant</q-tooltip>
                 </q-btn>
-                <q-btn 
-                  label="Replace" 
+                <q-btn
+                  label="Replace"
                   color="negative"
                   icon="swap_horiz"
                   @click="resolveConflict(conflict, 'replace')"
@@ -209,8 +196,8 @@
                 >
                   <q-tooltip>Delete existing and save new route</q-tooltip>
                 </q-btn>
-                <q-btn 
-                  label="Cancel New" 
+                <q-btn
+                  label="Cancel New"
                   color="grey"
                   icon="cancel"
                   @click="resolveConflict(conflict, 'cancel')"
@@ -227,13 +214,7 @@
         </q-card-section>
 
         <q-card-actions align="right" class="q-pa-md">
-          <q-btn 
-            flat 
-            label="Cancel All" 
-            color="grey-7" 
-            @click="cancelAllConflicts" 
-            no-caps
-          />
+          <q-btn flat label="Cancel All" color="grey-7" @click="cancelAllConflicts" no-caps />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -246,25 +227,13 @@
         </q-card-section>
 
         <q-card-section>
-          <div class="text-body1 q-mb-md">
-            Choose how to differentiate this route:
-          </div>
-          <q-option-group
-            v-model="variantType"
-            :options="variantOptions"
-            color="primary"
-          />
+          <div class="text-body1 q-mb-md">Choose how to differentiate this route:</div>
+          <q-option-group v-model="variantType" :options="variantOptions" color="primary" />
         </q-card-section>
 
         <q-card-actions align="right">
           <q-btn flat label="Cancel" v-close-popup no-caps />
-          <q-btn 
-            unelevated 
-            label="Create Variant" 
-            color="primary"
-            @click="createVariant"
-            no-caps
-          />
+          <q-btn unelevated label="Create Variant" color="primary" @click="createVariant" no-caps />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -451,7 +420,9 @@
                   <template v-slot:prepend>
                     <q-icon name="image" />
                   </template>
-                  <template v-slot:hint> Max file size: 5MB | Accepted formats: JPG, PNG only </template>
+                  <template v-slot:hint>
+                    Max file size: 5MB | Accepted formats: JPG, PNG only
+                  </template>
                 </q-file>
 
                 <div v-if="routeForm.imageUrl || imagePreview" class="q-mt-sm">
@@ -470,7 +441,7 @@
           <q-btn
             label="Save Route"
             unelevated
-            style="background: #4EA96D; color: white"
+            style="background: #4ea96d; color: white"
             @click="saveRoute"
             :loading="saving"
           />
@@ -506,9 +477,12 @@
                   <q-icon name="search" />
                 </template>
                 <template v-slot:append>
-                  <q-btn 
+                  <q-btn
                     v-if="locationSearch"
-                    flat dense round icon="close" 
+                    flat
+                    dense
+                    round
+                    icon="close"
                     @click="locationSearch = ''"
                   />
                 </template>
@@ -580,7 +554,7 @@
               Search for a location above or click on the map
             </div>
             <div v-if="tempCoords" class="text-body2 q-mt-xs">
-              <strong>Selected:</strong> 
+              <strong>Selected:</strong>
               <span class="text-primary">
                 {{ tempCoords.lat.toFixed(6) }}, {{ tempCoords.lng.toFixed(6) }}
               </span>
@@ -769,7 +743,7 @@ export default {
         $q.notify({
           type: 'warning',
           message: 'Please enter a location to search',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -788,17 +762,17 @@ export default {
 
         const response = await fetch(
           `https://nominatim.openstreetmap.org/search?` +
-          `q=${encodeURIComponent(searchQuery)}` +
-          `&format=json` +
-          `&limit=5` +
-          `&addressdetails=1` +
-          `&bounded=1` +
-          `&viewbox=120.50,16.35,120.65,16.45`,
+            `q=${encodeURIComponent(searchQuery)}` +
+            `&format=json` +
+            `&limit=5` +
+            `&addressdetails=1` +
+            `&bounded=1` +
+            `&viewbox=120.50,16.35,120.65,16.45`,
           {
             headers: {
-              'Accept': 'application/json',
-              'User-Agent': 'BoostBaguioPH/1.0'
-            }
+              Accept: 'application/json',
+              'User-Agent': 'BoostBaguioPH/1.0',
+            },
           }
         )
 
@@ -815,13 +789,13 @@ export default {
           $q.notify({
             type: 'info',
             message: 'No results found. Try a different search term.',
-            position: 'top'
+            position: 'top',
           })
         } else {
           $q.notify({
             type: 'positive',
             message: `Found ${data.length} result(s)`,
-            position: 'top'
+            position: 'top',
           })
         }
       } catch (error) {
@@ -829,7 +803,7 @@ export default {
         $q.notify({
           type: 'negative',
           message: 'Failed to search location. Please try again.',
-          position: 'top'
+          position: 'top',
         })
       } finally {
         searching.value = false
@@ -860,12 +834,12 @@ export default {
       }
 
       searchResults.value = []
-      
+
       $q.notify({
         type: 'positive',
         message: 'Location selected',
         icon: 'place',
-        position: 'top'
+        position: 'top',
       })
     }
 
@@ -879,8 +853,10 @@ export default {
 
         const existing = {
           ...existingRoute,
-          terminalLat: existingRoute.terminalCoordinates?.[0] || existingRoute.originCoordinates?.[0],
-          terminalLng: existingRoute.terminalCoordinates?.[1] || existingRoute.originCoordinates?.[1],
+          terminalLat:
+            existingRoute.terminalCoordinates?.[0] || existingRoute.originCoordinates?.[0],
+          terminalLng:
+            existingRoute.terminalCoordinates?.[1] || existingRoute.originCoordinates?.[1],
           destinationLat: existingRoute.destinationCoordinates?.[0],
           destinationLng: existingRoute.destinationCoordinates?.[1],
         }
@@ -891,19 +867,22 @@ export default {
             message: `Duplicate route name found`,
             existing,
             new: newRoute,
-            severity: 'high'
+            severity: 'high',
           })
           continue
         }
 
-        const nameSimilarity = calculateSimilarity(existing.routeName || '', newRoute.routeName || '')
+        const nameSimilarity = calculateSimilarity(
+          existing.routeName || '',
+          newRoute.routeName || ''
+        )
         if (nameSimilarity > 0.8) {
           conflicts.push({
             type: 'similar-name',
             message: `Similar route name: "${existing.routeName}" (${Math.round(nameSimilarity * 100)}% match)`,
             existing,
             new: newRoute,
-            severity: 'medium'
+            severity: 'medium',
           })
         }
 
@@ -916,11 +895,16 @@ export default {
             message: `Route serves same endpoints: ${existing.startingPoint} → ${existing.destination}`,
             existing,
             new: newRoute,
-            severity: 'high'
+            severity: 'high',
           })
         }
 
-        if (existing.terminalLat && existing.terminalLng && newRoute.terminalLat && newRoute.terminalLng) {
+        if (
+          existing.terminalLat &&
+          existing.terminalLng &&
+          newRoute.terminalLat &&
+          newRoute.terminalLng
+        ) {
           const distance = calculateDistance(
             existing.terminalLat,
             existing.terminalLng,
@@ -934,7 +918,7 @@ export default {
               message: `Same terminal location: ${Math.round(distance * 1000)}m from "${existing.routeName}"`,
               existing,
               new: newRoute,
-              severity: 'medium'
+              severity: 'medium',
             })
           }
         }
@@ -946,7 +930,7 @@ export default {
               message: `Same terminal address as "${existing.routeName}"`,
               existing,
               new: newRoute,
-              severity: 'medium'
+              severity: 'medium',
             })
           }
         }
@@ -961,8 +945,7 @@ export default {
       const dLon = deg2rad(lon2 - lon1)
       const a =
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2)
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
       return R * c
     }
@@ -1015,7 +998,7 @@ export default {
           case 'keep-both': {
             const routeWithSuffix = {
               ...conflict.new,
-              routeName: `${conflict.new.routeName} (New)`
+              routeName: `${conflict.new.routeName} (New)`,
             }
             await saveRouteToDatabase(routeWithSuffix)
             removeConflict(conflict)
@@ -1048,7 +1031,7 @@ export default {
         $q.notify({
           type: 'negative',
           message: 'Failed to resolve conflict',
-          position: 'top'
+          position: 'top',
         })
       }
     }
@@ -1059,7 +1042,7 @@ export default {
       const variantName = `${currentConflict.value.new.routeName} (${variantType.value.replace('-', ' ')})`
       const routeWithVariant = {
         ...currentConflict.value.new,
-        routeName: variantName
+        routeName: variantName,
       }
 
       await saveRouteToDatabase(routeWithVariant)
@@ -1117,11 +1100,16 @@ export default {
     }
 
     const saveRoute = async () => {
-      if (!routeForm.value.routeName || !routeForm.value.startingPoint || !routeForm.value.destination || !routeForm.value.terminalLocation) {
+      if (
+        !routeForm.value.routeName ||
+        !routeForm.value.startingPoint ||
+        !routeForm.value.destination ||
+        !routeForm.value.terminalLocation
+      ) {
         $q.notify({
           type: 'warning',
           message: 'Please fill in all required fields',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -1164,7 +1152,7 @@ export default {
 
         if (formData.imageFile) {
           console.log('[Save] New image file detected, uploading...')
-          
+
           if (editMode.value && formData.imageUrl) {
             console.log('[Save] Deleting old image:', formData.imageUrl)
             try {
@@ -1173,7 +1161,7 @@ export default {
               console.error('[Save] Error deleting old image:', error)
             }
           }
-          
+
           try {
             imageUrl = await uploadImage(formData.imageFile)
             console.log('[Save] New image uploaded:', imageUrl)
@@ -1249,7 +1237,7 @@ export default {
 
         await fetchRoutes()
         closeDialog()
-        
+
         detectedConflicts.value = []
         showConflictDialog.value = false
         pendingRoute.value = null
@@ -1259,7 +1247,7 @@ export default {
           type: 'negative',
           message: 'Failed to save route: ' + error.message,
           position: 'top',
-          timeout: 5000
+          timeout: 5000,
         })
       } finally {
         saving.value = false
@@ -1297,12 +1285,12 @@ export default {
         ok: {
           label: 'Delete',
           color: 'negative',
-          unelevated: true
+          unelevated: true,
         },
         cancel: {
           label: 'Cancel',
-          flat: true
-        }
+          flat: true,
+        },
       }).onOk(async () => {
         try {
           if (route.imageUrl) {
@@ -1415,7 +1403,7 @@ export default {
         $q.notify({
           type: 'info',
           message: 'Location selected from map',
-          position: 'top'
+          position: 'top',
         })
       })
     }
@@ -1457,26 +1445,26 @@ export default {
 
     const onImageRejected = (rejectedEntries) => {
       console.log('[Image Rejected]', rejectedEntries)
-      
+
       if (!rejectedEntries || rejectedEntries.length === 0) {
         $q.notify({
           type: 'negative',
           message: 'Invalid image file',
           position: 'top',
-          icon: 'error'
+          icon: 'error',
         })
         return
       }
 
       const rejection = rejectedEntries[0]
-      
+
       if (rejection.failedPropValidation === 'accept') {
         $q.notify({
           type: 'negative',
           message: 'Only JPG and PNG images are allowed. WebP is not supported.',
           position: 'top',
           icon: 'error',
-          timeout: 3000
+          timeout: 3000,
         })
       } else if (rejection.failedPropValidation === 'max-file-size') {
         $q.notify({
@@ -1484,7 +1472,7 @@ export default {
           message: 'Image must be less than 5MB',
           position: 'top',
           icon: 'error',
-          timeout: 3000
+          timeout: 3000,
         })
       } else {
         $q.notify({
@@ -1492,7 +1480,7 @@ export default {
           message: 'Invalid image file. Please use JPG or PNG format.',
           position: 'top',
           icon: 'error',
-          timeout: 3000
+          timeout: 3000,
         })
       }
     }

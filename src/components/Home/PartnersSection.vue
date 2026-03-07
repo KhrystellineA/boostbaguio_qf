@@ -1,9 +1,7 @@
 <template>
   <section class="partners-section">
     <div class="container-custom">
-      <h3 class="partners-title scroll-animate">
-        Our Partners & Supporters
-      </h3>
+      <h3 class="partners-title scroll-animate">Our Partners & Supporters</h3>
 
       <div class="partners-row">
         <div
@@ -28,22 +26,22 @@ export default {
   props: {
     partners: {
       type: Array,
-      default: () => []
-    }
-  }
+      default: () => [],
+    },
+  },
 }
 </script>
 
 <style lang="scss" scoped>
 .partners-section {
   padding: 2.5rem 0;
-  background: linear-gradient(180deg, #FFFFFF 0%, #F1F8F4 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #f1f8f4 100%);
 }
 
 .partners-title {
   font-size: 1.35rem;
   font-weight: 700;
-  color: #1B4332;
+  color: #1b4332;
   text-align: center;
   margin-bottom: 2rem;
 }
@@ -77,7 +75,7 @@ export default {
     .partner-name {
       font-size: 0.8rem;
       font-weight: 600;
-      color: #2E5D3E;
+      color: #2e5d3e;
       text-align: center;
     }
   }

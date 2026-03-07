@@ -26,10 +26,18 @@
             <div class="col">
               <h4 class="q-my-none text-primary">Dashboard Overview</h4>
               <p class="text-grey-7 q-mb-none">
-                <span v-if="adminData.role === 'super_admin'">Full system access - Manage all aspects</span>
-                <span v-else-if="adminData.role === 'places_admin'">Manage tourist spots, restaurants, hotels, and other places</span>
-                <span v-else-if="adminData.role === 'routes_admin'">Manage jeepney routes and options</span>
-                <span v-else-if="adminData.role === 'events_admin'">Manage events and festivals</span>
+                <span v-if="adminData.role === 'super_admin'"
+                  >Full system access - Manage all aspects</span
+                >
+                <span v-else-if="adminData.role === 'places_admin'"
+                  >Manage tourist spots, restaurants, hotels, and other places</span
+                >
+                <span v-else-if="adminData.role === 'routes_admin'"
+                  >Manage jeepney routes and options</span
+                >
+                <span v-else-if="adminData.role === 'events_admin'"
+                  >Manage events and festivals</span
+                >
                 <span v-else>Welcome back, {{ adminData.name }}!</span>
               </p>
             </div>
@@ -157,12 +165,12 @@ export default defineComponent({
         const { getRecentActivityLogs } = await import('src/utils/activityLogger')
         const logs = await getRecentActivityLogs(10)
 
-        recentActivities.value = logs.map(log => ({
+        recentActivities.value = logs.map((log) => ({
           id: log.id,
           title: log.description,
           time: formatRelativeTime(log.timestamp),
           icon: getActivityIcon(log.action),
-          color: getActionColor(log.action)
+          color: getActionColor(log.action),
         }))
       } catch (error) {
         console.error('[AdminDashboard] Error loading recent activity:', error)
@@ -196,7 +204,7 @@ export default defineComponent({
         login: 'login',
         logout: 'logout',
         export: 'download',
-        import: 'upload_file'
+        import: 'upload_file',
       }
       return icons[action] || 'info'
     }
@@ -211,7 +219,7 @@ export default defineComponent({
         login: 'purple',
         logout: 'grey',
         export: 'teal',
-        import: 'orange'
+        import: 'orange',
       }
       return colors[action] || 'grey'
     }
@@ -223,27 +231,33 @@ export default defineComponent({
 
     // Computed permissions
     const canManageRoutes = computed(() => {
-      return adminData.value.role === 'super_admin' ||
-             adminData.value.role === 'routes_admin' ||
-             adminData.value.permissions?.includes('routes:write') ||
-             adminData.value.permissions?.includes('super_admin:all') ||
-             false
+      return (
+        adminData.value.role === 'super_admin' ||
+        adminData.value.role === 'routes_admin' ||
+        adminData.value.permissions?.includes('routes:write') ||
+        adminData.value.permissions?.includes('super_admin:all') ||
+        false
+      )
     })
 
     const canManagePlaces = computed(() => {
-      return adminData.value.role === 'super_admin' ||
-             adminData.value.role === 'places_admin' ||
-             adminData.value.permissions?.includes('places:write') ||
-             adminData.value.permissions?.includes('super_admin:all') ||
-             false
+      return (
+        adminData.value.role === 'super_admin' ||
+        adminData.value.role === 'places_admin' ||
+        adminData.value.permissions?.includes('places:write') ||
+        adminData.value.permissions?.includes('super_admin:all') ||
+        false
+      )
     })
 
     const canManageEvents = computed(() => {
-      return adminData.value.role === 'super_admin' ||
-             adminData.value.role === 'events_admin' ||
-             adminData.value.permissions?.includes('events:write') ||
-             adminData.value.permissions?.includes('super_admin:all') ||
-             false
+      return (
+        adminData.value.role === 'super_admin' ||
+        adminData.value.role === 'events_admin' ||
+        adminData.value.permissions?.includes('events:write') ||
+        adminData.value.permissions?.includes('super_admin:all') ||
+        false
+      )
     })
 
     // Load data on mount

@@ -5,7 +5,7 @@
       <q-btn
         label="Add New Route"
         icon="add"
-        style="background: #4EA96D; color: white"
+        style="background: #4ea96d; color: white"
         unelevated
         @click="showDialog = true"
       />
@@ -14,10 +14,7 @@
     <q-card class="q-mt-md">
       <q-card-section>
         <!-- Conflict Warning Banner -->
-        <q-banner
-          v-if="detectedConflicts.length > 0"
-          class="bg-warning text-white q-mb-md"
-        >
+        <q-banner v-if="detectedConflicts.length > 0" class="bg-warning text-white q-mb-md">
           <template v-slot:avatar>
             <q-icon name="warning" color="white" />
           </template>
@@ -25,12 +22,7 @@
             {{ detectedConflicts.length }} route conflict(s) detected
           </div>
           <template v-slot:action>
-            <q-btn
-              flat
-              color="white"
-              label="Review Conflicts"
-              @click="showConflictDialog = true"
-            />
+            <q-btn flat color="white" label="Review Conflicts" @click="showConflictDialog = true" />
           </template>
         </q-banner>
 
@@ -46,13 +38,7 @@
             <q-icon name="search" />
           </template>
           <template v-slot:append>
-            <q-btn
-              v-if="searchFilter"
-              flat
-              dense
-              icon="clear"
-              @click="searchFilter = ''"
-            />
+            <q-btn v-if="searchFilter" flat dense icon="clear" @click="searchFilter = ''" />
           </template>
         </q-input>
 
@@ -367,7 +353,7 @@ export default defineComponent({
   }
 
   .bg-warning {
-    background: #FF9800 !important;
+    background: #ff9800 !important;
   }
 }
 </style>

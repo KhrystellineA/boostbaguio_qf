@@ -10,11 +10,11 @@ export default defineComponent({
 
   mounted() {
     // Set page title
-    document.title = 'Boost Baguio - Navigate Baguio\'s Jeepneys with Ease'
+    document.title = "Boost Baguio - Navigate Baguio's Jeepneys with Ease"
 
     // You can add global initialization here
     console.log('Boost Baguio App initialized')
-  }
+  },
 })
 </script>
 

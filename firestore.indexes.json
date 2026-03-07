@@ -19,16 +19,12 @@
     {
       "collectionGroup": "events",
       "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "startDate", "order": "ASCENDING" }
-      ]
+      "fields": [{ "fieldPath": "startDate", "order": "ASCENDING" }]
     },
     {
       "collectionGroup": "events",
       "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "endDate", "order": "ASCENDING" }
-      ]
+      "fields": [{ "fieldPath": "endDate", "order": "ASCENDING" }]
     },
     {
       "collectionGroup": "events",
@@ -65,9 +61,7 @@
     {
       "collectionGroup": "routes",
       "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "routeNumber", "order": "ASCENDING" }
-      ]
+      "fields": [{ "fieldPath": "routeNumber", "order": "ASCENDING" }]
     },
     {
       "collectionGroup": "jeepney-options",
@@ -104,16 +98,12 @@
     {
       "collectionGroup": "users",
       "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "role", "order": "ASCENDING" }
-      ]
+      "fields": [{ "fieldPath": "role", "order": "ASCENDING" }]
     },
     {
       "collectionGroup": "admins",
       "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "createdAt", "order": "DESCENDING" }
-      ]
+      "fields": [{ "fieldPath": "createdAt", "order": "DESCENDING" }]
     }
   ],
   "fieldOverrides": []

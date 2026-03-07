@@ -17,7 +17,7 @@ const CACHE_CONFIG = {
   places: { key: 'cache-places', ttl: 24 * 60 * 60 * 1000 }, // 24 hours
   events: { key: 'cache-events', ttl: 12 * 60 * 60 * 1000 }, // 12 hours
   jeepneys: { key: 'cache-jeepneys', ttl: 24 * 60 * 60 * 1000 }, // 24 hours
-  routes: { key: 'cache-routes', ttl: 24 * 60 * 60 * 1000 } // 24 hours
+  routes: { key: 'cache-routes', ttl: 24 * 60 * 60 * 1000 }, // 24 hours
 }
 
 const SAVED_OFFLINE_KEY = 'saved-offline-items'
@@ -37,7 +37,7 @@ export function cacheData(type, data) {
   const cacheEntry = {
     data,
     timestamp: Date.now(),
-    expiresAt: Date.now() + config.ttl
+    expiresAt: Date.now() + config.ttl,
   }
 
   LocalStorage.set(config.key, cacheEntry)
@@ -112,7 +112,7 @@ export function saveItemForOffline(type, itemId, itemData) {
   savedItems[type][itemId] = {
     ...itemData,
     savedAt: Date.now(),
-    expiresAt: Date.now() + (7 * 24 * 60 * 60 * 1000) // 7 days
+    expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
   }
 
   LocalStorage.set(SAVED_OFFLINE_KEY, savedItems)
@@ -211,7 +211,7 @@ export function clearExpiredSavedItems() {
  * Clear all cache
  */
 export function clearAllCache() {
-  Object.values(CACHE_CONFIG).forEach(config => {
+  Object.values(CACHE_CONFIG).forEach((config) => {
     LocalStorage.remove(config.key)
   })
   console.log('[Cache] All cache cleared')
@@ -236,7 +236,7 @@ export function clearCache(type) {
 export function getCacheStats() {
   const stats = {
     totalCacheSize: 0,
-    caches: {}
+    caches: {},
   }
 
   // Calculate cache sizes
@@ -250,7 +250,7 @@ export function getCacheStats() {
       isExpired,
       itemCount: cacheEntry?.data?.length || 0,
       cachedAt: cacheEntry?.timestamp,
-      expiresAt: cacheEntry?.expiresAt
+      expiresAt: cacheEntry?.expiresAt,
     }
 
     if (hasCache) {
@@ -285,17 +285,17 @@ export async function preCacheEssentials() {
   try {
     // Cache places
     const placesSnapshot = await getDocs(collection(db, 'places'))
-    const places = placesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+    const places = placesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
     cacheData('places', places)
 
     // Cache events
     const eventsSnapshot = await getDocs(collection(db, 'events'))
-    const events = eventsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+    const events = eventsSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
     cacheData('events', events)
 
     // Cache jeepneys
     const jeepneysSnapshot = await getDocs(collection(db, 'jeepneys'))
-    const jeepneys = jeepneysSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+    const jeepneys = jeepneysSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
     cacheData('jeepneys', jeepneys)
 
     console.log('[Cache] Pre-cached essential data')
@@ -339,5 +339,5 @@ export default {
   clearCache,
   getCacheStats,
   preCacheEssentials,
-  initCacheService
+  initCacheService,
 }

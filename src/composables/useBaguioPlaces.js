@@ -6,13 +6,14 @@ export const defaultBaguioPlaces = [
     area: 'Baguio City Proper',
     category: 'Tourist Spots',
     tags: ['Park', 'Family-Friendly', 'Boating', 'Iconic'],
-    description: 'A historic urban park designed by Daniel Burnham in 1905. Features a man-made lagoon, bike paths, picnic areas, and the famous Rose Garden. Perfect for leisurely walks and family outings.',
+    description:
+      'A historic urban park designed by Daniel Burnham in 1905. Features a man-made lagoon, bike paths, picnic areas, and the famous Rose Garden. Perfect for leisurely walks and family outings.',
     address: 'Session Rd, Baguio, Benguet',
     operatingHours: 'Open 24 hours',
     entranceFee: 'Free (Boat ride: ₱150/30mins)',
     phone: '(074) 442 2432',
     imageUrl: 'https://images.unsplash.com/photo-1596401057633-565652f5e794?w=800',
-    coords: [16.40954, 120.594808]
+    coords: [16.40954, 120.594808],
   },
   {
     id: '2',
@@ -20,13 +21,14 @@ export const defaultBaguioPlaces = [
     area: 'Mines View',
     category: 'Tourist Spots',
     tags: ['Viewpoint', 'Photography', 'Shopping', 'Cultural'],
-    description: 'A popular overlook offering panoramic views of the Cordillera mountains and former mining areas. Features souvenir shops, traditional Igorot costumes for photos, and a small petting zoo.',
+    description:
+      'A popular overlook offering panoramic views of the Cordillera mountains and former mining areas. Features souvenir shops, traditional Igorot costumes for photos, and a small petting zoo.',
     address: 'Mines View, Baguio, Benguet',
     operatingHours: '6:00 AM - 10:00 PM',
     entranceFee: 'Free',
     phone: '',
     imageUrl: 'https://images.unsplash.com/photo-1598967669018-8c65c8a680b3?w=800',
-    coords: [16.4240885, 120.6212975]
+    coords: [16.4240885, 120.6212975],
   },
   {
     id: '3',
@@ -34,13 +36,14 @@ export const defaultBaguioPlaces = [
     area: 'Mansion Hill',
     category: 'Tourist Spots',
     tags: ['Historical', 'Architecture', 'Photography', 'Landmark'],
-    description: 'The official summer residence of the President of the Philippines. Built in 1908, it features neoclassical architecture and beautifully manicured gardens. The gate is guarded by presidential guards.',
+    description:
+      'The official summer residence of the President of the Philippines. Built in 1908, it features neoclassical architecture and beautifully manicured gardens. The gate is guarded by presidential guards.',
     address: 'Mansion Rd, Baguio, Benguet',
     operatingHours: 'Grounds open daily 9:00 AM - 4:00 PM',
     entranceFee: 'Free',
     phone: '',
     imageUrl: 'https://images.unsplash.com/photo-1590053164295-ab24a8948913?w=800',
-    coords: [16.4123678, 120.6188978]
+    coords: [16.4123678, 120.6188978],
   },
   {
     id: '4',
@@ -48,13 +51,14 @@ export const defaultBaguioPlaces = [
     area: 'Mansion Hill',
     category: 'Parks & Nature',
     tags: ['Park', 'Horseback Riding', 'Family-Friendly', 'Stairs'],
-    description: 'A popular park known for its long flight of stairs (the "Stairs of Death") leading down to a lake. Offers horseback riding experiences and is adjacent to The Mansion.',
+    description:
+      'A popular park known for its long flight of stairs (the "Stairs of Death") leading down to a lake. Offers horseback riding experiences and is adjacent to The Mansion.',
     address: 'Upper Gen. Luna Rd, Baguio, Benguet',
     operatingHours: '5:00 AM - 8:00 PM',
     entranceFee: 'Free (Horseback riding: ₱200-500)',
     phone: '',
     imageUrl: 'https://images.unsplash.com/photo-1596701726322-4c08b54a4f3e?w=800',
-    coords: [16.4156996, 120.6123524]
+    coords: [16.4156996, 120.6123524],
   },
   {
     id: '5',
@@ -62,13 +66,14 @@ export const defaultBaguioPlaces = [
     area: 'Pinsao',
     category: 'Museums & Culture',
     tags: ['Cultural', 'Art', 'Traditional', 'Photography'],
-    description: 'A reconstructed indigenous village showcasing traditional Cordillera architecture. Features authentic Ifugao huts, art galleries, cultural workshops, and stunning mountain views.',
+    description:
+      'A reconstructed indigenous village showcasing traditional Cordillera architecture. Features authentic Ifugao huts, art galleries, cultural workshops, and stunning mountain views.',
     address: 'Pinsao Proper, Baguio, Benguet',
     operatingHours: '8:00 AM - 5:00 PM',
     entranceFee: '₱150',
     phone: '(074) 442 6264',
     imageUrl: 'https://images.unsplash.com/photo-1598967669018-8c65c8a680b3?w=800',
-    coords: [16.4231, 120.5889]
+    coords: [16.4231, 120.5889],
   },
   {
     id: '6',
@@ -76,13 +81,14 @@ export const defaultBaguioPlaces = [
     area: 'Baguio City Proper',
     category: 'Museums & Culture',
     tags: ['Church', 'Historical', 'Architecture', 'Religious'],
-    description: 'Also known as the Our Lady of the Atonement Cathedral, this iconic pink church features distinctive architecture and offers panoramic views of the city from its steps.',
+    description:
+      'Also known as the Our Lady of the Atonement Cathedral, this iconic pink church features distinctive architecture and offers panoramic views of the city from its steps.',
     address: 'Session Rd, Baguio, Benguet',
     operatingHours: '5:00 AM - 7:00 PM',
     entranceFee: 'Free',
     phone: '(074) 442 2059',
     imageUrl: 'https://images.unsplash.com/photo-1590053164295-ab24a8948913?w=800',
-    coords: [16.412766, 120.598469]
+    coords: [16.412766, 120.598469],
   },
   {
     id: '7',
@@ -90,13 +96,14 @@ export const defaultBaguioPlaces = [
     area: 'Loakan',
     category: 'Tourist Spots',
     tags: ['Nature', 'Golf', 'Family-Friendly', 'Historical'],
-    description: 'A former US military base turned leisure and recreational complex. Features the historic Bell Amphitheater, Butterfly Sanctuary, Treetop Adventure, and the famous John Hay Arch.',
+    description:
+      'A former US military base turned leisure and recreational complex. Features the historic Bell Amphitheater, Butterfly Sanctuary, Treetop Adventure, and the famous John Hay Arch.',
     address: 'Camp John Hay, Loakan, Baguio, Benguet',
     operatingHours: 'Open 24 hours (varies by attraction)',
     entranceFee: 'Varies by attraction',
     phone: '(074) 442 8000',
     imageUrl: 'https://images.unsplash.com/photo-1596401057633-565652f5e794?w=800',
-    coords: [16.397029, 120.608785]
+    coords: [16.397029, 120.608785],
   },
   {
     id: '8',
@@ -104,13 +111,14 @@ export const defaultBaguioPlaces = [
     area: 'Mirador',
     category: 'Museums & Culture',
     tags: ['Religious', 'Viewpoint', 'Pilgrimage', 'Stairs'],
-    description: 'A Catholic shrine on top of Mirador Hill featuring a replica of the Lourdes Grotto in France. Offers 360° views of Baguio after climbing 252 steps or taking the elevator.',
+    description:
+      'A Catholic shrine on top of Mirador Hill featuring a replica of the Lourdes Grotto in France. Offers 360° views of Baguio after climbing 252 steps or taking the elevator.',
     address: 'Mirador, Baguio, Benguet',
     operatingHours: '6:00 AM - 6:00 PM',
     entranceFee: 'Free (Elevator: ₱50)',
     phone: '',
     imageUrl: 'https://images.unsplash.com/photo-1598967669018-8c65c8a680b3?w=800',
-    coords: [16.4253, 120.5972]
+    coords: [16.4253, 120.5972],
   },
   {
     id: '9',
@@ -118,13 +126,14 @@ export const defaultBaguioPlaces = [
     area: 'Kayanang Lungsod',
     category: 'Parks & Nature',
     tags: ['Garden', 'Nature', 'Photography', 'Peaceful'],
-    description: 'A 7-hectare park showcasing indigenous plants and flowers of the Cordillera region. Features amphitheater, traditional houses, and beautiful landscaping perfect for picnics.',
+    description:
+      'A 7-hectare park showcasing indigenous plants and flowers of the Cordillera region. Features amphitheater, traditional houses, and beautiful landscaping perfect for picnics.',
     address: 'Kayanang Lungsod, Baguio, Benguet',
     operatingHours: '8:00 AM - 5:00 PM',
     entranceFee: '₱50',
     phone: '(074) 442 2432',
     imageUrl: 'https://images.unsplash.com/photo-1590053164295-ab24a8948913?w=800',
-    coords: [16.4176, 120.597]
+    coords: [16.4176, 120.597],
   },
   {
     id: '10',
@@ -132,13 +141,14 @@ export const defaultBaguioPlaces = [
     area: 'Baguio City Proper',
     category: 'Shopping',
     tags: ['Mall', 'Shopping', 'Food', 'Entertainment'],
-    description: 'The largest mall in Northern Luzon built on a former military base. Features numerous shops, restaurants, cinema, bowling, and an extensive food court with local delicacies.',
+    description:
+      'The largest mall in Northern Luzon built on a former military base. Features numerous shops, restaurants, cinema, bowling, and an extensive food court with local delicacies.',
     address: 'Jose Abad Santos Ave, Baguio, Benguet',
     operatingHours: '10:00 AM - 9:00 PM',
     entranceFee: 'Free',
     phone: '(074) 442 5006',
     imageUrl: 'https://images.unsplash.com/photo-1596401057633-565652f5e794?w=800',
-    coords: [16.4088516, 120.5972273]
+    coords: [16.4088516, 120.5972273],
   },
   {
     id: '11',
@@ -146,13 +156,14 @@ export const defaultBaguioPlaces = [
     area: 'Baguio City Proper',
     category: 'Shopping',
     tags: ['Commercial', 'Shopping', 'Food', 'Nightlife'],
-    description: 'The main commercial hub of Baguio City, featuring shops, restaurants, cafes, and nightlife. Famous for its uphill/downhill slope and vibrant street life.',
+    description:
+      'The main commercial hub of Baguio City, featuring shops, restaurants, cafes, and nightlife. Famous for its uphill/downhill slope and vibrant street life.',
     address: 'Session Rd, Baguio, Benguet',
     operatingHours: 'Varies by establishment',
     entranceFee: 'Free',
     phone: '',
     imageUrl: 'https://images.unsplash.com/photo-1598967669018-8c65c8a680b3?w=800',
-    coords: [16.4091098, 120.597576]
+    coords: [16.4091098, 120.597576],
   },
   {
     id: '12',
@@ -160,13 +171,14 @@ export const defaultBaguioPlaces = [
     area: 'Baguio City Proper',
     category: 'Shopping',
     tags: ['Market', 'Shopping', 'Local', 'Food'],
-    description: 'The public market of Baguio offering fresh produce, souvenirs, clothes, and local delicacies. A great place to experience local culture and buy pasalubong.',
+    description:
+      'The public market of Baguio offering fresh produce, souvenirs, clothes, and local delicacies. A great place to experience local culture and buy pasalubong.',
     address: 'Magsaysay Ave, Baguio, Benguet',
     operatingHours: '4:00 AM - 6:00 PM',
     entranceFee: 'Free',
     phone: '(074) 442 2432',
     imageUrl: 'https://images.unsplash.com/photo-1590053164295-ab24a8948913?w=800',
-    coords: [16.4149596, 120.5929984]
+    coords: [16.4149596, 120.5929984],
   },
   {
     id: '13',
@@ -174,13 +186,14 @@ export const defaultBaguioPlaces = [
     area: 'Upper Gen. Luna',
     category: 'Museums & Culture',
     tags: ['Religious', 'Shopping', 'Food', 'Cultural'],
-    description: 'A convent famous for its handmade pastillas (milk candies) and embroidered vestments. The shop sells various flavors of pastillas and other religious items.',
+    description:
+      'A convent famous for its handmade pastillas (milk candies) and embroidered vestments. The shop sells various flavors of pastillas and other religious items.',
     address: 'Upper Gen. Luna Rd, Baguio, Benguet',
     operatingHours: '8:00 AM - 5:00 PM',
     entranceFee: 'Free',
     phone: '(074) 442 2230',
     imageUrl: 'https://images.unsplash.com/photo-1598967669018-8c65c8a680b3?w=800',
-    coords: [16.4196, 120.604]
+    coords: [16.4196, 120.604],
   },
   {
     id: '14',
@@ -188,13 +201,14 @@ export const defaultBaguioPlaces = [
     area: 'Fort del Pilar',
     category: 'Tourist Spots',
     tags: ['Military', 'Historical', 'Museum', 'Landmark'],
-    description: 'The country\'s premier military school training future AFP officers since 1936. Features neoclassical buildings, the PMA Museum, and beautifully maintained grounds.',
+    description:
+      "The country's premier military school training future AFP officers since 1936. Features neoclassical buildings, the PMA Museum, and beautifully maintained grounds.",
     address: 'Fort del Pilar, Baguio, Benguet',
     operatingHours: 'Grounds: 8:00 AM - 4:00 PM (weekends)',
     entranceFee: 'Free (with valid ID)',
     phone: '(074) 442 2211',
     imageUrl: 'https://images.unsplash.com/photo-1590053164295-ab24a8948913?w=800',
-    coords: [16.3928, 120.5962]
+    coords: [16.3928, 120.5962],
   },
   {
     id: '15',
@@ -202,13 +216,14 @@ export const defaultBaguioPlaces = [
     area: 'Baguio City Proper',
     category: 'Tourist Spots',
     tags: ['Educational', 'Nature', 'Peaceful', 'Workshops'],
-    description: 'A training center for teachers featuring beautiful grounds, a butterfly sanctuary, and various facilities. Offers a peaceful environment with pine trees and fresh air.',
+    description:
+      'A training center for teachers featuring beautiful grounds, a butterfly sanctuary, and various facilities. Offers a peaceful environment with pine trees and fresh air.',
     address: 'Quirino Hill, Baguio, Benguet',
     operatingHours: '8:00 AM - 5:00 PM',
     entranceFee: '₱50',
     phone: '(074) 442 3095',
     imageUrl: 'https://images.unsplash.com/photo-1596401057633-565652f5e794?w=800',
-    coords: [16.4130217, 120.6072952]
+    coords: [16.4130217, 120.6072952],
   },
   {
     id: '16',
@@ -216,13 +231,14 @@ export const defaultBaguioPlaces = [
     area: 'Tuba',
     category: 'Museums & Culture',
     tags: ['Museum', 'Art', 'Cultural', 'Photography'],
-    description: 'Home to National Artist Benedicto Cabrera\'s works. Features contemporary and traditional Cordillera art, artifacts, and a café with stunning mountain views.',
+    description:
+      "Home to National Artist Benedicto Cabrera's works. Features contemporary and traditional Cordillera art, artifacts, and a café with stunning mountain views.",
     address: 'Upper Calvario, Tuba, Benguet (near Baguio)',
     operatingHours: '9:00 AM - 5:00 PM (Closed Mondays)',
     entranceFee: '₱150 (Adults), ₱75 (Students)',
     phone: '(074) 442 2383',
     imageUrl: 'https://images.unsplash.com/photo-1598967669018-8c65c8a680b3?w=800',
-    coords: [16.3989, 120.5756]
+    coords: [16.3989, 120.5756],
   },
   {
     id: '17',
@@ -230,13 +246,14 @@ export const defaultBaguioPlaces = [
     area: 'La Trinidad',
     category: 'Tourist Spots',
     tags: ['Farm', 'Nature', 'Family-Friendly', 'Food'],
-    description: 'A strawberry plantation in nearby La Trinidad where visitors can pick their own strawberries, buy fresh produce, and enjoy strawberry-based products.',
+    description:
+      'A strawberry plantation in nearby La Trinidad where visitors can pick their own strawberries, buy fresh produce, and enjoy strawberry-based products.',
     address: 'La Trinidad, Benguet (15 mins from Baguio)',
     operatingHours: '6:00 AM - 6:00 PM',
     entranceFee: 'Free (Strawberry picking: ₱250/basket)',
     phone: '',
     imageUrl: 'https://images.unsplash.com/photo-1590053164295-ab24a8948913?w=800',
-    coords: [16.3989, 120.5989]
+    coords: [16.3989, 120.5989],
   },
   {
     id: '18',
@@ -244,13 +261,14 @@ export const defaultBaguioPlaces = [
     area: 'Barangay Pinget',
     category: 'Tourist Spots',
     tags: ['Cultural', 'Photography', 'Landmark', 'New'],
-    description: 'A modern cultural landmark showcasing Igorot heritage through massive stone structures and sculptures. Offers panoramic views and educational exhibits about Cordillera culture.',
+    description:
+      'A modern cultural landmark showcasing Igorot heritage through massive stone structures and sculptures. Offers panoramic views and educational exhibits about Cordillera culture.',
     address: 'Barangay Pinget, Baguio, Benguet',
     operatingHours: '8:00 AM - 5:00 PM',
     entranceFee: '₱200',
     phone: '',
     imageUrl: 'https://images.unsplash.com/photo-1598967669018-8c65c8a680b3?w=800',
-    coords: [16.4589, 120.5889]
+    coords: [16.4589, 120.5889],
   },
   {
     id: '19',
@@ -258,13 +276,14 @@ export const defaultBaguioPlaces = [
     area: 'Baguio City Proper',
     category: 'Museums & Culture',
     tags: ['Museum', 'Cultural', 'Educational', 'Free'],
-    description: 'A branch of the National Museum featuring Cordillera artifacts, ethnographic exhibits, and natural history displays. Free admission and air-conditioned.',
+    description:
+      'A branch of the National Museum featuring Cordillera artifacts, ethnographic exhibits, and natural history displays. Free admission and air-conditioned.',
     address: 'Governor Pack Rd, Baguio, Benguet',
     operatingHours: '9:00 AM - 4:00 PM (Closed Mondays)',
     entranceFee: 'Free',
     phone: '(074) 442 2059',
     imageUrl: 'https://images.unsplash.com/photo-1590053164295-ab24a8948913?w=800',
-    coords: [16.4156, 120.5989]
+    coords: [16.4156, 120.5989],
   },
   {
     id: '20',
@@ -272,13 +291,14 @@ export const defaultBaguioPlaces = [
     area: 'Mirador',
     category: 'Parks & Nature',
     tags: ['Viewpoint', 'Park', 'Photography', 'Peaceful'],
-    description: 'A scenic park offering panoramic views of Baguio City. Features walking paths, picnic areas, and the nearby Lourdes Grotto shrine.',
+    description:
+      'A scenic park offering panoramic views of Baguio City. Features walking paths, picnic areas, and the nearby Lourdes Grotto shrine.',
     address: 'Mirador, Baguio, Benguet',
     operatingHours: '6:00 AM - 8:00 PM',
     entranceFee: '₱30',
     phone: '',
     imageUrl: 'https://images.unsplash.com/photo-1596401057633-565652f5e794?w=800',
-    coords: [16.4267, 120.5956]
+    coords: [16.4267, 120.5956],
   },
   {
     id: '21',
@@ -286,13 +306,14 @@ export const defaultBaguioPlaces = [
     area: 'Kisad',
     category: 'Cafes & Restaurants',
     tags: ['Brewery', 'Food', 'Drinks', 'Nightlife'],
-    description: 'Baguio\'s pioneering craft brewery offering locally brewed beers and pub food. Features a cozy atmosphere and regular live music events.',
+    description:
+      "Baguio's pioneering craft brewery offering locally brewed beers and pub food. Features a cozy atmosphere and regular live music events.",
     address: 'Kisad Rd, Baguio, Benguet',
     operatingHours: '12:00 PM - 10:00 PM',
     entranceFee: 'Free',
     phone: '(074) 442 8888',
     imageUrl: 'https://images.unsplash.com/photo-1590053164295-ab24a8948913?w=800',
-    coords: [16.4056, 120.5989]
+    coords: [16.4056, 120.5989],
   },
   {
     id: '22',
@@ -300,13 +321,14 @@ export const defaultBaguioPlaces = [
     area: 'Baguio City Proper',
     category: 'Cafes & Restaurants',
     tags: ['Café', 'Food', 'Organic', 'Garden'],
-    description: 'A charming garden café serving organic and locally sourced food. Known for its rustic ambiance, wood-fired pizzas, and commitment to sustainable practices.',
+    description:
+      'A charming garden café serving organic and locally sourced food. Known for its rustic ambiance, wood-fired pizzas, and commitment to sustainable practices.',
     address: 'Upper Gen. Luna Rd, Baguio, Benguet',
     operatingHours: '9:00 AM - 9:00 PM',
     entranceFee: 'Free',
     phone: '(074) 442 6789',
     imageUrl: 'https://images.unsplash.com/photo-1598967669018-8c65c8a680b3?w=800',
-    coords: [16.4145, 120.6012]
+    coords: [16.4145, 120.6012],
   },
   {
     id: '23',
@@ -314,13 +336,14 @@ export const defaultBaguioPlaces = [
     area: 'Session Road',
     category: 'Cafes & Restaurants',
     tags: ['Café', 'Coffee', 'Local', 'Specialty'],
-    description: 'A specialty coffee shop featuring locally grown Benguet coffee. Offers various brewing methods and coffee-based drinks in a modern setting.',
+    description:
+      'A specialty coffee shop featuring locally grown Benguet coffee. Offers various brewing methods and coffee-based drinks in a modern setting.',
     address: 'Session Rd, Baguio, Benguet',
     operatingHours: '8:00 AM - 10:00 PM',
     entranceFee: 'Free',
     phone: '',
     imageUrl: 'https://images.unsplash.com/photo-1590053164295-ab24a8948913?w=800',
-    coords: [16.4145, 120.5972]
+    coords: [16.4145, 120.5972],
   },
   {
     id: '24',
@@ -328,13 +351,14 @@ export const defaultBaguioPlaces = [
     area: 'Baguio City Proper',
     category: 'Cafes & Restaurants',
     tags: ['Café', 'Food', 'Instagram-worthy', 'Desserts'],
-    description: 'An Instagram-worthy café known for its unique architecture and creative dishes. Famous for strawberry desserts and specialty coffee.',
+    description:
+      'An Instagram-worthy café known for its unique architecture and creative dishes. Famous for strawberry desserts and specialty coffee.',
     address: 'Baguio, Benguet',
     operatingHours: '10:00 AM - 8:00 PM',
     entranceFee: 'Free',
     phone: '',
     imageUrl: 'https://images.unsplash.com/photo-1596401057633-565652f5e794?w=800',
-    coords: [16.4123, 120.5967]
+    coords: [16.4123, 120.5967],
   },
   {
     id: '25',
@@ -342,13 +366,14 @@ export const defaultBaguioPlaces = [
     area: 'Country Club',
     category: 'Tourist Spots',
     tags: ['Golf', 'Sports', 'Historical', 'Premium'],
-    description: 'An exclusive golf and country club established in 1904. Features an 18-hole golf course designed by Donald Ross and colonial-style clubhouse.',
+    description:
+      'An exclusive golf and country club established in 1904. Features an 18-hole golf course designed by Donald Ross and colonial-style clubhouse.',
     address: 'Country Club Rd, Baguio, Benguet',
     operatingHours: '6:00 AM - 8:00 PM',
     entranceFee: 'Varies (Golf: ₱2000+)',
     phone: '(074) 442 2291',
     imageUrl: 'https://images.unsplash.com/photo-1590053164295-ab24a8948913?w=800',
-    coords: [16.4089, 120.6123]
+    coords: [16.4089, 120.6123],
   },
   {
     id: '26',
@@ -356,13 +381,14 @@ export const defaultBaguioPlaces = [
     area: 'Kabayan',
     category: 'Parks & Nature',
     tags: ['Adventure', 'Nature', 'Hiking', 'Viewpoint'],
-    description: 'A popular jumping-off point for Mt. Pulag treks. While the main trail is in Kabayan, this area offers stunning mountain views and cool climate.',
+    description:
+      'A popular jumping-off point for Mt. Pulag treks. While the main trail is in Kabayan, this area offers stunning mountain views and cool climate.',
     address: 'Kabayan, Benguet (2 hrs from Baguio)',
     operatingHours: 'Open 24 hours',
     entranceFee: 'Varies by operator',
     phone: '',
     imageUrl: 'https://images.unsplash.com/photo-1598967669018-8c65c8a680b3?w=800',
-    coords: [16.5833, 120.8833]
+    coords: [16.5833, 120.8833],
   },
   {
     id: '27',
@@ -370,13 +396,14 @@ export const defaultBaguioPlaces = [
     area: 'La Trinidad',
     category: 'Shopping',
     tags: ['Market', 'Food', 'Local', 'Fresh'],
-    description: 'A bustling fish market in La Trinidad Valley offering fresh trout and other seafood at affordable prices. Great for buying fresh produce and experiencing local trade.',
+    description:
+      'A bustling fish market in La Trinidad Valley offering fresh trout and other seafood at affordable prices. Great for buying fresh produce and experiencing local trade.',
     address: 'La Trinidad, Benguet',
     operatingHours: '5:00 AM - 5:00 PM',
     entranceFee: 'Free',
     phone: '',
     imageUrl: 'https://images.unsplash.com/photo-1590053164295-ab24a8948913?w=800',
-    coords: [16.3989, 120.5956]
+    coords: [16.3989, 120.5956],
   },
   {
     id: '28',
@@ -384,13 +411,14 @@ export const defaultBaguioPlaces = [
     area: 'San Luis',
     category: 'Parks & Nature',
     tags: ['Viewpoint', 'Photography', 'Nature', 'Romantic'],
-    description: 'A scenic viewpoint perfect for watching Baguio sunsets. Offers panoramic views of the city and surrounding mountains. Popular among photographers and couples.',
+    description:
+      'A scenic viewpoint perfect for watching Baguio sunsets. Offers panoramic views of the city and surrounding mountains. Popular among photographers and couples.',
     address: 'San Luis, Baguio, Benguet',
     operatingHours: 'Open 24 hours',
     entranceFee: 'Free',
     phone: '',
     imageUrl: 'https://images.unsplash.com/photo-1596401057633-565652f5e794?w=800',
-    coords: [16.4189, 120.5856]
+    coords: [16.4189, 120.5856],
   },
   {
     id: '29',
@@ -398,13 +426,14 @@ export const defaultBaguioPlaces = [
     area: 'Baguio City Proper',
     category: 'Parks & Nature',
     tags: ['Park', 'Historical', 'Family-Friendly', 'Events'],
-    description: 'A park dedicated to preserving Baguio\'s heritage. Features historical markers, sculptures, and hosts various cultural events throughout the year.',
+    description:
+      "A park dedicated to preserving Baguio's heritage. Features historical markers, sculptures, and hosts various cultural events throughout the year.",
     address: 'Baguio, Benguet',
     operatingHours: '6:00 AM - 9:00 PM',
     entranceFee: 'Free',
     phone: '(074) 442 2432',
     imageUrl: 'https://images.unsplash.com/photo-1590053164295-ab24a8948913?w=800',
-    coords: [16.4112, 120.5945]
+    coords: [16.4112, 120.5945],
   },
   {
     id: '30',
@@ -412,12 +441,13 @@ export const defaultBaguioPlaces = [
     area: 'Pinsao',
     category: 'Museums & Culture',
     tags: ['Art', 'Cultural', 'Shopping', 'Workshops'],
-    description: 'A creative hub featuring local artists\' studios, galleries, and workshops. Offers art classes, handmade crafts, and a glimpse into Baguio\'s vibrant arts scene.',
+    description:
+      "A creative hub featuring local artists' studios, galleries, and workshops. Offers art classes, handmade crafts, and a glimpse into Baguio's vibrant arts scene.",
     address: 'Pinsao, Baguio, Benguet',
     operatingHours: '9:00 AM - 6:00 PM',
     entranceFee: 'Free',
     phone: '',
     imageUrl: 'https://images.unsplash.com/photo-1598967669018-8c65c8a680b3?w=800',
-    coords: [16.4245, 120.5878]
-  }
+    coords: [16.4245, 120.5878],
+  },
 ]

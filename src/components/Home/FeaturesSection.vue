@@ -35,19 +35,15 @@
             <h3 class="feature-title">PLACES (MAYKAN)</h3>
             <p class="feature-description">
               Explore Baguio's top destinations! From hidden gems to popular tourist spots, Maykan
-              helps you discover and learn about the city's best attractions with detailed information
-              and travel guides.
+              helps you discover and learn about the city's best attractions with detailed
+              information and travel guides.
             </p>
           </div>
         </div>
 
         <!-- Center Image - NOW DYNAMIC -->
         <div class="center-image">
-          <q-img
-            :src="featureImage || defaultImage"
-            class="tower-image"
-            :ratio="3 / 4"
-          >
+          <q-img :src="featureImage || defaultImage" class="tower-image" :ratio="3 / 4">
             <template v-slot:loading>
               <div class="absolute-full flex flex-center">
                 <q-spinner color="primary" size="40px" />
@@ -110,17 +106,18 @@ import { doc, getDoc } from 'firebase/firestore'
 
 export default {
   name: 'FeaturesSection',
-  
+
   setup() {
     const featureImage = ref('')
-    const defaultImage = 'https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=600&h=800&fit=crop'
+    const defaultImage =
+      'https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=600&h=800&fit=crop'
 
     const loadFeatureImage = async () => {
       try {
         console.log('[FeaturesSection] Loading image from Firebase...')
         const docRef = doc(db, 'pagePhotos', 'home-features')
         const docSnap = await getDoc(docRef)
-        
+
         if (docSnap.exists()) {
           const data = docSnap.data()
           if (data.imageUrl) {
@@ -147,11 +144,11 @@ export default {
 
 <style lang="scss" scoped>
 // Color Palette Variables
-$dark-green: #1B4332;
-$primary-green: #2E5D3E;
-$light-green: #9EC98F;
-$brown: #6B5344;
-$white: #FFFFFF;
+$dark-green: #1b4332;
+$primary-green: #2e5d3e;
+$light-green: #9ec98f;
+$brown: #6b5344;
+$white: #ffffff;
 
 .features-section {
   background: $white;

@@ -5,7 +5,12 @@
         <h4 class="q-my-none text-pine-green">Place Management</h4>
         <p class="text-grey-7 q-mb-none" id="places-description">Manage places and destinations</p>
       </div>
-      <div class="col-auto q-gutter-sm" role="group" aria-label="Place actions" aria-describedby="places-description">
+      <div
+        class="col-auto q-gutter-sm"
+        role="group"
+        aria-label="Place actions"
+        aria-describedby="places-description"
+      >
         <q-btn
           v-if="selectedPlaces.length > 0"
           color="negative"
@@ -43,7 +48,7 @@
         <div v-if="loading" id="table-loading-status" class="sr-only" aria-live="polite">
           Loading places...
         </div>
-        
+
         <q-input
           v-model="search"
           outlined
@@ -81,9 +86,16 @@
 
           <template #body-cell-category="props">
             <q-td :props="props">
-              <div class="row q-gutter-xs" style="flex-wrap: wrap;" role="group" :aria-label="`Categories for ${props.row.name}`">
+              <div
+                class="row q-gutter-xs"
+                style="flex-wrap: wrap"
+                role="group"
+                :aria-label="`Categories for ${props.row.name}`"
+              >
                 <q-badge
-                  v-for="cat in (Array.isArray(props.row.categories) ? props.row.categories : [props.row.category])"
+                  v-for="cat in Array.isArray(props.row.categories)
+                    ? props.row.categories
+                    : [props.row.category]"
                   :key="cat"
                   :color="getCategoryColor(cat)"
                 >
@@ -126,14 +138,16 @@
     <q-dialog v-model="showAddDialog" @hide="onDialogHide">
       <q-card style="min-width: 700px; max-width: 800px">
         <q-card-section>
-          <div class="text-h6 text-pine-green">{{ editingPlace ? 'Edit Place' : 'Add New Place' }}</div>
+          <div class="text-h6 text-pine-green">
+            {{ editingPlace ? 'Edit Place' : 'Add New Place' }}
+          </div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
           <!-- Image Upload Section -->
           <div class="q-mb-md">
             <div class="text-subtitle2 q-mb-sm">Place Image</div>
-            
+
             <!-- Image Preview -->
             <div v-if="imagePreview || form.imageUrl" class="image-preview-container q-mb-sm">
               <img :src="imagePreview || form.imageUrl" class="image-preview" />
@@ -163,16 +177,16 @@
               <template #prepend>
                 <q-icon name="image" />
               </template>
-              <template #hint>
-                Max 5MB (JPG, PNG, WebP)
-              </template>
+              <template #hint> Max 5MB (JPG, PNG, WebP) </template>
             </q-file>
 
             <!-- Upload Progress -->
             <div v-if="isUploading" class="upload-progress q-mt-md">
               <div class="row items-center q-mb-xs">
                 <span class="text-caption text-grey-7 q-mr-sm">Uploading...</span>
-                <span class="text-caption text-primary text-weight-bold">{{ uploadProgress }}%</span>
+                <span class="text-caption text-primary text-weight-bold"
+                  >{{ uploadProgress }}%</span
+                >
               </div>
               <q-linear-progress :value="uploadProgress / 100" color="primary" />
             </div>
@@ -208,9 +222,12 @@
             label="Place Name *"
             class="q-mb-md"
             :rules="[
-              val => required(val, 'Place name').valid || required(val, 'Place name').message,
-              val => minLength(val, 2, 'Place name').valid || minLength(val, 2, 'Place name').message,
-              val => maxLength(val, 100, 'Place name').valid || maxLength(val, 100, 'Place name').message
+              (val) => required(val, 'Place name').valid || required(val, 'Place name').message,
+              (val) =>
+                minLength(val, 2, 'Place name').valid || minLength(val, 2, 'Place name').message,
+              (val) =>
+                maxLength(val, 100, 'Place name').valid ||
+                maxLength(val, 100, 'Place name').message,
             ]"
           />
 
@@ -227,7 +244,7 @@
             multiple
             use-chips
             class="q-mb-md"
-            :rules="[val => required(val, 'Category').valid || required(val, 'Category').message]"
+            :rules="[(val) => required(val, 'Category').valid || required(val, 'Category').message]"
             hint="Select one or more categories for filtering in Ayan Mo feature"
           />
 
@@ -238,18 +255,12 @@
             label="Address/Location *"
             class="q-mb-md"
             :rules="[
-              val => required(val, 'Address').valid || required(val, 'Address').message,
-              val => minLength(val, 5, 'Address').valid || minLength(val, 5, 'Address').message
+              (val) => required(val, 'Address').valid || required(val, 'Address').message,
+              (val) => minLength(val, 5, 'Address').valid || minLength(val, 5, 'Address').message,
             ]"
           >
             <template #append>
-              <q-btn
-                flat
-                dense
-                icon="my_location"
-                color="primary"
-                @click="useCurrentLocation"
-              >
+              <q-btn flat dense icon="my_location" color="primary" @click="useCurrentLocation">
                 <q-tooltip>Use Current Location</q-tooltip>
               </q-btn>
             </template>
@@ -258,7 +269,12 @@
           <!-- Map for Pinpoint -->
           <div class="q-mb-md">
             <div class="text-subtitle2 q-mb-sm">Pinpoint on Map</div>
-            <div class="map-container" ref="mapContainer" id="place-map" style="height: 300px;"></div>
+            <div
+              class="map-container"
+              ref="mapContainer"
+              id="place-map"
+              style="height: 300px"
+            ></div>
             <div v-if="form.latitude && form.longitude" class="q-mt-sm text-caption text-grey-7">
               Coordinates: {{ form.latitude.toFixed(6) }}, {{ form.longitude.toFixed(6) }}
             </div>
@@ -273,9 +289,13 @@
             rows="4"
             class="q-mb-md"
             :rules="[
-              val => required(val, 'Description').valid || required(val, 'Description').message,
-              val => minLength(val, 10, 'Description').valid || minLength(val, 10, 'Description').message,
-              val => maxLength(val, 2000, 'Description').valid || maxLength(val, 2000, 'Description').message
+              (val) => required(val, 'Description').valid || required(val, 'Description').message,
+              (val) =>
+                minLength(val, 10, 'Description').valid ||
+                minLength(val, 10, 'Description').message,
+              (val) =>
+                maxLength(val, 2000, 'Description').valid ||
+                maxLength(val, 2000, 'Description').message,
             ]"
             hint="Provide a helpful description (10-2000 characters)"
           />
@@ -283,12 +303,7 @@
           <!-- Operating Hours -->
           <div class="row q-col-gutter-md q-mb-md">
             <div class="col-6">
-              <q-input
-                v-model="form.operatingHours.open"
-                outlined
-                type="time"
-                label="Open Time"
-              />
+              <q-input v-model="form.operatingHours.open" outlined type="time" label="Open Time" />
             </div>
             <div class="col-6">
               <q-input
@@ -297,7 +312,11 @@
                 type="time"
                 label="Close Time"
                 :rules="[
-                  val => !val || !form.operatingHours.open || val > form.operatingHours.open || 'Close time must be after open time'
+                  (val) =>
+                    !val ||
+                    !form.operatingHours.open ||
+                    val > form.operatingHours.open ||
+                    'Close time must be after open time',
                 ]"
               />
             </div>
@@ -349,26 +368,15 @@
             ref="cropper"
             :src="imagePreview || form.imageUrl"
             :alt="imageFile?.name"
-            :stencil-props="{ aspectRatio: 16/9 }"
+            :stencil-props="{ aspectRatio: 16 / 9 }"
             :canvas="{ mimeType: 'image/webp', quality: 0.9 }"
             class="cropper-container"
           />
         </q-card-section>
 
         <q-card-actions align="center" class="q-pa-md">
-          <q-btn
-            label="Cancel"
-            color="grey"
-            flat
-            v-close-popup
-          />
-          <q-btn
-            label="Apply Crop"
-            color="primary"
-            unelevated
-            @click="applyCrop"
-            icon="check"
-          />
+          <q-btn label="Cancel" color="grey" flat v-close-popup />
+          <q-btn label="Apply Crop" color="primary" unelevated @click="applyCrop" icon="check" />
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -404,7 +412,15 @@
 
 <script>
 import { db } from 'src/boot/firebase'
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore'
+import {
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  serverTimestamp,
+} from 'firebase/firestore'
 import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -413,7 +429,13 @@ import { getErrorMessage, withRetry, isOnline } from 'src/utils/errorHandler'
 import { logActionFailure } from 'src/utils/errorMonitoring'
 import { announceActionResult } from 'src/utils/accessibility'
 /* eslint-disable no-unused-vars */
-import { required, minLength, maxLength, coordinates, url as validateUrl } from 'src/utils/validation'
+import {
+  required,
+  minLength,
+  maxLength,
+  coordinates,
+  url as validateUrl,
+} from 'src/utils/validation'
 /* eslint-enable no-unused-vars */
 
 // Fix for default marker icons in Leaflet
@@ -427,7 +449,7 @@ L.Icon.Default.mergeOptions({
 export default {
   name: 'PlacesManagement',
   components: {
-    VueCropper
+    VueCropper,
   },
 
   setup() {
@@ -466,11 +488,11 @@ export default {
         operatingHours: {
           open: '',
           close: '',
-          days: ''
+          days: '',
         },
         imageUrl: '',
         imagePublicId: '',
-        featured: false
+        featured: false,
       },
       categories: [
         { label: 'Tourist Spots', value: 'tourist-spot' },
@@ -482,7 +504,7 @@ export default {
         { label: 'Government', value: 'government' },
         { label: 'Hospital', value: 'hospital' },
         { label: 'School', value: 'school' },
-        { label: 'Other', value: 'other' }
+        { label: 'Other', value: 'other' },
       ],
       columns: [
         { name: 'image', label: 'Image', field: 'imageUrl', align: 'center' },
@@ -490,23 +512,24 @@ export default {
         { name: 'name', label: 'Place Name', field: 'name', align: 'left', sortable: true },
         { name: 'category', label: 'Category', field: 'category', align: 'left', sortable: true },
         { name: 'address', label: 'Address', field: 'address', align: 'left' },
-        { name: 'actions', label: 'Actions', field: 'actions', align: 'center' }
-      ]
+        { name: 'actions', label: 'Actions', field: 'actions', align: 'center' },
+      ],
     }
   },
 
   computed: {
     filteredPlaces() {
       if (!this.search) return this.places
-      
+
       const searchLower = this.search.toLowerCase()
-      return this.places.filter(place => 
-        place.name?.toLowerCase().includes(searchLower) ||
-        place.category?.toLowerCase().includes(searchLower) ||
-        place.address?.toLowerCase().includes(searchLower) ||
-        place.area?.toLowerCase().includes(searchLower)
+      return this.places.filter(
+        (place) =>
+          place.name?.toLowerCase().includes(searchLower) ||
+          place.category?.toLowerCase().includes(searchLower) ||
+          place.address?.toLowerCase().includes(searchLower) ||
+          place.area?.toLowerCase().includes(searchLower)
       )
-    }
+    },
   },
 
   mounted() {
@@ -523,9 +546,9 @@ export default {
         }
 
         const querySnapshot = await getDocs(collection(db, 'places'))
-        this.places = querySnapshot.docs.map(doc => ({
+        this.places = querySnapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         }))
         console.log('[Places] Loaded places:', this.places.length)
       } catch (error) {
@@ -542,9 +565,9 @@ export default {
             {
               label: 'Retry',
               color: 'white',
-              handler: () => this.loadPlaces()
-            }
-          ]
+              handler: () => this.loadPlaces(),
+            },
+          ],
         })
       } finally {
         this.loading = false
@@ -559,13 +582,13 @@ export default {
 
         // Default center: Baguio City
         const defaultLat = this.form.latitude || 16.4023
-        const defaultLng = this.form.longitude || 120.5960
+        const defaultLng = this.form.longitude || 120.596
 
         this.map = L.map('place-map').setView([defaultLat, defaultLng], 15)
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '© OpenStreetMap contributors',
-          maxZoom: 19
+          maxZoom: 19,
         }).addTo(this.map)
 
         // Add marker if coordinates exist
@@ -591,7 +614,7 @@ export default {
       }
 
       this.marker = L.marker([lat, lng], {
-        draggable: true
+        draggable: true,
       }).addTo(this.map)
 
       // Update coordinates when marker is dragged
@@ -614,7 +637,7 @@ export default {
         this.$q.notify({
           type: 'warning',
           message: 'Please enter a location to search',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -632,19 +655,19 @@ export default {
           const result = data[0]
           const lat = parseFloat(result.lat)
           const lng = parseFloat(result.lon)
-          
+
           this.setLocation(lat, lng)
-          
+
           this.$q.notify({
             type: 'positive',
             message: 'Location found! Click on the map to adjust if needed.',
-            position: 'top'
+            position: 'top',
           })
         } else {
           this.$q.notify({
             type: 'warning',
             message: 'Location not found. Try a different search term.',
-            position: 'top'
+            position: 'top',
           })
         }
       } catch (error) {
@@ -652,7 +675,7 @@ export default {
         this.$q.notify({
           type: 'negative',
           message: 'Failed to search location',
-          position: 'top'
+          position: 'top',
         })
       } finally {
         this.searchingLocation = false
@@ -664,7 +687,7 @@ export default {
         this.$q.notify({
           type: 'warning',
           message: 'Geolocation is not supported by your browser',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -672,7 +695,7 @@ export default {
       this.$q.notify({
         type: 'info',
         message: 'Getting your current location...',
-        position: 'top'
+        position: 'top',
       })
 
       navigator.geolocation.getCurrentPosition(
@@ -680,11 +703,11 @@ export default {
           const lat = position.coords.latitude
           const lng = position.coords.longitude
           this.setLocation(lat, lng)
-          
+
           this.$q.notify({
             type: 'positive',
             message: 'Current location set successfully',
-            position: 'top'
+            position: 'top',
           })
         },
         (error) => {
@@ -692,7 +715,7 @@ export default {
           this.$q.notify({
             type: 'negative',
             message: 'Failed to get current location. Please enable location services.',
-            position: 'top'
+            position: 'top',
           })
         }
       )
@@ -711,17 +734,17 @@ export default {
     onImageRejected(rejectedEntries) {
       const reason = rejectedEntries[0]?.failedPropValidation
       let message = 'Image upload failed'
-      
+
       if (reason === 'max-file-size') {
         message = 'Image size must be less than 5MB'
       } else if (reason === 'accept') {
         message = 'Only image files are allowed'
       }
-      
+
       this.$q.notify({
         type: 'negative',
         message: message,
-        position: 'top'
+        position: 'top',
       })
     },
 
@@ -743,22 +766,26 @@ export default {
         const canvas = this.$refs.cropper.getCroppedCanvas({
           width: 1920,
           height: 1080,
-          imageSmoothingQuality: 'high'
+          imageSmoothingQuality: 'high',
         })
 
-        canvas.toBlob((blob) => {
-          const croppedFile = new File([blob], this.imageFile?.name || 'cropped-image.jpg', {
-            type: 'image/jpeg'
-          })
-          this.imageFile = croppedFile
-          this.imagePreview = canvas.toDataURL('image/jpeg', 0.9)
-          this.showCropperDialog = false
-          this.$q.notify({
-            type: 'positive',
-            message: 'Image cropped successfully!',
-            position: 'top'
-          })
-        }, 'image/jpeg', 0.9)
+        canvas.toBlob(
+          (blob) => {
+            const croppedFile = new File([blob], this.imageFile?.name || 'cropped-image.jpg', {
+              type: 'image/jpeg',
+            })
+            this.imageFile = croppedFile
+            this.imagePreview = canvas.toDataURL('image/jpeg', 0.9)
+            this.showCropperDialog = false
+            this.$q.notify({
+              type: 'positive',
+              message: 'Image cropped successfully!',
+              position: 'top',
+            })
+          },
+          'image/jpeg',
+          0.9
+        )
       }
     },
 
@@ -775,7 +802,7 @@ export default {
       this.$q.notify({
         type: 'positive',
         message: 'Image selected from gallery',
-        position: 'top'
+        position: 'top',
       })
     },
 
@@ -783,7 +810,7 @@ export default {
     simulateUploadProgress() {
       this.isUploading = true
       this.uploadProgress = 0
-      
+
       const interval = setInterval(() => {
         this.uploadProgress += Math.random() * 15
         if (this.uploadProgress >= 100) {
@@ -806,27 +833,23 @@ export default {
       try {
         const { uploadOptimizedImage } = await import('src/utils/cloudinary')
 
-        const uploadResult = await uploadOptimizedImage(
-          this.imageFile,
-          'baguiboost/places',
-          {
-            maxWidth: 1920,
-            maxHeight: 1080,
-            quality: 0.85,
-            format: 'image/webp'
-          }
-        )
+        const uploadResult = await uploadOptimizedImage(this.imageFile, 'baguiboost/places', {
+          maxWidth: 1920,
+          maxHeight: 1080,
+          quality: 0.85,
+          format: 'image/webp',
+        })
 
         // Add to gallery
         this.imageGallery.push({
           url: uploadResult.url,
           publicId: uploadResult.publicId,
-          uploadedAt: new Date()
+          uploadedAt: new Date(),
         })
 
         return {
           imageUrl: uploadResult.url,
-          imagePublicId: uploadResult.publicId
+          imagePublicId: uploadResult.publicId,
         }
       } catch (error) {
         console.error('[Places] Error uploading image:', error)
@@ -846,7 +869,11 @@ export default {
       this.editingPlace = place
       this.form = {
         name: place.name || '',
-        categories: Array.isArray(place.categories) ? place.categories : (place.category ? [place.category] : []),
+        categories: Array.isArray(place.categories)
+          ? place.categories
+          : place.category
+            ? [place.category]
+            : [],
         address: place.address || '',
         latitude: place.latitude || null,
         longitude: place.longitude || null,
@@ -854,7 +881,7 @@ export default {
         operatingHours: place.operatingHours || { open: '', close: '', days: '' },
         imageUrl: place.imageUrl || '',
         imagePublicId: place.imagePublicId || '',
-        featured: place.featured || false
+        featured: place.featured || false,
       }
       this.showAddDialog = true
       this.initMap()
@@ -862,11 +889,17 @@ export default {
 
     async savePlace() {
       // Validate required fields
-      if (!this.form.name || !this.form.categories || this.form.categories.length === 0 || !this.form.address || !this.form.description) {
+      if (
+        !this.form.name ||
+        !this.form.categories ||
+        this.form.categories.length === 0 ||
+        !this.form.address ||
+        !this.form.description
+      ) {
         this.$q.notify({
           type: 'warning',
           message: 'Please fill in all required fields',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -876,7 +909,7 @@ export default {
         this.$q.notify({
           type: 'warning',
           message: 'Please set the location on the map',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -887,7 +920,7 @@ export default {
           type: 'negative',
           message: 'You appear to be offline. Please check your internet connection and try again.',
           position: 'top',
-          timeout: 6000
+          timeout: 6000,
         })
         return
       }
@@ -900,27 +933,29 @@ export default {
 
         let imageData = {
           imageUrl: this.form.imageUrl || '',
-          imagePublicId: this.form.imagePublicId || ''
+          imagePublicId: this.form.imagePublicId || '',
         }
 
         // Handle image upload with retry
         if (this.imageFile) {
           if (this.editingPlace?.imagePublicId) {
-            console.log('[Places] Old image will remain in Cloudinary:', this.editingPlace.imagePublicId)
+            console.log(
+              '[Places] Old image will remain in Cloudinary:',
+              this.editingPlace.imagePublicId
+            )
           }
 
           try {
-            imageData = await withRetry(
-              () => this.uploadImage(),
-              {
-                maxRetries: 2,
-                onRetry: ({ attempt }) => {
-                  console.log(`[Places] Image upload retry ${attempt}/2`)
-                }
-              }
-            )
+            imageData = await withRetry(() => this.uploadImage(), {
+              maxRetries: 2,
+              onRetry: ({ attempt }) => {
+                console.log(`[Places] Image upload retry ${attempt}/2`)
+              },
+            })
           } catch {
-            throw new Error('Failed to upload image. Please try again or remove the image and save without it.')
+            throw new Error(
+              'Failed to upload image. Please try again or remove the image and save without it.'
+            )
           }
         }
 
@@ -936,12 +971,12 @@ export default {
           imagePublicId: imageData.imagePublicId,
           featured: this.form.featured || false,
           updatedAt: serverTimestamp(),
-          createdAt: this.editingPlace?.createdAt || serverTimestamp()
+          createdAt: this.editingPlace?.createdAt || serverTimestamp(),
         }
 
         if (this.editingPlace) {
           await updateDoc(doc(db, 'places', this.editingPlace.id), placeData)
-          
+
           // Log activity
           await logUpdate(
             { uid: adminUid, ...adminData },
@@ -949,39 +984,34 @@ export default {
             this.form.name,
             this.editingPlace.id
           )
-          
+
           this.$q.notify({
             type: 'positive',
             message: 'Place updated successfully',
             position: 'top',
             icon: 'check_circle',
-            timeout: 2000
+            timeout: 2000,
           })
         } else {
           placeData.createdAt = serverTimestamp()
           const docRef = await addDoc(collection(db, 'places'), placeData)
-          
+
           // Log activity
-          await logCreate(
-            { uid: adminUid, ...adminData },
-            'places',
-            this.form.name,
-            docRef.id
-          )
-          
+          await logCreate({ uid: adminUid, ...adminData }, 'places', this.form.name, docRef.id)
+
           this.$q.notify({
             type: 'positive',
             message: 'Place created successfully',
             position: 'top',
             icon: 'check_circle',
-            timeout: 2000
+            timeout: 2000,
           })
         }
 
         this.showAddDialog = false
         this.resetForm()
         this.loadPlaces()
-        
+
         // Announce to screen readers
         announceActionResult(
           this.editingPlace ? 'Place updated' : 'Place created',
@@ -992,7 +1022,7 @@ export default {
         console.error('[Places] Error saving:', error)
         logActionFailure(this.editingPlace ? 'update_place' : 'create_place', error, {
           placeName: this.form.name,
-          placeId: this.editingPlace?.id
+          placeId: this.editingPlace?.id,
         })
 
         const message = getErrorMessage(
@@ -1008,9 +1038,9 @@ export default {
             {
               label: 'Retry',
               color: 'white',
-              handler: () => this.savePlace()
-            }
-          ]
+              handler: () => this.savePlace(),
+            },
+          ],
         })
       } finally {
         this.saving = false
@@ -1018,59 +1048,56 @@ export default {
     },
 
     async confirmDelete(place) {
-      this.$q.dialog({
-        title: 'Confirm Delete',
-        message: `Are you sure you want to delete "${place.name}"?`,
-        cancel: true,
-        persistent: true
-      }).onOk(async () => {
-        try {
-          // Check online status
-          if (!isOnline()) {
-            throw new Error('You appear to be offline. Please check your internet connection.')
+      this.$q
+        .dialog({
+          title: 'Confirm Delete',
+          message: `Are you sure you want to delete "${place.name}"?`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          try {
+            // Check online status
+            if (!isOnline()) {
+              throw new Error('You appear to be offline. Please check your internet connection.')
+            }
+
+            const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+            const adminUid = sessionStorage.getItem('adminUid')
+            const { logDelete } = await import('src/utils/activityLogger')
+
+            if (place.imagePath) {
+              await this.deleteImage(place.imagePath)
+            }
+
+            await deleteDoc(doc(db, 'places', place.id))
+
+            // Log activity
+            await logDelete({ uid: adminUid, ...adminData }, 'places', place.name, place.id)
+
+            this.$q.notify({
+              type: 'positive',
+              message: 'Place deleted successfully',
+              position: 'top',
+              icon: 'delete',
+            })
+            this.loadPlaces()
+
+            // Announce to screen readers
+            announceActionResult('Place deleted', true, place.name)
+          } catch (error) {
+            console.error('[Places] Error deleting:', error)
+            logActionFailure('delete_place', error, { placeId: place.id, placeName: place.name })
+
+            const message = getErrorMessage(error, 'Failed to delete place. Please try again.')
+            this.$q.notify({
+              type: 'negative',
+              message: message,
+              position: 'top',
+              timeout: 5000,
+            })
           }
-
-          const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
-          const adminUid = sessionStorage.getItem('adminUid')
-          const { logDelete } = await import('src/utils/activityLogger')
-
-          if (place.imagePath) {
-            await this.deleteImage(place.imagePath)
-          }
-
-          await deleteDoc(doc(db, 'places', place.id))
-
-          // Log activity
-          await logDelete(
-            { uid: adminUid, ...adminData },
-            'places',
-            place.name,
-            place.id
-          )
-
-          this.$q.notify({
-            type: 'positive',
-            message: 'Place deleted successfully',
-            position: 'top',
-            icon: 'delete'
-          })
-          this.loadPlaces()
-          
-          // Announce to screen readers
-          announceActionResult('Place deleted', true, place.name)
-        } catch (error) {
-          console.error('[Places] Error deleting:', error)
-          logActionFailure('delete_place', error, { placeId: place.id, placeName: place.name })
-
-          const message = getErrorMessage(error, 'Failed to delete place. Please try again.')
-          this.$q.notify({
-            type: 'negative',
-            message: message,
-            position: 'top',
-            timeout: 5000
-          })
-        }
-      })
+        })
     },
 
     async bulkDelete() {
@@ -1078,70 +1105,72 @@ export default {
         this.$q.notify({
           type: 'warning',
           message: 'Please select places to delete',
-          position: 'top'
+          position: 'top',
         })
         return
       }
 
-      this.$q.dialog({
-        title: 'Confirm Bulk Delete',
-        message: `Are you sure you want to delete ${this.selectedPlaces.length} place(s)? This action cannot be undone.`,
-        cancel: true,
-        persistent: true
-      }).onOk(async () => {
-        this.loading = true
-        try {
-          // Check online status
-          if (!isOnline()) {
-            throw new Error('You appear to be offline. Please check your internet connection.')
+      this.$q
+        .dialog({
+          title: 'Confirm Bulk Delete',
+          message: `Are you sure you want to delete ${this.selectedPlaces.length} place(s)? This action cannot be undone.`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          this.loading = true
+          try {
+            // Check online status
+            if (!isOnline()) {
+              throw new Error('You appear to be offline. Please check your internet connection.')
+            }
+
+            const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+            const adminUid = sessionStorage.getItem('adminUid')
+            const { logBulkDelete } = await import('src/utils/activityLogger')
+
+            const deletePromises = this.selectedPlaces.map((place) =>
+              deleteDoc(doc(db, 'places', place.id))
+            )
+            await Promise.all(deletePromises)
+
+            // Log activity
+            await logBulkDelete(
+              { uid: adminUid, ...adminData },
+              'places',
+              this.selectedPlaces.length,
+              this.selectedPlaces.map((p) => p.id)
+            )
+
+            this.$q.notify({
+              type: 'positive',
+              message: `${this.selectedPlaces.length} place(s) deleted successfully`,
+              position: 'top',
+              icon: 'delete',
+            })
+
+            this.selectedPlaces = []
+            this.loadPlaces()
+
+            // Announce to screen readers
+            announceActionResult('Places deleted', true, `${this.selectedPlaces.length} places`)
+          } catch (error) {
+            console.error('[Places] Error bulk deleting:', error)
+            logActionFailure('bulk_delete_places', error, {
+              count: this.selectedPlaces.length,
+            })
+
+            const message = getErrorMessage(error, 'Failed to delete places. Please try again.')
+            this.$q.notify({
+              type: 'negative',
+              message: message,
+              position: 'top',
+              timeout: 6000,
+            })
+          } finally {
+            this.loading = false
           }
-
-          const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
-          const adminUid = sessionStorage.getItem('adminUid')
-          const { logBulkDelete } = await import('src/utils/activityLogger')
-
-          const deletePromises = this.selectedPlaces.map(place => 
-            deleteDoc(doc(db, 'places', place.id))
-          )
-          await Promise.all(deletePromises)
-
-          // Log activity
-          await logBulkDelete(
-            { uid: adminUid, ...adminData },
-            'places',
-            this.selectedPlaces.length,
-            this.selectedPlaces.map(p => p.id)
-          )
-
-          this.$q.notify({
-            type: 'positive',
-            message: `${this.selectedPlaces.length} place(s) deleted successfully`,
-            position: 'top',
-            icon: 'delete'
-          })
-
-          this.selectedPlaces = []
-          this.loadPlaces()
-          
-          // Announce to screen readers
-          announceActionResult('Places deleted', true, `${this.selectedPlaces.length} places`)
-        } catch (error) {
-          console.error('[Places] Error bulk deleting:', error)
-          logActionFailure('bulk_delete_places', error, {
-            count: this.selectedPlaces.length
-          })
-
-          const message = getErrorMessage(error, 'Failed to delete places. Please try again.')
-          this.$q.notify({
-            type: 'negative',
-            message: message,
-            position: 'top',
-            timeout: 6000
-          })
-        } finally {
-          this.loading = false
-        }
-      })
+        })
     },
 
     async deleteAllPlaces() {
@@ -1149,58 +1178,60 @@ export default {
         this.$q.notify({
           type: 'warning',
           message: 'No places to delete',
-          position: 'top'
+          position: 'top',
         })
         return
       }
 
-      this.$q.dialog({
-        title: 'Confirm Delete All',
-        message: `Are you sure you want to delete ALL ${this.filteredPlaces.length} place(s)? This action cannot be undone.`,
-        cancel: true,
-        persistent: true
-      }).onOk(async () => {
-        this.loading = true
-        try {
-          const deletePromises = this.filteredPlaces.map(place => 
-            deleteDoc(doc(db, 'places', place.id))
-          )
-          await Promise.all(deletePromises)
+      this.$q
+        .dialog({
+          title: 'Confirm Delete All',
+          message: `Are you sure you want to delete ALL ${this.filteredPlaces.length} place(s)? This action cannot be undone.`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          this.loading = true
+          try {
+            const deletePromises = this.filteredPlaces.map((place) =>
+              deleteDoc(doc(db, 'places', place.id))
+            )
+            await Promise.all(deletePromises)
 
-          this.$q.notify({
-            type: 'positive',
-            message: `${this.filteredPlaces.length} place(s) deleted successfully`,
-            position: 'top',
-            icon: 'delete'
-          })
+            this.$q.notify({
+              type: 'positive',
+              message: `${this.filteredPlaces.length} place(s) deleted successfully`,
+              position: 'top',
+              icon: 'delete',
+            })
 
-          this.selectedPlaces = []
-          this.loadPlaces()
-        } catch (error) {
-          console.error('[Places] Error deleting all:', error)
-          this.$q.notify({
-            type: 'negative',
-            message: 'Failed to delete places',
-            position: 'top'
-          })
-        } finally {
-          this.loading = false
-        }
-      })
+            this.selectedPlaces = []
+            this.loadPlaces()
+          } catch (error) {
+            console.error('[Places] Error deleting all:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: 'Failed to delete places',
+              position: 'top',
+            })
+          } finally {
+            this.loading = false
+          }
+        })
     },
 
     getCategoryColor(category) {
       const colors = {
         'tourist-spot': 'green',
-        'restaurant': 'orange',
+        restaurant: 'orange',
         'park-nature': 'teal',
         'museum-culture': 'purple',
-        'shopping': 'pink',
+        shopping: 'pink',
         'hotel-lodging': 'blue',
-        'government': 'red',
-        'hospital': 'pink',
-        'school': 'indigo',
-        'other': 'grey'
+        government: 'red',
+        hospital: 'pink',
+        school: 'indigo',
+        other: 'grey',
       }
       return colors[category] || 'grey'
     },
@@ -1208,15 +1239,15 @@ export default {
     getCategoryLabel(category) {
       const labels = {
         'tourist-spot': 'Tourist Spots',
-        'restaurant': 'Cafes & Restaurants',
+        restaurant: 'Cafes & Restaurants',
         'park-nature': 'Parks & Nature',
         'museum-culture': 'Museums & Culture',
-        'shopping': 'Shopping',
+        shopping: 'Shopping',
         'hotel-lodging': 'Hotels & Lodging',
-        'government': 'Government',
-        'hospital': 'Hospital',
-        'school': 'School',
-        'other': 'Other'
+        government: 'Government',
+        hospital: 'Hospital',
+        school: 'School',
+        other: 'Other',
       }
       return labels[category] || category
     },
@@ -1232,11 +1263,11 @@ export default {
         operatingHours: {
           open: '',
           close: '',
-          days: ''
+          days: '',
         },
         imageUrl: '',
         imagePublicId: '',
-        featured: false
+        featured: false,
       }
       this.imageFile = null
       this.imagePreview = null
@@ -1253,7 +1284,7 @@ export default {
 
     onDialogHide() {
       this.resetForm()
-    }
+    },
   },
 
   watch: {
@@ -1263,8 +1294,8 @@ export default {
       } else {
         this.resetForm()
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

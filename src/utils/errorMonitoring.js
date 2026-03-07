@@ -9,7 +9,15 @@
  */
 
 import { db } from 'src/boot/firebase'
-import { collection, addDoc, serverTimestamp, limit, query, orderBy, getDocs } from 'firebase/firestore'
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  limit,
+  query,
+  orderBy,
+  getDocs,
+} from 'firebase/firestore'
 import { formatError } from './errorHandler'
 
 /**
@@ -28,11 +36,11 @@ export async function logErrorToMonitoring({
   severity = 'medium',
   metadata = {},
   userId = null,
-  action = null
+  action = null,
 }) {
   try {
     const formatted = formatError(error)
-    
+
     const errorLog = {
       context,
       error: {
@@ -40,7 +48,7 @@ export async function logErrorToMonitoring({
         message: formatted.message,
         rawMessage: formatted.rawMessage,
         category: formatted.category,
-        stack: formatted.stack
+        stack: formatted.stack,
       },
       severity,
       metadata: {
@@ -48,16 +56,16 @@ export async function logErrorToMonitoring({
         url: window.location.href,
         userAgent: navigator.userAgent,
         online: navigator.onLine,
-        language: navigator.language
+        language: navigator.language,
       },
       userId,
       action,
-      timestamp: serverTimestamp()
+      timestamp: serverTimestamp(),
     }
-    
+
     // Add to error logs collection
     await addDoc(collection(db, 'error_logs'), errorLog)
-    
+
     // Also log to console in development
     if (process.env.DEV) {
       console.error(`[Error Monitor] ${context}:`, formatted.message)
@@ -76,7 +84,7 @@ export async function logHandledError(context, error, metadata = {}) {
     context,
     error,
     severity: 'low',
-    metadata
+    metadata,
   })
 }
 
@@ -88,7 +96,7 @@ export async function logUnhandledError(context, error, metadata = {}) {
     context,
     error,
     severity: 'critical',
-    metadata
+    metadata,
   })
 }
 
@@ -103,8 +111,8 @@ export async function logApiFailure(endpoint, error, method = 'GET', metadata = 
     metadata: {
       endpoint,
       method,
-      ...metadata
-    }
+      ...metadata,
+    },
   })
 }
 
@@ -117,7 +125,7 @@ export async function logActionFailure(action, error, metadata = {}) {
     error,
     severity: 'medium',
     action,
-    metadata
+    metadata,
   })
 }
 
@@ -128,16 +136,12 @@ export async function logActionFailure(action, error, metadata = {}) {
  */
 export async function getRecentErrorLogs(limitCount = 50) {
   try {
-    const q = query(
-      collection(db, 'error_logs'),
-      orderBy('timestamp', 'desc'),
-      limit(limitCount)
-    )
-    
+    const q = query(collection(db, 'error_logs'), orderBy('timestamp', 'desc'), limit(limitCount))
+
     const snapshot = await getDocs(q)
-    return snapshot.docs.map(doc => ({
+    return snapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }))
   } catch (error) {
     console.error('[Error Monitor] Error getting recent logs:', error)
@@ -152,36 +156,36 @@ export async function getRecentErrorLogs(limitCount = 50) {
 export async function getErrorStatistics() {
   try {
     const snapshot = await getDocs(collection(db, 'error_logs'))
-    const logs = snapshot.docs.map(doc => doc.data())
-    
+    const logs = snapshot.docs.map((doc) => doc.data())
+
     const stats = {
       total: logs.length,
       byCategory: {},
       bySeverity: { low: 0, medium: 0, high: 0, critical: 0 },
       byContext: {},
       last24Hours: 0,
-      last7Days: 0
+      last7Days: 0,
     }
-    
+
     const now = new Date()
     const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000)
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-    
-    logs.forEach(log => {
+
+    logs.forEach((log) => {
       // Category stats
       const category = log.error?.category || 'unknown'
       stats.byCategory[category] = (stats.byCategory[category] || 0) + 1
-      
+
       // Severity stats
       const severity = log.severity || 'medium'
       if (stats.bySeverity[severity] !== undefined) {
         stats.bySeverity[severity]++
       }
-      
+
       // Context stats
       const context = log.context || 'unknown'
       stats.byContext[context] = (stats.byContext[context] || 0) + 1
-      
+
       // Time-based stats
       const logTimestamp = log.timestamp?.toDate?.() || new Date(log.timestamp)
       if (logTimestamp >= twentyFourHoursAgo) {
@@ -191,7 +195,7 @@ export async function getErrorStatistics() {
         stats.last7Days++
       }
     })
-    
+
     return stats
   } catch (error) {
     console.error('[Error Monitor] Error getting statistics:', error)
@@ -207,36 +211,38 @@ export async function clearOldErrorLogs(daysOld = 30) {
   try {
     const cutoffDate = new Date()
     cutoffDate.setDate(cutoffDate.getDate() - daysOld)
-    
+
     const snapshot = await getDocs(collection(db, 'error_logs'))
     let deletedCount = 0
-    
+
     const deletePromises = []
-    snapshot.docs.forEach(doc => {
+    snapshot.docs.forEach((doc) => {
       const data = doc.data()
       const logDate = data.timestamp?.toDate?.() || new Date(data.timestamp)
-      
+
       if (logDate < cutoffDate) {
-        deletePromises.push(import('firebase/firestore').then(({ deleteDoc, doc }) => 
-          deleteDoc(doc(db, 'error_logs', doc.id))
-        ))
+        deletePromises.push(
+          import('firebase/firestore').then(({ deleteDoc, doc }) =>
+            deleteDoc(doc(db, 'error_logs', doc.id))
+          )
+        )
         deletedCount++
       }
     })
-    
+
     if (deletePromises.length > 0) {
       const { deleteDoc, doc } = await import('firebase/firestore')
       await Promise.all(
         snapshot.docs
-          .filter(d => {
+          .filter((d) => {
             const data = d.data()
             const logDate = data.timestamp?.toDate?.() || new Date(data.timestamp)
             return logDate < cutoffDate
           })
-          .map(d => deleteDoc(doc(db, 'error_logs', d.id)))
+          .map((d) => deleteDoc(doc(db, 'error_logs', d.id)))
       )
     }
-    
+
     return deletedCount
   } catch (error) {
     console.error('[Error Monitor] Error clearing old logs:', error)
@@ -252,5 +258,5 @@ export default {
   logActionFailure,
   getRecentErrorLogs,
   getErrorStatistics,
-  clearOldErrorLogs
+  clearOldErrorLogs,
 }

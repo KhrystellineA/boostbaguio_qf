@@ -1,5 +1,5 @@
 <template>
-  <header :class="['app-header', { 'scrolled': isScrolled }]">
+  <header :class="['app-header', { scrolled: isScrolled }]">
     <q-toolbar class="main-toolbar">
       <!-- Mobile Menu Button -->
       <q-btn
@@ -30,7 +30,7 @@
         <q-btn
           flat
           class="nav-btn"
-          :class="{ 'active': isActiveRoute('/apanam') }"
+          :class="{ active: isActiveRoute('/apanam') }"
           @click="navigateTo('/apanam')"
         >
           <q-icon name="route" size="18px" class="q-mr-xs" />
@@ -40,7 +40,7 @@
         <q-btn
           flat
           class="nav-btn"
-          :class="{ 'active': isActiveRoute('/pagnaam') }"
+          :class="{ active: isActiveRoute('/pagnaam') }"
           @click="navigateTo('/pagnaam')"
         >
           <q-icon name="directions_bus" size="18px" class="q-mr-xs" />
@@ -50,7 +50,7 @@
         <q-btn
           flat
           class="nav-btn"
-          :class="{ 'active': isActiveRoute('/maykan') }"
+          :class="{ active: isActiveRoute('/maykan') }"
           @click="navigateTo('/maykan')"
         >
           <q-icon name="place" size="18px" class="q-mr-xs" />
@@ -60,7 +60,7 @@
         <q-btn
           flat
           class="nav-btn"
-          :class="{ 'active': isActiveRoute('/aramidem') }"
+          :class="{ active: isActiveRoute('/aramidem') }"
           @click="navigateTo('/aramidem')"
         >
           <q-icon name="event" size="18px" class="q-mr-xs" />
@@ -70,7 +70,7 @@
         <q-btn
           flat
           class="nav-btn"
-          :class="{ 'active': isActiveRoute('/ayanmo') }"
+          :class="{ active: isActiveRoute('/ayanmo') }"
           @click="navigateTo('/ayanmo')"
         >
           <q-icon name="my_location" size="18px" class="q-mr-xs" />
@@ -85,12 +85,7 @@
         <!-- Not Logged In -->
         <template v-if="!userStore.isAuthenticated">
           <div class="auth-bento-group">
-            <q-btn
-              label="Log In"
-              flat
-              class="auth-btn login-btn"
-              @click="handleLogin"
-            />
+            <q-btn label="Log In" flat class="auth-btn login-btn" @click="handleLogin" />
             <q-btn
               label="Sign Up"
               color="primary"
@@ -103,12 +98,7 @@
 
         <!-- Logged In -->
         <template v-else>
-          <q-btn-dropdown
-            flat
-            class="profile-dropdown"
-            no-caps
-            :label="userInitials"
-          >
+          <q-btn-dropdown flat class="profile-dropdown" no-caps :label="userInitials">
             <template #label>
               <div class="profile-label">
                 <div class="avatar-bento">
@@ -148,14 +138,7 @@
       </div>
 
       <!-- Mobile Menu Button -->
-      <q-btn
-        flat
-        dense
-        round
-        icon="menu"
-        class="mobile-menu-btn"
-        @click="drawer = !drawer"
-      />
+      <q-btn flat dense round icon="menu" class="mobile-menu-btn" @click="drawer = !drawer" />
     </q-toolbar>
   </header>
 
@@ -185,7 +168,7 @@
           v-ripple
           :href="link.path"
           class="mobile-nav-item"
-          :class="{ 'active': isActiveRoute(link.path) }"
+          :class="{ active: isActiveRoute(link.path) }"
           @click="drawer = !drawer"
         >
           <q-item-section avatar>
@@ -327,18 +310,18 @@ const getIconForRoute = (path) => {
     pagnaam: 'directions_bus',
     maykan: 'place',
     aramidem: 'event',
-    ayanmo: 'my_location'
+    ayanmo: 'my_location',
   }
   return icons[path] || 'link'
 }
 
 const getCaptionForRoute = (label) => {
   const captions = {
-    'APANAM': 'P2P Navigation',
-    'PAGNAAM': 'City Jeeps',
-    'MAYKAN': 'Places',
-    'ARAMIDEM': 'Events',
-    'AYAN MO': 'Near Me'
+    APANAM: 'P2P Navigation',
+    PAGNAAM: 'City Jeeps',
+    MAYKAN: 'Places',
+    ARAMIDEM: 'Events',
+    'AYAN MO': 'Near Me',
   }
   return captions[label] || ''
 }
@@ -393,11 +376,11 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 // Color Variables
-$primary: #2E5D3E;
-$primary-light: #4A7D5D;
-$accent: #FFD60A;
-$text-dark: #2D3436;
-$text-muted: #636E72;
+$primary: #2e5d3e;
+$primary-light: #4a7d5d;
+$accent: #ffd60a;
+$text-dark: #2d3436;
+$text-muted: #636e72;
 
 .app-header {
   position: fixed;
@@ -543,8 +526,13 @@ $text-muted: #636E72;
 }
 
 @keyframes bounce {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.2); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
 }
 
 // Auth Buttons
@@ -659,7 +647,7 @@ $text-muted: #636E72;
       background: rgba(211, 47, 47, 0.08);
 
       .menu-label {
-        color: #D32F2F;
+        color: #d32f2f;
       }
     }
 
@@ -681,7 +669,7 @@ $text-muted: #636E72;
 
       &.logout {
         background: rgba(211, 47, 47, 0.1);
-        color: #D32F2F;
+        color: #d32f2f;
       }
     }
 
@@ -777,14 +765,14 @@ $text-muted: #636E72;
   &.logout {
     .mobile-icon-bento {
       background: rgba(211, 47, 47, 0.1);
-      color: #D32F2F;
+      color: #d32f2f;
     }
 
     &:hover {
       background: rgba(211, 47, 47, 0.08);
 
       .mobile-nav-label {
-        color: #D32F2F;
+        color: #d32f2f;
       }
     }
   }
@@ -802,17 +790,17 @@ $text-muted: #636E72;
 
     &.signup {
       background: rgba(255, 193, 7, 0.15);
-      color: #FFC107;
+      color: #ffc107;
     }
 
     &.premium {
       background: rgba(255, 152, 0, 0.15);
-      color: #FF9800;
+      color: #ff9800;
     }
 
     &.logout {
       background: rgba(211, 47, 47, 0.1);
-      color: #D32F2F;
+      color: #d32f2f;
     }
   }
 
@@ -851,7 +839,7 @@ $text-muted: #636E72;
   margin: 8px;
 
   .mobile-nav-label {
-    color: #F57C00;
+    color: #f57c00;
   }
 }
 

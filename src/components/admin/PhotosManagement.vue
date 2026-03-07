@@ -22,7 +22,10 @@
       <!-- HOME HERO Card -->
       <div class="col-12 col-md-6 col-lg-4">
         <q-card class="photo-card home-card">
-          <q-card-section class="photo-header home-header" style="background: linear-gradient(135deg, #1b4332 0%, #081c15 100%)">
+          <q-card-section
+            class="photo-header home-header"
+            style="background: linear-gradient(135deg, #1b4332 0%, #081c15 100%)"
+          >
             <div class="page-label">
               <q-icon name="star" size="20px" class="q-mr-xs" />
               HOME - HERO
@@ -32,10 +35,10 @@
 
           <q-card-section class="photo-preview">
             <div class="image-wrapper">
-              <img 
-                v-if="pages.home.imageUrl" 
-                :src="pages.home.imageUrl" 
-                alt="HOME hero" 
+              <img
+                v-if="pages.home.imageUrl"
+                :src="pages.home.imageUrl"
+                alt="HOME hero"
                 class="preview-image"
               />
               <div v-else class="image-placeholder">
@@ -55,10 +58,10 @@
               class="full-width home-btn"
               @click="openUploadDialog('home')"
             >
-              <q-badge 
-                color="warning" 
-                floating 
-                rounded 
+              <q-badge
+                color="warning"
+                floating
+                rounded
                 label="Primary"
                 style="top: -8px; right: -8px; font-size: 0.65rem; padding: 2px 6px"
               />
@@ -70,17 +73,20 @@
       <!-- HOME FEATURES Card -->
       <div class="col-12 col-md-6 col-lg-4">
         <q-card class="photo-card">
-          <q-card-section class="photo-header" style="background: linear-gradient(135deg, #2d5a47 0%, #1b4332 100%)">
+          <q-card-section
+            class="photo-header"
+            style="background: linear-gradient(135deg, #2d5a47 0%, #1b4332 100%)"
+          >
             <div class="page-label">HOME - FEATURES</div>
             <div class="page-description">Features Section Image</div>
           </q-card-section>
 
           <q-card-section class="photo-preview">
             <div class="image-wrapper">
-              <img 
-                v-if="pages.homeFeatures.imageUrl" 
-                :src="pages.homeFeatures.imageUrl" 
-                alt="HOME features" 
+              <img
+                v-if="pages.homeFeatures.imageUrl"
+                :src="pages.homeFeatures.imageUrl"
+                alt="HOME features"
                 class="preview-image"
               />
               <div v-else class="image-placeholder">
@@ -107,12 +113,15 @@
       <!-- HOME GUIDE Card -->
       <div class="col-12 col-md-6 col-lg-4">
         <q-card class="photo-card">
-          <q-card-section class="photo-header" style="background: linear-gradient(135deg, #2d5a47 0%, #1b4332 100%)">
+          <q-card-section
+            class="photo-header"
+            style="background: linear-gradient(135deg, #2d5a47 0%, #1b4332 100%)"
+          >
             <div class="page-label">
               HOME - GUIDE
-              <q-badge 
+              <q-badge
                 v-if="pages.homeGuide.length > 0"
-                :label="`${pages.homeGuide.length}/3`" 
+                :label="`${pages.homeGuide.length}/3`"
                 color="white"
                 text-color="primary"
                 class="q-ml-sm"
@@ -123,8 +132,8 @@
 
           <q-card-section class="photo-preview">
             <div v-if="pages.homeGuide.length > 0" class="guide-steps-grid">
-              <div 
-                v-for="(image, index) in pages.homeGuide.slice(0, 3)" 
+              <div
+                v-for="(image, index) in pages.homeGuide.slice(0, 3)"
                 :key="index"
                 class="step-thumbnail"
               >
@@ -132,8 +141,8 @@
                 <div class="step-number">{{ index + 1 }}</div>
               </div>
               <!-- Placeholder for empty steps -->
-              <div 
-                v-for="n in (3 - pages.homeGuide.length)"
+              <div
+                v-for="n in 3 - pages.homeGuide.length"
                 :key="`empty-${n}`"
                 class="step-thumbnail empty"
               >
@@ -164,17 +173,20 @@
       <!-- HOME ABOUT Card -->
       <div class="col-12 col-md-6 col-lg-4">
         <q-card class="photo-card">
-          <q-card-section class="photo-header" style="background: linear-gradient(135deg, #2d5a47 0%, #1b4332 100%)">
+          <q-card-section
+            class="photo-header"
+            style="background: linear-gradient(135deg, #2d5a47 0%, #1b4332 100%)"
+          >
             <div class="page-label">HOME - ABOUT</div>
             <div class="page-description">About Section Image</div>
           </q-card-section>
 
           <q-card-section class="photo-preview">
             <div class="image-wrapper">
-              <img 
-                v-if="pages.homeAbout.imageUrl" 
-                :src="pages.homeAbout.imageUrl" 
-                alt="HOME about" 
+              <img
+                v-if="pages.homeAbout.imageUrl"
+                :src="pages.homeAbout.imageUrl"
+                alt="HOME about"
                 class="preview-image"
               />
               <div v-else class="image-placeholder">
@@ -201,12 +213,15 @@
       <!-- HOME GALLERY Card -->
       <div class="col-12 col-md-6 col-lg-4">
         <q-card class="photo-card">
-          <q-card-section class="photo-header" style="background: linear-gradient(135deg, #2d5a47 0%, #1b4332 100%)">
+          <q-card-section
+            class="photo-header"
+            style="background: linear-gradient(135deg, #2d5a47 0%, #1b4332 100%)"
+          >
             <div class="page-label">
               HOME - GALLERY
-              <q-badge 
+              <q-badge
                 v-if="pages.homeGallery.length > 0"
-                :label="`${pages.homeGallery.length}`" 
+                :label="`${pages.homeGallery.length}`"
                 color="white"
                 text-color="primary"
                 class="q-ml-sm"
@@ -217,8 +232,8 @@
 
           <q-card-section class="photo-preview">
             <div v-if="pages.homeGallery.length > 0" class="gallery-grid">
-              <div 
-                v-for="(image, index) in pages.homeGallery.slice(0, 4)" 
+              <div
+                v-for="(image, index) in pages.homeGallery.slice(0, 4)"
                 :key="index"
                 class="gallery-thumbnail"
               >
@@ -274,10 +289,10 @@
 
           <q-card-section class="photo-preview">
             <div class="image-wrapper">
-              <img 
-                v-if="pages.apanam.imageUrl" 
-                :src="pages.apanam.imageUrl" 
-                alt="APANAM hero" 
+              <img
+                v-if="pages.apanam.imageUrl"
+                :src="pages.apanam.imageUrl"
+                alt="APANAM hero"
                 class="preview-image"
               />
               <div v-else class="image-placeholder">
@@ -311,10 +326,10 @@
 
           <q-card-section class="photo-preview">
             <div class="image-wrapper">
-              <img 
-                v-if="pages.maykan.imageUrl" 
-                :src="pages.maykan.imageUrl" 
-                alt="MAYKAN hero" 
+              <img
+                v-if="pages.maykan.imageUrl"
+                :src="pages.maykan.imageUrl"
+                alt="MAYKAN hero"
                 class="preview-image"
               />
               <div v-else class="image-placeholder">
@@ -348,10 +363,10 @@
 
           <q-card-section class="photo-preview">
             <div class="image-wrapper">
-              <img 
-                v-if="pages.pagnaam.imageUrl" 
-                :src="pages.pagnaam.imageUrl" 
-                alt="PAGNAAM hero" 
+              <img
+                v-if="pages.pagnaam.imageUrl"
+                :src="pages.pagnaam.imageUrl"
+                alt="PAGNAAM hero"
                 class="preview-image"
               />
               <div v-else class="image-placeholder">
@@ -378,17 +393,20 @@
       <!-- PAGNAAM Features Card -->
       <div class="col-12 col-md-6 col-lg-4">
         <q-card class="photo-card">
-          <q-card-section class="photo-header" style="background: linear-gradient(135deg, #4a5f4e 0%, #3a4f3e 100%)">
+          <q-card-section
+            class="photo-header"
+            style="background: linear-gradient(135deg, #4a5f4e 0%, #3a4f3e 100%)"
+          >
             <div class="page-label">PAGNAAM</div>
             <div class="page-description">Features Section (Jeepney Image)</div>
           </q-card-section>
 
           <q-card-section class="photo-preview">
             <div class="image-wrapper">
-              <img 
-                v-if="pages.pagnaamFeatures.imageUrl" 
-                :src="pages.pagnaamFeatures.imageUrl" 
-                alt="PAGNAAM features" 
+              <img
+                v-if="pages.pagnaamFeatures.imageUrl"
+                :src="pages.pagnaamFeatures.imageUrl"
+                alt="PAGNAAM features"
                 class="preview-image"
               />
               <div v-else class="image-placeholder">
@@ -422,10 +440,10 @@
 
           <q-card-section class="photo-preview">
             <div class="image-wrapper">
-              <img 
-                v-if="pages.ayanmo.imageUrl" 
-                :src="pages.ayanmo.imageUrl" 
-                alt="AYAN MO hero" 
+              <img
+                v-if="pages.ayanmo.imageUrl"
+                :src="pages.ayanmo.imageUrl"
+                alt="AYAN MO hero"
                 class="preview-image"
               />
               <div v-else class="image-placeholder">
@@ -452,17 +470,20 @@
       <!-- AYAN MO Discovery Card -->
       <div class="col-12 col-md-6 col-lg-4">
         <q-card class="photo-card">
-          <q-card-section class="photo-header" style="background: linear-gradient(135deg, #4a5f4e 0%, #3a4f3e 100%)">
+          <q-card-section
+            class="photo-header"
+            style="background: linear-gradient(135deg, #4a5f4e 0%, #3a4f3e 100%)"
+          >
             <div class="page-label">AYAN MO</div>
             <div class="page-description">Discovery Section Image</div>
           </q-card-section>
 
           <q-card-section class="photo-preview">
             <div class="image-wrapper">
-              <img 
-                v-if="pages.ayanmoDiscovery.imageUrl" 
-                :src="pages.ayanmoDiscovery.imageUrl" 
-                alt="AYAN MO discovery" 
+              <img
+                v-if="pages.ayanmoDiscovery.imageUrl"
+                :src="pages.ayanmoDiscovery.imageUrl"
+                alt="AYAN MO discovery"
                 class="preview-image"
               />
               <div v-else class="image-placeholder">
@@ -496,10 +517,10 @@
 
           <q-card-section class="photo-preview">
             <div class="image-wrapper">
-              <img 
-                v-if="pages.aramidem.imageUrl" 
-                :src="pages.aramidem.imageUrl" 
-                alt="ARAMIDEM hero" 
+              <img
+                v-if="pages.aramidem.imageUrl"
+                :src="pages.aramidem.imageUrl"
+                alt="ARAMIDEM hero"
                 class="preview-image"
               />
               <div v-else class="image-placeholder">
@@ -586,27 +607,34 @@
               <q-icon name="info" color="primary" />
             </template>
             <div class="text-caption">
-              <strong>Tip:</strong> 
+              <strong>Tip:</strong>
               <span v-if="selectedPage === 'home'">
-                Use a high-quality landscape image of Baguio City for the main hero. This is the first thing visitors see!
+                Use a high-quality landscape image of Baguio City for the main hero. This is the
+                first thing visitors see!
               </span>
               <span v-else-if="selectedPage === 'home-features'">
-                Use an engaging image that showcases app features or benefits. Landscape orientation works best.
+                Use an engaging image that showcases app features or benefits. Landscape orientation
+                works best.
               </span>
               <span v-else-if="selectedPage === 'home-guide'">
-                Use an image that represents guidance or navigation in Baguio. Consider maps or jeepney routes.
+                Use an image that represents guidance or navigation in Baguio. Consider maps or
+                jeepney routes.
               </span>
               <span v-else-if="selectedPage === 'home-about'">
-                Use an image that represents the story behind Boost Baguio or team/community imagery.
+                Use an image that represents the story behind Boost Baguio or team/community
+                imagery.
               </span>
               <span v-else-if="selectedPage === 'ayanmo-discovery'">
-                Use a vertical or square image (4:3 ratio) for the discovery section. This appears next to the text content.
+                Use a vertical or square image (4:3 ratio) for the discovery section. This appears
+                next to the text content.
               </span>
               <span v-else-if="selectedPage === 'pagnaam-features'">
-                Use a high-quality jeepney photo (landscape) for the features section. This showcases Baguio's transportation.
+                Use a high-quality jeepney photo (landscape) for the features section. This
+                showcases Baguio's transportation.
               </span>
               <span v-else>
-                Use high-quality, landscape-oriented images for best results. The image will be used as the hero/header background.
+                Use high-quality, landscape-oriented images for best results. The image will be used
+                as the hero/header background.
               </span>
             </div>
           </q-banner>
@@ -657,17 +685,15 @@
               <template #prepend>
                 <q-icon name="add_photo_alternate" />
               </template>
-              <template #hint>
-                Select multiple images (max 10MB each) • JPG, PNG, WebP
-              </template>
+              <template #hint> Select multiple images (max 10MB each) • JPG, PNG, WebP </template>
             </q-file>
 
             <!-- Preview New Images -->
             <div v-if="galleryPreviews.length > 0" class="q-mt-md">
               <div class="text-subtitle2 q-mb-sm">New Images to Upload:</div>
               <div class="preview-grid">
-                <div 
-                  v-for="(preview, index) in galleryPreviews" 
+                <div
+                  v-for="(preview, index) in galleryPreviews"
                   :key="'preview-' + index"
                   class="preview-item"
                 >
@@ -768,20 +794,17 @@
           <!-- Current Guide Steps -->
           <div class="q-mb-lg">
             <div class="text-h6 q-mb-md">Current Step Images ({{ pages.homeGuide.length }}/3)</div>
-            
+
             <div class="guide-steps-management">
               <!-- Step 1 -->
-              <q-card 
-                class="step-card" 
-                :class="{ 'has-image': pages.homeGuide[0] }"
-              >
+              <q-card class="step-card" :class="{ 'has-image': pages.homeGuide[0] }">
                 <div class="step-header">
                   <q-badge color="pine-green" label="Step 1" />
                   <span class="step-title">Input Start & End Points</span>
                 </div>
                 <div class="step-content">
                   <div v-if="pages.homeGuide[0]" class="step-image-preview">
-                    <q-img :src="pages.homeGuide[0].imageUrl" :ratio="16/9" />
+                    <q-img :src="pages.homeGuide[0].imageUrl" :ratio="16 / 9" />
                     <q-btn
                       round
                       dense
@@ -816,17 +839,14 @@
               </q-card>
 
               <!-- Step 2 -->
-              <q-card 
-                class="step-card" 
-                :class="{ 'has-image': pages.homeGuide[1] }"
-              >
+              <q-card class="step-card" :class="{ 'has-image': pages.homeGuide[1] }">
                 <div class="step-header">
                   <q-badge color="pine-green" label="Step 2" />
                   <span class="step-title">Follow Suggested Route</span>
                 </div>
                 <div class="step-content">
                   <div v-if="pages.homeGuide[1]" class="step-image-preview">
-                    <q-img :src="pages.homeGuide[1].imageUrl" :ratio="16/9" />
+                    <q-img :src="pages.homeGuide[1].imageUrl" :ratio="16 / 9" />
                     <q-btn
                       round
                       dense
@@ -861,17 +881,14 @@
               </q-card>
 
               <!-- Step 3 -->
-              <q-card 
-                class="step-card" 
-                :class="{ 'has-image': pages.homeGuide[2] }"
-              >
+              <q-card class="step-card" :class="{ 'has-image': pages.homeGuide[2] }">
                 <div class="step-header">
                   <q-badge color="pine-green" label="Step 3" />
                   <span class="step-title">Discover Local Attractions</span>
                 </div>
                 <div class="step-content">
                   <div v-if="pages.homeGuide[2]" class="step-image-preview">
-                    <q-img :src="pages.homeGuide[2].imageUrl" :ratio="16/9" />
+                    <q-img :src="pages.homeGuide[2].imageUrl" :ratio="16 / 9" />
                     <q-btn
                       round
                       dense
@@ -906,7 +923,11 @@
               </q-card>
             </div>
 
-            <q-banner v-if="pages.homeGuide.length < 3" rounded class="bg-warning text-white q-mt-md">
+            <q-banner
+              v-if="pages.homeGuide.length < 3"
+              rounded
+              class="bg-warning text-white q-mt-md"
+            >
               <template #avatar>
                 <q-icon name="info" color="white" />
               </template>
@@ -930,11 +951,11 @@
         </q-card-section>
 
         <q-card-actions align="right" class="q-pa-md">
-          <q-btn 
+          <q-btn
             v-if="pages.homeGuide.length > 0"
-            label="Clear All Steps" 
-            color="negative" 
-            flat 
+            label="Clear All Steps"
+            color="negative"
+            flat
             icon="delete_sweep"
             @click="confirmClearGuideSteps"
           />
@@ -963,9 +984,9 @@ export default {
       pages: {
         home: { imageUrl: '', imagePath: '' },
         homeFeatures: { imageUrl: '', imagePath: '' },
-        homeGuide: [], 
+        homeGuide: [],
         homeAbout: { imageUrl: '', imagePath: '' },
-        homeGallery: [], 
+        homeGallery: [],
         apanam: { imageUrl: '', imagePath: '' },
         maykan: { imageUrl: '', imagePath: '' },
         pagnaam: { imageUrl: '', imagePath: '' },
@@ -998,7 +1019,7 @@ export default {
       galleryFiles: null,
       galleryPreviews: [],
       uploadingGallery: false,
-      guideStepFiles: [null, null, null], 
+      guideStepFiles: [null, null, null],
       uploadingGuideStep: false,
     }
   },
@@ -1011,11 +1032,11 @@ export default {
     async loadAllPhotos() {
       try {
         console.log('[Photos] Loading all page photos...')
-        
+
         for (const pageName of ['home', 'apanam', 'maykan', 'pagnaam', 'ayanmo', 'aramidem']) {
           const docRef = doc(db, 'pagePhotos', pageName)
           const docSnap = await getDoc(docRef)
-          
+
           if (docSnap.exists()) {
             const data = docSnap.data()
             this.pages[pageName] = {
@@ -1028,7 +1049,7 @@ export default {
         for (const section of ['home-features', 'home-about']) {
           const docRef = doc(db, 'pagePhotos', section)
           const docSnap = await getDoc(docRef)
-          
+
           if (docSnap.exists()) {
             const data = docSnap.data()
             const camelCase = section.replace(/-([a-z])/g, (g) => g[1].toUpperCase())
@@ -1049,7 +1070,7 @@ export default {
 
         const galleryRef = doc(db, 'pagePhotos', 'home-gallery')
         const gallerySnap = await getDoc(galleryRef)
-        
+
         if (gallerySnap.exists()) {
           const data = gallerySnap.data()
           this.pages.homeGallery = data.images || []
@@ -1059,7 +1080,7 @@ export default {
 
         const pagnaamFeaturesRef = doc(db, 'pagePhotos', 'pagnaam-features')
         const pagnaamFeaturesSnap = await getDoc(pagnaamFeaturesRef)
-        
+
         if (pagnaamFeaturesSnap.exists()) {
           const data = pagnaamFeaturesSnap.data()
           this.pages.pagnaamFeatures = {
@@ -1070,7 +1091,7 @@ export default {
 
         const discoveryDocRef = doc(db, 'pagePhotos', 'ayanmo-discovery')
         const discoverySnap = await getDoc(discoveryDocRef)
-        
+
         if (discoverySnap.exists()) {
           const data = discoverySnap.data()
           this.pages.ayanmoDiscovery = {
@@ -1078,14 +1099,14 @@ export default {
             imagePath: data.imagePath || '',
           }
         }
-        
+
         console.log('[Photos] All photos loaded:', this.pages)
       } catch (error) {
         console.error('[Photos] Error loading:', error)
         this.$q.notify({
           type: 'negative',
           message: 'Failed to load page photos',
-          position: 'top'
+          position: 'top',
         })
       }
     },
@@ -1097,13 +1118,13 @@ export default {
 
     getCurrentPageImage() {
       if (!this.selectedPage) return ''
-      
+
       if (this.selectedPage === 'home-gallery') return ''
-      
+
       if (this.selectedPage === 'ayanmo-discovery') {
         return this.pages.ayanmoDiscovery.imageUrl
       }
-      
+
       if (this.selectedPage === 'pagnaam-features') {
         return this.pages.pagnaamFeatures.imageUrl
       }
@@ -1112,7 +1133,7 @@ export default {
         const camelCase = this.selectedPage.replace(/-([a-z])/g, (g) => g[1].toUpperCase())
         return this.pages[camelCase]?.imageUrl || ''
       }
-      
+
       return this.pages[this.selectedPage]?.imageUrl || ''
     },
 
@@ -1151,17 +1172,17 @@ export default {
     onImageRejected(rejectedEntries) {
       const reason = rejectedEntries[0]?.failedPropValidation
       let message = 'Image upload failed'
-      
+
       if (reason === 'max-file-size') {
         message = 'Image size must be less than 10MB'
       } else if (reason === 'accept') {
         message = 'Only image files are allowed'
       }
-      
+
       this.$q.notify({
         type: 'negative',
         message: message,
-        position: 'top'
+        position: 'top',
       })
     },
 
@@ -1180,18 +1201,14 @@ export default {
         const { uploadOptimizedImage } = await import('src/utils/cloudinary')
 
         console.log('[Photos] Uploading to Cloudinary...')
-        
+
         // Upload with automatic compression and optimization
-        const uploadResult = await uploadOptimizedImage(
-          this.imageFile,
-          'baguiboost/page-photos',
-          {
-            maxWidth: 1920,
-            maxHeight: 1080,
-            quality: 0.85,
-            format: 'image/webp'
-          }
-        )
+        const uploadResult = await uploadOptimizedImage(this.imageFile, 'baguiboost/page-photos', {
+          maxWidth: 1920,
+          maxHeight: 1080,
+          quality: 0.85,
+          format: 'image/webp',
+        })
 
         console.log('[Photos] Upload successful:', uploadResult.url)
 
@@ -1235,19 +1252,18 @@ export default {
           message: `${this.pageNames[this.selectedPage]} image uploaded successfully!`,
           position: 'top',
           icon: 'check_circle',
-          timeout: 2000
+          timeout: 2000,
         })
 
         this.showUploadDialog = false
         this.resetForm()
-
       } catch (error) {
         console.error('[Photos] Error uploading:', error)
         this.$q.notify({
           type: 'negative',
           message: 'Failed to upload image: ' + error.message,
           position: 'top',
-          timeout: 5000
+          timeout: 5000,
         })
       } finally {
         this.uploading = false
@@ -1271,7 +1287,7 @@ export default {
     onGalleryImagesSelected(files) {
       if (files && files.length > 0) {
         this.galleryPreviews = []
-        
+
         Array.from(files).forEach((file) => {
           const reader = new FileReader()
           reader.onload = (e) => {
@@ -1284,7 +1300,7 @@ export default {
 
     removeGalleryPreview(index) {
       this.galleryPreviews.splice(index, 1)
-      
+
       if (this.galleryFiles) {
         const dt = new DataTransfer()
         Array.from(this.galleryFiles).forEach((file, i) => {
@@ -1307,18 +1323,14 @@ export default {
 
         for (let i = 0; i < this.galleryFiles.length; i++) {
           const file = this.galleryFiles[i]
-          
+
           // Upload with compression
-          const uploadResult = await uploadOptimizedImage(
-            file,
-            'baguiboost/gallery',
-            {
-              maxWidth: 1920,
-              maxHeight: 1080,
-              quality: 0.85,
-              format: 'image/webp'
-            }
-          )
+          const uploadResult = await uploadOptimizedImage(file, 'baguiboost/gallery', {
+            maxWidth: 1920,
+            maxHeight: 1080,
+            quality: 0.85,
+            format: 'image/webp',
+          })
 
           uploadedImages.push({
             imageUrl: uploadResult.url,
@@ -1340,19 +1352,18 @@ export default {
           message: `${uploadedImages.length} image(s) uploaded successfully!`,
           position: 'top',
           icon: 'check_circle',
-          timeout: 2000
+          timeout: 2000,
         })
 
         this.galleryFiles = null
         this.galleryPreviews = []
-
       } catch (error) {
         console.error('[Gallery] Error uploading:', error)
         this.$q.notify({
           type: 'negative',
           message: 'Failed to upload images: ' + error.message,
           position: 'top',
-          timeout: 5000
+          timeout: 5000,
         })
       } finally {
         this.uploadingGallery = false
@@ -1360,85 +1371,88 @@ export default {
     },
 
     async deleteGalleryImage(index) {
-      this.$q.dialog({
-        title: 'Delete Image',
-        message: 'Are you sure you want to delete this image from the gallery?',
-        cancel: true,
-        persistent: false
-      }).onOk(async () => {
-        try {
-          // Note: Cloudinary deletion requires server-side API
-          // For now, we just remove from Firestore
-          // Image will remain in Cloudinary but won't be displayed
+      this.$q
+        .dialog({
+          title: 'Delete Image',
+          message: 'Are you sure you want to delete this image from the gallery?',
+          cancel: true,
+          persistent: false,
+        })
+        .onOk(async () => {
+          try {
+            // Note: Cloudinary deletion requires server-side API
+            // For now, we just remove from Firestore
+            // Image will remain in Cloudinary but won't be displayed
 
-          this.pages.homeGallery.splice(index, 1)
+            this.pages.homeGallery.splice(index, 1)
 
-          const docRef = doc(db, 'pagePhotos', 'home-gallery')
-          await setDoc(docRef, {
-            pageName: 'home-gallery',
-            images: this.pages.homeGallery,
-            updatedAt: serverTimestamp(),
-          })
+            const docRef = doc(db, 'pagePhotos', 'home-gallery')
+            await setDoc(docRef, {
+              pageName: 'home-gallery',
+              images: this.pages.homeGallery,
+              updatedAt: serverTimestamp(),
+            })
 
-          this.$q.notify({
-            type: 'positive',
-            message: 'Image deleted successfully',
-            position: 'top',
-            timeout: 2000
-          })
-
-        } catch (error) {
-          console.error('[Gallery] Error deleting:', error)
-          this.$q.notify({
-            type: 'negative',
-            message: 'Failed to delete image: ' + error.message,
-            position: 'top',
-            timeout: 5000
-          })
-        }
-      })
+            this.$q.notify({
+              type: 'positive',
+              message: 'Image deleted successfully',
+              position: 'top',
+              timeout: 2000,
+            })
+          } catch (error) {
+            console.error('[Gallery] Error deleting:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: 'Failed to delete image: ' + error.message,
+              position: 'top',
+              timeout: 5000,
+            })
+          }
+        })
     },
 
     confirmClearGallery() {
-      this.$q.dialog({
-        title: 'Clear All Images',
-        message: 'Are you sure you want to delete ALL gallery images? This action cannot be undone.',
-        cancel: true,
-        persistent: false,
-        ok: {
-          label: 'Clear All',
-          color: 'negative'
-        }
-      }).onOk(async () => {
-        try {
-          // Note: Cloudinary deletion requires server-side API
-          // For now, we just remove from Firestore
-          // Images will remain in Cloudinary but won't be displayed
+      this.$q
+        .dialog({
+          title: 'Clear All Images',
+          message:
+            'Are you sure you want to delete ALL gallery images? This action cannot be undone.',
+          cancel: true,
+          persistent: false,
+          ok: {
+            label: 'Clear All',
+            color: 'negative',
+          },
+        })
+        .onOk(async () => {
+          try {
+            // Note: Cloudinary deletion requires server-side API
+            // For now, we just remove from Firestore
+            // Images will remain in Cloudinary but won't be displayed
 
-          this.pages.homeGallery = []
+            this.pages.homeGallery = []
 
-          const docRef = doc(db, 'pagePhotos', 'home-gallery')
-          await setDoc(docRef, {
-            pageName: 'home-gallery',
-            images: [],
-            updatedAt: serverTimestamp(),
-          })
+            const docRef = doc(db, 'pagePhotos', 'home-gallery')
+            await setDoc(docRef, {
+              pageName: 'home-gallery',
+              images: [],
+              updatedAt: serverTimestamp(),
+            })
 
-          this.$q.notify({
-            type: 'positive',
-            message: 'All gallery images cleared',
-            position: 'top'
-          })
-
-        } catch (error) {
-          console.error('[Gallery] Error clearing:', error)
-          this.$q.notify({
-            type: 'negative',
-            message: 'Failed to clear gallery: ' + error.message,
-            position: 'top'
-          })
-        }
-      })
+            this.$q.notify({
+              type: 'positive',
+              message: 'All gallery images cleared',
+              position: 'top',
+            })
+          } catch (error) {
+            console.error('[Gallery] Error clearing:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: 'Failed to clear gallery: ' + error.message,
+              position: 'top',
+            })
+          }
+        })
     },
 
     openGuideDialog() {
@@ -1457,16 +1471,12 @@ export default {
         console.log('[Guide] Uploading to Cloudinary...')
 
         // Upload with automatic compression and optimization
-        const uploadResult = await uploadOptimizedImage(
-          file,
-          'baguiboost/page-photos/guide',
-          {
-            maxWidth: 1920,
-            maxHeight: 1080,
-            quality: 0.85,
-            format: 'image/webp'
-          }
-        )
+        const uploadResult = await uploadOptimizedImage(file, 'baguiboost/page-photos/guide', {
+          maxWidth: 1920,
+          maxHeight: 1080,
+          quality: 0.85,
+          format: 'image/webp',
+        })
 
         console.log('[Guide] Upload successful:', uploadResult.url)
 
@@ -1489,7 +1499,7 @@ export default {
         const docRef = doc(db, 'pagePhotos', 'home-guide')
         await setDoc(docRef, {
           pageName: 'home-guide',
-          images: this.pages.homeGuide.filter(img => img !== null),
+          images: this.pages.homeGuide.filter((img) => img !== null),
           updatedAt: serverTimestamp(),
         })
 
@@ -1497,17 +1507,16 @@ export default {
           type: 'positive',
           message: `Step ${stepIndex + 1} image uploaded successfully!`,
           position: 'top',
-          icon: 'check_circle'
+          icon: 'check_circle',
         })
 
         this.guideStepFiles[stepIndex] = null
-
       } catch (error) {
         console.error('[Guide] Error uploading:', error)
         this.$q.notify({
           type: 'negative',
           message: 'Failed to upload step image: ' + error.message,
-          position: 'top'
+          position: 'top',
         })
       } finally {
         this.uploadingGuideStep = false
@@ -1515,83 +1524,86 @@ export default {
     },
 
     async deleteGuideStep(stepIndex) {
-      this.$q.dialog({
-        title: 'Delete Step Image',
-        message: `Are you sure you want to delete the image for Step ${stepIndex + 1}?`,
-        cancel: true,
-        persistent: false
-      }).onOk(async () => {
-        try {
-          // Note: Cloudinary deletion requires server-side API
-          // For now, we just remove from Firestore
-          // Image will remain in Cloudinary but won't be displayed
+      this.$q
+        .dialog({
+          title: 'Delete Step Image',
+          message: `Are you sure you want to delete the image for Step ${stepIndex + 1}?`,
+          cancel: true,
+          persistent: false,
+        })
+        .onOk(async () => {
+          try {
+            // Note: Cloudinary deletion requires server-side API
+            // For now, we just remove from Firestore
+            // Image will remain in Cloudinary but won't be displayed
 
-          this.pages.homeGuide[stepIndex] = null
+            this.pages.homeGuide[stepIndex] = null
 
-          const docRef = doc(db, 'pagePhotos', 'home-guide')
-          await setDoc(docRef, {
-            pageName: 'home-guide',
-            images: this.pages.homeGuide.filter(img => img !== null),
-            updatedAt: serverTimestamp(),
-          })
+            const docRef = doc(db, 'pagePhotos', 'home-guide')
+            await setDoc(docRef, {
+              pageName: 'home-guide',
+              images: this.pages.homeGuide.filter((img) => img !== null),
+              updatedAt: serverTimestamp(),
+            })
 
-          this.$q.notify({
-            type: 'positive',
-            message: `Step ${stepIndex + 1} image deleted successfully`,
-            position: 'top'
-          })
-
-        } catch (error) {
-          console.error('[Guide] Error deleting:', error)
-          this.$q.notify({
-            type: 'negative',
-            message: 'Failed to delete step image: ' + error.message,
-            position: 'top'
-          })
-        }
-      })
+            this.$q.notify({
+              type: 'positive',
+              message: `Step ${stepIndex + 1} image deleted successfully`,
+              position: 'top',
+            })
+          } catch (error) {
+            console.error('[Guide] Error deleting:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: 'Failed to delete step image: ' + error.message,
+              position: 'top',
+            })
+          }
+        })
     },
 
     confirmClearGuideSteps() {
-      this.$q.dialog({
-        title: 'Clear All Step Images',
-        message: 'Are you sure you want to delete ALL guide step images? This action cannot be undone.',
-        cancel: true,
-        persistent: false,
-        ok: {
-          label: 'Clear All Steps',
-          color: 'negative'
-        }
-      }).onOk(async () => {
-        try {
-          // Note: Cloudinary deletion requires server-side API
-          // For now, we just remove from Firestore
-          // Images will remain in Cloudinary but won't be displayed
+      this.$q
+        .dialog({
+          title: 'Clear All Step Images',
+          message:
+            'Are you sure you want to delete ALL guide step images? This action cannot be undone.',
+          cancel: true,
+          persistent: false,
+          ok: {
+            label: 'Clear All Steps',
+            color: 'negative',
+          },
+        })
+        .onOk(async () => {
+          try {
+            // Note: Cloudinary deletion requires server-side API
+            // For now, we just remove from Firestore
+            // Images will remain in Cloudinary but won't be displayed
 
-          this.pages.homeGuide = []
+            this.pages.homeGuide = []
 
-          const docRef = doc(db, 'pagePhotos', 'home-guide')
-          await setDoc(docRef, {
-            pageName: 'home-guide',
-            images: [],
-            updatedAt: serverTimestamp(),
-          })
+            const docRef = doc(db, 'pagePhotos', 'home-guide')
+            await setDoc(docRef, {
+              pageName: 'home-guide',
+              images: [],
+              updatedAt: serverTimestamp(),
+            })
 
-          this.$q.notify({
-            type: 'positive',
-            message: 'All guide step images cleared',
-            position: 'top'
-          })
-
-        } catch (error) {
-          console.error('[Guide] Error clearing:', error)
-          this.$q.notify({
-            type: 'negative',
-            message: 'Failed to clear guide steps: ' + error.message,
-            position: 'top'
-          })
-        }
-      })
+            this.$q.notify({
+              type: 'positive',
+              message: 'All guide step images cleared',
+              position: 'top',
+            })
+          } catch (error) {
+            console.error('[Guide] Error clearing:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: 'Failed to clear guide steps: ' + error.message,
+              position: 'top',
+            })
+          }
+        })
     },
   },
 }
@@ -1658,7 +1670,7 @@ export default {
 
   &.home-header
     position: relative
-    
+
     &::before
       content: ''
       position: absolute
@@ -1750,7 +1762,7 @@ export default {
 
 .home-btn
   transition: all 0.3s ease
-  
+
   &:hover
     background: #0f2922 !important
     transform: translateY(-2px) !important
@@ -1759,15 +1771,15 @@ export default {
 @media (max-width: 768px)
   .section-header
     padding: 16px 20px
-    
+
     .section-icon
       width: 40px
       height: 40px
-    
+
     .section-info
       .section-title
         font-size: 1.1rem
-      
+
       .section-description
         font-size: 0.8rem
 

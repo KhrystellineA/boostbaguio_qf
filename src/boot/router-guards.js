@@ -26,6 +26,6 @@ const getCurrentUser = () => {
 export default async () => {
   // Wait for auth to initialize before mounting app
   await getCurrentUser()
-  
+
   console.log('[Router Guards] ✅ Auth initialized, app ready to mount')
 }

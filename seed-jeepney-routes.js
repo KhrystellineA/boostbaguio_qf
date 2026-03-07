@@ -1,14 +1,22 @@
 /**
  * Seed Jeepney Routes with Route Coordinates
- * 
+ *
  * This script adds sample route coordinates to jeepney documents in Firestore.
  * The coordinates represent actual routes in Baguio City.
- * 
+ *
  * Usage: node seed-jeepney-routes.js
  */
 
 import { initializeApp } from 'firebase/app'
-import { getFirestore, collection, getDocs, doc, updateDoc, addDoc, query } from 'firebase/firestore'
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  updateDoc,
+  addDoc,
+  query,
+} from 'firebase/firestore'
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 import dotenv from 'dotenv'
 import readline from 'readline'
@@ -210,7 +218,7 @@ async function seedJeepneyRoutes() {
 
     // Get email from .env or prompt
     const email = process.env.VITE_ADMIN_EMAIL || process.env.VITE_FIREBASE_AUTH_EMAIL
-    
+
     if (!email) {
       console.log('❌ No admin email found in .env file.')
       console.log('Please add VITE_ADMIN_EMAIL=your-email@example.com to your .env file')
@@ -219,11 +227,11 @@ async function seedJeepneyRoutes() {
     }
 
     console.log(`Using admin email: ${email}`)
-    
+
     // Prompt for password
     const password = await promptPassword()
     rl.close()
-    
+
     if (!password) {
       console.log('❌ Password cannot be empty.')
       process.exit(1)

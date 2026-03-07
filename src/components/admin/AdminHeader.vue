@@ -46,18 +46,18 @@ export default {
   props: {
     notificationsCount: {
       type: Number,
-      default: 0
+      default: 0,
     },
     adminName: {
       type: String,
-      default: 'Admin'
+      default: 'Admin',
     },
     adminEmail: {
       type: String,
-      default: ''
-    }
+      default: '',
+    },
   },
 
-  emits: ['toggle-drawer', 'view-profile', 'logout']
+  emits: ['toggle-drawer', 'view-profile', 'logout'],
 }
 </script>

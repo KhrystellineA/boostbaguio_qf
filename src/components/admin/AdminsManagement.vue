@@ -19,13 +19,7 @@
 
     <q-card>
       <q-card-section>
-        <q-input
-          v-model="search"
-          outlined
-          placeholder="Search admins..."
-          dense
-          class="q-mb-md"
-        >
+        <q-input v-model="search" outlined placeholder="Search admins..." dense class="q-mb-md">
           <template #prepend>
             <q-icon name="search" />
           </template>
@@ -98,7 +92,9 @@
     <q-dialog v-model="showAddDialog">
       <q-card style="min-width: 500px">
         <q-card-section>
-          <div class="text-h6 text-pine-green">{{ editingAdmin ? 'Edit Admin' : 'Add New Admin' }}</div>
+          <div class="text-h6 text-pine-green">
+            {{ editingAdmin ? 'Edit Admin' : 'Add New Admin' }}
+          </div>
         </q-card-section>
 
         <q-card-section class="q-pt-none">
@@ -108,9 +104,11 @@
             label="Full Name *"
             class="q-mb-md"
             :rules="[
-              val => required(val, 'Full name').valid || required(val, 'Full name').message,
-              val => minLength(val, 2, 'Full name').valid || minLength(val, 2, 'Full name').message,
-              val => maxLength(val, 100, 'Full name').valid || maxLength(val, 100, 'Full name').message
+              (val) => required(val, 'Full name').valid || required(val, 'Full name').message,
+              (val) =>
+                minLength(val, 2, 'Full name').valid || minLength(val, 2, 'Full name').message,
+              (val) =>
+                maxLength(val, 100, 'Full name').valid || maxLength(val, 100, 'Full name').message,
             ]"
           />
 
@@ -122,8 +120,8 @@
             :disable="!!editingAdmin"
             class="q-mb-md"
             :rules="[
-              val => required(val, 'Email').valid || required(val, 'Email').message,
-              val => email(val).valid || email(val).message
+              (val) => required(val, 'Email').valid || required(val, 'Email').message,
+              (val) => email(val).valid || email(val).message,
             ]"
           />
 
@@ -135,9 +133,10 @@
             label="Password *"
             class="q-mb-md"
             :rules="[
-              val => required(val, 'Password').valid || required(val, 'Password').message,
-              val => minLength(val, 6, 'Password').valid || minLength(val, 6, 'Password').message,
-              val => maxLength(val, 128, 'Password').valid || maxLength(val, 128, 'Password').message
+              (val) => required(val, 'Password').valid || required(val, 'Password').message,
+              (val) => minLength(val, 6, 'Password').valid || minLength(val, 6, 'Password').message,
+              (val) =>
+                maxLength(val, 128, 'Password').valid || maxLength(val, 128, 'Password').message,
             ]"
             hint="Password must be at least 6 characters"
           />
@@ -152,7 +151,7 @@
             emit-value
             map-options
             class="q-mb-md"
-            :rules="[val => required(val, 'Role').valid || required(val, 'Role').message]"
+            :rules="[(val) => required(val, 'Role').valid || required(val, 'Role').message]"
           />
 
           <q-toggle
@@ -208,35 +207,36 @@ export default {
         email: '',
         password: '',
         role: 'routes_admin',
-        isActive: true
+        isActive: true,
       },
       roleOptions: [
         { label: 'Super Admin', value: 'super_admin' },
         { label: 'Routes Administrator', value: 'routes_admin' },
         { label: 'Places Administrator', value: 'places_admin' },
-        { label: 'Events Administrator', value: 'events_admin' }
+        { label: 'Events Administrator', value: 'events_admin' },
       ],
       columns: [
         { name: 'name', label: 'Name', field: 'name', align: 'left', sortable: true },
         { name: 'email', label: 'Email', field: 'email', align: 'left', sortable: true },
         { name: 'role', label: 'Role', field: 'role', align: 'left' },
         { name: 'isActive', label: 'Status', field: 'isActive', align: 'left' },
-        { name: 'actions', label: 'Actions', field: 'actions', align: 'center' }
-      ]
+        { name: 'actions', label: 'Actions', field: 'actions', align: 'center' },
+      ],
     }
   },
 
   computed: {
     filteredAdmins() {
       if (!this.search) return this.admins
-      
+
       const searchLower = this.search.toLowerCase()
-      return this.admins.filter(admin => 
-        admin.name?.toLowerCase().includes(searchLower) ||
-        admin.email?.toLowerCase().includes(searchLower) ||
-        this.getRoleLabel(admin.role)?.toLowerCase().includes(searchLower)
+      return this.admins.filter(
+        (admin) =>
+          admin.name?.toLowerCase().includes(searchLower) ||
+          admin.email?.toLowerCase().includes(searchLower) ||
+          this.getRoleLabel(admin.role)?.toLowerCase().includes(searchLower)
       )
-    }
+    },
   },
 
   mounted() {
@@ -250,24 +250,24 @@ export default {
         console.log('[Admins] Loading admins from Firestore...')
         const querySnapshot = await getDocs(collection(db, 'admins'))
         console.log('[Admins] Found', querySnapshot.size, 'documents')
-        
-        this.admins = querySnapshot.docs.map(doc => {
+
+        this.admins = querySnapshot.docs.map((doc) => {
           const data = doc.data()
           console.log('[Admins] Document:', doc.id, data)
           return {
             id: doc.id,
             uid: doc.id,
-            ...data
+            ...data,
           }
         })
-        
+
         console.log('[Admins] Loaded admins:', this.admins)
       } catch (error) {
         console.error('[Admins] Error loading:', error)
         this.$q.notify({
           type: 'negative',
           message: 'Failed to load admins',
-          position: 'top'
+          position: 'top',
         })
       } finally {
         this.loading = false
@@ -281,7 +281,7 @@ export default {
         email: admin.email,
         password: '',
         role: admin.role,
-        isActive: admin.isActive
+        isActive: admin.isActive,
       }
       this.showAddDialog = true
     },
@@ -291,7 +291,7 @@ export default {
         this.$q.notify({
           type: 'warning',
           message: 'Please fill in all required fields',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -300,7 +300,7 @@ export default {
         this.$q.notify({
           type: 'warning',
           message: 'Password is required for new admins',
-          position: 'top'
+          position: 'top',
         })
         return
       }
@@ -312,14 +312,14 @@ export default {
             name: this.form.name,
             role: this.form.role,
             isActive: this.form.isActive,
-            permissions: this.getDefaultPermissions(this.form.role)
+            permissions: this.getDefaultPermissions(this.form.role),
           }
 
           await updateDoc(doc(db, 'admins', this.editingAdmin.uid), adminData)
           this.$q.notify({
             type: 'positive',
             message: 'Admin updated successfully',
-            position: 'top'
+            position: 'top',
           })
         } else {
           const { user } = await createUserWithEmailAndPassword(
@@ -336,14 +336,14 @@ export default {
             isActive: this.form.isActive,
             permissions: this.getDefaultPermissions(this.form.role),
             createdAt: new Date().toISOString(),
-            createdBy: this.currentAdminUid
+            createdBy: this.currentAdminUid,
           }
 
           await setDoc(doc(db, 'admins', user.uid), adminData)
           this.$q.notify({
             type: 'positive',
             message: 'Admin created successfully',
-            position: 'top'
+            position: 'top',
           })
         }
 
@@ -353,7 +353,7 @@ export default {
       } catch (error) {
         console.error('[Admins] Error saving:', error)
         let message = 'Failed to save admin'
-        
+
         if (error.code === 'auth/email-already-in-use') {
           message = 'Email is already in use'
         } else if (error.code === 'auth/weak-password') {
@@ -363,7 +363,7 @@ export default {
         this.$q.notify({
           type: 'negative',
           message: message,
-          position: 'top'
+          position: 'top',
         })
       } finally {
         this.saving = false
@@ -373,50 +373,52 @@ export default {
     async toggleAdminStatus(admin) {
       try {
         await updateDoc(doc(db, 'admins', admin.uid), {
-          isActive: !admin.isActive
+          isActive: !admin.isActive,
         })
-        
+
         this.$q.notify({
           type: 'positive',
           message: `Admin ${!admin.isActive ? 'activated' : 'deactivated'} successfully`,
-          position: 'top'
+          position: 'top',
         })
-        
+
         this.loadAdmins()
       } catch (error) {
         console.error('[Admins] Error toggling status:', error)
         this.$q.notify({
           type: 'negative',
           message: 'Failed to update admin status',
-          position: 'top'
+          position: 'top',
         })
       }
     },
 
     confirmDelete(admin) {
-      this.$q.dialog({
-        title: 'Confirm Delete',
-        message: `Are you sure you want to delete admin "${admin.name}"? This action cannot be undone.`,
-        cancel: true,
-        persistent: true
-      }).onOk(async () => {
-        try {
-          await deleteDoc(doc(db, 'admins', admin.uid))
-          this.$q.notify({
-            type: 'positive',
-            message: 'Admin deleted successfully',
-            position: 'top'
-          })
-          this.loadAdmins()
-        } catch (error) {
-          console.error('[Admins] Error deleting:', error)
-          this.$q.notify({
-            type: 'negative',
-            message: 'Failed to delete admin',
-            position: 'top'
-          })
-        }
-      })
+      this.$q
+        .dialog({
+          title: 'Confirm Delete',
+          message: `Are you sure you want to delete admin "${admin.name}"? This action cannot be undone.`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          try {
+            await deleteDoc(doc(db, 'admins', admin.uid))
+            this.$q.notify({
+              type: 'positive',
+              message: 'Admin deleted successfully',
+              position: 'top',
+            })
+            this.loadAdmins()
+          } catch (error) {
+            console.error('[Admins] Error deleting:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: 'Failed to delete admin',
+              position: 'top',
+            })
+          }
+        })
     },
 
     getDefaultPermissions(role) {
@@ -424,7 +426,14 @@ export default {
         case 'super_admin':
           return ['super_admin:all']
         case 'routes_admin':
-          return ['routes:read', 'routes:write', 'routes:delete', 'routes:update', 'jeepneyOptions:all', 'analytics:read']
+          return [
+            'routes:read',
+            'routes:write',
+            'routes:delete',
+            'routes:update',
+            'jeepneyOptions:all',
+            'analytics:read',
+          ]
         case 'places_admin':
           return ['places:read', 'places:write', 'places:delete', 'places:update', 'analytics:read']
         case 'events_admin':
@@ -439,7 +448,7 @@ export default {
         super_admin: 'Super Admin',
         routes_admin: 'Routes Administrator',
         places_admin: 'Places Administrator',
-        events_admin: 'Events Administrator'
+        events_admin: 'Events Administrator',
       }
       return labels[role] || role
     },
@@ -449,7 +458,7 @@ export default {
         super_admin: 'red',
         routes_admin: 'blue',
         places_admin: 'green',
-        events_admin: 'orange'
+        events_admin: 'orange',
       }
       return colors[role] || 'grey'
     },
@@ -460,10 +469,10 @@ export default {
         email: '',
         password: '',
         role: 'route_manager',
-        isActive: true
+        isActive: true,
       }
       this.editingEvent = null
-    }
+    },
   },
 
   watch: {
@@ -471,8 +480,8 @@ export default {
       if (!val) {
         this.resetForm()
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

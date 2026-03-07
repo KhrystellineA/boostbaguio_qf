@@ -41,7 +41,7 @@
               outlined
               label="Your Name *"
               lazy-rules
-              :rules="[val => !!val || 'Name is required']"
+              :rules="[(val) => !!val || 'Name is required']"
             >
               <template v-slot:prepend>
                 <q-icon name="person" />
@@ -54,8 +54,8 @@
               label="Email Address *"
               lazy-rules
               :rules="[
-                val => !!val || 'Email is required',
-                val => /.+@.+\..+/.test(val) || 'Email must be valid'
+                (val) => !!val || 'Email is required',
+                (val) => /.+@.+\..+/.test(val) || 'Email must be valid',
               ]"
             >
               <template v-slot:prepend>
@@ -68,7 +68,7 @@
               outlined
               label="Subject *"
               lazy-rules
-              :rules="[val => !!val || 'Subject is required']"
+              :rules="[(val) => !!val || 'Subject is required']"
             >
               <template v-slot:prepend>
                 <q-icon name="subject" />
@@ -82,7 +82,7 @@
               type="textarea"
               rows="5"
               lazy-rules
-              :rules="[val => !!val || 'Message is required']"
+              :rules="[(val) => !!val || 'Message is required']"
             >
               <template v-slot:prepend>
                 <q-icon name="message" />
@@ -90,13 +90,7 @@
             </q-input>
 
             <div class="row q-gutter-sm q-mt-md">
-              <q-btn
-                label="Cancel"
-                color="grey-7"
-                flat
-                v-close-popup
-                class="col"
-              />
+              <q-btn label="Cancel" color="grey-7" flat v-close-popup class="col" />
               <q-btn
                 unelevated
                 label="Send Message"
@@ -104,7 +98,7 @@
                 color="primary"
                 :loading="isSubmitting"
                 class="col"
-                style="background: #2E5D3E; color: white"
+                style="background: #2e5d3e; color: white"
               />
             </div>
           </q-form>
@@ -135,7 +129,7 @@ export default {
       name: '',
       email: '',
       subject: '',
-      message: ''
+      message: '',
     })
 
     const handleScroll = () => {
@@ -151,26 +145,26 @@ export default {
 
     const submitContactForm = async () => {
       isSubmitting.value = true
-      
+
       try {
         // TODO: Add your email service integration here
         // For now, we'll just show a success message
-        await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
-        
+        await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API call
+
         $q.notify({
           type: 'positive',
           message: 'Thank you! Your message has been sent successfully.',
           position: 'top',
           icon: 'check_circle',
-          timeout: 3000
+          timeout: 3000,
         })
-        
+
         // Reset form and close dialog
         contactForm.value = {
           name: '',
           email: '',
           subject: '',
-          message: ''
+          message: '',
         }
         showContactDialog.value = false
       } catch {
@@ -179,7 +173,7 @@ export default {
           message: 'Failed to send message. Please try again.',
           position: 'top',
           icon: 'error',
-          timeout: 3000
+          timeout: 3000,
         })
       } finally {
         isSubmitting.value = false
@@ -223,11 +217,11 @@ export default {
 
 // Ensure q-header and q-toolbar use solid white background
 .q-header {
-  background: #FFFFFF !important;
+  background: #ffffff !important;
 }
 
 .q-toolbar {
-  background: #FFFFFF !important;
+  background: #ffffff !important;
 }
 
 // q-page-container should not override page backgrounds
@@ -279,7 +273,7 @@ export default {
   // Optimize expansion items
   .q-expansion-item {
     min-height: 56px !important;
-    
+
     .q-item__section--main {
       font-weight: 600;
     }
@@ -301,7 +295,8 @@ export default {
   }
 
   // Make checkboxes and radios larger
-  .q-checkbox, .q-radio {
+  .q-checkbox,
+  .q-radio {
     min-height: 48px !important;
     min-width: 48px !important;
   }

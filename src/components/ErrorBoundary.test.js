@@ -174,10 +174,7 @@ describe('ErrorBoundary', () => {
       wrapper.vm.triggerError(testError)
       await wrapper.vm.$nextTick()
 
-      expect(onErrorHandler).toHaveBeenCalledWith(
-        testError,
-        expect.any(Object)
-      )
+      expect(onErrorHandler).toHaveBeenCalledWith(testError, expect.any(Object))
     })
   })
 

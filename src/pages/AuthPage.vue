@@ -19,7 +19,9 @@
             <q-icon name="account_circle" size="40px" color="white" />
           </div>
           <h2 class="auth-title">{{ isLogin ? 'Welcome Back!' : 'Create Account' }}</h2>
-          <p class="auth-subtitle">{{ isLogin ? 'Sign in to continue your journey' : 'Join us and explore Baguio' }}</p>
+          <p class="auth-subtitle">
+            {{ isLogin ? 'Sign in to continue your journey' : 'Join us and explore Baguio' }}
+          </p>
         </q-card-section>
 
         <q-separator />
@@ -47,8 +49,8 @@
               outlined
               dense
               :rules="[
-                val => !!val || 'Email is required',
-                val => /.+@.+\..+/.test(val) || 'Invalid email'
+                (val) => !!val || 'Email is required',
+                (val) => /.+@.+\..+/.test(val) || 'Invalid email',
               ]"
               class="auth-input"
             >
@@ -65,7 +67,7 @@
               label="Password"
               outlined
               dense
-              :rules="[val => !!val || 'Password is required']"
+              :rules="[(val) => !!val || 'Password is required']"
               class="auth-input"
             >
               <template v-slot:prepend>
@@ -116,7 +118,7 @@
               label="Full Name"
               outlined
               dense
-              :rules="[val => !!val || 'Name is required']"
+              :rules="[(val) => !!val || 'Name is required']"
               class="auth-input"
             >
               <template v-slot:prepend>
@@ -133,8 +135,8 @@
               outlined
               dense
               :rules="[
-                val => !!val || 'Email is required',
-                val => /.+@.+\..+/.test(val) || 'Invalid email'
+                (val) => !!val || 'Email is required',
+                (val) => /.+@.+\..+/.test(val) || 'Invalid email',
               ]"
               class="auth-input"
             >
@@ -152,8 +154,8 @@
               outlined
               dense
               :rules="[
-                val => !!val || 'Password is required',
-                val => val.length >= 6 || 'Min 6 characters'
+                (val) => !!val || 'Password is required',
+                (val) => val.length >= 6 || 'Min 6 characters',
               ]"
               class="auth-input"
             >
@@ -185,8 +187,8 @@
               outlined
               dense
               :rules="[
-                val => !!val || 'Required',
-                val => val === signupForm.password || 'Passwords must match'
+                (val) => !!val || 'Required',
+                (val) => val === signupForm.password || 'Passwords must match',
               ]"
               class="auth-input"
             >
@@ -267,14 +269,14 @@ const rememberMe = ref(false)
 
 const loginForm = ref({
   email: '',
-  password: ''
+  password: '',
 })
 
 const signupForm = ref({
   displayName: '',
   email: '',
   password: '',
-  confirmPassword: ''
+  confirmPassword: '',
 })
 
 const isLogin = computed(() => activeTab.value === 'login')
@@ -282,7 +284,7 @@ const isLogin = computed(() => activeTab.value === 'login')
 const checkIfAdmin = async (user) => {
   try {
     console.log('[AuthPage] Checking if user is admin:', user.email, 'UID:', user.uid)
-    
+
     // First try by UID - most reliable method
     const uidRef = doc(db, 'admins', user.uid)
     console.log('[AuthPage] Checking admin doc by UID:', user.uid)
@@ -299,10 +301,7 @@ const checkIfAdmin = async (user) => {
     // Fallback: Try querying by email (may fail due to permissions)
     try {
       console.log('[AuthPage] Trying email query as fallback...')
-      const q = query(
-        collection(db, 'admins'),
-        where('email', '==', user.email)
-      )
+      const q = query(collection(db, 'admins'), where('email', '==', user.email))
       const querySnap = await getDocs(q)
 
       if (!querySnap.empty) {
@@ -351,7 +350,7 @@ const handleLogin = async () => {
             message: `Welcome back, Admin ${adminData.name || auth.currentUser.email}!`,
             icon: 'check_circle',
             position: 'top',
-            timeout: 1500
+            timeout: 1500,
           })
 
           // Redirect to specific dashboard section based on role
@@ -379,7 +378,7 @@ const handleLogin = async () => {
         message: 'Welcome back!',
         icon: 'check_circle',
         position: 'top',
-        timeout: 1500
+        timeout: 1500,
       })
       router.push('/')
     } else {
@@ -387,7 +386,7 @@ const handleLogin = async () => {
         type: 'negative',
         message: result.message || 'Login failed',
         icon: 'error',
-        position: 'top'
+        position: 'top',
       })
     }
   } catch (error) {
@@ -396,7 +395,7 @@ const handleLogin = async () => {
       type: 'negative',
       message: error.message || 'Login failed. Please try again.',
       icon: 'error',
-      position: 'top'
+      position: 'top',
     })
   } finally {
     loading.value = false
@@ -423,7 +422,7 @@ const handleSignup = async () => {
         message: 'Account created successfully!',
         icon: 'check_circle',
         position: 'top',
-        timeout: 1500
+        timeout: 1500,
       })
       router.push('/')
     } else {
@@ -431,7 +430,7 @@ const handleSignup = async () => {
         type: 'negative',
         message: result.message || 'Signup failed',
         icon: 'error',
-        position: 'top'
+        position: 'top',
       })
     }
   } catch (error) {
@@ -440,7 +439,7 @@ const handleSignup = async () => {
       type: 'negative',
       message: error.message || 'Signup failed. Please try again.',
       icon: 'error',
-      position: 'top'
+      position: 'top',
     })
   } finally {
     loading.value = false
@@ -450,14 +449,14 @@ const handleSignup = async () => {
 
 <style lang="scss" scoped>
 // Color Variables
-$primary: #2E5D3E;
-$primary-light: #4A7D5D;
-$primary-dark: #1B4332;
-$accent: #FFD60A;
-$bg-light: #F8F9FA;
-$text-dark: #2D3436;
-$text-muted: #636E72;
-$border-color: #E0E0E0;
+$primary: #2e5d3e;
+$primary-light: #4a7d5d;
+$primary-dark: #1b4332;
+$accent: #ffd60a;
+$bg-light: #f8f9fa;
+$text-dark: #2d3436;
+$text-muted: #636e72;
+$border-color: #e0e0e0;
 
 .auth-page {
   min-height: 100vh;
@@ -538,10 +537,19 @@ $border-color: #E0E0E0;
 }
 
 @keyframes float {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  25% { transform: translate(20px, 20px) rotate(5deg); }
-  50% { transform: translate(-10px, 30px) rotate(-5deg); }
-  75% { transform: translate(15px, -15px) rotate(3deg); }
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(20px, 20px) rotate(5deg);
+  }
+  50% {
+    transform: translate(-10px, 30px) rotate(-5deg);
+  }
+  75% {
+    transform: translate(15px, -15px) rotate(3deg);
+  }
 }
 
 // Main Container

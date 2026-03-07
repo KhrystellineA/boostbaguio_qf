@@ -1,9 +1,5 @@
 <template>
-  <div
-    ref="containerRef"
-    class="lazy-image-container"
-    :style="containerStyle"
-  >
+  <div ref="containerRef" class="lazy-image-container" :style="containerStyle">
     <!-- Placeholder/Loading State -->
     <div v-if="!loaded" class="lazy-image-placeholder">
       <q-spinner-dots v-if="loading" color="primary" size="32px" />
@@ -46,74 +42,74 @@ export default defineComponent({
     /** Image source (URL or Cloudinary public ID) */
     src: {
       type: String,
-      required: true
+      required: true,
     },
     /** Alt text for accessibility */
     alt: {
       type: String,
-      default: ''
+      default: '',
     },
     /** Container width */
     width: {
       type: [Number, String],
-      default: '100%'
+      default: '100%',
     },
     /** Container height */
     height: {
       type: [Number, String],
-      default: 'auto'
+      default: 'auto',
     },
     /** Aspect ratio (e.g., '16/9', '4/3', '1/1') */
     aspectRatio: {
       type: String,
-      default: null
+      default: null,
     },
     /** Object fit mode */
     fit: {
       type: String,
       default: 'cover',
-      validator: v => ['cover', 'contain', 'fill', 'none', 'scale-down'].includes(v)
+      validator: (v) => ['cover', 'contain', 'fill', 'none', 'scale-down'].includes(v),
     },
     /** Image quality (1-100) */
     quality: {
       type: Number,
-      default: 85
+      default: 85,
     },
     /** Enable responsive srcset */
     responsive: {
       type: Boolean,
-      default: true
+      default: true,
     },
     /** Fallback image URL */
     fallbackSrc: {
       type: String,
-      default: null
+      default: null,
     },
     /** Additional CSS class for image */
     imageClass: {
       type: String,
-      default: ''
+      default: '',
     },
     /** Additional CSS style for image */
     imageStyle: {
       type: [String, Object],
-      default: null
+      default: null,
     },
     /** Additional CSS style for container */
     containerStyle: {
       type: [String, Object],
-      default: null
+      default: null,
     },
     /** Sizes attribute for responsive images */
     sizes: {
       type: String,
-      default: '(max-width: 600px) 480px, (max-width: 1200px) 1200px, 1920px'
+      default: '(max-width: 600px) 480px, (max-width: 1200px) 1200px, 1920px',
     },
     /** Preload image immediately */
     preload: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
 
   emits: ['load', 'error'],
@@ -137,7 +133,7 @@ export default defineComponent({
 
       // Optimize with Cloudinary
       return getOptimizedImageUrl(props.src, {
-        quality: props.quality
+        quality: props.quality,
       })
     })
 
@@ -182,7 +178,7 @@ export default defineComponent({
         },
         {
           rootMargin: '50px',
-          threshold: 0.01
+          threshold: 0.01,
         }
       )
 
@@ -219,9 +215,9 @@ export default defineComponent({
       displaySrc,
       srcset,
       onImageLoad,
-      onImageError
+      onImageError,
     }
-  }
+  },
 })
 </script>
 

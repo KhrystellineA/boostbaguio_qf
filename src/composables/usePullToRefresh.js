@@ -20,7 +20,7 @@ export function usePullToRefresh(onRefresh, options = {}) {
   const {
     threshold = 100, // Distance to trigger refresh
     maxPull = 150, // Maximum pull distance
-    resistance = 0.5 // Resistance factor (0-1)
+    resistance = 0.5, // Resistance factor (0-1)
   } = options
 
   const isPulling = ref(false)
@@ -108,10 +108,10 @@ export function usePullToRefresh(onRefresh, options = {}) {
     pullDistance,
     isRefreshing,
     refresh,
-    maxPull
+    maxPull,
   }
 }
 
 export default {
-  usePullToRefresh
+  usePullToRefresh,
 }

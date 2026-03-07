@@ -10,7 +10,15 @@
  */
 
 import { db } from 'src/boot/firebase'
-import { collection, addDoc, serverTimestamp, query, orderBy, limit, getDocs } from 'firebase/firestore'
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  orderBy,
+  limit,
+  getDocs,
+} from 'firebase/firestore'
 
 /**
  * Log an admin activity
@@ -30,7 +38,7 @@ export async function logActivity({
   description,
   metadata = null,
   ipAddress = null,
-  entityId = null
+  entityId = null,
 }) {
   try {
     const logEntry = {
@@ -38,7 +46,7 @@ export async function logActivity({
         uid: admin.uid,
         name: admin.name,
         email: admin.email,
-        role: admin.role
+        role: admin.role,
       },
       action,
       resource,
@@ -46,7 +54,7 @@ export async function logActivity({
       metadata,
       ipAddress,
       entityId,
-      timestamp: serverTimestamp()
+      timestamp: serverTimestamp(),
     }
 
     await addDoc(collection(db, 'activity_logs'), logEntry)
@@ -66,7 +74,7 @@ export async function logAdminLogin(admin, ipAddress = null) {
     action: 'login',
     resource: 'admins',
     description: `${admin.name} logged in`,
-    ipAddress
+    ipAddress,
   })
 }
 
@@ -79,7 +87,7 @@ export async function logAdminLogout(admin, ipAddress = null) {
     action: 'logout',
     resource: 'admins',
     description: `${admin.name} logged out`,
-    ipAddress
+    ipAddress,
   })
 }
 
@@ -93,7 +101,7 @@ export async function logCreate(admin, resource, entityName, entityId = null, me
     resource,
     description: `Created ${resource.slice(0, -1)}: ${entityName}`,
     entityId,
-    metadata
+    metadata,
   })
 }
 
@@ -107,7 +115,7 @@ export async function logUpdate(admin, resource, entityName, entityId = null, me
     resource,
     description: `Updated ${resource.slice(0, -1)}: ${entityName}`,
     entityId,
-    metadata
+    metadata,
   })
 }
 
@@ -120,7 +128,7 @@ export async function logDelete(admin, resource, entityName, entityId = null) {
     action: 'delete',
     resource,
     description: `Deleted ${resource.slice(0, -1)}: ${entityName}`,
-    entityId
+    entityId,
   })
 }
 
@@ -133,7 +141,7 @@ export async function logBulkDelete(admin, resource, count, entityIds = []) {
     action: 'bulk_delete',
     resource,
     description: `Bulk deleted ${count} ${resource} items`,
-    metadata: { count, entityIds }
+    metadata: { count, entityIds },
   })
 }
 
@@ -146,7 +154,7 @@ export async function logExport(admin, resource, format = 'csv', metadata = null
     action: 'export',
     resource,
     description: `Exported ${resource} to ${format.toUpperCase()}`,
-    metadata: { format, ...metadata }
+    metadata: { format, ...metadata },
   })
 }
 
@@ -159,7 +167,7 @@ export async function logImport(admin, resource, count, metadata = null) {
     action: 'import',
     resource,
     description: `Imported ${count} ${resource} items`,
-    metadata: { count, ...metadata }
+    metadata: { count, ...metadata },
   })
 }
 
@@ -176,9 +184,9 @@ export async function getRecentActivityLogs(limitCount = 50) {
     )
 
     const snapshot = await getDocs(q)
-    return snapshot.docs.map(doc => ({
+    return snapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }))
   } catch (error) {
     console.error('[Activity Logs] Error getting recent logs:', error)
@@ -200,12 +208,12 @@ export async function getAdminActivityLogs(adminUid, limitCount = 50) {
     )
 
     const snapshot = await getDocs(q)
-    const logs = snapshot.docs.map(doc => ({
+    const logs = snapshot.docs.map((doc) => ({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     }))
 
-    return logs.filter(log => log.admin?.uid === adminUid)
+    return logs.filter((log) => log.admin?.uid === adminUid)
   } catch (error) {
     console.error('[Activity Logs] Error getting admin logs:', error)
     return []
@@ -223,5 +231,5 @@ export default {
   logExport,
   logImport,
   getRecentActivityLogs,
-  getAdminActivityLogs
+  getAdminActivityLogs,
 }
