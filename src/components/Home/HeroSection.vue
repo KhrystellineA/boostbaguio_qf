@@ -38,7 +38,8 @@
                 <div class="input-label">FROM:</div>
                 <q-input
                   v-if="!fromAutoDetect"
-                  v-model="fromLocationText"
+                  :model-value="fromLocationText"
+                  @update:model-value="$emit('update:fromLocationText', $event)"
                   filled
                   placeholder="Enter starting location"
                   bg-color="white"
@@ -95,7 +96,8 @@
               <div class="input-group">
                 <div class="input-label">TO:</div>
                 <q-select
-                  v-model="toLocation"
+                  :model-value="toLocation"
+                  @update:model-value="$emit('update:toLocation', $event)"
                   :options="toLocationOptions"
                   filled
                   placeholder="Select destination"
