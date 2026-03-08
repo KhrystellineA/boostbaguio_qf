@@ -565,44 +565,105 @@
 
           <q-separator class="q-my-md" />
 
-          <!-- Image Preview / Cropper Area -->
+          <!-- Image Preview / Reposition Area -->
           <div v-if="imagePreview" class="q-mb-md">
-            <!-- Cropper Container - always in DOM, visibility controlled by CSS -->
-            <div class="cropper-wrapper" :class="{ 'cropper-active': showCropper }">
-              <div class="text-subtitle2 q-mb-sm">Crop Image:</div>
-              <div class="cropper-container">
-                <img ref="cropperImage" :src="imagePreview" alt="Crop" />
-              </div>
-              <div class="q-mt-md">
-                <div class="text-caption q-mb-sm">Aspect Ratio:</div>
-                <q-btn-toggle
-                  v-model="aspectRatio"
-                  toggle-color="primary"
-                  unelevated
-                  :options="[
-                    { label: '16:9 (Landscape)', value: 16 / 9 },
-                    { label: '4:3', value: 4 / 3 },
-                    { label: '1:1 (Square)', value: 1 },
-                    { label: 'Free', value: NaN },
-                  ]"
-                  @update:model-value="updateCropper"
+            <!-- Reposition Container -->
+            <div class="reposition-wrapper" :class="{ 'reposition-active': showReposition }">
+              <div class="text-subtitle2 q-mb-sm">Position Image:</div>
+              <div class="reposition-container" ref="repositionContainer">
+                <img
+                  ref="repositionImage"
+                  :src="imagePreview"
+                  alt="Position"
+                  class="reposition-image"
+                  :style="imageStyle"
+                  @mousedown="startDrag"
+                  @touchstart="startDrag"
                 />
               </div>
               <div class="q-mt-md">
-                <q-btn
-                  unelevated
+                <div class="text-caption q-mb-sm">Zoom Level:</div>
+                <q-slider
+                  v-model="imageZoom"
+                  :min="0.5"
+                  :max="2"
+                  :step="0.01"
+                  label
+                  label-always
                   color="primary"
-                  label="Apply Crop"
-                  icon="check"
-                  :loading="cropping"
-                  @click="cropImage"
+                  class="q-mb-md"
+                  @update:model-value="updateImagePosition"
                 />
-                <q-btn flat label="Cancel" color="grey-7" class="q-ml-sm" @click="cancelCrop" />
+                <div class="row q-col-gutter-sm">
+                  <div class="col-4">
+                    <q-btn
+                      unelevated
+                      color="primary"
+                      label="Move Up"
+                      icon="arrow_upward"
+                      class="full-width"
+                      @click="moveImage(0, -20)"
+                    />
+                  </div>
+                  <div class="col-4">
+                    <q-btn
+                      unelevated
+                      color="primary"
+                      label="Reset"
+                      icon="refresh"
+                      class="full-width"
+                      @click="resetImagePosition"
+                    />
+                  </div>
+                  <div class="col-4">
+                    <q-btn
+                      unelevated
+                      color="primary"
+                      label="Move Down"
+                      icon="arrow_downward"
+                      class="full-width"
+                      @click="moveImage(0, 20)"
+                    />
+                  </div>
+                </div>
+                <div class="row q-col-gutter-sm q-mt-sm">
+                  <div class="col-4">
+                    <q-btn
+                      unelevated
+                      color="primary"
+                      label="Move Left"
+                      icon="arrow_back"
+                      class="full-width"
+                      @click="moveImage(-20, 0)"
+                    />
+                  </div>
+                  <div class="col-4">
+                    <q-btn
+                      unelevated
+                      color="primary"
+                      label="Apply"
+                      icon="check"
+                      class="full-width"
+                      :loading="cropping"
+                      @click="applyImagePosition"
+                    />
+                  </div>
+                  <div class="col-4">
+                    <q-btn
+                      unelevated
+                      color="primary"
+                      label="Move Right"
+                      icon="arrow_forward"
+                      class="full-width"
+                      @click="moveImage(20, 0)"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Simple Preview - shown when cropper is not active -->
-            <div v-show="!showCropper" class="new-image-preview">
+            <!-- Simple Preview - shown when reposition is not active -->
+            <div v-show="!showReposition" class="new-image-preview">
               <img :src="imagePreview" alt="Preview" />
               <q-btn
                 round
@@ -1057,10 +1118,14 @@ export default {
       uploadingGallery: false,
       guideStepFiles: [null, null, null],
       uploadingGuideStep: false,
-      // Cropper properties
-      showCropper: false,
-      cropper: null,
-      aspectRatio: 16 / 9,
+      // Reposition properties
+      showReposition: false,
+      imageZoom: 1,
+      imagePositionX: 0,
+      imagePositionY: 0,
+      isDragging: false,
+      dragStartX: 0,
+      dragStartY: 0,
       croppedImageData: null,
       cropping: false,
       // Destination-specific crop settings
@@ -1248,126 +1313,163 @@ export default {
           this.imageFile = file
           // Initialize cropper after image loads
           this.$nextTick(() => {
-            this.initCropper()
+            this.initReposition()
           })
         }
         reader.readAsDataURL(file)
       }
     },
 
-    async initCropper() {
-      // Destroy existing cropper if any
-      if (this.cropper) {
-        this.cropper.destroy()
-        this.cropper = null
-      }
+    async initReposition() {
+      // Reset position and zoom
+      this.imageZoom = 1
+      this.imagePositionX = 0
+      this.imagePositionY = 0
 
-      // Get crop settings for current page
-      const settings = this.cropSettings[this.selectedPage] || {
-        aspectRatio: 16 / 9,
-        maxWidth: 1920,
-        maxHeight: 1080,
-      }
-      this.aspectRatio = settings.aspectRatio
+      // Show reposition wrapper
+      this.showReposition = true
 
-      // Show cropper wrapper first
-      this.showCropper = true
+      this.$q.notify({
+        type: 'info',
+        message: 'Drag to reposition, use slider to zoom. Click "Apply" when ready',
+        position: 'top',
+        timeout: 3000,
+      })
+    },
 
-      const imgElement = this.$refs.cropperImage
-      if (imgElement) {
-        try {
-          // Dynamic import of Cropper.js
-          const { default: Cropper } = await import('cropperjs')
-
-          // Wait a tick for DOM to update
-          await this.$nextTick()
-
-          this.cropper = new Cropper(imgElement, {
-            aspectRatio: this.aspectRatio,
-            viewMode: 1,
-            dragMode: 'move',
-            autoCropArea: 0.95,
-            responsive: true,
-            background: false,
-          })
-
-          this.$q.notify({
-            type: 'info',
-            message: `Crop set to ${settings.label}. Adjust if needed and click "Apply Crop"`,
-            position: 'top',
-            timeout: 3000,
-          })
-        } catch (error) {
-          console.error('[Photos] Error loading cropper:', error)
-          this.$q.notify({
-            type: 'negative',
-            message: 'Failed to load image cropper',
-            position: 'top',
-          })
-          this.showCropper = false
-        }
+    get imageStyle() {
+      return {
+        transform: `translate(${this.imagePositionX}px, ${this.imagePositionY}px) scale(${this.imageZoom})`,
       }
     },
 
-    updateCropper() {
-      if (this.cropper) {
-        this.cropper.setAspectRatio(this.aspectRatio)
-      }
+    updateImagePosition() {
+      // Just triggers re-render via reactive property
     },
 
-    async cropImage() {
-      if (!this.cropper) return
+    moveImage(deltaX, deltaY) {
+      this.imagePositionX += deltaX
+      this.imagePositionY += deltaY
+    },
 
+    resetImagePosition() {
+      this.imageZoom = 1
+      this.imagePositionX = 0
+      this.imagePositionY = 0
+    },
+
+    startDrag(e) {
+      this.isDragging = true
+      this.dragStartX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX
+      this.dragStartY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY
+
+      const container = this.$refs.repositionContainer
+      container.addEventListener('mousemove', this.onDrag)
+      container.addEventListener('touchmove', this.onDrag)
+      container.addEventListener('mouseup', this.endDrag)
+      container.addEventListener('touchend', this.endDrag)
+    },
+
+    onDrag(e) {
+      if (!this.isDragging) return
+
+      const currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX
+      const currentY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY
+
+      const deltaX = currentX - this.dragStartX
+      const deltaY = currentY - this.dragStartY
+
+      this.imagePositionX += deltaX
+      this.imagePositionY += deltaY
+
+      this.dragStartX = currentX
+      this.dragStartY = currentY
+    },
+
+    endDrag() {
+      this.isDragging = false
+
+      const container = this.$refs.repositionContainer
+      container.removeEventListener('mousemove', this.onDrag)
+      container.removeEventListener('touchmove', this.onDrag)
+      container.removeEventListener('mouseup', this.endDrag)
+      container.removeEventListener('touchend', this.endDrag)
+    },
+
+    async applyImagePosition() {
       this.cropping = true
 
       try {
-        // Get max dimensions for current page
-        const settings = this.cropSettings[this.selectedPage] || { maxWidth: 1920, maxHeight: 1080 }
+        const img = this.$refs.repositionImage
 
-        // Get cropped canvas with optimized dimensions
-        const canvas = this.cropper.getCroppedCanvas({
-          maxWidth: settings.maxWidth,
-          maxHeight: settings.maxHeight,
-          imageSmoothingEnabled: true,
-          imageSmoothingQuality: 'high',
-        })
+        // Get settings for current page
+        const settings = this.cropSettings[this.selectedPage] || {
+          maxWidth: 1920,
+          maxHeight: 1080,
+        }
+
+        // Create canvas with destination dimensions
+        const canvas = document.createElement('canvas')
+        canvas.width = settings.maxWidth
+        canvas.height = settings.maxHeight
+
+        const ctx = canvas.getContext('2d')
+
+        // Calculate source dimensions
+        const sourceWidth = img.naturalWidth
+        const sourceHeight = img.naturalHeight
+        const scale = this.imageZoom
+
+        // Calculate scaled dimensions
+        const scaledWidth = sourceWidth * scale
+        const scaledHeight = sourceHeight * scale
+
+        // Calculate source position (accounting for scale)
+        const sourceX = (img.offsetLeft - this.imagePositionX) / scale
+        const sourceY = (img.offsetTop - this.imagePositionY) / scale
+
+        // Clear and draw
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(
+          img,
+          sourceX,
+          sourceY,
+          scaledWidth,
+          scaledHeight,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        )
 
         // Convert to blob
         const blob = await new Promise((resolve) => {
           canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.9)
         })
 
-        // Convert blob to file
-        const croppedFile = new File([blob], 'cropped-image.jpg', {
+        // Convert to file
+        const croppedFile = new File([blob], 'positioned-image.jpg', {
           type: 'image/jpeg',
           lastModified: Date.now(),
         })
 
-        // Get cropped data URL for preview
         const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9)
 
-        // Update file and preview
         this.imageFile = croppedFile
         this.imagePreview = croppedDataUrl
         this.croppedImageData = croppedDataUrl
-
-        // Destroy cropper
-        if (this.cropper) {
-          this.cropper.destroy()
-          this.cropper = null
-        }
-        this.showCropper = false
+        this.showReposition = false
 
         this.$q.notify({
           type: 'positive',
-          message: `Image cropped to ${settings.label} size!`,
+          message: 'Image position applied!',
           position: 'top',
         })
       } catch (error) {
-        console.error('[Photos] Error cropping image:', error)
+        console.error('[Photos] Error applying position:', error)
         this.$q.notify({
           type: 'negative',
-          message: 'Failed to crop image',
+          message: 'Failed to apply image position',
           position: 'top',
         })
       } finally {
@@ -1375,12 +1477,8 @@ export default {
       }
     },
 
-    cancelCrop() {
-      if (this.cropper) {
-        this.cropper.destroy()
-        this.cropper = null
-      }
-      this.showCropper = false
+    cancelReposition() {
+      this.showReposition = false
       this.removeImage()
     },
 
@@ -1944,23 +2042,29 @@ export default {
   height: 100%
   object-fit: cover
 
-// Cropper wrapper - hidden by default
-.cropper-wrapper
+// Reposition wrapper - hidden by default
+.reposition-wrapper
   display: none
 
-  &.cropper-active
+  &.reposition-active
     display: block
 
-// Cropper styles
-.cropper-container
+// Reposition container
+.reposition-container
   height: 400px
   background: #000
   border-radius: 8px
   overflow: hidden
   margin-bottom: 16px
+  position: relative
+  cursor: move
 
-  img
+  .reposition-image
     max-width: 100%
+    max-height: 100%
+    object-fit: contain
+    transition: transform 0.1s ease-out
+    user-select: none
 
 .new-image-preview
   position: relative
