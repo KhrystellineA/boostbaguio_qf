@@ -404,17 +404,20 @@ const handleLogin = async () => {
             timeout: 1500,
           })
 
+          // Small delay to ensure session storage is set
+          await new Promise((resolve) => setTimeout(resolve, 100))
+
           // Redirect to specific dashboard section based on role
           if (adminData.role === 'super_admin') {
-            router.push('/admin/dashboard')
+            router.replace('/admin/dashboard')
           } else if (adminData.role === 'places_admin') {
-            router.push('/admin/dashboard#places')
+            router.replace('/admin/dashboard#places')
           } else if (adminData.role === 'routes_admin') {
-            router.push('/admin/dashboard#routes')
+            router.replace('/admin/dashboard#routes')
           } else if (adminData.role === 'events_admin') {
-            router.push('/admin/dashboard#events')
+            router.replace('/admin/dashboard#events')
           } else {
-            router.push('/admin/dashboard')
+            router.replace('/admin/dashboard')
           }
           return
         } else {

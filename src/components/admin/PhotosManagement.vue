@@ -1063,6 +1063,45 @@ export default {
       aspectRatio: 16 / 9,
       croppedImageData: null,
       cropping: false,
+      // Destination-specific crop settings
+      cropSettings: {
+        home: { aspectRatio: 16 / 9, maxWidth: 1920, maxHeight: 1080, label: 'Hero (16:9)' },
+        'home-features': {
+          aspectRatio: 3 / 4,
+          maxWidth: 600,
+          maxHeight: 800,
+          label: 'Features (3:4)',
+        },
+        'home-about': {
+          aspectRatio: 16 / 9,
+          maxWidth: 1200,
+          maxHeight: 675,
+          label: 'About (16:9)',
+        },
+        'home-gallery': {
+          aspectRatio: 4 / 3,
+          maxWidth: 800,
+          maxHeight: 600,
+          label: 'Gallery (4:3)',
+        },
+        apanam: { aspectRatio: 16 / 9, maxWidth: 1920, maxHeight: 1080, label: 'Hero (16:9)' },
+        maykan: { aspectRatio: 16 / 9, maxWidth: 1920, maxHeight: 1080, label: 'Hero (16:9)' },
+        pagnaam: { aspectRatio: 16 / 9, maxWidth: 1920, maxHeight: 1080, label: 'Hero (16:9)' },
+        'pagnaam-features': {
+          aspectRatio: 16 / 9,
+          maxWidth: 1200,
+          maxHeight: 675,
+          label: 'Features (16:9)',
+        },
+        ayanmo: { aspectRatio: 16 / 9, maxWidth: 1920, maxHeight: 1080, label: 'Hero (16:9)' },
+        'ayanmo-discovery': {
+          aspectRatio: 4 / 3,
+          maxWidth: 800,
+          maxHeight: 600,
+          label: 'Discovery (4:3)',
+        },
+        aramidem: { aspectRatio: 16 / 9, maxWidth: 1920, maxHeight: 1080, label: 'Hero (16:9)' },
+      },
     }
   },
 
@@ -1223,6 +1262,14 @@ export default {
         this.cropper = null
       }
 
+      // Get crop settings for current page
+      const settings = this.cropSettings[this.selectedPage] || {
+        aspectRatio: 16 / 9,
+        maxWidth: 1920,
+        maxHeight: 1080,
+      }
+      this.aspectRatio = settings.aspectRatio
+
       // Show cropper wrapper first
       this.showCropper = true
 
@@ -1239,14 +1286,14 @@ export default {
             aspectRatio: this.aspectRatio,
             viewMode: 1,
             dragMode: 'move',
-            autoCropArea: 0.9,
+            autoCropArea: 0.95,
             responsive: true,
             background: false,
           })
 
           this.$q.notify({
             type: 'info',
-            message: 'Adjust the crop area and click "Apply Crop" when ready',
+            message: `Crop set to ${settings.label}. Adjust if needed and click "Apply Crop"`,
             position: 'top',
             timeout: 3000,
           })
@@ -1274,10 +1321,13 @@ export default {
       this.cropping = true
 
       try {
-        // Get cropped canvas
+        // Get max dimensions for current page
+        const settings = this.cropSettings[this.selectedPage] || { maxWidth: 1920, maxHeight: 1080 }
+
+        // Get cropped canvas with optimized dimensions
         const canvas = this.cropper.getCroppedCanvas({
-          maxWidth: 1920,
-          maxHeight: 1080,
+          maxWidth: settings.maxWidth,
+          maxHeight: settings.maxHeight,
           imageSmoothingEnabled: true,
           imageSmoothingQuality: 'high',
         })
@@ -1310,7 +1360,7 @@ export default {
 
         this.$q.notify({
           type: 'positive',
-          message: 'Image cropped successfully!',
+          message: `Image cropped to ${settings.label} size!`,
           position: 'top',
         })
       } catch (error) {
