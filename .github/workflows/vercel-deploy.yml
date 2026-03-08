@@ -26,7 +26,7 @@ jobs:
         run: pnpm install
 
       - name: Deploy to Vercel
-        uses: vercel/actions@v1
+        uses: vercel/actions@v3
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
