@@ -1,5 +1,5 @@
 <template>
-  <section class="hero-section" aria-label="Hero section - Boost Baguio navigation app">
+  <section class="hero-section" aria-label="Hero section">
     <div class="container-custom">
       <div class="hero-box">
         <div class="hero-bg-wrapper">
@@ -11,14 +11,14 @@
           >
             <template v-slot:loading>
               <div class="absolute-full flex flex-center">
-                <q-spinner color="white" size="50px" aria-label="Loading image" />
+                <q-spinner color="white" size="50px" />
               </div>
             </template>
           </q-img>
-          <div class="hero-overlay" aria-hidden="true"></div>
+          <div class="hero-overlay"></div>
         </div>
 
-        <div class="hero-content" role="region" aria-label="Hero content">
+        <div class="hero-content">
           <div class="content-grid">
             <div class="left-content scroll-animate" :class="{ 'animate-in': true }">
               <h1 class="hero-title">BOOST BAGUIO</h1>
@@ -29,19 +29,14 @@
               <p class="hero-tagline">Navigate. Connect. Sustain.</p>
             </div>
 
-            <div
-              class="right-content route-card scroll-animate"
-              :class="{ 'animate-in': true }"
-              role="region"
-              aria-label="APANAM Point to Point Navigation form"
-            >
+            <div class="right-content route-card scroll-animate" :class="{ 'animate-in': true }">
               <div class="card-header">
-                <q-icon name="navigation" size="24px" class="q-mr-sm" aria-hidden="true" />
+                <q-icon name="navigation" size="24px" class="q-mr-sm" />
                 <span class="card-title">APANAM - Point to Point Navigation</span>
               </div>
 
               <div class="input-group">
-                <div class="input-label" id="from-label">FROM:</div>
+                <div class="input-label">FROM:</div>
                 <q-input
                   v-if="!fromAutoDetect"
                   :model-value="fromLocationText"
@@ -50,12 +45,10 @@
                   placeholder="Enter starting location"
                   bg-color="white"
                   class="custom-input"
-                  aria-label="Enter starting location"
-                  aria-labelledby="from-label"
                   @keyup.enter="searchFromLocation"
                 >
                   <template v-slot:prepend>
-                    <q-icon name="my_location" color="grey-7" aria-hidden="true" />
+                    <q-icon name="my_location" color="grey-7" />
                   </template>
                   <template v-slot:append>
                     <q-btn
@@ -67,7 +60,6 @@
                       size="sm"
                       @click="searchFromLocation"
                       style="margin-right: -8px"
-                      aria-label="Search for location"
                     >
                       <q-tooltip>Search location</q-tooltip>
                     </q-btn>
@@ -81,10 +73,9 @@
                   bg-color="white"
                   class="custom-input"
                   disable
-                  aria-label="Location being detected automatically"
                 >
                   <template v-slot:prepend>
-                    <q-icon name="gps_fixed" color="positive" aria-hidden="true" />
+                    <q-icon name="gps_fixed" color="positive" />
                   </template>
                   <template v-slot:append>
                     <q-btn
@@ -96,7 +87,6 @@
                       size="sm"
                       @click="disableFromAutoDetect"
                       style="margin-right: -8px"
-                      aria-label="Enter location manually"
                     >
                       <q-tooltip>Enter location manually</q-tooltip>
                     </q-btn>
@@ -105,7 +95,7 @@
               </div>
 
               <div class="input-group">
-                <div class="input-label" id="to-label">TO:</div>
+                <div class="input-label">TO:</div>
                 <q-select
                   :model-value="toLocation"
                   @update:model-value="$emit('update:toLocation', $event)"
@@ -116,11 +106,9 @@
                   class="custom-input"
                   emit-value
                   map-options
-                  aria-label="Select destination"
-                  aria-labelledby="to-label"
                 >
                   <template v-slot:prepend>
-                    <q-icon name="place" color="grey-7" aria-hidden="true" />
+                    <q-icon name="place" color="grey-7" />
                   </template>
                 </q-select>
               </div>
@@ -133,7 +121,6 @@
                 no-caps
                 @click="startNavigation"
                 :disable="!fromLocation && !fromLocationText"
-                aria-label="Start navigation with selected route"
               />
             </div>
           </div>
