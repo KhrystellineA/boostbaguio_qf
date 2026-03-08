@@ -15,7 +15,6 @@
               </div>
             </template>
           </q-img>
-          <div class="hero-overlay"></div>
         </div>
 
         <div class="hero-content">
@@ -233,15 +232,6 @@ $glass-bg: rgba(255, 255, 255, 0.85);
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-
-  .hero-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(27, 67, 50, 0.7) 0%, rgba(46, 93, 62, 0.5) 100%);
   }
 }
 
