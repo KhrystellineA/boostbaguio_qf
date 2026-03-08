@@ -566,9 +566,9 @@
           <q-separator class="q-my-md" />
 
           <!-- Crop Mode -->
-          <div v-if="showCropper && imagePreview" class="q-mb-md">
+          <div v-if="showCropper" class="q-mb-md">
             <div class="text-subtitle2 q-mb-sm">Crop Image:</div>
-            <div class="cropper-container">
+            <div class="cropper-container" v-show="showCropper">
               <img ref="cropperImage" :src="imagePreview" alt="Crop" />
             </div>
             <div class="q-mt-md">
@@ -599,8 +599,8 @@
             </div>
           </div>
 
-          <!-- New Image Preview (non-crop mode) -->
-          <div v-else-if="imagePreview" class="q-mb-md">
+          <!-- New Image Preview (shown when not cropping) -->
+          <div v-if="imagePreview && !showCropper" class="q-mb-md">
             <div class="text-subtitle2 q-mb-sm">New Image Preview:</div>
             <div class="new-image-preview">
               <img :src="imagePreview" alt="Preview" />
@@ -620,7 +620,7 @@
 
           <!-- Upload Button -->
           <q-file
-            v-if="!showCropper"
+            v-if="!showCropper && !imagePreview"
             v-model="imageFile"
             outlined
             :label="getUploadLabel()"
@@ -1200,11 +1200,12 @@ export default {
       return 'Choose Hero Image'
     },
 
-    onImageSelected(file) {
+    async onImageSelected(file) {
       if (file) {
         const reader = new FileReader()
         reader.onload = (e) => {
           this.imagePreview = e.target.result
+          this.imageFile = file
           // Initialize cropper after image loads
           this.$nextTick(() => {
             this.initCropper()
@@ -1214,26 +1215,43 @@ export default {
       }
     },
 
-    initCropper() {
+    async initCropper() {
       // Destroy existing cropper if any
       if (this.cropper) {
         this.cropper.destroy()
+        this.cropper = null
       }
 
       const imgElement = this.$refs.cropperImage
       if (imgElement) {
-        // Import Cropper.js
-        const Cropper = require('cropperjs').default
+        try {
+          // Dynamic import of Cropper.js
+          const { default: Cropper } = await import('cropperjs')
 
-        this.cropper = new Cropper(imgElement, {
-          aspectRatio: this.aspectRatio,
-          viewMode: 1,
-          dragMode: 'move',
-          autoCropArea: 0.9,
-          responsive: true,
-          background: false,
-        })
-        this.showCropper = true
+          this.cropper = new Cropper(imgElement, {
+            aspectRatio: this.aspectRatio,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 0.9,
+            responsive: true,
+            background: false,
+          })
+          this.showCropper = true
+
+          this.$q.notify({
+            type: 'info',
+            message: 'Adjust the crop area and click "Apply Crop" when ready',
+            position: 'top',
+            timeout: 3000,
+          })
+        } catch (error) {
+          console.error('[Photos] Error loading cropper:', error)
+          this.$q.notify({
+            type: 'negative',
+            message: 'Failed to load image cropper',
+            position: 'top',
+          })
+        }
       }
     },
 
