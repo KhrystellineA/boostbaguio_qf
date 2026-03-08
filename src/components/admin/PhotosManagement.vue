@@ -565,105 +565,10 @@
 
           <q-separator class="q-my-md" />
 
-          <!-- Image Preview / Reposition Area -->
+          <!-- New Image Preview -->
           <div v-if="imagePreview" class="q-mb-md">
-            <!-- Reposition Container -->
-            <div class="reposition-wrapper" :class="{ 'reposition-active': showReposition }">
-              <div class="text-subtitle2 q-mb-sm">Position Image:</div>
-              <div class="reposition-container" ref="repositionContainer">
-                <img
-                  ref="repositionImage"
-                  :src="imagePreview"
-                  alt="Position"
-                  class="reposition-image"
-                  :style="imageStyle"
-                  @mousedown="startDrag"
-                  @touchstart="startDrag"
-                />
-              </div>
-              <div class="q-mt-md">
-                <div class="text-caption q-mb-sm">Zoom Level:</div>
-                <q-slider
-                  v-model="imageZoom"
-                  :min="0.5"
-                  :max="2"
-                  :step="0.01"
-                  label
-                  label-always
-                  color="primary"
-                  class="q-mb-md"
-                  @update:model-value="updateImagePosition"
-                />
-                <div class="row q-col-gutter-sm">
-                  <div class="col-4">
-                    <q-btn
-                      unelevated
-                      color="primary"
-                      label="Move Up"
-                      icon="arrow_upward"
-                      class="full-width"
-                      @click="moveImage(0, -20)"
-                    />
-                  </div>
-                  <div class="col-4">
-                    <q-btn
-                      unelevated
-                      color="primary"
-                      label="Reset"
-                      icon="refresh"
-                      class="full-width"
-                      @click="resetImagePosition"
-                    />
-                  </div>
-                  <div class="col-4">
-                    <q-btn
-                      unelevated
-                      color="primary"
-                      label="Move Down"
-                      icon="arrow_downward"
-                      class="full-width"
-                      @click="moveImage(0, 20)"
-                    />
-                  </div>
-                </div>
-                <div class="row q-col-gutter-sm q-mt-sm">
-                  <div class="col-4">
-                    <q-btn
-                      unelevated
-                      color="primary"
-                      label="Move Left"
-                      icon="arrow_back"
-                      class="full-width"
-                      @click="moveImage(-20, 0)"
-                    />
-                  </div>
-                  <div class="col-4">
-                    <q-btn
-                      unelevated
-                      color="primary"
-                      label="Apply"
-                      icon="check"
-                      class="full-width"
-                      :loading="cropping"
-                      @click="applyImagePosition"
-                    />
-                  </div>
-                  <div class="col-4">
-                    <q-btn
-                      unelevated
-                      color="primary"
-                      label="Move Right"
-                      icon="arrow_forward"
-                      class="full-width"
-                      @click="moveImage(20, 0)"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Simple Preview - shown when reposition is not active -->
-            <div v-show="!showReposition" class="new-image-preview">
+            <div class="text-subtitle2 q-mb-sm">New Image Preview:</div>
+            <div class="new-image-preview">
               <img :src="imagePreview" alt="Preview" />
               <q-btn
                 round
@@ -679,9 +584,8 @@
             </div>
           </div>
 
-          <!-- Upload Button - only show when no image selected -->
+          <!-- Upload Button -->
           <q-file
-            v-if="!imagePreview"
             v-model="imageFile"
             outlined
             :label="getUploadLabel()"
@@ -707,7 +611,7 @@
               <strong>Tip:</strong>
               <span v-if="selectedPage === 'home'">
                 Use a high-quality landscape image of Baguio City for the main hero. This is the
-                first thing visitors see! Crop to 16:9 for best results.
+                first thing visitors see!
               </span>
               <span v-else-if="selectedPage === 'home-features'">
                 Use an engaging image that showcases app features or benefits. Landscape orientation
@@ -738,13 +642,13 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="grey-7" v-close-popup :disable="showCropper" />
+          <q-btn flat label="Cancel" color="grey-7" v-close-popup />
           <q-btn
             unelevated
             label="Upload & Save"
             style="background: #2d6a4f; color: white"
             :loading="uploading"
-            :disable="!imageFile && !croppedImageData"
+            :disable="!imageFile"
             @click="uploadImage"
           />
         </q-card-actions>
@@ -1118,69 +1022,11 @@ export default {
       uploadingGallery: false,
       guideStepFiles: [null, null, null],
       uploadingGuideStep: false,
-      // Reposition properties
-      showReposition: false,
-      imageZoom: 1,
-      imagePositionX: 0,
-      imagePositionY: 0,
-      isDragging: false,
-      dragStartX: 0,
-      dragStartY: 0,
-      croppedImageData: null,
-      cropping: false,
-      // Destination-specific crop settings
-      cropSettings: {
-        home: { aspectRatio: 16 / 9, maxWidth: 1920, maxHeight: 1080, label: 'Hero (16:9)' },
-        'home-features': {
-          aspectRatio: 3 / 4,
-          maxWidth: 600,
-          maxHeight: 800,
-          label: 'Features (3:4)',
-        },
-        'home-about': {
-          aspectRatio: 16 / 9,
-          maxWidth: 1200,
-          maxHeight: 675,
-          label: 'About (16:9)',
-        },
-        'home-gallery': {
-          aspectRatio: 4 / 3,
-          maxWidth: 800,
-          maxHeight: 600,
-          label: 'Gallery (4:3)',
-        },
-        apanam: { aspectRatio: 16 / 9, maxWidth: 1920, maxHeight: 1080, label: 'Hero (16:9)' },
-        maykan: { aspectRatio: 16 / 9, maxWidth: 1920, maxHeight: 1080, label: 'Hero (16:9)' },
-        pagnaam: { aspectRatio: 16 / 9, maxWidth: 1920, maxHeight: 1080, label: 'Hero (16:9)' },
-        'pagnaam-features': {
-          aspectRatio: 16 / 9,
-          maxWidth: 1200,
-          maxHeight: 675,
-          label: 'Features (16:9)',
-        },
-        ayanmo: { aspectRatio: 16 / 9, maxWidth: 1920, maxHeight: 1080, label: 'Hero (16:9)' },
-        'ayanmo-discovery': {
-          aspectRatio: 4 / 3,
-          maxWidth: 800,
-          maxHeight: 600,
-          label: 'Discovery (4:3)',
-        },
-        aramidem: { aspectRatio: 16 / 9, maxWidth: 1920, maxHeight: 1080, label: 'Hero (16:9)' },
-      },
     }
   },
 
   mounted() {
     this.loadAllPhotos()
-  },
-
-  computed: {
-    imageStyle() {
-      return {
-        transform: `translate(${this.imagePositionX}px, ${this.imagePositionY}px) scale(${this.imageZoom})`,
-        transformOrigin: 'center center',
-      }
-    },
   },
 
   methods: {
@@ -1314,175 +1160,15 @@ export default {
       return 'Choose Hero Image'
     },
 
-    async onImageSelected(file) {
+    onImageSelected(file) {
       if (file) {
         const reader = new FileReader()
         reader.onload = (e) => {
           this.imagePreview = e.target.result
           this.imageFile = file
-          // Initialize cropper after image loads
-          this.$nextTick(() => {
-            this.initReposition()
-          })
         }
         reader.readAsDataURL(file)
       }
-    },
-
-    async initReposition() {
-      // Reset position and zoom
-      this.imageZoom = 1
-      this.imagePositionX = 0
-      this.imagePositionY = 0
-
-      // Show reposition wrapper
-      this.showReposition = true
-
-      this.$q.notify({
-        type: 'info',
-        message: 'Drag to reposition, use slider to zoom. Click "Apply" when ready',
-        position: 'top',
-        timeout: 3000,
-      })
-    },
-
-    updateImagePosition() {
-      // Reactive - no action needed
-    },
-
-    moveImage(deltaX, deltaY) {
-      this.imagePositionX += deltaX
-      this.imagePositionY += deltaY
-    },
-
-    resetImagePosition() {
-      this.imageZoom = 1
-      this.imagePositionX = 0
-      this.imagePositionY = 0
-    },
-
-    startDrag(e) {
-      this.isDragging = true
-      this.dragStartX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX
-      this.dragStartY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY
-
-      const container = this.$refs.repositionContainer
-      container.addEventListener('mousemove', this.onDrag)
-      container.addEventListener('touchmove', this.onDrag)
-      container.addEventListener('mouseup', this.endDrag)
-      container.addEventListener('touchend', this.endDrag)
-    },
-
-    onDrag(e) {
-      if (!this.isDragging) return
-
-      const currentX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX
-      const currentY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY
-
-      const deltaX = currentX - this.dragStartX
-      const deltaY = currentY - this.dragStartY
-
-      this.imagePositionX += deltaX
-      this.imagePositionY += deltaY
-
-      this.dragStartX = currentX
-      this.dragStartY = currentY
-    },
-
-    endDrag() {
-      this.isDragging = false
-
-      const container = this.$refs.repositionContainer
-      container.removeEventListener('mousemove', this.onDrag)
-      container.removeEventListener('touchmove', this.onDrag)
-      container.removeEventListener('mouseup', this.endDrag)
-      container.removeEventListener('touchend', this.endDrag)
-    },
-
-    async applyImagePosition() {
-      this.cropping = true
-
-      try {
-        const img = this.$refs.repositionImage
-
-        // Get settings for current page
-        const settings = this.cropSettings[this.selectedPage] || {
-          maxWidth: 1920,
-          maxHeight: 1080,
-        }
-
-        // Create canvas with destination dimensions
-        const canvas = document.createElement('canvas')
-        canvas.width = settings.maxWidth
-        canvas.height = settings.maxHeight
-
-        const ctx = canvas.getContext('2d')
-
-        // Calculate source dimensions
-        const sourceWidth = img.naturalWidth
-        const sourceHeight = img.naturalHeight
-        const scale = this.imageZoom
-
-        // Calculate scaled dimensions
-        const scaledWidth = sourceWidth * scale
-        const scaledHeight = sourceHeight * scale
-
-        // Calculate source position (accounting for scale)
-        const sourceX = (img.offsetLeft - this.imagePositionX) / scale
-        const sourceY = (img.offsetTop - this.imagePositionY) / scale
-
-        // Clear and draw
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        ctx.drawImage(
-          img,
-          sourceX,
-          sourceY,
-          scaledWidth,
-          scaledHeight,
-          0,
-          0,
-          canvas.width,
-          canvas.height
-        )
-
-        // Convert to blob
-        const blob = await new Promise((resolve) => {
-          canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.9)
-        })
-
-        // Convert to file
-        const croppedFile = new File([blob], 'positioned-image.jpg', {
-          type: 'image/jpeg',
-          lastModified: Date.now(),
-        })
-
-        const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9)
-
-        this.imageFile = croppedFile
-        this.imagePreview = croppedDataUrl
-        this.croppedImageData = croppedDataUrl
-        this.showReposition = false
-
-        this.$q.notify({
-          type: 'positive',
-          message: 'Image position applied!',
-          position: 'top',
-        })
-      } catch (error) {
-        console.error('[Photos] Error applying position:', error)
-        this.$q.notify({
-          type: 'negative',
-          message: 'Failed to apply image position',
-          position: 'top',
-        })
-      } finally {
-        this.cropping = false
-      }
-    },
-
-    cancelReposition() {
-      this.showReposition = false
-      this.removeImage()
     },
 
     onImageRejected(rejectedEntries) {
@@ -2044,35 +1730,6 @@ export default {
   width: 100%
   height: 100%
   object-fit: cover
-
-// Reposition wrapper - hidden by default
-.reposition-wrapper
-  display: none
-
-  &.reposition-active
-    display: block
-
-// Reposition container
-.reposition-container
-  height: 400px
-  background: #000
-  border-radius: 8px
-  overflow: visible
-  margin-bottom: 16px
-  position: relative
-  cursor: move
-  display: flex
-  align-items: center
-  justify-content: center
-
-  .reposition-image
-    max-width: 100%
-    max-height: 100%
-    object-fit: contain
-    transition: none
-    user-select: none
-    pointer-events: auto
-    will-change: transform
 
 .new-image-preview
   position: relative
