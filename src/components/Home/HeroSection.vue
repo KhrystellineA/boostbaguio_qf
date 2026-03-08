@@ -208,6 +208,7 @@ $white: #ffffff;
   min-height: 100vh;
   padding: 0;
   position: relative;
+  overflow: hidden;
 }
 
 .container-custom {
@@ -236,6 +237,9 @@ $white: #ffffff;
     height: 100%;
     object-fit: cover;
     object-position: center;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 }
 
