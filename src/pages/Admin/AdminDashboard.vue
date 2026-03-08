@@ -296,6 +296,35 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+// Override Quasar primary color to green for admin dashboard
+:deep(.text-primary) {
+  color: #2e5d3e !important;
+}
+
+:deep(.bg-primary) {
+  background-color: #2e5d3e !important;
+}
+
+:deep(.q-btn.bg-primary) {
+  background-color: #2e5d3e !important;
+}
+
+:deep(.q-btn.q-btn--primary) {
+  background-color: #2e5d3e !important;
+}
+
+:deep(.q-tab--active.text-primary) {
+  color: #2e5d3e !important;
+}
+
+:deep(.q-item--active .text-primary) {
+  color: #2e5d3e !important;
+}
+
+:deep(.q-item--active.bg-primary) {
+  background-color: #2e5d3e !important;
+}
+
 .stat-card {
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
