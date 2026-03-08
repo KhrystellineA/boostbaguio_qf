@@ -161,3 +161,44 @@ export const ImagePresets = {
     crop: 'fill',
   },
 }
+
+/**
+ * Upload image to Cloudinary with optimization
+ * @param {File} file - Image file to upload
+ * @param {string} folder - Folder name in Cloudinary
+ * @param {Object} options - Upload options
+ * @returns {Promise<{url: string, publicId: string, width: number, height: number}>}
+ */
+export async function uploadOptimizedImage(file, folder = 'baguiboost', options = {}) {
+  const { maxWidth = 1920, maxHeight = 1080, quality = 0.85 } = options
+
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('upload_preset', uploadPreset)
+  formData.append('folder', folder)
+
+  // Add transformation parameters
+  formData.append('width', maxWidth.toString())
+  formData.append('height', maxHeight.toString())
+  formData.append('quality', (quality * 100).toString())
+
+  const response = await fetch(getUploadUrl(), {
+    method: 'POST',
+    body: formData,
+  })
+
+  if (!response.ok) {
+    throw new Error('Upload failed: ' + response.statusText)
+  }
+
+  const result = await response.json()
+
+  return {
+    url: result.secure_url,
+    publicId: result.public_id,
+    width: result.width,
+    height: result.height,
+    format: result.format,
+    bytes: result.bytes,
+  }
+}

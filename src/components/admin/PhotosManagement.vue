@@ -1332,7 +1332,7 @@ export default {
     },
 
     async uploadImage() {
-      if (!this.imageFile || !this.selectedPage) return
+      if ((!this.imageFile && !this.croppedImageData) || !this.selectedPage) return
 
       this.uploading = true
 
@@ -1342,8 +1342,21 @@ export default {
 
         console.log('[Photos] Uploading to Cloudinary...')
 
+        // If we have cropped data, use that; otherwise use the original file
+        let fileToUpload = this.imageFile
+
+        // If we have cropped image data (dataURL), convert it to a blob/file
+        if (this.croppedImageData && !this.imageFile) {
+          const response = await fetch(this.croppedImageData)
+          const blob = await response.blob()
+          fileToUpload = new File([blob], 'cropped-image.jpg', {
+            type: 'image/jpeg',
+            lastModified: Date.now(),
+          })
+        }
+
         // Upload with automatic compression and optimization
-        const uploadResult = await uploadOptimizedImage(this.imageFile, 'baguiboost/page-photos', {
+        const uploadResult = await uploadOptimizedImage(fileToUpload, 'baguiboost/page-photos', {
           maxWidth: 1920,
           maxHeight: 1080,
           quality: 0.85,
@@ -1413,7 +1426,13 @@ export default {
     resetForm() {
       this.imageFile = null
       this.imagePreview = null
+      this.croppedImageData = null
+      this.showCropper = false
       this.selectedPage = null
+      if (this.cropper) {
+        this.cropper.destroy()
+        this.cropper = null
+      }
     },
 
     onDialogHide() {
