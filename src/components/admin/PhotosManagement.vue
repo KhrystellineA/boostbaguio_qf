@@ -546,8 +546,8 @@
     </div>
 
     <!-- Upload Dialog -->
-    <q-dialog v-model="showUploadDialog" @hide="onDialogHide">
-      <q-card style="min-width: 500px">
+    <q-dialog v-model="showUploadDialog" @hide="onDialogHide" persistent>
+      <q-card style="min-width: 600px; max-width: 800px">
         <q-card-section>
           <div class="text-h6 text-pine-green">
             Change {{ selectedPage ? pageNames[selectedPage] : '' }} Image
@@ -565,8 +565,42 @@
 
           <q-separator class="q-my-md" />
 
-          <!-- New Image Preview -->
-          <div v-if="imagePreview" class="q-mb-md">
+          <!-- Crop Mode -->
+          <div v-if="showCropper && imagePreview" class="q-mb-md">
+            <div class="text-subtitle2 q-mb-sm">Crop Image:</div>
+            <div class="cropper-container">
+              <img ref="cropperImage" :src="imagePreview" alt="Crop" />
+            </div>
+            <div class="q-mt-md">
+              <div class="text-caption q-mb-sm">Aspect Ratio:</div>
+              <q-btn-toggle
+                v-model="aspectRatio"
+                toggle-color="primary"
+                unelevated
+                :options="[
+                  { label: '16:9 (Landscape)', value: 16 / 9 },
+                  { label: '4:3', value: 4 / 3 },
+                  { label: '1:1 (Square)', value: 1 },
+                  { label: 'Free', value: NaN },
+                ]"
+                @update:model-value="updateCropper"
+              />
+            </div>
+            <div class="q-mt-md">
+              <q-btn
+                unelevated
+                color="primary"
+                label="Apply Crop"
+                icon="check"
+                :loading="cropping"
+                @click="cropImage"
+              />
+              <q-btn flat label="Cancel" color="grey-7" class="q-ml-sm" @click="cancelCrop" />
+            </div>
+          </div>
+
+          <!-- New Image Preview (non-crop mode) -->
+          <div v-else-if="imagePreview" class="q-mb-md">
             <div class="text-subtitle2 q-mb-sm">New Image Preview:</div>
             <div class="new-image-preview">
               <img :src="imagePreview" alt="Preview" />
@@ -586,6 +620,7 @@
 
           <!-- Upload Button -->
           <q-file
+            v-if="!showCropper"
             v-model="imageFile"
             outlined
             :label="getUploadLabel()"
@@ -610,7 +645,7 @@
               <strong>Tip:</strong>
               <span v-if="selectedPage === 'home'">
                 Use a high-quality landscape image of Baguio City for the main hero. This is the
-                first thing visitors see!
+                first thing visitors see! Crop to 16:9 for best results.
               </span>
               <span v-else-if="selectedPage === 'home-features'">
                 Use an engaging image that showcases app features or benefits. Landscape orientation
@@ -641,13 +676,13 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="grey-7" v-close-popup />
+          <q-btn flat label="Cancel" color="grey-7" v-close-popup :disable="showCropper" />
           <q-btn
             unelevated
             label="Upload & Save"
             style="background: #2d6a4f; color: white"
             :loading="uploading"
-            :disable="!imageFile"
+            :disable="!imageFile && !croppedImageData"
             @click="uploadImage"
           />
         </q-card-actions>
@@ -1021,6 +1056,12 @@ export default {
       uploadingGallery: false,
       guideStepFiles: [null, null, null],
       uploadingGuideStep: false,
+      // Cropper properties
+      showCropper: false,
+      cropper: null,
+      aspectRatio: 16 / 9,
+      croppedImageData: null,
+      cropping: false,
     }
   },
 
@@ -1164,9 +1205,108 @@ export default {
         const reader = new FileReader()
         reader.onload = (e) => {
           this.imagePreview = e.target.result
+          // Initialize cropper after image loads
+          this.$nextTick(() => {
+            this.initCropper()
+          })
         }
         reader.readAsDataURL(file)
       }
+    },
+
+    initCropper() {
+      // Destroy existing cropper if any
+      if (this.cropper) {
+        this.cropper.destroy()
+      }
+
+      const imgElement = this.$refs.cropperImage
+      if (imgElement) {
+        // Import Cropper.js
+        const Cropper = require('cropperjs').default
+
+        this.cropper = new Cropper(imgElement, {
+          aspectRatio: this.aspectRatio,
+          viewMode: 1,
+          dragMode: 'move',
+          autoCropArea: 0.9,
+          responsive: true,
+          background: false,
+        })
+        this.showCropper = true
+      }
+    },
+
+    updateCropper() {
+      if (this.cropper) {
+        this.cropper.setAspectRatio(this.aspectRatio)
+      }
+    },
+
+    async cropImage() {
+      if (!this.cropper) return
+
+      this.cropping = true
+
+      try {
+        // Get cropped canvas
+        const canvas = this.cropper.getCroppedCanvas({
+          maxWidth: 1920,
+          maxHeight: 1080,
+          imageSmoothingEnabled: true,
+          imageSmoothingQuality: 'high',
+        })
+
+        // Convert to blob
+        const blob = await new Promise((resolve) => {
+          canvas.toBlob((b) => resolve(b), 'image/jpeg', 0.9)
+        })
+
+        // Convert blob to file
+        const croppedFile = new File([blob], 'cropped-image.jpg', {
+          type: 'image/jpeg',
+          lastModified: Date.now(),
+        })
+
+        // Get cropped data URL for preview
+        const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9)
+
+        // Update file and preview
+        this.imageFile = croppedFile
+        this.imagePreview = croppedDataUrl
+        this.croppedImageData = croppedDataUrl
+
+        // Destroy cropper
+        if (this.cropper) {
+          this.cropper.destroy()
+          this.cropper = null
+        }
+        this.showCropper = false
+
+        this.$q.notify({
+          type: 'positive',
+          message: 'Image cropped successfully!',
+          position: 'top',
+        })
+      } catch (error) {
+        console.error('[Photos] Error cropping image:', error)
+        this.$q.notify({
+          type: 'negative',
+          message: 'Failed to crop image',
+          position: 'top',
+        })
+      } finally {
+        this.cropping = false
+      }
+    },
+
+    cancelCrop() {
+      if (this.cropper) {
+        this.cropper.destroy()
+        this.cropper = null
+      }
+      this.showCropper = false
+      this.removeImage()
     },
 
     onImageRejected(rejectedEntries) {
@@ -1708,6 +1848,51 @@ export default {
 .preview-image
   width: 100%
   height: 100%
+  object-fit: cover
+
+// Cropper styles
+.cropper-container
+  height: 400px
+  background: #000
+  border-radius: 8px
+  overflow: hidden
+  margin-bottom: 16px
+
+  img
+    max-width: 100%
+
+.new-image-preview
+  position: relative
+  max-height: 300px
+  overflow: hidden
+  border-radius: 8px
+  background: #f5f5f5
+
+  img
+    width: 100%
+    height: 100%
+    object-fit: contain
+
+.remove-image-btn
+  position: absolute
+  top: 8px
+  right: 8px
+  z-index: 10
+  background: rgba(255, 255, 255, 0.9)
+
+  &:hover
+    background: white
+
+.current-image-preview
+  max-height: 200px
+  overflow: hidden
+  border-radius: 8px
+  background: #f5f5f5
+
+  img
+    width: 100%
+    height: 100%
+    object-fit: contain
   object-fit: cover
   display: block
 

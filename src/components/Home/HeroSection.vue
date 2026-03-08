@@ -198,18 +198,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// Import shared styles from IndexPage
 $dark-green: #1b4332;
 $primary-green: #2e5d3e;
 $light-green: #9ec98f;
 $white: #ffffff;
-$glass-bg: rgba(255, 255, 255, 0.85);
 
 .hero-section {
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
   padding: 0;
+  position: relative;
 }
 
 .container-custom {
@@ -220,23 +218,34 @@ $glass-bg: rgba(255, 255, 255, 0.85);
 
 .hero-box {
   position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
 }
 
 .hero-bg-wrapper {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 50vh;
+  height: 100%;
   overflow: hidden;
 
   .hero-bg {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
   }
 }
 
 .hero-content {
-  padding: 3rem 5%;
+  position: relative;
+  z-index: 10;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 5%;
 }
 
 .content-grid {
@@ -244,6 +253,7 @@ $glass-bg: rgba(255, 255, 255, 0.85);
   grid-template-columns: 1fr 1fr;
   gap: 3rem;
   align-items: center;
+  width: 100%;
 
   @media (max-width: 959px) {
     grid-template-columns: 1fr;
@@ -258,7 +268,7 @@ $glass-bg: rgba(255, 255, 255, 0.85);
     font-size: 4rem;
     font-weight: 900;
     margin: 0 0 1.5rem 0;
-    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     letter-spacing: 2px;
 
     @media (max-width: 959px) {
@@ -275,6 +285,7 @@ $glass-bg: rgba(255, 255, 255, 0.85);
     line-height: 1.8;
     margin-bottom: 1rem;
     opacity: 0.95;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 
     @media (max-width: 959px) {
       font-size: 1rem;
@@ -287,14 +298,16 @@ $glass-bg: rgba(255, 255, 255, 0.85);
     font-style: italic;
     opacity: 0.9;
     margin-top: 1.5rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   }
 }
 
 .route-card {
   padding: 1.75rem;
   border-radius: 16px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
   background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
 
   .card-header {
     display: flex;

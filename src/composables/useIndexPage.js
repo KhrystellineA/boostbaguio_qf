@@ -4,6 +4,8 @@
 
 import { ref, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
+import { db } from 'src/boot/firebase'
+import { doc, getDoc } from 'firebase/firestore'
 
 export function useIndexPage() {
   const $q = useQuasar()
@@ -25,11 +27,21 @@ export function useIndexPage() {
     { label: 'Baguio Airport', value: 'airport' },
   ]
 
-  // Load hero image
+  // Load hero image from Firebase
   const loadHeroImage = async () => {
     try {
-      // Add your image loading logic here
-      heroImage.value = '' // Set default or loaded image
+      const docRef = doc(db, 'pagePhotos', 'home')
+      const docSnap = await getDoc(docRef)
+
+      if (docSnap.exists()) {
+        const data = docSnap.data()
+        if (data.imageUrl) {
+          heroImage.value = data.imageUrl
+          console.log('[IndexPage] Hero image loaded:', data.imageUrl)
+        }
+      } else {
+        console.log('[IndexPage] No hero image found in Firestore')
+      }
     } catch (error) {
       console.error('[IndexPage] Error loading hero image:', error)
     }
