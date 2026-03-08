@@ -1,5 +1,8 @@
 <template>
   <q-layout view="hHh lpR fFf">
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <!-- Shared Navbar as q-header -->
     <q-header elevated>
       <q-toolbar class="main-toolbar">
@@ -9,7 +12,9 @@
 
     <!-- Page Content -->
     <q-page-container>
-      <router-view />
+      <main id="main-content" tabindex="-1">
+        <router-view />
+      </main>
     </q-page-container>
 
     <!-- Scroll to Top Button -->
@@ -305,6 +310,28 @@ export default {
   .q-chip {
     min-height: 40px !important;
     padding: 8px 12px !important;
+  }
+}
+
+// Skip Link for Accessibility
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2e5d3e;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  z-index: 10000;
+  transition: top 0.3s ease;
+
+  &:focus {
+    top: 16px;
+    outline: 3px solid #ffd60a;
+    outline-offset: 2px;
   }
 }
 </style>

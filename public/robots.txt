@@ -1,0 +1,61 @@
+# Boost Baguio - Robots.txt
+# https://boost-baguio.web.app/robots.txt
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://boost-baguio.web.app/sitemap.xml
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Allow all main pages
+Allow: /$
+Allow: /pagnaam
+Allow: /maykan
+Allow: /aramidem
+Allow: /apanam
+Allow: /ayanmo
+
+# Allow admin pages only for authenticated users (blocked by app logic)
+Disallow: /admin/
+
+# Block sensitive paths
+Disallow: /account
+Disallow: /saved-routes
+Disallow: /offline
+Disallow: /login
+
+# Block static assets from being indexed as pages
+Disallow: /icons/
+Disallow: /src/
+Disallow: /node_modules/
+
+# Block query string URLs (prevent duplicate content)
+Disallow: /*?*
+
+# Common bots
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0.5
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 2
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /

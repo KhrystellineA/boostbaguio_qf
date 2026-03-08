@@ -1,32 +1,85 @@
 {
+  "name": "Boost Baguio - Jeepney Navigation",
+  "short_name": "Boost Baguio",
+  "description": "Premium jeepney navigation app for Baguio City. Navigate with APANAM, discover tourist spots with MAYKAN, browse events with ARAMIDEM, and find nearby places with AYAN MO.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#027be3",
+  "categories": ["navigation", "travel", "utilities", "lifestyle"],
   "icons": [
     {
       "src": "icons/icon-128x128.png",
       "sizes": "128x128",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-256x256.png",
       "sizes": "256x256",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-384x384.png",
       "sizes": "384x384",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Home Screen"
+    },
+    {
+      "src": "screenshots/navigation.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Route Navigation"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Navigate",
+      "short_name": "Navigate",
+      "description": "Start point-to-point navigation",
+      "url": "/apanam",
+      "icons": [{ "src": "icons/navigation-icon.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Tourist Spots",
+      "short_name": "Spots",
+      "description": "Discover tourist spots in Baguio",
+      "url": "/maykan",
+      "icons": [{ "src": "icons/spots-icon.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Events",
+      "short_name": "Events",
+      "description": "Browse upcoming events",
+      "url": "/aramidem",
+      "icons": [{ "src": "icons/events-icon.png", "sizes": "96x96" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 }

@@ -1,7 +1,7 @@
 <template>
-  <q-page class="auth-page">
+  <q-page class="auth-page" role="main" aria-label="Authentication page">
     <!-- Background Elements -->
-    <div class="auth-background">
+    <div class="auth-background" aria-hidden="true">
       <div class="gradient-overlay"></div>
       <div class="pattern-dots"></div>
       <div class="floating-shapes">
@@ -15,7 +15,7 @@
       <!-- Auth Card -->
       <q-card class="auth-card">
         <q-card-section class="auth-header">
-          <div class="icon-bento">
+          <div class="icon-bento" aria-hidden="true">
             <q-icon name="account_circle" size="40px" color="white" />
           </div>
           <h2 class="auth-title">{{ isLogin ? 'Welcome Back!' : 'Create Account' }}</h2>
@@ -24,7 +24,7 @@
           </p>
         </q-card-section>
 
-        <q-separator />
+        <q-separator aria-hidden="true" />
 
         <!-- Tab Navigation -->
         <q-tabs
@@ -34,14 +34,35 @@
           indicator-color="primary"
           align="justify"
           dense
+          role="tablist"
+          aria-label="Authentication options"
         >
-          <q-tab name="login" label="Login" />
-          <q-tab name="signup" label="Sign Up" />
+          <q-tab
+            name="login"
+            label="Login"
+            role="tab"
+            :aria-selected="isLogin"
+            :aria-controls="isLogin ? 'login-panel' : null"
+          />
+          <q-tab
+            name="signup"
+            label="Sign Up"
+            role="tab"
+            :aria-selected="!isLogin"
+            :aria-controls="!isLogin ? 'signup-panel' : null"
+          />
         </q-tabs>
 
         <q-card-section class="auth-form-section">
           <!-- Login Form -->
-          <q-form v-if="isLogin" @submit="handleLogin" class="auth-form">
+          <q-form
+            v-if="isLogin"
+            @submit="handleLogin"
+            class="auth-form"
+            id="login-panel"
+            role="tabpanel"
+            aria-label="Login form"
+          >
             <q-input
               v-model="loginForm.email"
               type="email"
@@ -53,9 +74,11 @@
                 (val) => /.+@.+\..+/.test(val) || 'Invalid email',
               ]"
               class="auth-input"
+              aria-label="Email address"
+              aria-required="true"
             >
               <template v-slot:prepend>
-                <div class="input-icon-bento">
+                <div class="input-icon-bento" aria-hidden="true">
                   <q-icon name="mail" size="18px" />
                 </div>
               </template>
@@ -69,9 +92,11 @@
               dense
               :rules="[(val) => !!val || 'Password is required']"
               class="auth-input"
+              aria-label="Password"
+              aria-required="true"
             >
               <template v-slot:prepend>
-                <div class="input-icon-bento">
+                <div class="input-icon-bento" aria-hidden="true">
                   <q-icon name="lock" size="18px" />
                 </div>
               </template>
@@ -85,6 +110,8 @@
                   @click.stop="showPassword = !showPassword"
                   @keydown.enter="showPassword = !showPassword"
                   @keydown.space.prevent="showPassword = !showPassword"
+                  :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                  :aria-pressed="showPassword"
                 >
                   <q-tooltip>Toggle password visibility</q-tooltip>
                 </q-btn>
@@ -92,7 +119,12 @@
             </q-input>
 
             <div class="form-actions">
-              <q-checkbox v-model="rememberMe" label="Remember me" color="primary" />
+              <q-checkbox
+                v-model="rememberMe"
+                label="Remember me"
+                color="primary"
+                aria-label="Remember me on this device"
+              />
             </div>
 
             <q-btn
@@ -104,15 +136,23 @@
               unelevated
               no-caps
               size="lg"
+              aria-label="Sign in to your account"
             >
               <template #loading>
-                <q-spinner-dots color="white" size="24px" />
+                <q-spinner-dots color="white" size="24px" aria-label="Signing in" />
               </template>
             </q-btn>
           </q-form>
 
           <!-- Signup Form -->
-          <q-form v-else @submit="handleSignup" class="auth-form">
+          <q-form
+            v-else
+            @submit="handleSignup"
+            class="auth-form"
+            id="signup-panel"
+            role="tabpanel"
+            aria-label="Sign up form"
+          >
             <q-input
               v-model="signupForm.displayName"
               label="Full Name"
@@ -120,9 +160,11 @@
               dense
               :rules="[(val) => !!val || 'Name is required']"
               class="auth-input"
+              aria-label="Full name"
+              aria-required="true"
             >
               <template v-slot:prepend>
-                <div class="input-icon-bento">
+                <div class="input-icon-bento" aria-hidden="true">
                   <q-icon name="person" size="18px" />
                 </div>
               </template>
@@ -139,9 +181,11 @@
                 (val) => /.+@.+\..+/.test(val) || 'Invalid email',
               ]"
               class="auth-input"
+              aria-label="Email address"
+              aria-required="true"
             >
               <template v-slot:prepend>
-                <div class="input-icon-bento">
+                <div class="input-icon-bento" aria-hidden="true">
                   <q-icon name="mail" size="18px" />
                 </div>
               </template>
@@ -158,9 +202,11 @@
                 (val) => val.length >= 6 || 'Min 6 characters',
               ]"
               class="auth-input"
+              aria-label="Password (minimum 6 characters)"
+              aria-required="true"
             >
               <template v-slot:prepend>
-                <div class="input-icon-bento">
+                <div class="input-icon-bento" aria-hidden="true">
                   <q-icon name="lock" size="18px" />
                 </div>
               </template>
@@ -174,6 +220,8 @@
                   @click.stop="showPassword = !showPassword"
                   @keydown.enter="showPassword = !showPassword"
                   @keydown.space.prevent="showPassword = !showPassword"
+                  :aria-label="showPassword ? 'Hide password' : 'Show password'"
+                  :aria-pressed="showPassword"
                 >
                   <q-tooltip>Toggle password visibility</q-tooltip>
                 </q-btn>
@@ -191,9 +239,11 @@
                 (val) => val === signupForm.password || 'Passwords must match',
               ]"
               class="auth-input"
+              aria-label="Confirm password"
+              aria-required="true"
             >
               <template v-slot:prepend>
-                <div class="input-icon-bento">
+                <div class="input-icon-bento" aria-hidden="true">
                   <q-icon name="lock" size="18px" />
                 </div>
               </template>
@@ -214,9 +264,10 @@
               unelevated
               no-caps
               size="lg"
+              aria-label="Create your account"
             >
               <template #loading>
-                <q-spinner-dots color="white" size="24px" />
+                <q-spinner-dots color="white" size="24px" aria-label="Creating account" />
               </template>
             </q-btn>
           </q-form>
@@ -224,22 +275,22 @@
       </q-card>
 
       <!-- Features -->
-      <div class="features-section">
-        <div class="feature-bento">
-          <div class="feature-item">
-            <div class="feature-icon-bento">
+      <div class="features-section" aria-label="Boost Baguio features">
+        <div class="feature-bento" role="list">
+          <div class="feature-item" role="listitem">
+            <div class="feature-icon-bento" aria-hidden="true">
               <q-icon name="route" size="20px" color="white" />
             </div>
             <span>Point-to-Point Navigation</span>
           </div>
-          <div class="feature-item">
-            <div class="feature-icon-bento">
+          <div class="feature-item" role="listitem">
+            <div class="feature-icon-bento" aria-hidden="true">
               <q-icon name="directions_bus" size="20px" color="white" />
             </div>
             <span>Jeepney Routes</span>
           </div>
-          <div class="feature-item">
-            <div class="feature-icon-bento">
+          <div class="feature-item" role="listitem">
+            <div class="feature-icon-bento" aria-hidden="true">
               <q-icon name="place" size="20px" color="white" />
             </div>
             <span>Discover Places</span>

@@ -89,5 +89,70 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     next()
   })
 
+  // Update meta tags after navigation
+  Router.afterEach((to) => {
+    // Update document title
+    const title = to.meta?.title
+    if (title) {
+      document.title = title
+    }
+
+    // Update meta description
+    const description = to.meta?.description
+    if (description) {
+      updateMetaTag('name', 'description', description)
+    }
+
+    // Update Open Graph tags
+    const url = 'https://boost-baguio.web.app' + to.path
+    const ogImage = to.meta?.ogImage || 'https://boost-baguio.web.app/og-image.png'
+
+    updateMetaTag('property', 'og:title', to.meta?.title || 'Boost Baguio')
+    updateMetaTag('property', 'og:description', description || '')
+    updateMetaTag('property', 'og:image', ogImage)
+    updateMetaTag('property', 'og:url', url)
+    updateMetaTag('property', 'og:type', 'website')
+    updateMetaTag('property', 'og:site_name', 'Boost Baguio')
+
+    // Update Twitter Card tags
+    updateMetaTag('name', 'twitter:card', 'summary_large_image')
+    updateMetaTag('name', 'twitter:title', to.meta?.title || 'Boost Baguio')
+    updateMetaTag('name', 'twitter:description', description || '')
+    updateMetaTag('name', 'twitter:image', ogImage)
+
+    // Update canonical URL
+    updateCanonicalLink(url)
+  })
+
   return Router
 })
+
+/**
+ * Helper to update or create a meta tag
+ */
+function updateMetaTag(attributeType, attributeName, content) {
+  let tag = document.querySelector(`meta[${attributeType}="${attributeName}"]`)
+
+  if (!tag) {
+    tag = document.createElement('meta')
+    tag.setAttribute(attributeType, attributeName)
+    document.head.appendChild(tag)
+  }
+
+  tag.setAttribute('content', content)
+}
+
+/**
+ * Update or create canonical link
+ */
+function updateCanonicalLink(href) {
+  let link = document.querySelector('link[rel="canonical"]')
+
+  if (!link) {
+    link = document.createElement('link')
+    link.setAttribute('rel', 'canonical')
+    document.head.appendChild(link)
+  }
+
+  link.setAttribute('href', href)
+}

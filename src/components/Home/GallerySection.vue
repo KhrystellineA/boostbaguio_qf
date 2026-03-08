@@ -1,5 +1,5 @@
 <template>
-  <section class="gallery-section">
+  <section class="gallery-section" aria-label="Image gallery - Explore Baguio City">
     <div class="container-gallery">
       <!-- Header -->
       <div class="gallery-header">
@@ -21,28 +21,33 @@
           arrows
           height="400px"
           class="gallery-carousel"
+          role="region"
+          aria-label="Photo gallery carousel"
+          aria-live="polite"
         >
           <q-carousel-slide
             v-for="(images, index) in imageGroups"
             :key="index"
             :name="index"
             class="carousel-slide"
+            :aria-label="`Gallery slide ${index + 1} of ${imageGroups.length}`"
           >
-            <div class="images-grid">
+            <div class="images-grid" role="list">
               <div
                 v-for="(image, imgIndex) in images"
                 :key="imgIndex"
                 class="gallery-image-wrapper"
+                role="listitem"
               >
                 <q-img
                   :src="image.imageUrl"
-                  :alt="`Gallery ${imgIndex + 1}`"
+                  :alt="`Baguio City gallery image ${imgIndex + 1}`"
                   class="gallery-image"
                   fit="cover"
                 >
                   <template v-slot:loading>
                     <div class="absolute-full flex flex-center">
-                      <q-spinner color="primary" size="30px" />
+                      <q-spinner color="primary" size="30px" aria-label="Loading gallery image" />
                     </div>
                   </template>
                 </q-img>
@@ -52,21 +57,35 @@
         </q-carousel>
 
         <!-- Navigation Arrows -->
-        <div class="nav-arrows">
-          <q-btn flat round icon="chevron_left" class="nav-btn nav-prev" @click="previousSlide" />
-          <q-btn flat round icon="chevron_right" class="nav-btn nav-next" @click="nextSlide" />
+        <div class="nav-arrows" aria-label="Gallery navigation">
+          <q-btn
+            flat
+            round
+            icon="chevron_left"
+            class="nav-btn nav-prev"
+            @click="previousSlide"
+            aria-label="Go to previous slide"
+          />
+          <q-btn
+            flat
+            round
+            icon="chevron_right"
+            class="nav-btn nav-next"
+            @click="nextSlide"
+            aria-label="Go to next slide"
+          />
         </div>
       </div>
 
       <!-- Loading State -->
-      <div v-else-if="loading" class="loading-state">
-        <q-spinner color="primary" size="50px" />
+      <div v-else-if="loading" class="loading-state" role="status" aria-live="polite">
+        <q-spinner color="primary" size="50px" aria-label="Loading gallery" />
         <p>Loading gallery...</p>
       </div>
 
       <!-- Empty State -->
-      <div v-else class="empty-state">
-        <q-icon name="photo_library" size="80px" color="grey-5" />
+      <div v-else class="empty-state" role="status">
+        <q-icon name="photo_library" size="80px" color="grey-5" aria-hidden="true" />
         <p class="empty-text">No gallery images available yet</p>
       </div>
     </div>

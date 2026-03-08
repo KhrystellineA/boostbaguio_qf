@@ -1,17 +1,47 @@
 <template>
-  <div class="mobile-bottom-nav" v-if="showOnMobile">
+  <div
+    class="mobile-bottom-nav"
+    v-if="showOnMobile"
+    role="navigation"
+    aria-label="Mobile bottom navigation"
+  >
     <q-tabs
       v-model="activeTab"
       align="justify"
       class="bg-primary text-white"
       active-color="amber"
       indicator-color="transparent"
+      aria-label="Main navigation tabs"
     >
-      <q-route-tab name="home" to="/" label="Home" icon="home" />
-      <q-route-tab name="apanam" to="/apanam" label="APANAM" icon="directions_bus" />
-      <q-route-tab name="ayanmo" to="/ayanmo" label="AYAN MO" icon="my_location" />
-      <q-route-tab name="maykan" to="/maykan" label="MAYKAN" icon="restaurant" />
-      <q-route-tab name="account" to="/account" label="Account" icon="person" />
+      <q-route-tab name="home" to="/" label="Home" icon="home" aria-label="Go to Home page" />
+      <q-route-tab
+        name="apanam"
+        to="/apanam"
+        label="APANAM"
+        icon="directions_bus"
+        aria-label="Go to APANAM - Point to Point Navigation"
+      />
+      <q-route-tab
+        name="ayanmo"
+        to="/ayanmo"
+        label="AYAN MO"
+        icon="my_location"
+        aria-label="Go to AYAN MO - Nearby Places Search"
+      />
+      <q-route-tab
+        name="maykan"
+        to="/maykan"
+        label="MAYKAN"
+        icon="restaurant"
+        aria-label="Go to MAYKAN - Tourist Spots and Places"
+      />
+      <q-route-tab
+        name="account"
+        to="/account"
+        label="Account"
+        icon="person"
+        aria-label="Go to My Account"
+      />
     </q-tabs>
   </div>
 </template>

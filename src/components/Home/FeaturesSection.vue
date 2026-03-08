@@ -1,5 +1,5 @@
 <template>
-  <section class="features-section">
+  <section class="features-section" aria-label="Features section - Explore Boost Baguio features">
     <div class="container-features">
       <!-- Header -->
       <div class="section-header">
@@ -13,12 +13,12 @@
       </div>
 
       <!-- Features Grid -->
-      <div class="features-grid">
+      <div class="features-grid" role="list">
         <!-- Left Column -->
-        <div class="features-column left-column">
+        <div class="features-column left-column" role="listitem">
           <!-- Feature 1: P2P Navigation -->
-          <div class="feature-item">
-            <div class="feature-icon">
+          <div class="feature-item" role="listitem">
+            <div class="feature-icon" aria-hidden="true">
               <q-icon name="map" size="42px" />
             </div>
             <h3 class="feature-title">P2P NAVIGATION (APANAM)</h3>
@@ -28,8 +28,8 @@
           </div>
 
           <!-- Feature 2: Places -->
-          <div class="feature-item">
-            <div class="feature-icon">
+          <div class="feature-item" role="listitem">
+            <div class="feature-icon" aria-hidden="true">
               <q-icon name="place" size="42px" />
             </div>
             <h3 class="feature-title">PLACES (MAYKAN)</h3>
@@ -43,20 +43,25 @@
 
         <!-- Center Image - NOW DYNAMIC -->
         <div class="center-image">
-          <q-img :src="featureImage || defaultImage" class="tower-image" :ratio="3 / 4">
+          <q-img
+            :src="featureImage || defaultImage"
+            class="tower-image"
+            :ratio="3 / 4"
+            alt="Featured image showcasing Baguio City attractions"
+          >
             <template v-slot:loading>
               <div class="absolute-full flex flex-center">
-                <q-spinner color="primary" size="40px" />
+                <q-spinner color="primary" size="40px" aria-label="Loading feature image" />
               </div>
             </template>
           </q-img>
         </div>
 
         <!-- Right Column -->
-        <div class="features-column right-column">
+        <div class="features-column right-column" role="listitem">
           <!-- Feature 3: AYAN MO -->
-          <div class="feature-item">
-            <div class="feature-icon">
+          <div class="feature-item" role="listitem">
+            <div class="feature-icon" aria-hidden="true">
               <q-icon name="near_me" size="42px" />
             </div>
             <h3 class="feature-title">NEARBY PLACES (AYAN MO)</h3>
@@ -67,8 +72,8 @@
           </div>
 
           <!-- Feature 4: Events -->
-          <div class="feature-item">
-            <div class="feature-icon">
+          <div class="feature-item" role="listitem">
+            <div class="feature-icon" aria-hidden="true">
               <q-icon name="apartment" size="42px" />
             </div>
             <h3 class="feature-title">EVENTS (ARAMIDEM)</h3>
@@ -81,9 +86,9 @@
       </div>
 
       <!-- City Jeeps (Pagnaam) - Full Width Below Image -->
-      <div class="pagnaam-feature">
+      <div class="pagnaam-feature" role="listitem">
         <div class="feature-item full-width">
-          <div class="feature-icon">
+          <div class="feature-icon" aria-hidden="true">
             <q-icon name="alt_route" size="42px" />
           </div>
           <div class="feature-content">

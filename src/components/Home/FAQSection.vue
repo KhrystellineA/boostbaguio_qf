@@ -1,5 +1,5 @@
 <template>
-  <section class="faqs-section">
+  <section class="faqs-section" aria-label="Frequently Asked Questions about Boost Baguio">
     <div class="container-faqs">
       <!-- Header -->
       <div class="faqs-header">
@@ -10,9 +10,9 @@
       </div>
 
       <!-- FAQs Grid -->
-      <div class="faqs-grid">
+      <div class="faqs-grid" role="list">
         <!-- Left Column -->
-        <div class="faqs-column">
+        <div class="faqs-column" role="listitem">
           <q-expansion-item
             v-for="(faq, index) in leftFaqs"
             :key="index"
@@ -22,6 +22,7 @@
             expand-icon="add"
             expanded-icon="close"
             header-class="faq-header"
+            :aria-label="`Question: ${faq.question}`"
           >
             <q-card dark class="faq-card">
               <q-card-section class="faq-answer">
@@ -32,7 +33,7 @@
         </div>
 
         <!-- Right Column -->
-        <div class="faqs-column">
+        <div class="faqs-column" role="listitem">
           <q-expansion-item
             v-for="(faq, index) in rightFaqs"
             :key="index"
@@ -42,6 +43,7 @@
             expand-icon="add"
             expanded-icon="close"
             header-class="faq-header"
+            :aria-label="`Question: ${faq.question}`"
           >
             <q-card dark class="faq-card">
               <q-card-section class="faq-answer">

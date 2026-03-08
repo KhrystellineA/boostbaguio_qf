@@ -1,21 +1,29 @@
 <template>
-  <header :class="['app-header', { scrolled: isScrolled }]">
-    <q-toolbar class="main-toolbar">
+  <header :class="['app-header', { scrolled: isScrolled }]" role="banner">
+    <q-toolbar class="main-toolbar" aria-label="Main navigation">
       <!-- Mobile Menu Button -->
       <q-btn
         flat
         dense
         round
         icon="menu"
-        aria-label="Menu"
+        aria-label="Open main menu"
         class="mobile-only q-mr-sm"
         @click="leftDrawerOpen = !leftDrawerOpen"
       />
 
       <!-- Logo Section -->
-      <div class="logo-section cursor-pointer" @click="$router.push('/')">
+      <div
+        class="logo-section cursor-pointer"
+        role="button"
+        tabindex="0"
+        aria-label="Go to homepage"
+        @click="$router.push('/')"
+        @keydown.enter="$router.push('/')"
+        @keydown.space.prevent="$router.push('/')"
+      >
         <div class="logo-bento">
-          <img src="../assets/logo.png" alt="Logo" />
+          <img src="../assets/logo.png" alt="Boost Baguio Logo" />
         </div>
         <div class="brand-text">
           <span class="brand-name">Baguio <span class="text-accent">Boost</span></span>
@@ -26,54 +34,84 @@
       <q-space />
 
       <!-- Navigation Links - Bento Style -->
-      <div class="nav-bento desktop-only">
+      <div class="nav-bento desktop-only" role="navigation" aria-label="Main navigation links">
         <q-btn
           flat
           class="nav-btn"
           :class="{ active: isActiveRoute('/apanam') }"
+          :aria-label="
+            isActiveRoute('/apanam')
+              ? 'Apanam, current page'
+              : 'Navigate to Apanam - Point to Point Navigation'
+          "
+          :aria-current="isActiveRoute('/apanam') ? 'page' : undefined"
           @click="navigateTo('/apanam')"
         >
-          <q-icon name="route" size="18px" class="q-mr-xs" />
+          <q-icon name="route" size="18px" class="q-mr-xs" aria-hidden="true" />
           Apanam
         </q-btn>
-        <q-separator vertical class="nav-separator" />
+        <q-separator vertical class="nav-separator" aria-hidden="true" />
         <q-btn
           flat
           class="nav-btn"
           :class="{ active: isActiveRoute('/pagnaam') }"
+          :aria-label="
+            isActiveRoute('/pagnaam')
+              ? 'Pagnaam, current page'
+              : 'Navigate to Pagnaam - Jeepney Routes Directory'
+          "
+          :aria-current="isActiveRoute('/pagnaam') ? 'page' : undefined"
           @click="navigateTo('/pagnaam')"
         >
-          <q-icon name="directions_bus" size="18px" class="q-mr-xs" />
+          <q-icon name="directions_bus" size="18px" class="q-mr-xs" aria-hidden="true" />
           Pagnaam
         </q-btn>
-        <q-separator vertical class="nav-separator" />
+        <q-separator vertical class="nav-separator" aria-hidden="true" />
         <q-btn
           flat
           class="nav-btn"
           :class="{ active: isActiveRoute('/maykan') }"
+          :aria-label="
+            isActiveRoute('/maykan')
+              ? 'Maykan, current page'
+              : 'Navigate to Maykan - Tourist Spots and Places'
+          "
+          :aria-current="isActiveRoute('/maykan') ? 'page' : undefined"
           @click="navigateTo('/maykan')"
         >
-          <q-icon name="place" size="18px" class="q-mr-xs" />
+          <q-icon name="place" size="18px" class="q-mr-xs" aria-hidden="true" />
           Maykan
         </q-btn>
-        <q-separator vertical class="nav-separator" />
+        <q-separator vertical class="nav-separator" aria-hidden="true" />
         <q-btn
           flat
           class="nav-btn"
           :class="{ active: isActiveRoute('/aramidem') }"
+          :aria-label="
+            isActiveRoute('/aramidem')
+              ? 'Aramidem, current page'
+              : 'Navigate to Aramidem - Events Calendar'
+          "
+          :aria-current="isActiveRoute('/aramidem') ? 'page' : undefined"
           @click="navigateTo('/aramidem')"
         >
-          <q-icon name="event" size="18px" class="q-mr-xs" />
+          <q-icon name="event" size="18px" class="q-mr-xs" aria-hidden="true" />
           Aramidem
         </q-btn>
-        <q-separator vertical class="nav-separator" />
+        <q-separator vertical class="nav-separator" aria-hidden="true" />
         <q-btn
           flat
           class="nav-btn"
           :class="{ active: isActiveRoute('/ayanmo') }"
+          :aria-label="
+            isActiveRoute('/ayanmo')
+              ? 'Ayan Mo, current page'
+              : 'Navigate to Ayan Mo - Nearby Places Search'
+          "
+          :aria-current="isActiveRoute('/ayanmo') ? 'page' : undefined"
           @click="navigateTo('/ayanmo')"
         >
-          <q-icon name="my_location" size="18px" class="q-mr-xs" />
+          <q-icon name="my_location" size="18px" class="q-mr-xs" aria-hidden="true" />
           Ayan Mo
         </q-btn>
       </div>
@@ -81,16 +119,23 @@
       <q-space />
 
       <!-- Auth Section (Desktop) -->
-      <div class="auth-buttons desktop-only">
+      <div class="auth-buttons desktop-only" role="navigation" aria-label="Account actions">
         <!-- Not Logged In -->
         <template v-if="!userStore.isAuthenticated">
           <div class="auth-bento-group">
-            <q-btn label="Log In" flat class="auth-btn login-btn" @click="handleLogin" />
+            <q-btn
+              label="Log In"
+              flat
+              class="auth-btn login-btn"
+              aria-label="Log in to your account"
+              @click="handleLogin"
+            />
             <q-btn
               label="Sign Up"
               color="primary"
               unelevated
               class="auth-btn signup-btn"
+              aria-label="Create a new account"
               @click="handleSignup"
             />
           </div>
@@ -98,20 +143,33 @@
 
         <!-- Logged In -->
         <template v-else>
-          <q-btn-dropdown flat class="profile-dropdown" no-caps :label="userInitials">
+          <q-btn-dropdown
+            flat
+            class="profile-dropdown"
+            no-caps
+            :label="userInitials"
+            aria-label="Open user menu"
+          >
             <template #label>
               <div class="profile-label">
-                <div class="avatar-bento">
+                <div class="avatar-bento" aria-hidden="true">
                   {{ userInitials }}
                 </div>
                 <span class="user-name">{{ userStore.userName }}</span>
-                <q-icon name="keyboard_arrow_down" size="16px" />
+                <q-icon name="keyboard_arrow_down" size="16px" aria-hidden="true" />
               </div>
             </template>
-            <q-list class="profile-menu">
-              <q-item clickable v-close-popup @click="handleMyAccount" class="menu-item">
+            <q-list class="profile-menu" role="menu" aria-label="User account menu">
+              <q-item
+                clickable
+                v-close-popup
+                @click="handleMyAccount"
+                class="menu-item"
+                role="menuitem"
+                aria-label="Go to My Account settings"
+              >
                 <q-item-section avatar class="menu-icon-section">
-                  <div class="icon-bento">
+                  <div class="icon-bento" aria-hidden="true">
                     <q-icon name="person_outline" size="18px" />
                   </div>
                 </q-item-section>
@@ -120,10 +178,17 @@
                   <q-item-label caption class="menu-caption">Manage your settings</q-item-label>
                 </q-item-section>
               </q-item>
-              <q-separator />
-              <q-item clickable v-close-popup @click="handleLogout" class="menu-item logout">
+              <q-separator aria-hidden="true" />
+              <q-item
+                clickable
+                v-close-popup
+                @click="handleLogout"
+                class="menu-item logout"
+                role="menuitem"
+                aria-label="Sign out of your account"
+              >
                 <q-item-section avatar class="menu-icon-section">
-                  <div class="icon-bento logout">
+                  <div class="icon-bento logout" aria-hidden="true">
                     <q-icon name="logout" size="18px" />
                   </div>
                 </q-item-section>
@@ -138,29 +203,52 @@
       </div>
 
       <!-- Mobile Menu Button -->
-      <q-btn flat dense round icon="menu" class="mobile-menu-btn" @click="drawer = !drawer" />
+      <q-btn
+        flat
+        dense
+        round
+        icon="menu"
+        class="mobile-menu-btn"
+        aria-label="Open mobile menu"
+        @click="drawer = !drawer"
+      />
     </q-toolbar>
   </header>
 
   <!-- Mobile Drawer -->
-  <q-drawer v-model="drawer" overlay behavior="mobile" side="right" :width="320">
+  <q-drawer
+    v-model="drawer"
+    overlay
+    behavior="mobile"
+    side="right"
+    :width="320"
+    aria-label="Mobile navigation menu"
+  >
     <div class="mobile-drawer-header">
-      <div class="logo-section">
+      <div
+        class="logo-section"
+        role="button"
+        tabindex="0"
+        aria-label="Go to homepage"
+        @click="$router.push('/')"
+      >
         <div class="logo-bento">
-          <img src="../assets/logo.png" alt="Logo" />
+          <img src="../assets/logo.png" alt="Boost Baguio Logo" />
         </div>
         <div class="brand-text">
           <span class="brand-name">Baguio <span class="text-accent">Boost</span></span>
           <span class="brand-tagline">Navigate with ease</span>
         </div>
       </div>
-      <q-btn flat round dense icon="close" @click="drawer = !drawer" />
+      <q-btn flat round dense icon="close" aria-label="Close menu" @click="drawer = !drawer" />
     </div>
     <q-separator />
     <q-scroll-area class="fit">
       <q-list padding>
         <!-- Navigation Items -->
-        <q-item-label header class="drawer-header">Navigation</q-item-label>
+        <q-item-label header class="drawer-header" role="heading" aria-level="2"
+          >Navigation</q-item-label
+        >
         <q-item
           v-for="link in navLinks"
           :key="link.label"
@@ -169,10 +257,14 @@
           :href="link.path"
           class="mobile-nav-item"
           :class="{ active: isActiveRoute(link.path) }"
+          :aria-label="
+            isActiveRoute(link.path) ? `${link.label}, current page` : `Navigate to ${link.label}`
+          "
+          :aria-current="isActiveRoute(link.path) ? 'page' : undefined"
           @click="drawer = !drawer"
         >
           <q-item-section avatar>
-            <div class="mobile-icon-bento">
+            <div class="mobile-icon-bento" aria-hidden="true">
               <q-icon :name="getIconForRoute(link.path)" size="20px" />
             </div>
           </q-item-section>
@@ -182,16 +274,25 @@
           </q-item-section>
         </q-item>
 
-        <q-separator class="q-my-md" />
+        <q-separator class="q-my-md" aria-hidden="true" />
 
         <!-- Mobile Auth Section -->
-        <q-item-label header class="drawer-header">Account</q-item-label>
+        <q-item-label header class="drawer-header" role="heading" aria-level="2"
+          >Account</q-item-label
+        >
 
         <!-- Not Logged In (Mobile) -->
         <template v-if="!userStore.isAuthenticated">
-          <q-item clickable v-ripple @click="handleLogin" class="mobile-nav-item">
+          <q-item
+            clickable
+            v-ripple
+            @click="handleLogin"
+            class="mobile-nav-item"
+            role="button"
+            aria-label="Log in to your account"
+          >
             <q-item-section avatar>
-              <div class="mobile-icon-bento">
+              <div class="mobile-icon-bento" aria-hidden="true">
                 <q-icon name="login" size="20px" />
               </div>
             </q-item-section>
@@ -200,9 +301,16 @@
               <q-item-label caption>Access your account</q-item-label>
             </q-item-section>
           </q-item>
-          <q-item clickable v-ripple @click="handleSignup" class="mobile-nav-item">
+          <q-item
+            clickable
+            v-ripple
+            @click="handleSignup"
+            class="mobile-nav-item"
+            role="button"
+            aria-label="Create a new account"
+          >
             <q-item-section avatar>
-              <div class="mobile-icon-bento signup">
+              <div class="mobile-icon-bento signup" aria-hidden="true">
                 <q-icon name="person_add" size="20px" />
               </div>
             </q-item-section>
@@ -216,9 +324,9 @@
         <!-- Logged In (Mobile) -->
         <template v-else>
           <!-- User Info -->
-          <q-item class="user-info-card">
+          <q-item class="user-info-card" aria-label="User information">
             <q-item-section avatar>
-              <div class="avatar-bento large">
+              <div class="avatar-bento large" aria-hidden="true">
                 {{ userInitials }}
               </div>
             </q-item-section>
@@ -229,9 +337,13 @@
           </q-item>
 
           <!-- Premium Badge (Mobile) -->
-          <q-item v-if="userStore.isPremium" class="premium-card">
+          <q-item
+            v-if="userStore.isPremium"
+            class="premium-card"
+            aria-label="Premium member status"
+          >
             <q-item-section avatar>
-              <div class="mobile-icon-bento premium">
+              <div class="mobile-icon-bento premium" aria-hidden="true">
                 <q-icon name="workspace_premium" size="20px" />
               </div>
             </q-item-section>
@@ -241,12 +353,19 @@
             </q-item-section>
           </q-item>
 
-          <q-separator class="q-my-sm" />
+          <q-separator class="q-my-sm" aria-hidden="true" />
 
           <!-- My Account -->
-          <q-item clickable v-ripple @click="handleMyAccount" class="mobile-nav-item">
+          <q-item
+            clickable
+            v-ripple
+            @click="handleMyAccount"
+            class="mobile-nav-item"
+            role="button"
+            aria-label="Go to My Account settings"
+          >
             <q-item-section avatar>
-              <div class="mobile-icon-bento">
+              <div class="mobile-icon-bento" aria-hidden="true">
                 <q-icon name="person_outline" size="20px" />
               </div>
             </q-item-section>
@@ -257,9 +376,16 @@
           </q-item>
 
           <!-- Sign Out -->
-          <q-item clickable v-ripple @click="handleLogout" class="mobile-nav-item logout">
+          <q-item
+            clickable
+            v-ripple
+            @click="handleLogout"
+            class="mobile-nav-item logout"
+            role="button"
+            aria-label="Sign out of your account"
+          >
             <q-item-section avatar>
-              <div class="mobile-icon-bento logout">
+              <div class="mobile-icon-bento logout" aria-hidden="true">
                 <q-icon name="logout" size="20px" />
               </div>
             </q-item-section>
