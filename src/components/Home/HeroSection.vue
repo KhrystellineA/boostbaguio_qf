@@ -1,127 +1,126 @@
 <template>
   <section class="hero-section" aria-label="Hero section">
+    <!-- Background Image - Full Width -->
+    <div class="hero-bg-wrapper">
+      <q-img
+        :src="heroImage || defaultHeroImage"
+        class="hero-bg"
+        alt="Beautiful scenery of Baguio City"
+      >
+        <template v-slot:loading>
+          <div class="absolute-full flex flex-center">
+            <q-spinner color="white" size="50px" />
+          </div>
+        </template>
+      </q-img>
+    </div>
+
+    <!-- Content Container -->
     <div class="container-custom">
-      <div class="hero-box">
-        <div class="hero-bg-wrapper">
-          <q-img
-            :src="heroImage || defaultHeroImage"
-            class="hero-bg"
-            :ratio="16 / 9"
-            alt="Beautiful scenery of Baguio City"
-          >
-            <template v-slot:loading>
-              <div class="absolute-full flex flex-center">
-                <q-spinner color="white" size="50px" />
-              </div>
-            </template>
-          </q-img>
-        </div>
+      <div class="hero-content">
+        <div class="content-grid">
+          <div class="left-content scroll-animate" :class="{ 'animate-in': true }">
+            <h1 class="hero-title">BOOST BAGUIO</h1>
+            <p class="hero-description">
+              Commute like a local in Baguio with ease. Discover tourist spots, events, and nearby
+              attractions right at the palm of your hand!
+            </p>
+            <p class="hero-tagline">Navigate. Connect. Sustain.</p>
+          </div>
 
-        <div class="hero-content">
-          <div class="content-grid">
-            <div class="left-content scroll-animate" :class="{ 'animate-in': true }">
-              <h1 class="hero-title">BOOST BAGUIO</h1>
-              <p class="hero-description">
-                Commute like a local in Baguio with ease. Discover tourist spots, events, and nearby
-                attractions right at the palm of your hand!
-              </p>
-              <p class="hero-tagline">Navigate. Connect. Sustain.</p>
+          <div class="right-content route-card scroll-animate" :class="{ 'animate-in': true }">
+            <div class="card-header">
+              <q-icon name="navigation" size="24px" class="q-mr-sm" />
+              <span class="card-title">APANAM - Point to Point Navigation</span>
             </div>
 
-            <div class="right-content route-card scroll-animate" :class="{ 'animate-in': true }">
-              <div class="card-header">
-                <q-icon name="navigation" size="24px" class="q-mr-sm" />
-                <span class="card-title">APANAM - Point to Point Navigation</span>
-              </div>
-
-              <div class="input-group">
-                <div class="input-label">FROM:</div>
-                <q-input
-                  v-if="!fromAutoDetect"
-                  :model-value="fromLocationText"
-                  @update:model-value="$emit('update:fromLocationText', $event)"
-                  filled
-                  placeholder="Enter starting location"
-                  bg-color="white"
-                  class="custom-input"
-                  @keyup.enter="searchFromLocation"
-                >
-                  <template v-slot:prepend>
-                    <q-icon name="my_location" color="grey-7" />
-                  </template>
-                  <template v-slot:append>
-                    <q-btn
-                      flat
-                      dense
-                      round
-                      icon="search"
-                      color="primary"
-                      size="sm"
-                      @click="searchFromLocation"
-                      style="margin-right: -8px"
-                    >
-                      <q-tooltip>Search location</q-tooltip>
-                    </q-btn>
-                  </template>
-                </q-input>
-                <q-input
-                  v-else
-                  filled
-                  readonly
-                  :value="fromLocationText || 'Detecting your location...'"
-                  bg-color="white"
-                  class="custom-input"
-                  disable
-                >
-                  <template v-slot:prepend>
-                    <q-icon name="gps_fixed" color="positive" />
-                  </template>
-                  <template v-slot:append>
-                    <q-btn
-                      flat
-                      dense
-                      round
-                      icon="edit"
-                      color="primary"
-                      size="sm"
-                      @click="disableFromAutoDetect"
-                      style="margin-right: -8px"
-                    >
-                      <q-tooltip>Enter location manually</q-tooltip>
-                    </q-btn>
-                  </template>
-                </q-input>
-              </div>
-
-              <div class="input-group">
-                <div class="input-label">TO:</div>
-                <q-select
-                  :model-value="toLocation"
-                  @update:model-value="$emit('update:toLocation', $event)"
-                  :options="toLocationOptions"
-                  filled
-                  placeholder="Select destination"
-                  bg-color="white"
-                  class="custom-input"
-                  emit-value
-                  map-options
-                >
-                  <template v-slot:prepend>
-                    <q-icon name="place" color="grey-7" />
-                  </template>
-                </q-select>
-              </div>
-
-              <q-btn
-                class="start-nav-btn"
-                color="primary"
-                label="START NAVIGATION"
-                unelevated
-                no-caps
-                @click="startNavigation"
-                :disable="!fromLocation && !fromLocationText"
-              />
+            <div class="input-group">
+              <div class="input-label">FROM:</div>
+              <q-input
+                v-if="!fromAutoDetect"
+                :model-value="fromLocationText"
+                @update:model-value="$emit('update:fromLocationText', $event)"
+                filled
+                placeholder="Enter starting location"
+                bg-color="white"
+                class="custom-input"
+                @keyup.enter="searchFromLocation"
+              >
+                <template v-slot:prepend>
+                  <q-icon name="my_location" color="grey-7" />
+                </template>
+                <template v-slot:append>
+                  <q-btn
+                    flat
+                    dense
+                    round
+                    icon="search"
+                    color="primary"
+                    size="sm"
+                    @click="searchFromLocation"
+                    style="margin-right: -8px"
+                  >
+                    <q-tooltip>Search location</q-tooltip>
+                  </q-btn>
+                </template>
+              </q-input>
+              <q-input
+                v-else
+                filled
+                readonly
+                :value="fromLocationText || 'Detecting your location...'"
+                bg-color="white"
+                class="custom-input"
+                disable
+              >
+                <template v-slot:prepend>
+                  <q-icon name="gps_fixed" color="positive" />
+                </template>
+                <template v-slot:append>
+                  <q-btn
+                    flat
+                    dense
+                    round
+                    icon="edit"
+                    color="primary"
+                    size="sm"
+                    @click="disableFromAutoDetect"
+                    style="margin-right: -8px"
+                  >
+                    <q-tooltip>Enter location manually</q-tooltip>
+                  </q-btn>
+                </template>
+              </q-input>
             </div>
+
+            <div class="input-group">
+              <div class="input-label">TO:</div>
+              <q-select
+                :model-value="toLocation"
+                @update:model-value="$emit('update:toLocation', $event)"
+                :options="toLocationOptions"
+                filled
+                placeholder="Select destination"
+                bg-color="white"
+                class="custom-input"
+                emit-value
+                map-options
+              >
+                <template v-slot:prepend>
+                  <q-icon name="place" color="grey-7" />
+                </template>
+              </q-select>
+            </div>
+
+            <q-btn
+              class="start-nav-btn"
+              color="primary"
+              label="START NAVIGATION"
+              unelevated
+              no-caps
+              @click="startNavigation"
+              :disable="!fromLocation && !fromLocationText"
+            />
           </div>
         </div>
       </div>
@@ -214,14 +213,9 @@ $white: #ffffff;
 .container-custom {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0;
-}
-
-.hero-box {
+  padding: 0 5%;
   position: relative;
-  width: 100%;
-  height: 100vh;
-  min-height: 100vh;
+  z-index: 10;
 }
 
 .hero-bg-wrapper {
@@ -231,25 +225,21 @@ $white: #ffffff;
   width: 100%;
   height: 100%;
   overflow: hidden;
+  z-index: 1;
 
   .hero-bg {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center;
-    position: absolute;
-    top: 0;
-    left: 0;
   }
 }
 
 .hero-content {
-  position: relative;
-  z-index: 10;
   height: 100%;
   display: flex;
   align-items: center;
-  padding: 0 5%;
+  min-height: 100vh;
 }
 
 .content-grid {
