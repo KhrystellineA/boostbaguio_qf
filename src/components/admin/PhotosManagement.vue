@@ -565,44 +565,44 @@
 
           <q-separator class="q-my-md" />
 
-          <!-- Crop Mode -->
-          <div v-if="showCropper" class="q-mb-md">
-            <div class="text-subtitle2 q-mb-sm">Crop Image:</div>
-            <div class="cropper-container" v-show="showCropper">
-              <img ref="cropperImage" :src="imagePreview" alt="Crop" />
+          <!-- Image Preview / Cropper Area -->
+          <div v-if="imagePreview" class="q-mb-md">
+            <!-- Cropper Container - always in DOM, visibility controlled by CSS -->
+            <div class="cropper-wrapper" :class="{ 'cropper-active': showCropper }">
+              <div class="text-subtitle2 q-mb-sm">Crop Image:</div>
+              <div class="cropper-container">
+                <img ref="cropperImage" :src="imagePreview" alt="Crop" />
+              </div>
+              <div class="q-mt-md">
+                <div class="text-caption q-mb-sm">Aspect Ratio:</div>
+                <q-btn-toggle
+                  v-model="aspectRatio"
+                  toggle-color="primary"
+                  unelevated
+                  :options="[
+                    { label: '16:9 (Landscape)', value: 16 / 9 },
+                    { label: '4:3', value: 4 / 3 },
+                    { label: '1:1 (Square)', value: 1 },
+                    { label: 'Free', value: NaN },
+                  ]"
+                  @update:model-value="updateCropper"
+                />
+              </div>
+              <div class="q-mt-md">
+                <q-btn
+                  unelevated
+                  color="primary"
+                  label="Apply Crop"
+                  icon="check"
+                  :loading="cropping"
+                  @click="cropImage"
+                />
+                <q-btn flat label="Cancel" color="grey-7" class="q-ml-sm" @click="cancelCrop" />
+              </div>
             </div>
-            <div class="q-mt-md">
-              <div class="text-caption q-mb-sm">Aspect Ratio:</div>
-              <q-btn-toggle
-                v-model="aspectRatio"
-                toggle-color="primary"
-                unelevated
-                :options="[
-                  { label: '16:9 (Landscape)', value: 16 / 9 },
-                  { label: '4:3', value: 4 / 3 },
-                  { label: '1:1 (Square)', value: 1 },
-                  { label: 'Free', value: NaN },
-                ]"
-                @update:model-value="updateCropper"
-              />
-            </div>
-            <div class="q-mt-md">
-              <q-btn
-                unelevated
-                color="primary"
-                label="Apply Crop"
-                icon="check"
-                :loading="cropping"
-                @click="cropImage"
-              />
-              <q-btn flat label="Cancel" color="grey-7" class="q-ml-sm" @click="cancelCrop" />
-            </div>
-          </div>
 
-          <!-- New Image Preview (shown when not cropping) -->
-          <div v-if="imagePreview && !showCropper" class="q-mb-md">
-            <div class="text-subtitle2 q-mb-sm">New Image Preview:</div>
-            <div class="new-image-preview">
+            <!-- Simple Preview - shown when cropper is not active -->
+            <div v-show="!showCropper" class="new-image-preview">
               <img :src="imagePreview" alt="Preview" />
               <q-btn
                 round
@@ -618,9 +618,9 @@
             </div>
           </div>
 
-          <!-- Upload Button -->
+          <!-- Upload Button - only show when no image selected -->
           <q-file
-            v-if="!showCropper && !imagePreview"
+            v-if="!imagePreview"
             v-model="imageFile"
             outlined
             :label="getUploadLabel()"
@@ -637,6 +637,7 @@
             </template>
           </q-file>
 
+          <!-- Instructions Banner -->
           <q-banner class="bg-blue-1 q-mt-md" dense>
             <template #avatar>
               <q-icon name="info" color="primary" />
@@ -1222,11 +1223,17 @@ export default {
         this.cropper = null
       }
 
+      // Show cropper wrapper first
+      this.showCropper = true
+
       const imgElement = this.$refs.cropperImage
       if (imgElement) {
         try {
           // Dynamic import of Cropper.js
           const { default: Cropper } = await import('cropperjs')
+
+          // Wait a tick for DOM to update
+          await this.$nextTick()
 
           this.cropper = new Cropper(imgElement, {
             aspectRatio: this.aspectRatio,
@@ -1236,7 +1243,6 @@ export default {
             responsive: true,
             background: false,
           })
-          this.showCropper = true
 
           this.$q.notify({
             type: 'info',
@@ -1251,6 +1257,7 @@ export default {
             message: 'Failed to load image cropper',
             position: 'top',
           })
+          this.showCropper = false
         }
       }
     },
@@ -1886,6 +1893,13 @@ export default {
   width: 100%
   height: 100%
   object-fit: cover
+
+// Cropper wrapper - hidden by default
+.cropper-wrapper
+  display: none
+
+  &.cropper-active
+    display: block
 
 // Cropper styles
 .cropper-container
