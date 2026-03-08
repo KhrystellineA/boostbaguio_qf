@@ -1174,6 +1174,15 @@ export default {
     this.loadAllPhotos()
   },
 
+  computed: {
+    imageStyle() {
+      return {
+        transform: `translate(${this.imagePositionX}px, ${this.imagePositionY}px) scale(${this.imageZoom})`,
+        transformOrigin: 'center center',
+      }
+    },
+  },
+
   methods: {
     async loadAllPhotos() {
       try {
@@ -1337,14 +1346,8 @@ export default {
       })
     },
 
-    get imageStyle() {
-      return {
-        transform: `translate(${this.imagePositionX}px, ${this.imagePositionY}px) scale(${this.imageZoom})`,
-      }
-    },
-
     updateImagePosition() {
-      // Just triggers re-render via reactive property
+      // Reactive - no action needed
     },
 
     moveImage(deltaX, deltaY) {
@@ -2054,17 +2057,22 @@ export default {
   height: 400px
   background: #000
   border-radius: 8px
-  overflow: hidden
+  overflow: visible
   margin-bottom: 16px
   position: relative
   cursor: move
+  display: flex
+  align-items: center
+  justify-content: center
 
   .reposition-image
     max-width: 100%
     max-height: 100%
     object-fit: contain
-    transition: transform 0.1s ease-out
+    transition: none
     user-select: none
+    pointer-events: auto
+    will-change: transform
 
 .new-image-preview
   position: relative
