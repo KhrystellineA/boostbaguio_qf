@@ -83,7 +83,7 @@ export default defineComponent({
     /** Fallback image URL */
     fallbackSrc: {
       type: String,
-      default: null,
+      default: '/images/placeholder-image.png',
     },
     /** Additional CSS class for image */
     imageClass: {

@@ -41,10 +41,12 @@
                 alt="HOME hero"
                 class="preview-image"
               />
-              <div v-else class="image-placeholder">
-                <q-icon name="home" size="64px" color="grey-4" />
-                <p class="text-grey-6 q-mt-sm">No image uploaded</p>
-              </div>
+              <img
+                v-else
+                src="/images/placeholder-image.png"
+                alt="No image"
+                class="preview-image placeholder"
+              />
             </div>
           </q-card-section>
 

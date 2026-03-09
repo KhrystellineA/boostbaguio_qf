@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080">
+  <rect fill="#f0f0f0" width="1920" height="1080"/>
+  <g fill="#cccccc">
+    <path d="M960 300c-110.5 0-200 89.5-200 200s89.5 200 200 200 200-89.5 200-200-89.5-200-200-200zm0 320c-66.3 0-120-53.7-120-120s53.7-120 120-120 120 53.7 120 120-53.7 120-120 120z"/>
+    <path d="M1680 780H240c-44.2 0-80-35.8-80-80V380c0-44.2 35.8-80 80-80h1440c44.2 0 80 35.8 80 80v320c0 44.2-35.8 80-80 80zM240 340c-22.1 0-40 17.9-40 40v320c0 22.1 17.9 40 40 40h1440c22.1 0 40-17.9 40-40V380c0-22.1-17.9-40-40-40H240z"/>
+  </g>
+  <text x="960" y="540" font-family="Arial, sans-serif" font-size="48" fill="#999999" text-anchor="middle" dominant-baseline="middle">No Image Available</text>
+</svg>

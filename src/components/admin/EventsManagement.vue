@@ -212,6 +212,7 @@
                 outlined
                 type="date"
                 label="Start Date *"
+                :min="todayDate"
                 :rules="[
                   (val) => required(val, 'Start date').valid || required(val, 'Start date').message,
                   (val) => notInPast(val).valid || notInPast(val).message,
@@ -224,6 +225,7 @@
                 outlined
                 type="date"
                 label="End Date *"
+                :min="form.startDate || todayDate"
                 :rules="[
                   (val) => required(val, 'End date').valid || required(val, 'End date').message,
                   (val) =>
@@ -370,6 +372,15 @@ export default {
   },
 
   computed: {
+    todayDate() {
+      // Returns today's date in YYYY-MM-DD format for the date picker min attribute
+      const today = new Date()
+      const year = today.getFullYear()
+      const month = String(today.getMonth() + 1).padStart(2, '0')
+      const day = String(today.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    },
+
     filteredEvents() {
       if (!this.search) return this.events
 
