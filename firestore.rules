@@ -191,10 +191,12 @@ service cloud.firestore {
 
       // Only admins can write to jeepneys collection
       allow create: if isAdmin() &&
-                       request.resource.data.keys().hasAll(['routeId', 'name']) &&
-                       request.resource.data.name is string &&
-                       request.resource.data.name.size() > 0 &&
-                       request.resource.data.name.size() <= 200;
+                       request.resource.data.keys().hasAll(['jeepName', 'terminalLocation', 'endPoint']) &&
+                       request.resource.data.jeepName is string &&
+                       request.resource.data.jeepName.size() > 0 &&
+                       request.resource.data.jeepName.size() <= 200 &&
+                       request.resource.data.terminalLocation is string &&
+                       request.resource.data.endPoint is string;
 
       allow update: if isAdmin() &&
                        (!request.resource.data.keys().hasAny(['createdAt']) ||
