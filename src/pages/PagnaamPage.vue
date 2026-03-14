@@ -329,10 +329,19 @@
 
             <div class="col-lg-7 col-12">
               <q-card flat bordered class="map-card" style="height: 550px">
-                <div
-                  id="route-map"
-                  style="height: 100%; width: 100%; min-height: 550px; background: #e8e8e8"
-                ></div>
+                <RouteMap
+                  :route-coordinates="selectedRoute?.routeCoordinates || selectedRoute?.routePoints"
+                  :waypoints="buildWaypoints(selectedRoute)"
+                  :distance="selectedRoute?.routeDistance"
+                  :duration="selectedRoute?.routeDuration"
+                  height="550px"
+                  :show-controls="true"
+                  :show-waypoints-info="true"
+                  :show-stats="true"
+                  :show-empty-state="false"
+                  :center="[16.4023, 120.596]"
+                  :zoom="13"
+                />
               </q-card>
             </div>
           </div>
@@ -394,20 +403,20 @@
 </template>
 
 <script>
-import { defineComponent, ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { defineComponent, ref, computed, onMounted, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
 import { db } from 'src/boot/firebase'
 import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore'
 import FooterSection from '../components/Home/FooterSection.vue'
+import RouteMap from 'src/components/RouteMap.vue'
 import fallbackImage from '../assets/44.png'
 
 export default defineComponent({
   name: 'PagnaamPage',
   components: {
     FooterSection,
+    RouteMap,
   },
   setup() {
     const $q = useQuasar()
@@ -417,7 +426,6 @@ export default defineComponent({
     const selectedRoute = ref(null)
     const heroImageUrl = ref(fallbackImage)
     const showRouteDialog = ref(false)
-    let map = null
 
     const faqs = [
       {
@@ -595,157 +603,11 @@ export default defineComponent({
       await fetchRoutes()
     })
 
-    // Watch for dialog opening
-    watch(showRouteDialog, async (newVal) => {
-      if (newVal) {
-        console.log('=== [PagnaamPage] === DIALOG OPENED ===')
-        // Wait for dialog to fully render
-        await new Promise((resolve) => setTimeout(resolve, 500))
-        initMap()
-      } else {
-        console.log('[PagnaamPage] Dialog closed, cleaning up map...')
-        if (map) {
-          map.remove()
-          map = null
-        }
-        selectedRoute.value = null
-      }
-    })
-
-    const initMap = () => {
-      console.log('[PagnaamPage] Initializing map...')
-      console.log('[PagnaamPage] Selected route:', selectedRoute.value?.routeName)
-
-      const mapElement = document.getElementById('route-map')
-      console.log('[PagnaamPage] Map element:', mapElement)
-      console.log(
-        '[PagnaamPage] Map element dimensions:',
-        mapElement?.offsetWidth,
-        'x',
-        mapElement?.offsetHeight
-      )
-      console.log(
-        '[PagnaamPage] Map element computed style:',
-        window.getComputedStyle(mapElement).height
-      )
-
-      if (mapElement) {
-        if (map) {
-          map.remove()
-          map = null
-          console.log('[PagnaamPage] Previous map removed')
-        }
-
-        console.log('[PagnaamPage] Creating new map instance...')
-
-        // Create map
-        map = L.map('route-map', {
-          center: [16.4122, 120.5948],
-          zoom: 13,
-        })
-
-        console.log('[PagnaamPage] Map instance created:', map)
-
-        // Add tile layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-          maxZoom: 19,
-        }).addTo(map)
-
-        console.log('[PagnaamPage] Tile layer added')
-
-        const route = selectedRoute.value
-        console.log('[PagnaamPage] Current route:', route?.routeName)
-        console.log('[PagnaamPage] Route coordinates:', route?.routeCoordinates)
-
-        // Draw route polyline if coordinates are available
-        if (route?.routeCoordinates && route.routeCoordinates.length > 0) {
-          console.log(
-            '[PagnaamPage] Drawing polyline with',
-            route.routeCoordinates.length,
-            'points'
-          )
-
-          // Convert coordinates to [lat, lng] format for Leaflet
-          const latlngs = route.routeCoordinates.map((coord) => {
-            const point = [coord.lat, coord.lng]
-            return point
-          })
-
-          console.log('[PagnaamPage] Latlngs:', latlngs)
-
-          // Draw the route path as a polyline
-          const routePath = L.polyline(latlngs, {
-            color: '#2E5D3E',
-            weight: 5,
-            opacity: 0.8,
-            dashArray: '10, 10',
-            lineCap: 'round',
-          }).addTo(map)
-
-          console.log('[PagnaamPage] Polyline created:', routePath)
-
-          // Fit map to show the entire route
-          const bounds = routePath.getBounds()
-          console.log('[PagnaamPage] Route bounds:', bounds)
-          map.fitBounds(bounds, { padding: [50, 50] })
-
-          // Add a popup to the polyline
-          routePath.bindPopup(`<b>${route.routeName || route.jeepName}</b><br>Route Path`)
-
-          console.log('[PagnaamPage] ✅ Polyline drawn successfully!')
-        } else {
-          console.log('[PagnaamPage] ⚠️ No route coordinates available')
-        }
-
-        // Add markers for start and end terminals
-        const startCoords = route?.terminalCoordinates ||
-          route?.originCoordinates || { lat: 16.4122, lng: 120.5948 }
-        const endCoords = route?.destinationCoordinates || { lat: 16.4178, lng: 120.6012 }
-
-        console.log('[PagnaamPage] Start coords:', startCoords, 'End coords:', endCoords)
-
-        // Convert to array format for Leaflet
-        const startLatLng = [startCoords.lat, startCoords.lng]
-        const endLatLng = [endCoords.lat, endCoords.lng]
-
-        if (route?.terminalStart || route?.terminalLocation) {
-          L.marker(startLatLng)
-            .addTo(map)
-            .bindPopup(
-              `<b>${route.terminalStart || route.terminalLocation}</b><br>Starting Terminal`
-            )
-        }
-
-        if (route?.terminalEnd || route?.endPoint) {
-          L.marker(endLatLng)
-            .addTo(map)
-            .bindPopup(`<b>${route.terminalEnd || route.endPoint}</b><br>Destination Terminal`)
-        }
-
-        // If no route coordinates, fit map to show both terminals
-        if (!route?.routeCoordinates || route.routeCoordinates.length === 0) {
-          const bounds = L.latLngBounds([startLatLng, endLatLng])
-          map.fitBounds(bounds, { padding: [50, 50] })
-        }
-
-        // Invalidate map size to ensure proper rendering
-        setTimeout(() => {
-          map.invalidateSize()
-          console.log('[PagnaamPage] Map size invalidated')
-          console.log('[PagnaamPage] Map center:', map.getCenter(), 'Zoom:', map.getZoom())
-          console.log('[PagnaamPage] ✅ Map fully loaded!')
-        }, 200)
-      } else {
-        console.error('[PagnaamPage] ❌ Map element NOT found!')
-      }
-    }
-
-    onUnmounted(() => {
-      if (map) {
-        map.remove()
-        map = null
+    // Watch for selected route changes (dialog opens)
+    watch(selectedRoute, (newRoute) => {
+      if (newRoute) {
+        console.log('[PagnaamPage] Route selected:', newRoute.jeepName)
+        // Map will be initialized by RouteMap component
       }
     })
 
@@ -753,6 +615,46 @@ export default defineComponent({
     watch(searchQuery, (newVal) => {
       console.log('[PagnaamPage] Search query changed:', newVal)
     })
+
+    /**
+     * Build waypoints from route data for display on map
+     */
+    const buildWaypoints = (route) => {
+      if (!route) return []
+
+      const waypoints = []
+
+      // Add terminal start
+      if (route.terminalLat && route.terminalLng) {
+        waypoints.push({
+          name: route.terminalLocation || route.terminalStart || 'Terminal',
+          latitude: route.terminalLat,
+          longitude: route.terminalLng,
+        })
+      }
+
+      // Add tourist spots
+      if (route.touristSpotsServiced && route.touristSpotsServiced.length > 0) {
+        route.touristSpotsServiced.forEach((spot) => {
+          waypoints.push({
+            name: spot,
+            latitude: route.terminalLat || 16.4023,
+            longitude: route.terminalLng || 120.596,
+          })
+        })
+      }
+
+      // Add end point
+      if (route.endPoint || route.terminalEnd) {
+        waypoints.push({
+          name: route.endPoint || route.terminalEnd,
+          latitude: route.terminalLat || 16.4023,
+          longitude: route.terminalLng || 120.596,
+        })
+      }
+
+      return waypoints
+    }
 
     return {
       searchQuery,
@@ -767,6 +669,7 @@ export default defineComponent({
       formatOperatingHours,
       selectRoute,
       navigateToTerminal,
+      buildWaypoints,
     }
   },
 })
@@ -946,12 +849,6 @@ $bento-radius: 20px;
     border-radius: $bento-radius;
     overflow: hidden;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-
-    #route-map {
-      min-height: 550px;
-      background: #f0f0f0;
-      border-radius: $bento-radius;
-    }
   }
 }
 

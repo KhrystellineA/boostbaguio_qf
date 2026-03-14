@@ -77,6 +77,23 @@
             </q-td>
           </template>
 
+          <template #body-cell-route="props">
+            <q-td :props="props">
+              <q-btn
+                v-if="props.value && props.value.length > 0"
+                flat
+                dense
+                round
+                icon="map"
+                style="background: #2d6a4f; color: white"
+                @click="viewRoute(props.row)"
+              >
+                <q-tooltip>View Route Map</q-tooltip>
+              </q-btn>
+              <q-icon v-else name="map" size="24px" color="grey-4" />
+            </q-td>
+          </template>
+
           <template #body-cell-actions="props">
             <q-td :props="props">
               <q-btn
@@ -307,9 +324,9 @@
             id="jeepney-map"
             style="height: 300px"
           ></div>
-          <div v-if="form.routePoints && form.routePoints.length > 0" class="q-mb-md">
+          <div v-if="form.routeCoordinates && form.routeCoordinates.length > 0" class="q-mb-md">
             <q-chip
-              v-for="(point, index) in form.routePoints"
+              v-for="(point, index) in form.routeCoordinates"
               :key="index"
               removable
               @remove="removeRoutePoint(index)"
@@ -345,6 +362,124 @@
             :loading="saving"
           />
         </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Route Preview Dialog -->
+    <q-dialog v-model="showRoutePreviewDialog" maximized>
+      <q-card>
+        <q-card-section class="bg-pine-green text-white row items-center">
+          <div class="text-h6">
+            <q-icon name="map" class="q-mr-sm" />
+            Route Preview - {{ selectedJeepneyForRoute?.jeepName }}
+          </div>
+          <q-space />
+          <q-btn flat round dense icon="close" v-close-popup />
+        </q-card-section>
+
+        <q-card-section class="q-pa-lg">
+          <div class="row q-col-gutter-lg">
+            <!-- Map -->
+            <div class="col-12 col-md-8">
+              <RouteMap
+                :route-coordinates="selectedJeepneyForRoute?.routeCoordinates"
+                :waypoints="routeWaypoints"
+                :distance="selectedJeepneyForRoute?.routeDistance"
+                :duration="selectedJeepneyForRoute?.routeDuration"
+                height="500px"
+                :show-controls="true"
+                :show-waypoints-info="true"
+                :show-stats="true"
+              />
+            </div>
+
+            <!-- Info Panel -->
+            <div class="col-12 col-md-4">
+              <q-card flat bordered>
+                <q-card-section>
+                  <div class="text-h6 q-mb-md">Route Information</div>
+
+                  <q-list separator>
+                    <q-item>
+                      <q-item-section avatar>
+                        <q-icon name="directions_bus" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label caption>Jeepney Name</q-item-label>
+                        <q-item-label>{{ selectedJeepneyForRoute?.jeepName }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item>
+                      <q-item-section avatar>
+                        <q-icon name="place" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label caption>Terminal</q-item-label>
+                        <q-item-label>{{ selectedJeepneyForRoute?.terminalLocation }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item>
+                      <q-item-section avatar>
+                        <q-icon name="flag" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label caption>End Point</q-item-label>
+                        <q-item-label>{{ selectedJeepneyForRoute?.endPoint }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item v-if="selectedJeepneyForRoute?.routeDistance">
+                      <q-item-section avatar>
+                        <q-icon name="straighten" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label caption>Total Distance</q-item-label>
+                        <q-item-label>{{
+                          formatDistance(selectedJeepneyForRoute.routeDistance)
+                        }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item v-if="selectedJeepneyForRoute?.routeDuration">
+                      <q-item-section avatar>
+                        <q-icon name="schedule" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label caption>Est. Duration</q-item-label>
+                        <q-item-label>{{
+                          formatDuration(selectedJeepneyForRoute.routeDuration)
+                        }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+
+                    <q-item v-if="selectedJeepneyForRoute?.touristSpotsServiced?.length > 0">
+                      <q-item-section avatar>
+                        <q-icon name="attractions" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label caption>Tourist Spots</q-item-label>
+                        <q-item-label>
+                          <q-chip
+                            v-for="spot in selectedJeepneyForRoute.touristSpotsServiced"
+                            :key="spot"
+                            size="sm"
+                            color="primary"
+                            text-color="white"
+                            class="q-ma-xs"
+                          >
+                            {{ spot }}
+                          </q-chip>
+                        </q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-card-section>
+              </q-card>
+            </div>
+          </div>
+        </q-card-section>
       </q-card>
     </q-dialog>
 
@@ -516,9 +651,14 @@ import {
 import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import RouteMap from 'src/components/RouteMap.vue'
 
 export default {
   name: 'JeepneyManagement',
+
+  components: {
+    RouteMap,
+  },
 
   setup() {
     const $q = useQuasar()
@@ -532,6 +672,8 @@ export default {
       loading: false,
       saving: false,
       showAddDialog: false,
+      showRoutePreviewDialog: false,
+      selectedJeepneyForRoute: null,
       editingJeepney: null,
       imageFile: null,
       imagePreview: null,
@@ -553,7 +695,7 @@ export default {
           close: '',
         },
         touristSpotsServiced: [],
-        routePoints: [],
+        routeCoordinates: [],
         endPoint: '',
         imageUrl: '',
         imagePublicId: '',
@@ -589,6 +731,13 @@ export default {
         },
         { name: 'terminalLocation', label: 'Terminal', field: 'terminalLocation', align: 'left' },
         { name: 'endPoint', label: 'End Point', field: 'endPoint', align: 'left' },
+        {
+          name: 'route',
+          label: 'Route Map',
+          field: 'routePoints',
+          align: 'center',
+          sortable: false,
+        },
         { name: 'actions', label: 'Actions', field: 'actions', align: 'center' },
       ],
 
@@ -797,10 +946,10 @@ export default {
 
       // Add click handler to add route points
       this.map.on('click', (e) => {
-        if (!this.form.routePoints) {
-          this.form.routePoints = []
+        if (!this.form.routeCoordinates) {
+          this.form.routeCoordinates = []
         }
-        this.form.routePoints.push({
+        this.form.routeCoordinates.push({
           lat: e.latlng.lat,
           lng: e.latlng.lng,
         })
@@ -816,7 +965,8 @@ export default {
     },
 
     updateRouteLine() {
-      if (!this.map || !this.form.routePoints || this.form.routePoints.length === 0) return
+      if (!this.map || !this.form.routeCoordinates || this.form.routeCoordinates.length === 0)
+        return
 
       // Remove existing layers
       if (this.routeLine) {
@@ -828,7 +978,7 @@ export default {
       this.routeMarkers = []
 
       // Draw polyline
-      const latlngs = this.form.routePoints.map((point) => [point.lat, point.lng])
+      const latlngs = this.form.routeCoordinates.map((point) => [point.lat, point.lng])
       this.routeLine = L.polyline(latlngs, {
         color: 'red',
         weight: 4,
@@ -836,7 +986,7 @@ export default {
       }).addTo(this.map)
 
       // Add markers for each point
-      this.form.routePoints.forEach((point, index) => {
+      this.form.routeCoordinates.forEach((point, index) => {
         const marker = L.marker([point.lat, point.lng])
           .addTo(this.map)
           .bindPopup(`<b>Route Point ${index + 1}</b><br>Click chip below to remove`)
@@ -848,14 +998,24 @@ export default {
     },
 
     removeRoutePoint(index) {
-      if (this.form.routePoints) {
-        this.form.routePoints.splice(index, 1)
+      if (this.form.routeCoordinates) {
+        this.form.routeCoordinates.splice(index, 1)
         this.updateRouteLine()
       }
     },
 
     editJeepney(jeepney) {
       this.editingJeepney = jeepney
+      // Convert routeCoordinates from [lng, lat] format to {lat, lng} format for the form
+      let formRoutePoints = []
+      const routeCoords = jeepney.routeCoordinates || jeepney.routePoints || []
+      if (routeCoords && routeCoords.length > 0) {
+        formRoutePoints = routeCoords.map((coord) => ({
+          lat: Array.isArray(coord) ? coord[1] : coord.lat,
+          lng: Array.isArray(coord) ? coord[0] : coord.lng,
+        }))
+      }
+
       this.form = {
         jeepName: jeepney.jeepName || '',
         terminalLocation: jeepney.terminalLocation || '',
@@ -867,7 +1027,7 @@ export default {
         farePWD: jeepney.farePWD || null,
         operatingHours: jeepney.operatingHours || { open: '', close: '' },
         touristSpotsServiced: jeepney.touristSpotsServiced || [],
-        routePoints: jeepney.routePoints || [],
+        routeCoordinates: formRoutePoints,
         endPoint: jeepney.endPoint || '',
         imageUrl: jeepney.imageUrl || '',
         imagePublicId: jeepney.imagePublicId || '',
@@ -877,7 +1037,7 @@ export default {
       // Initialize map after dialog is shown
       this.$nextTick(() => {
         this.initMap()
-        if (this.form.routePoints && this.form.routePoints.length > 0) {
+        if (this.form.routeCoordinates && this.form.routeCoordinates.length > 0) {
           this.updateRouteLine()
         }
       })
@@ -923,6 +1083,12 @@ export default {
           imageData = await this.uploadImage()
         }
 
+        // Convert routeCoordinates from {lat, lng} format to [lng, lat] format for Firestore
+        const routeCoordinatesForStorage = (this.form.routeCoordinates || []).map((point) => [
+          point.lng,
+          point.lat,
+        ])
+
         const jeepneyData = {
           uniqueId: uniqueId,
           jeepName: this.form.jeepName,
@@ -935,7 +1101,7 @@ export default {
           farePWD: parseFloat(this.form.farePWD),
           operatingHours: this.form.operatingHours,
           touristSpotsServiced: this.form.touristSpotsServiced,
-          routePoints: this.form.routePoints,
+          routeCoordinates: routeCoordinatesForStorage,
           endPoint: this.form.endPoint,
           imageUrl: imageData.imageUrl,
           imagePublicId: imageData.imagePublicId,
@@ -1170,7 +1336,7 @@ export default {
           close: '',
         },
         touristSpotsServiced: [],
-        routePoints: [],
+        routeCoordinates: [],
         endPoint: '',
         imageUrl: '',
         imagePublicId: '',
@@ -1186,6 +1352,80 @@ export default {
         this.routeLine = null
         this.routeMarkers = []
       }
+    },
+
+    /**
+     * View route on map
+     */
+    viewRoute(jeepney) {
+      this.selectedJeepneyForRoute = jeepney
+      this.showRoutePreviewDialog = true
+    },
+
+    /**
+     * Build waypoints from jeepney data for display
+     */
+    get routeWaypoints() {
+      if (!this.selectedJeepneyForRoute) return []
+
+      const waypoints = []
+      const data = this.selectedJeepneyForRoute
+
+      // Add terminal
+      if (data.terminalLat && data.terminalLng) {
+        waypoints.push({
+          name: 'Terminal',
+          latitude: data.terminalLat,
+          longitude: data.terminalLng,
+        })
+      }
+
+      // Add tourist spots (without coordinates since we don't have them)
+      if (data.touristSpotsServiced && data.touristSpotsServiced.length > 0) {
+        data.touristSpotsServiced.forEach((spot) => {
+          waypoints.push({
+            name: spot,
+            latitude: data.terminalLat || 16.4023,
+            longitude: data.terminalLng || 120.596,
+          })
+        })
+      }
+
+      // Add end point
+      if (data.endPoint) {
+        waypoints.push({
+          name: data.endPoint,
+          latitude: data.terminalLat || 16.4023,
+          longitude: data.terminalLng || 120.596,
+        })
+      }
+
+      return waypoints
+    },
+
+    /**
+     * Format distance for display
+     */
+    formatDistance(meters) {
+      if (!meters) return ''
+      if (meters >= 1000) {
+        return `${(meters / 1000).toFixed(1)} km`
+      }
+      return `${Math.round(meters)} m`
+    },
+
+    /**
+     * Format duration for display
+     */
+    formatDuration(seconds) {
+      if (!seconds) return ''
+      const minutes = Math.round(seconds / 60)
+      if (minutes >= 60) {
+        const hours = Math.floor(minutes / 60)
+        const remainingMinutes = minutes % 60
+        return `${hours}h ${remainingMinutes}m`
+      }
+      return `${minutes} min`
     },
 
     onDialogHide() {
@@ -1457,7 +1697,7 @@ export default {
               close: jeepney.operatingHours.close || '',
             },
             touristSpotsServiced: jeepney.touristSpotsServiced,
-            routePoints: [],
+            routeCoordinates: [],
             endPoint: jeepney.endPoint,
             isActive: true,
             imageUrl: '',
