@@ -107,15 +107,26 @@
                       <div class="input-label q-mb-xs">FROM:</div>
                       <q-input
                         v-if="!fromAutoDetect"
-                        v-model="fromLocationText"
+                        :model-value="fromLocationText"
+                        @update:model-value="fromLocationText = $event"
                         filled
-                        placeholder="Enter starting location"
+                        placeholder="Enter starting location or use GPS"
                         bg-color="white"
                         class="custom-input"
                         @keyup.enter="searchFromLocation"
                       >
                         <template v-slot:prepend>
-                          <q-icon name="my_location" color="grey-7" />
+                          <q-btn
+                            flat
+                            dense
+                            round
+                            icon="gps_fixed"
+                            color="primary"
+                            @click="enableFromAutoDetect"
+                            :loading="geoLoading"
+                          >
+                            <q-tooltip>Detect my location</q-tooltip>
+                          </q-btn>
                         </template>
                         <template v-slot:append>
                           <q-btn
@@ -133,10 +144,11 @@
                         </template>
                       </q-input>
                       <q-input
-                        v-else
+                        v-if="fromAutoDetect"
+                        :model-value="fromLocationText"
+                        @update:model-value="fromLocationText = $event"
                         filled
                         readonly
-                        :value="fromLocationText || 'Detecting your location...'"
                         bg-color="white"
                         class="custom-input"
                         disable
@@ -171,15 +183,27 @@
                     <q-select
                       filled
                       v-model="toLocation"
-                      :options="locationOptions"
+                      :options="toLocationOptions"
                       option-label="label"
                       option-value="value"
                       label="Desired End Point Location"
-                      placeholder="Where do you want to go?"
+                      placeholder="Search and select destination..."
+                      use-input
+                      hide-selected
+                      fill-input
+                      input-debounce="300"
+                      @filter="filterToLocations"
                       @update:model-value="onToLocationChange"
                     >
                       <template v-slot:prepend>
                         <q-icon name="location_searching" color="primary" />
+                      </template>
+                      <template v-slot:no-option>
+                        <q-item>
+                          <q-item-section class="text-grey">
+                            <q-item-label caption>Type to search locations...</q-item-label>
+                          </q-item-section>
+                        </q-item>
                       </template>
                     </q-select>
                   </div>
@@ -614,7 +638,7 @@
 </template>
 
 <script>
-import { defineComponent, ref, onMounted, onUnmounted, watch } from 'vue'
+import { defineComponent, ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
 import L from 'leaflet'
@@ -625,6 +649,14 @@ import FAQSection from '../components/Home/FAQSection.vue'
 import FooterSection from '../components/Home/FooterSection.vue'
 import fallbackImage from '../assets/2.png'
 
+// NEW: Import custom composables for enhanced functionality (will be used in next increments)
+import { useGeolocation } from 'src/composables/useGeolocation'
+import { useGeocoding } from 'src/composables/useGeocoding'
+// eslint-disable-next-line no-unused-vars
+import { useJeepneyRouteMatching } from 'src/composables/useJeepneyRouteMatching'
+// eslint-disable-next-line no-unused-vars
+import { useWalkingDirections } from 'src/composables/useWalkingDirections'
+
 export default defineComponent({
   name: 'ApanamPage',
   components: {
@@ -634,6 +666,12 @@ export default defineComponent({
   setup() {
     const $q = useQuasar()
     const route = useRoute()
+    
+    // NEW: Initialize custom composables directly (will be used in next increments)
+    const { getCurrentLocation, loading: geoLoading } = useGeolocation()
+    const { searchLocations } = useGeocoding()
+    
+    // Existing refs
     const optionsSection = ref(null)
     const fromLocationText = ref('')
     const fromLocation = ref(null)
@@ -654,6 +692,12 @@ export default defineComponent({
     const jeepneyAvailability = ref({})
     const travelTimeEstimate = ref(null)
     const routeAnimationInterval = ref(null)
+    
+    // NEW: State for enhanced route finding (will be used in next increments)
+    // eslint-disable-next-line no-unused-vars
+    const routeOptions = ref([])
+    // eslint-disable-next-line no-unused-vars
+    const walkingRoute = ref(null)
 
     // Location options - All 33 destinations from Maykan
     const locationOptions = [
@@ -695,6 +739,12 @@ export default defineComponent({
 
     const selectedFromLocation = ref(null)
     const selectedToLocation = ref(null)
+    
+    // NEW: TO location options (initialized after locationOptions is defined)
+    const toLocationOptions = ref([])
+    
+    // Initialize toLocationOptions
+    toLocationOptions.value = [...locationOptions]
 
     // Teaching steps for visual overview
     const teachingSteps = [
@@ -1171,9 +1221,8 @@ export default defineComponent({
     }
 
     const enableFromAutoDetect = async () => {
-      fromAutoDetect.value = true
-      fromLocation.value = null
-
+      console.log('[ApanamPage] GPS button clicked')
+      
       const loadingNotify = $q.notify({
         message: 'Detecting your location...',
         icon: 'gps_not_fixed',
@@ -1183,26 +1232,30 @@ export default defineComponent({
       })
 
       try {
-        if (!navigator.geolocation) {
-          throw new Error('Geolocation is not supported by your browser')
-        }
+        console.log('[ApanamPage] Calling getCurrentLocation()...')
+        // Use our geolocation composable
+        const coords = await getCurrentLocation()
+        console.log('[ApanamPage] Location detected:', coords)
 
-        const position = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0,
-          })
-        })
-
-        const { latitude, longitude } = position.coords
-
+        // Set the text FIRST before toggling visibility
+        fromLocationText.value = '📍 Your Current Location'
         fromLocation.value = {
           label: '📍 Your Current Location',
           value: 'current-location',
           isCurrentLocation: true,
-          coords: [latitude, longitude],
+          coords: [coords.lat, coords.lng],
+          accuracy: coords.accuracy,
         }
+        
+        // Force Vue reactivity
+        await nextTick()
+        console.log('[ApanamPage] fromLocationText:', fromLocationText.value)
+        console.log('[ApanamPage] fromLocation:', fromLocation.value)
+        
+        // NOW toggle to show the GPS field
+        fromAutoDetect.value = true
+        await nextTick()
+        console.log('[ApanamPage] fromAutoDetect:', fromAutoDetect.value)
 
         loadingNotify()
 
@@ -1214,9 +1267,11 @@ export default defineComponent({
           position: 'top',
         })
       } catch (error) {
+        console.error('[ApanamPage] GPS Error:', error)
         loadingNotify()
         fromAutoDetect.value = false
         fromLocation.value = null
+        fromLocationText.value = ''
 
         $q.notify({
           message: error.message || 'Unable to detect your location',
@@ -1234,7 +1289,8 @@ export default defineComponent({
       fromLocationText.value = ''
     }
 
-    const searchFromLocation = () => {
+    const searchFromLocation = async () => {
+      console.log('[ApanamPage] Search button clicked, input:', fromLocationText.value)
       if (!fromLocationText.value.trim()) {
         $q.notify({
           message: 'Please enter a location',
@@ -1246,34 +1302,136 @@ export default defineComponent({
         return
       }
 
-      // For now, just store the text as the location
-      fromLocation.value = {
-        label: fromLocationText.value,
-        value: 'custom-location',
-        isCurrentLocation: false,
-        coords: null,
-      }
-
-      $q.notify({
-        message: `Searching for "${fromLocationText.value}"...`,
+      const searchQuery = fromLocationText.value.trim()
+      
+      // Show loading
+      const loadingNotify = $q.notify({
+        message: `Searching for "${searchQuery}"...`,
         icon: 'search',
         color: 'primary',
-        timeout: 2000,
-        position: 'top',
+        timeout: 0,
+        spinner: true,
       })
+
+      try {
+        console.log('[ApanamPage] Calling searchLocations()...')
+        // Search using geocoding API
+        const results = await searchLocations(searchQuery, true)
+        console.log('[ApanamPage] Search results:', results)
+        
+        loadingNotify()
+        
+        if (results && results.length > 0) {
+          // Use the first result (most relevant)
+          const bestMatch = results[0]
+          console.log('[ApanamPage] Best match:', bestMatch)
+          
+          fromLocation.value = {
+            label: bestMatch.label,
+            value: 'geocoded-location',
+            isCurrentLocation: false,
+            isGeocoded: true,
+            coords: [bestMatch.lat, bestMatch.lng],
+            fullAddress: bestMatch.fullAddress,
+          }
+          
+          fromLocationText.value = bestMatch.label
+          
+          // Force Vue reactivity
+          await nextTick()
+          console.log('[ApanamPage] Search complete, fromLocationText:', fromLocationText.value)
+          
+          $q.notify({
+            message: `Location found: ${bestMatch.label}`,
+            icon: 'check_circle',
+            color: 'positive',
+            timeout: 2000,
+            position: 'top',
+          })
+        } else {
+          // Fallback: store as text location
+          fromLocation.value = {
+            label: searchQuery,
+            value: 'custom-location',
+            isCurrentLocation: false,
+            coords: null,
+          }
+          
+          $q.notify({
+            message: 'Location not found in Baguio. Using text search.',
+            icon: 'info',
+            color: 'info',
+            timeout: 3000,
+            position: 'top',
+          })
+        }
+      } catch (error) {
+        console.error('[ApanamPage] Search error:', error)
+        loadingNotify()
+        
+        // Fallback on error
+        fromLocation.value = {
+          label: searchQuery,
+          value: 'custom-location',
+          isCurrentLocation: false,
+          coords: null,
+        }
+        
+        $q.notify({
+          message: 'Search failed. Using text location.',
+          icon: 'warning',
+          color: 'warning',
+          timeout: 3000,
+          position: 'top',
+        })
+      }
     }
 
-    const filterToLocations = (val, update) => {
-      update(() => {
-        const needle = val.toLowerCase()
-        if (needle === '') {
-          locationOptions.value = locationOptions.value.filter((opt) => opt.value !== 'other')
-        } else {
-          const filtered = locationOptions.value.filter(
-            (loc) => loc.label.toLowerCase().indexOf(needle) > -1
-          )
-          locationOptions.value = filtered
+    const filterToLocations = async (val, update) => {
+      update(async () => {
+        const needle = val?.toLowerCase() || ''
+        
+        // Start with local tourist spots
+        let filtered = locationOptions.filter((opt) => 
+          opt.value !== 'other' && opt.label.toLowerCase().includes(needle)
+        )
+        
+        // If search query is long enough, also search geocoding API
+        if (needle.length >= 3) {
+          try {
+            const geocodeResults = await searchLocations(val, true)
+            
+            // Add geocoded results (avoid duplicates)
+            geocodeResults.forEach(geo => {
+              const isDuplicate = filtered.some(f => f.label === geo.label)
+              if (!isDuplicate) {
+                filtered.push({
+                  label: geo.label,
+                  value: `geocoded-${geo.osmId || Date.now()}`,
+                  coords: [geo.lat, geo.lng],
+                  isGeocoded: true,
+                  fullAddress: geo.fullAddress,
+                })
+              }
+            })
+          } catch (error) {
+            console.error('[ApanamPage] Geocoding search failed:', error)
+            // Continue with local results only
+          }
         }
+        
+        // Sort by relevance (local spots first, then geocoded)
+        filtered.sort((a, b) => {
+          if (a.isGeocoded && !b.isGeocoded) return 1
+          if (!a.isGeocoded && b.isGeocoded) return -1
+          return 0
+        })
+        
+        // Limit results
+        filtered = filtered.slice(0, 10)
+        
+        // Update TO location options
+        toLocationOptions.value = filtered.length > 0 ? filtered : locationOptions.filter(opt => opt.value !== 'other')
       })
     }
 
@@ -1453,6 +1611,7 @@ export default defineComponent({
       fromLocation,
       toLocation,
       fromAutoDetect,
+      geoLoading,
       customFromLocation,
       customToLocation,
       isLoadingOptions,
@@ -1462,6 +1621,7 @@ export default defineComponent({
       currentStep,
       heroImageUrl,
       locationOptions,
+      toLocationOptions,
       optionsSection,
       selectedFromLocation,
       selectedToLocation,

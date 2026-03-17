@@ -82,19 +82,18 @@ BOOST-BAGUIO/
 
 ### Documentation Files
 
-| File                               | Purpose & Contents                                                                                                                            |
-| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`README.md`**                    | 📖 Project overview, installation instructions, build commands, and quick start guide.                                                        |
-| **`DATABASE_SETUP.md`**            | 📖 Complete Firestore database setup guide. Includes collection schemas, sample data scripts, feature-to-collection mapping, and admin setup. |
-| **`DEPLOYMENT_INSTRUCTIONS.md`**   | 📖 Step-by-step deployment guide for Vercel and Firebase. Covers custom claims setup, security rules deployment, and admin re-login process.  |
-| **`DEVELOPER_WORKFLOW.md`**        | 📖 Developer guide covering npm scripts, git workflow, commit conventions, testing strategies, and debugging tips.                            |
-| **`ACCESSIBILITY_SEO_GUIDE.md`**   | 📖 Accessibility and SEO implementation guide. Documents ARIA labels, structured data (JSON-LD), meta tags, and WCAG compliance.              |
-| **`IMAGE_MANAGEMENT_GUIDE.md`**    | 📖 Image management between admin and user pages. Documents Cloudinary integration and Firestore `pagePhotos` collection usage.               |
-| **`IMAGE_ARCHITECTURE.md`**        | 📖 Image architecture documentation covering upload flows, optimization strategies, and CDN usage.                                            |
-| **`ROUTE_MAP_VISUALIZATION.md`**   | 📖 Route map visualization documentation for jeepney routes on Leaflet maps.                                                                  |
-| **`SECURITY_FIXES_DEPLOYMENT.md`** | 📖 Security fixes and deployment documentation for Firestore rules and custom claims.                                                         |
-| **`TESTING_GUIDE.md`**             | 📖 Testing guide for unit and component tests using Vitest and Vue Testing Library.                                                           |
-| **`.github/CICD_GUIDE.md`**        | 📖 CI/CD setup guide for GitHub Actions. Documents workflow stages, secrets setup, and deployment environments.                               |
+| File                             | Purpose & Contents                                                                                                                            |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`README.md`**                  | 📖 Project overview, installation instructions, build commands, and quick start guide.                                                        |
+| **`DATABASE_SETUP.md`**          | 📖 Complete Firestore database setup guide. Includes collection schemas, sample data scripts, feature-to-collection mapping, and admin setup. |
+| **`DEPLOYMENT_INSTRUCTIONS.md`** | 📖 Step-by-step deployment guide for Vercel and Firebase. Covers custom claims setup, security rules deployment, and admin re-login process.  |
+| **`DEVELOPER_WORKFLOW.md`**      | 📖 Developer guide covering npm scripts, git workflow, commit conventions, testing strategies, and debugging tips.                            |
+| **`ACCESSIBILITY_SEO_GUIDE.md`** | 📖 Accessibility and SEO implementation guide. Documents ARIA labels, structured data (JSON-LD), meta tags, and WCAG compliance.              |
+| **`IMAGE_MANAGEMENT_GUIDE.md`**  | 📖 Image management between admin and user pages. Documents Cloudinary integration and Firestore `pagePhotos` collection usage.               |
+| **`IMAGE_ARCHITECTURE.md`**      | 📖 Image architecture documentation covering upload flows, optimization strategies, and CDN usage.                                            |
+| **`ROUTE_GENERATION_GUIDE.md`**  | 📖 **Route generation & visualization guide**. Documents OSRM integration, Leaflet maps, fuzzy matching, and route saving to Firestore.       |
+| **`TESTING_GUIDE.md`**           | 📖 Testing guide for unit and component tests using Vitest and Vue Testing Library.                                                           |
+| **`.github/CICD_GUIDE.md`**      | 📖 CI/CD setup guide for GitHub Actions. Documents workflow stages, secrets setup, and deployment environments.                               |
 
 ### Setup/Seed Scripts
 
@@ -193,21 +192,22 @@ src/
 | **`PineSkeletonLoader.vue`** | 💀 Skeleton loading component with bento design. Shows placeholder while content loads. Includes test file.                                                  |
 | **`ErrorBoundary.vue`**      | 🛡️ Error boundary component with fallback UI, error details display, retry functionality, and error monitoring integration. Includes test file.              |
 | **`ProfileEditor.vue`**      | 👤 User profile editing component with form validation.                                                                                                      |
+| **`RouteMap.vue`**           | 🗺️ **Reusable Leaflet map component**. Displays route polylines, waypoint markers, distance/duration stats. Used in admin and public pages.                  |
 
 #### 📂 src/components/admin/ (14 files)
 
 **Purpose:** Admin dashboard management components for CRUD operations.
 
-| File                               | Purpose & Contents                                                                                         |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| **`AdminHeader.vue`**              | 📰 Admin dashboard header with notifications, profile menu, and admin branding.                            |
-| **`AdminSidebar.vue`**             | 🧭 Admin sidebar navigation with role-based menu visibility. Shows/hides items based on admin permissions. |
-| **`AdminStats.vue`**               | 📊 Dashboard statistics cards displaying counts for routes, places, events, users.                         |
-| **`JeepneyManagement.vue`**        | 🚌 CRUD interface for jeepney routes. List, create, edit, delete jeepney data.                             |
-| **`JeepneyOptionsManagement.vue`** | 🔧 Management for jeepney variants/options (colors, sizes, etc.).                                          |
-| **`RoutesManagement.vue`**         | 🗺️ CRUD interface for routes. Manage point-to-point and jeepney routes.                                    |
-| **`RouteFormDialog.vue`**          | 📝 Dialog form for creating/editing routes with validation.                                                |
-| **`PlacesManagement.vue`**         | 📍 CRUD interface for tourist spots and places. Manage MAYKAN/APANAM/AYAN MO locations.                    |
+| File                               | Purpose & Contents                                                                                                                                                        |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`AdminHeader.vue`**              | 📰 Admin dashboard header with notifications, profile menu, and admin branding.                                                                                           |
+| **`AdminSidebar.vue`**             | 🧭 Admin sidebar navigation with role-based menu visibility. Shows/hides items based on admin permissions.                                                                |
+| **`AdminStats.vue`**               | 📊 Dashboard statistics cards displaying counts for routes, places, events, users.                                                                                        |
+| **`JeepneyManagement.vue`**        | 🚌 CRUD interface for jeepney routes. List, create, edit, delete jeepney data. **Includes route preview dialog with map visualization.**                                  |
+| **`JeepneyOptionsManagement.vue`** | 🔧 Management for jeepney variants/options (colors, sizes, etc.).                                                                                                         |
+| **`RoutesManagement.vue`**         | 🗺️ CRUD interface for routes. Manage point-to-point and jeepney routes.                                                                                                   |
+| **`RouteFormDialog.vue`**          | 📝 **Complete rewrite with route generation flow**. Dialog form for creating/editing jeepney routes with OSRM route generation, map preview, and confirm/save workflow.   |
+| **`PlacesManagement.vue`**         | 📍 CRUD interface for tourist spots and places. Manage MAYKAN/APANAM/AYAN MO locations.                                                                                   |
 | **`EventsManagement.vue`**         | 📅 CRUD interface for events. Manage ARAMIDEM events calendar.                                             |
 | **`PhotosManagement.vue`**         | 📸 Image management for page photos. Cloudinary integration for upload, optimize, delete.                  |
 | **`AdminsManagement.vue`**         | 👥 Admin user management (super-admin only). Add/remove admins, assign roles.                              |
@@ -247,6 +247,7 @@ src/
 | **`useStructuredData.js`** | 📊 JSON-LD structured data injection for SEO. Generates schemas for Organization, WebApplication, TouristAttraction, Event, BusRoute, FAQPage, BreadcrumbList.                                              |
 | **`useOfflineMode.js`**    | 📴 Offline mode functionality. Cache management, queue pending actions, sync when online.                                                                                                                   |
 | **`usePullToRefresh.js`**  | 🔄 Pull-to-refresh gesture handling for mobile. Touch event listeners and refresh callbacks.                                                                                                                |
+| **`useRouteGeneration.js`**| 🗺️ **Route generation logic**. Fuzzy matching for place names, OSRM API integration, route coordinate generation. Used for generating road-following jeepney routes.                                        |
 
 ---
 
@@ -282,8 +283,8 @@ src/
 | File                         | Purpose & Contents                                                                                                                                                                                    |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **`IndexPage.vue`**          | 🏠 Homepage. Composes `HeroSection`, `FeaturesSection`, `AboutSection`, `GallerySection`, `PartnersSection`, `FAQSection`, `FooterSection`. Uses `useIndexPage` composable for location search logic. |
-| **`ApanamPage.vue`**         | 🚌 Point-to-point navigation page. Shows jeepney routes and directions.                                                                                                                               |
-| **`PagnaamPage.vue`**        | 🗺️ Jeepney routes directory page. Lists all available jeepney routes.                                                                                                                                 |
+| **`ApanamPage.vue`**         | 🚌 Point-to-point navigation page. Shows jeepney routes and directions. **Integrated with RouteMap component for route visualization.**                                                               |
+| **`PagnaamPage.vue`**        | 🗺️ Jeepney routes directory page. Lists all available jeepney routes. **Integrated with RouteMap component for interactive map display in dialog.**                                                  |
 | **`MaykanPage.vue`**         | 📍 Tourist spots discovery page. Browse and search places in Baguio.                                                                                                                                  |
 | **`AramidemPage.vue`**       | 📅 Events calendar page. Upcoming and ongoing events in Baguio.                                                                                                                                       |
 | **`AyanMoPage.vue`**         | 📍 Nearby places finder page. Uses geolocation to show places near user.                                                                                                                              |
@@ -292,7 +293,6 @@ src/
 | **`SavedRoutesPage.vue`**    | 💾 Saved routes page. Requires premium subscription. View saved routes.                                                                                                                               |
 | **`OfflinePage.vue`**        | 📴 Offline mode management page. Requires premium. Manage offline content.                                                                                                                            |
 | **`ErrorNotFound.vue`**      | ❌ 404 page for undefined routes. Shown when route doesn't exist.                                                                                                                                     |
-| **`IndexPage-ORIGINAL.vue`** | 💾 Original version of IndexPage (backup/reference).                                                                                                                                                  |
 
 #### 📂 src/pages/Admin/ (4 files)
 
@@ -585,5 +585,118 @@ The **BOOST-BAGUIO** project is a well-structured, production-ready Vue 3 + Quas
 - ✅ **Modern design** with bento-glassmorphism aesthetic
 - ✅ **Image optimization** via Cloudinary
 - ✅ **CI/CD pipeline** with GitHub Actions and Vercel
+- ✅ **Route generation & visualization** with OSRM integration and Leaflet maps
 
-The codebase is well-documented with extensive guides for database setup, deployment, accessibility, image management, and developer workflow.
+The codebase is well-documented with extensive guides for database setup, deployment, accessibility, image management, developer workflow, and route generation.
+
+---
+
+## 🗺️ Route Generation Feature
+
+### Overview
+
+The route generation feature allows admins to generate road-following jeepney routes using the free OSRM (Open Source Routing Machine) API.
+
+### How It Works
+
+```
+Admin fills jeepney form
+  ↓
+Click "Generate Route" button
+  ↓
+Fetch places from Firestore
+  ↓
+Fuzzy-match endPoint and touristSpots against places
+  ↓
+Build waypoints: Terminal → Tourist Spots → End Point
+  ↓
+Call OSRM API: router.project-osrm.org
+  ↓
+Receive route geometry (coordinates array)
+  ↓
+Preview route on map with waypoints
+  ↓
+Confirm & Save to Firestore
+```
+
+### Key Files
+
+| File                               | Purpose                                                                                              |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `src/composables/useRouteGeneration.js` | Core route generation logic with fuzzy matching and OSRM API integration                        |
+| `src/components/RouteMap.vue`      | Reusable Leaflet map component for displaying routes                                                 |
+| `src/components/admin/RouteFormDialog.vue` | Admin dialog with route generation workflow                                                   |
+| `src/components/admin/JeepneyManagement.vue` | Jeepney CRUD with route preview dialog                                                        |
+| `src/pages/PagnaamPage.vue`        | Public jeepney directory with route map display                                                      |
+| `src/pages/ApanamPage.vue`         | Point-to-point navigation with route visualization                                                   |
+
+### Firestore Structure
+
+**jeepneys** collection now includes:
+
+```javascript
+{
+  // Existing fields
+  jeepName: "Tuba A",
+  terminalLocation: "Shagem St",
+  terminalLat: 16.4136,
+  terminalLng: 120.5934,
+  endPoint: "Asin Rd",
+  touristSpotsServiced: ["Burnham Park", "Igorot Park"],
+  
+  // NEW route fields
+  routePoints: [[120.5934, 16.4136], [120.5940, 16.4140], ...], // [lng, lat] pairs
+  routeDistance: 5420,  // meters
+  routeDuration: 1200,  // seconds
+}
+```
+
+### Coordinate System
+
+**IMPORTANT**: Different systems use different coordinate orders:
+
+- **OSRM/GeoJSON**: `[longitude, latitude]` (lng, lat)
+- **Leaflet**: `[latitude, longitude]` (lat, lng)
+- **Firestore**: Store as `[longitude, latitude]` (OSRM format)
+
+The RouteMap component automatically converts between formats.
+
+### Fuzzy Matching
+
+The fuzzy matching algorithm matches place names with:
+1. Exact match (case-insensitive)
+2. Partial match (name contains target or vice versa)
+3. Normalized match (removes special characters)
+
+Example: "BenCab Museum" → "Bencab Museum" ✓
+
+### Tech Stack
+
+- **OSRM Public API**: Free routing engine (router.project-osrm.org)
+- **Leaflet**: Interactive maps (leafletjs.com)
+- **OpenStreetMap**: Map tiles
+- **Firestore**: Places collection for fuzzy matching
+
+### Admin Workflow
+
+1. Navigate to Admin Dashboard → Jeepney Management
+2. Click "Add Jeepney" or edit existing
+3. Fill in terminal location and coordinates
+4. Enter end point name
+5. Select tourist spots serviced
+6. Click "Generate Route"
+7. Review route on map preview
+8. Click "Confirm & Save Route"
+9. Click "Create/Update" to save to Firestore
+
+### Public Display
+
+Routes are displayed on:
+- **PagnaamPage**: Full route map in dialog when clicking a jeepney card
+- **ApanamPage**: Route overlay for navigation
+- **JeepneyManagement**: Route preview column with map dialog
+
+---
+
+**Last Updated**: March 16, 2026
+**Version**: 2.0.0 (with Route Generation)
