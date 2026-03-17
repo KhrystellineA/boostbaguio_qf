@@ -229,14 +229,89 @@
       </div>
     </section>
 
+    <!-- LOADING STATE SECTION -->
+    <section v-if="isLoadingOptions" class="loading-section bg-white q-py-xl">
+      <div class="container">
+        <div class="text-center q-mb-xl">
+          <q-spinner-facebook color="primary" size="3em" />
+          <h3 class="text-h5 text-weight-bold text-primary q-mt-md">Finding Your Route...</h3>
+          <p class="text-body1 text-grey-7">
+            Searching for the best jeepney options for your trip
+          </p>
+        </div>
+        <div class="row justify-center q-gutter-md">
+          <div class="col-auto">
+            <q-chip outline color="primary">
+              <q-spinner-dots size="16px" />
+              <span class="q-ml-xs">Loading jeepney routes</span>
+            </q-chip>
+          </div>
+          <div class="col-auto">
+            <q-chip outline color="secondary">
+              <q-spinner-dots size="16px" />
+              <span class="q-ml-xs">Calculating distances</span>
+            </q-chip>
+          </div>
+          <div class="col-auto">
+            <q-chip outline color="accent">
+              <q-spinner-dots size="16px" />
+              <span class="q-ml-xs">Finding transfers</span>
+            </q-chip>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- JEEPNEY OPTIONS SECTION (Section 3) -->
     <section v-if="routeOptions.length > 0" class="options-section bg-white q-py-xl">
       <div class="container">
         <div class="text-center q-mb-xl">
-          <h3 class="text-h4 text-weight-bold text-primary">Available Jeepney Options</h3>
+          <h3 class="text-h4 text-weight-bold text-primary">
+            <q-icon name="directions_bus" class="q-mr-sm" />
+            Available Jeepney Options
+          </h3>
           <p class="text-body1">
             Choose from the available routes that connect your start and end points
           </p>
+        </div>
+
+        <!-- Route Summary Cards -->
+        <div class="row q-col-gutter-md q-mb-xl">
+          <!-- Single Rides Summary -->
+          <div class="col-12 col-md-6">
+            <q-card class="route-summary-card bg-positive text-white">
+              <q-card-section class="text-center q-py-md">
+                <div class="text-h3 q-mb-xs">🚌</div>
+                <div class="text-h6 text-weight-bold">Direct Routes</div>
+                <div class="text-subtitle1 q-mt-xs">
+                  {{ routeOptions.filter(o => o.priority === 'single').length }} option(s) available
+                </div>
+                <q-separator class="q-my-sm bg-white" />
+                <div class="text-caption">
+                  <q-icon name="check_circle" size="xs" class="q-mr-xs" />
+                  No transfers needed
+                </div>
+              </q-card-section>
+            </q-card>
+          </div>
+          
+          <!-- Double Rides Summary -->
+          <div class="col-12 col-md-6">
+            <q-card class="route-summary-card bg-warning text-white">
+              <q-card-section class="text-center q-py-md">
+                <div class="text-h3 q-mb-xs">🔄</div>
+                <div class="text-h6 text-weight-bold">Transfer Routes</div>
+                <div class="text-subtitle1 q-mt-xs">
+                  {{ routeOptions.filter(o => o.priority === 'double').length }} option(s) available
+                </div>
+                <q-separator class="q-my-sm bg-white" />
+                <div class="text-caption">
+                  <q-icon name="walk" size="xs" class="q-mr-xs" />
+                  Short walk to transfer
+                </div>
+              </q-card-section>
+            </q-card>
+          </div>
         </div>
 
         <!-- Route Map Visualization -->
@@ -280,9 +355,10 @@
 
         <div ref="optionsSection" class="options-grid">
           <q-card
-            v-for="option in routeOptions"
-            :key="option.jeepney?.id || option.firstJeepney?.id || Math.random()"
-            class="bento-card q-ma-sm"
+            v-for="(option, index) in routeOptions"
+            :key="option.jeepney?.id || option.firstJeepney?.id || index"
+            class="bento-card q-ma-sm route-option-card"
+            :class="{ 'single-ride': option.priority === 'single', 'double-ride': option.priority === 'double' }"
             @click="selectOption(option)"
           >
             <q-card-section>
@@ -292,12 +368,12 @@
                     <!-- Ride type badge -->
                     <q-badge 
                       :color="option.priority === 'single' ? 'positive' : 'warning'"
-                      class="q-mr-sm"
+                      class="q-mr-sm ride-type-badge"
                     >
                       {{ option.priority === 'single' ? '🚌 Direct' : '🔄 Transfer' }}
                     </q-badge>
                     
-                    <div class="text-h6 text-primary">
+                    <div class="text-h6 text-primary jeepney-name">
                       {{ option.priority === 'single' ? option.jeepney?.jeepName : option.firstJeepney?.jeepName }}
                     </div>
                     <q-btn
@@ -323,39 +399,64 @@
                   </div>
                   
                   <!-- Single ride info -->
-                  <div v-if="option.priority === 'single'">
-                    <div class="text-subtitle2">Terminal: {{ option.jeepney?.terminalLocation }}</div>
-                    <div class="text-subtitle2">To: {{ option.jeepney?.endPoint }}</div>
-                  </div>
-                  
-                  <!-- Double ride info -->
-                  <div v-else>
-                    <div class="text-subtitle2">1st: {{ option.firstJeepney?.terminalLocation }}</div>
-                    <div class="text-subtitle2">2nd: {{ option.secondJeepney?.terminalLocation }}</div>
-                    <div class="text-caption text-grey-7">
-                      <q-icon name="walk" size="xs" /> 
-                      Walk to transfer: {{ Math.round(option.walkToTransfer) }}m
+                  <div v-if="option.priority === 'single'" class="route-details">
+                    <div class="route-detail-item">
+                      <q-icon name="pin_drop" size="xs" color="primary" class="q-mr-xs" />
+                      <span class="text-subtitle2">Terminal: {{ option.jeepney?.terminalLocation }}</span>
+                    </div>
+                    <div class="route-detail-item">
+                      <q-icon name="flag" size="xs" color="secondary" class="q-mr-xs" />
+                      <span class="text-subtitle2">To: {{ option.jeepney?.endPoint }}</span>
+                    </div>
+                    <div class="route-detail-item">
+                      <q-icon name="walk" size="xs" color="grey-7" class="q-mr-xs" />
+                      <span class="text-caption">Walk from start: {{ Math.round(option.startDistance) }}m</span>
                     </div>
                   </div>
                   
-                  <div class="text-caption text-grey-7 q-mt-xs">
-                    <q-icon name="walk" size="xs" class="q-mr-xs" />
-                    Walk from start: {{ Math.round(option.priority === 'single' ? option.startDistance : option.firstJeepney?.startDistance) }}m
+                  <!-- Double ride info -->
+                  <div v-else class="route-details double-ride-details">
+                    <div class="route-detail-item">
+                      <q-badge color="primary" class="q-mr-xs">1st</q-badge>
+                      <span class="text-subtitle2">{{ option.firstJeepney?.terminalLocation }}</span>
+                    </div>
+                    <div class="route-detail-item q-ml-md">
+                      <q-icon name="arrow_forward" size="xs" color="grey-7" class="q-mr-xs" />
+                      <q-badge color="secondary" class="q-mr-xs">2nd</q-badge>
+                      <span class="text-subtitle2">{{ option.secondJeepney?.terminalLocation }}</span>
+                    </div>
+                    <div class="route-detail-item">
+                      <q-icon name="walk" size="xs" color="warning" class="q-mr-xs" />
+                      <span class="text-caption">Transfer walk: {{ Math.round(option.walkToTransfer) }}m</span>
+                    </div>
+                    <div class="route-detail-item">
+                      <q-icon name="walk" size="xs" color="grey-7" class="q-mr-xs" />
+                      <span class="text-caption">Total walk: {{ Math.round(option.totalWalkDistance) }}m</span>
+                    </div>
                   </div>
                 </div>
-                <div class="col-auto">
-                  <q-badge color="primary" class="q-mr-sm"> 
-                    ₱{{ option.priority === 'single' ? option.jeepney?.fareRegular : (option.firstJeepney?.fareRegular + option.secondJeepney?.fareRegular) }} 
-                  </q-badge>
-                  <q-badge color="secondary">
-                    ~{{ Math.round((option.priority === 'single' ? option.jeepney?.estimatedDuration : 40)) }} min
-                  </q-badge>
+                <div class="col-auto text-right">
+                  <div class="fare-badge q-mb-xs">
+                    <q-badge :color="option.priority === 'single' ? 'primary' : 'secondary'" size="lg">
+                      <q-icon name="payments" size="xs" class="q-mr-xs" />
+                      ₱{{ option.priority === 'single' ? option.jeepney?.fareRegular : (option.firstJeepney?.fareRegular + option.secondJeepney?.fareRegular) }}
+                    </q-badge>
+                  </div>
+                  <div class="duration-badge">
+                    <q-badge outline color="grey-7" size="sm">
+                      <q-icon name="schedule" size="xs" class="q-mr-xs" />
+                      ~{{ Math.round((option.priority === 'single' ? option.jeepney?.estimatedDuration : 40)) }} min
+                    </q-badge>
+                  </div>
                 </div>
               </div>
             </q-card-section>
             <q-separator />
-            <q-card-actions>
-              <q-btn flat color="primary" @click="selectOption(option)">View Details</q-btn>
+            <q-card-actions align="right">
+              <q-btn flat color="primary" @click="selectOption(option)">
+                <q-icon name="visibility" class="q-mr-xs" />
+                View Details
+              </q-btn>
             </q-card-actions>
           </q-card>
         </div>
@@ -2338,6 +2439,109 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 
 .shadow-2 {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Loading Section Styles */
+.loading-section {
+  min-height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-section .q-chip {
+  font-size: 0.85rem;
+  padding: 8px 12px;
+}
+
+/* Route Summary Cards */
+.route-summary-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.route-summary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Route Option Cards */
+.route-option-card {
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.route-option-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+.route-option-card.single-ride:hover {
+  border-color: $positive;
+}
+
+.route-option-card.double-ride:hover {
+  border-color: $warning;
+}
+
+/* Ride Type Badge */
+.ride-type-badge {
+  font-size: 0.75rem;
+  padding: 4px 8px;
+}
+
+/* Jeepney Name */
+.jeepney-name {
+  font-size: 1.1rem;
+  line-height: 1.3;
+}
+
+/* Route Details */
+.route-details {
+  margin-top: 8px;
+}
+
+.route-detail-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+}
+
+.double-ride-details .route-detail-item {
+  margin-bottom: 6px;
+}
+
+/* Fare and Duration Badges */
+.fare-badge .q-badge {
+  font-size: 1.1rem;
+  padding: 6px 12px;
+}
+
+.duration-badge .q-badge {
+  font-size: 0.85rem;
+  padding: 4px 8px;
+}
+
+/* Options Grid */
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .route-summary-card {
+    margin-bottom: 12px;
+  }
 }
 
 @media (max-width: 768px) {
