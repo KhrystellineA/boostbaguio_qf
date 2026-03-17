@@ -320,31 +320,94 @@
             <div class="row items-center justify-between q-pa-md">
               <div class="text-h6 text-weight-bold text-primary">
                 <q-icon name="map" class="q-mr-sm" />
-                Route Map: {{ selectedOption.routeName }}
+                Route Visualization
               </div>
-              <q-badge color="primary" text-color="white">
-                <q-icon name="directions_bus" class="q-mr-xs" />
-                {{ selectedOption.estimatedDuration }} min
-              </q-badge>
+              <div class="row q-gutter-xs">
+                <q-badge color="primary" text-color="white">
+                  <q-icon name="walk" class="q-mr-xs" />
+                  Walk
+                </q-badge>
+                <q-badge color="secondary" text-color="white">
+                  <q-icon name="directions_bus" class="q-mr-xs" />
+                  Jeepney
+                </q-badge>
+              </div>
             </div>
-            <div id="route-map" style="height: 400px; width: 100%; border-radius: 12px"></div>
+            
+            <!-- Map Container -->
+            <div id="route-map" style="height: 500px; width: 100%; border-radius: 12px"></div>
+            
+            <!-- Walking Instructions -->
+            <q-card-section class="q-pt-md" v-if="walkingRoute && walkingRoute.steps">
+              <div class="text-subtitle1 text-weight-bold q-mb-md">
+                <q-icon name="directions_walk" color="primary" class="q-mr-xs" />
+                Walking Directions to Terminal
+              </div>
+              
+              <q-timeline color="primary" layout="loose">
+                <q-timeline-entry
+                  v-for="(step, index) in walkingRoute.steps"
+                  :key="index"
+                  :title="getStepTitle(step, index)"
+                  :subtitle="formatStepDistance(step)"
+                  :icon="getStepIcon(step, index)"
+                >
+                  <div class="text-body2">
+                    {{ step.instruction }}
+                  </div>
+                  <div class="text-caption text-grey-7 q-mt-xs" v-if="step.direction">
+                    <q-icon name="explore" size="xs" class="q-mr-xs" />
+                    Heading {{ step.direction }}
+                  </div>
+                </q-timeline-entry>
+              </q-timeline>
+              
+              <!-- Walking Summary -->
+              <q-card class="bg-grey-2 q-mt-md" flat>
+                <q-card-section class="row items-center justify-between q-py-sm">
+                  <div class="text-caption">
+                    <q-icon name="walk" class="q-mr-xs" />
+                    Total walking distance
+                  </div>
+                  <div class="text-h6 text-weight-bold text-primary">
+                    {{ formatDistance(walkingRoute.distance) }}
+                  </div>
+                </q-card-section>
+                <q-separator />
+                <q-card-section class="row items-center justify-between q-py-sm">
+                  <div class="text-caption">
+                    <q-icon name="schedule" class="q-mr-xs" />
+                    Estimated walking time
+                  </div>
+                  <div class="text-h6 text-weight-bold text-secondary">
+                    {{ formatDuration(walkingRoute.duration) }}
+                  </div>
+                </q-card-section>
+              </q-card>
+            </q-card-section>
+            
+            <!-- Route Info Summary -->
             <q-card-section class="q-pt-md">
               <div class="row q-col-gutter-md">
                 <div class="col-md-6 col-12">
-                  <div class="route-info">
-                    <div class="info-label">Starting Point</div>
-                    <div class="info-value">
-                      <q-icon name="location_on" color="primary" class="q-mr-xs" />
-                      {{ fromLocation?.label || customFromLocation || 'Selected location' }}
+                  <div class="route-info bg-blue-1 rounded-borders q-pa-md">
+                    <div class="text-caption text-grey-7 q-mb-xs">
+                      <q-icon name="location_on" class="q-mr-xs" />
+                      Starting Point
+                    </div>
+                    <div class="text-subtitle1 text-weight-bold">
+                      {{ fromLocation?.label || 'Current Location' }}
                     </div>
                   </div>
                 </div>
                 <div class="col-md-6 col-12">
-                  <div class="route-info">
-                    <div class="info-label">Destination</div>
-                    <div class="info-value">
-                      <q-icon name="flag" color="secondary" class="q-mr-xs" />
-                      {{ toLocation?.label || customToLocation || 'Selected location' }}
+                  <div class="route-info bg-amber-1 rounded-borders q-pa-md">
+                    <div class="text-caption text-grey-7 q-mb-xs">
+                      <q-icon name="directions_bus" class="q-mr-xs" />
+                      Terminal
+                    </div>
+                    <div class="text-subtitle1 text-weight-bold">
+                      {{ selectedOption.priority === 'single' ? selectedOption.jeepney?.terminalLocation : selectedOption.firstJeepney?.terminalLocation }}
                     </div>
                   </div>
                 </div>
@@ -801,7 +864,6 @@ export default defineComponent({
     const favoriteRoutes = ref([])
     const jeepneyAvailability = ref({})
     const travelTimeEstimate = ref(null)
-    const routeAnimationInterval = ref(null)
 
     // NEW: State for enhanced route finding (will be used in next increments)
     const routeOptions = ref([])
@@ -1133,6 +1195,7 @@ export default defineComponent({
     }
 
     // Helper function to calculate distance between two coordinates
+    // eslint-disable-next-line no-unused-vars
     const calculateDistance = (coords1, coords2) => {
       const R = 6371 // Earth's radius in km
       const dLat = deg2rad(coords2[0] - coords1[0])
@@ -1151,7 +1214,7 @@ export default defineComponent({
       return deg * (Math.PI / 180)
     }
 
-    const selectOption = (option) => {
+    const selectOption = async (option) => {
       console.log('[ApanamPage] selectOption called with:', option)
       selectedOption.value = option
       currentStep.value = 1
@@ -1161,6 +1224,9 @@ export default defineComponent({
 
       // Simulate jeepney availability
       simulateJeepneyAvailability(option)
+
+      // Get walking directions to terminal
+      await fetchWalkingDirections(option)
 
       // Initialize main map
       setTimeout(() => {
@@ -1190,16 +1256,12 @@ export default defineComponent({
         }
       }, 100)
 
-      // Initialize route map with animation
+      // Initialize route map with walking directions
       setTimeout(() => {
         if (document.getElementById('route-map')) {
           if (routeMap.value) {
             routeMap.value.remove()
           }
-
-          // Get coordinates for terminal start and end
-          const terminalStart = option.terminalStart
-          const terminalEnd = option.terminalEnd
 
           // Default to Baguio center
           routeMap.value = L.map('route-map').setView([16.4122, 120.5948], 14)
@@ -1209,74 +1271,100 @@ export default defineComponent({
               '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
           }).addTo(routeMap.value)
 
-          // Add custom icons
-          const startIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: "<div style='background-color:#2196F3;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
-            iconSize: [20, 20],
-            iconAnchor: [10, 10],
-          })
+          // Draw walking route if available
+          if (walkingRoute.value && walkingRoute.value.geometry && walkingRoute.value.geometry.length > 0) {
+            // Draw walking path
+            const walkingPath = L.polyline(walkingRoute.value.geometry, {
+              color: '#2196F3',
+              weight: 4,
+              opacity: 0.8,
+              dashArray: '10, 10',
+            }).addTo(routeMap.value)
 
-          const endIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: "<div style='background-color:#FF5722;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
-            iconSize: [20, 20],
-            iconAnchor: [10, 10],
-          })
+            // Add start marker (green)
+            const startMarker = L.marker(walkingRoute.value.geometry[0], {
+              icon: L.divIcon({
+                className: 'custom-div-icon',
+                html: "<div style='background-color:#4CAF50;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
+                iconSize: [26, 26],
+                iconAnchor: [13, 13],
+              }),
+            }).addTo(routeMap.value)
+            startMarker.bindPopup('<b>🚶 Start</b><br>Walk from here')
 
-          // Get approximate coordinates for terminals (centered on Baguio for now)
-          const startCoords = option.terminalStartCoords || [16.4122, 120.5948]
-          const endCoords = option.terminalEndCoords || [16.42, 120.6]
+            // Add end marker (red - terminal)
+            const endMarker = L.marker(walkingRoute.value.geometry[walkingRoute.value.geometry.length - 1], {
+              icon: L.divIcon({
+                className: 'custom-div-icon',
+                html: "<div style='background-color:#F44336;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
+                iconSize: [26, 26],
+                iconAnchor: [13, 13],
+              }),
+            }).addTo(routeMap.value)
+            endMarker.bindPopup('<b>🚌 Terminal</b><br>Jeepney stop')
 
-          // Calculate distance
-          const distance = calculateDistance(startCoords, endCoords)
-
-          // Add markers
-          L.marker(startCoords, { icon: startIcon })
-            .addTo(routeMap.value)
-            .bindPopup(
-              `<strong>Start:</strong> ${terminalStart}<br>Distance: ${distance.toFixed(2)} km`
-            )
-            .openPopup()
-
-          L.marker(endCoords, { icon: endIcon })
-            .addTo(routeMap.value)
-            .bindPopup(`<strong>Destination:</strong> ${terminalEnd}`)
-
-          // Draw animated route line
-          const routeLine = L.polyline([startCoords, endCoords], {
-            color: '#2196F3',
-            weight: 4,
-            opacity: 0.7,
-            dashArray: '10, 10',
-            lineCap: 'round',
-          }).addTo(routeMap.value)
-
-          // Add animated jeepney marker
-          const jeepneyIcon = L.divIcon({
-            className: 'jeepney-marker',
-            html: "<div style='background-color:#4EA96D;width:24px;height:24px;border-radius:50%;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:14px;'>🚌</div>",
-            iconSize: [30, 30],
-            iconAnchor: [15, 15],
-          })
-
-          const jeepneyMarker = L.marker(startCoords, { icon: jeepneyIcon }).addTo(routeMap.value)
-
-          // Animate jeepney along route
-          let progress = 0
-          routeAnimationInterval.value = setInterval(() => {
-            progress += 0.02
-            if (progress > 1) progress = 0
-
-            const lat = startCoords[0] + (endCoords[0] - startCoords[0]) * progress
-            const lng = startCoords[1] + (endCoords[1] - startCoords[1]) * progress
-            jeepneyMarker.setLatLng([lat, lng])
-          }, 100)
-
-          // Fit map to show both markers
-          routeMap.value.fitBounds(routeLine.getBounds(), { padding: [50, 50] })
+            // Fit map to show entire walking route
+            routeMap.value.fitBounds(walkingPath.getBounds(), { padding: [50, 50] })
+          } else {
+            // Fallback: show start and end points
+            console.log('[ApanamPage] No walking route geometry available')
+          }
         }
       }, 200)
+    }
+
+    // NEW: Fetch walking directions using OSRM
+    const fetchWalkingDirections = async (option) => {
+      try {
+        // Get start coordinates
+        const startCoords = fromLocation.value?.coords
+        if (!startCoords || startCoords.length === 0) {
+          console.log('[ApanamPage] No start coordinates available')
+          return
+        }
+
+        // Get terminal coordinates
+        const terminalCoords = option.priority === 'single'
+          ? [option.jeepney?.terminalLat, option.jeepney?.terminalLng]
+          : [option.firstJeepney?.terminalLat, option.firstJeepney?.terminalLng]
+        
+        if (!terminalCoords || !terminalCoords[0] || !terminalCoords[1]) {
+          console.log('[ApanamPage] No terminal coordinates available')
+          return
+        }
+
+        console.log('[ApanamPage] Fetching walking directions from', startCoords, 'to', terminalCoords)
+
+        // Use the walking directions composable
+        const directions = await getWalkingDirections(startCoords, terminalCoords)
+        
+        if (directions && directions.steps) {
+          walkingRoute.value = directions
+          console.log('[ApanamPage] Walking directions fetched:', directions)
+        }
+      } catch (error) {
+        console.error('[ApanamPage] Error fetching walking directions:', error)
+      }
+    }
+
+    // NEW: Helper functions for walking directions display
+    const getStepTitle = (step, index) => {
+      if (index === 0) return 'Start Walking'
+      if (index === walkingRoute.value?.steps?.length - 1) return 'Arrive at Terminal'
+      return `Step ${index}`
+    }
+
+    const getStepIcon = (step, index) => {
+      if (index === 0) return 'directions_walk'
+      if (index === walkingRoute.value?.steps?.length - 1) return 'location_on'
+      return 'explore'
+    }
+
+    const formatStepDistance = (step) => {
+      if (step.distance && step.distance > 0) {
+        return formatDistance(step.distance)
+      }
+      return ''
     }
 
     // Calculate travel time estimate
@@ -1789,6 +1877,7 @@ export default defineComponent({
       locationOptions,
       toLocationOptions,
       routeOptions,
+      walkingRoute,
       optionsSection,
       selectedFromLocation,
       selectedToLocation,
@@ -1818,6 +1907,11 @@ export default defineComponent({
       getDestinationHighlights,
       getEstimatedDistance,
       getEstimatedWalkTime,
+      getStepTitle,
+      getStepIcon,
+      formatStepDistance,
+      formatDistance,
+      formatDuration,
     }
   },
 })
