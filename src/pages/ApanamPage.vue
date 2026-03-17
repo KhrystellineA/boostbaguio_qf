@@ -230,7 +230,7 @@
     </section>
 
     <!-- JEEPNEY OPTIONS SECTION (Section 3) -->
-    <section v-if="filteredOptions.length > 0" class="options-section bg-white q-py-xl">
+    <section v-if="routeOptions.length > 0" class="options-section bg-white q-py-xl">
       <div class="container">
         <div class="text-center q-mb-xl">
           <h3 class="text-h4 text-weight-bold text-primary">Available Jeepney Options</h3>
@@ -280,8 +280,8 @@
 
         <div ref="optionsSection" class="options-grid">
           <q-card
-            v-for="option in filteredOptions"
-            :key="option.id"
+            v-for="option in routeOptions"
+            :key="option.jeepney?.id || option.firstJeepney?.id || Math.random()"
             class="bento-card q-ma-sm"
             @click="selectOption(option)"
           >
@@ -289,7 +289,17 @@
               <div class="row items-center no-wrap">
                 <div class="col">
                   <div class="row items-center q-mb-xs">
-                    <div class="text-h6 text-primary">{{ option.routeName }}</div>
+                    <!-- Ride type badge -->
+                    <q-badge 
+                      :color="option.priority === 'single' ? 'positive' : 'warning'"
+                      class="q-mr-sm"
+                    >
+                      {{ option.priority === 'single' ? '🚌 Direct' : '🔄 Transfer' }}
+                    </q-badge>
+                    
+                    <div class="text-h6 text-primary">
+                      {{ option.priority === 'single' ? option.jeepney?.jeepName : option.firstJeepney?.jeepName }}
+                    </div>
                     <q-btn
                       v-if="isFavoriteRoute(option)"
                       icon="favorite"
@@ -311,36 +321,34 @@
                       @click.stop="toggleFavoriteRoute(option)"
                     />
                   </div>
-                  <div class="text-subtitle2">From: {{ option.terminalStart }}</div>
-                  <div class="text-subtitle2">To: {{ option.terminalEnd }}</div>
-                  <div class="text-caption text-grey-7 q-mt-xs" v-if="jeepneyAvailability.status">
-                    <q-icon name="schedule" size="xs" class="q-mr-xs" />
-                    Next: {{ jeepneyAvailability.nextJeepney }} mins | Frequency:
-                    {{ jeepneyAvailability.frequency }}
-                    <q-badge
-                      :color="
-                        jeepneyAvailability.status === 'high'
-                          ? 'positive'
-                          : jeepneyAvailability.status === 'limited'
-                            ? 'warning'
-                            : 'primary'
-                      "
-                      class="q-ml-xs"
-                    >
-                      {{
-                        jeepneyAvailability.status === 'high'
-                          ? 'High Frequency'
-                          : jeepneyAvailability.status === 'limited'
-                            ? 'Limited'
-                            : 'Available'
-                      }}
-                    </q-badge>
+                  
+                  <!-- Single ride info -->
+                  <div v-if="option.priority === 'single'">
+                    <div class="text-subtitle2">Terminal: {{ option.jeepney?.terminalLocation }}</div>
+                    <div class="text-subtitle2">To: {{ option.jeepney?.endPoint }}</div>
+                  </div>
+                  
+                  <!-- Double ride info -->
+                  <div v-else>
+                    <div class="text-subtitle2">1st: {{ option.firstJeepney?.terminalLocation }}</div>
+                    <div class="text-subtitle2">2nd: {{ option.secondJeepney?.terminalLocation }}</div>
+                    <div class="text-caption text-grey-7">
+                      <q-icon name="walk" size="xs" /> 
+                      Walk to transfer: {{ Math.round(option.walkToTransfer) }}m
+                    </div>
+                  </div>
+                  
+                  <div class="text-caption text-grey-7 q-mt-xs">
+                    <q-icon name="walk" size="xs" class="q-mr-xs" />
+                    Walk from start: {{ Math.round(option.priority === 'single' ? option.startDistance : option.firstJeepney?.startDistance) }}m
                   </div>
                 </div>
                 <div class="col-auto">
-                  <q-badge color="primary" class="q-mr-sm"> ₱{{ option.fare }} </q-badge>
+                  <q-badge color="primary" class="q-mr-sm"> 
+                    ₱{{ option.priority === 'single' ? option.jeepney?.fareRegular : (option.firstJeepney?.fareRegular + option.secondJeepney?.fareRegular) }} 
+                  </q-badge>
                   <q-badge color="secondary">
-                    {{ travelTimeEstimate || option.estimatedDuration }} min
+                    ~{{ Math.round((option.priority === 'single' ? option.jeepney?.estimatedDuration : 40)) }} min
                   </q-badge>
                 </div>
               </div>
@@ -652,9 +660,7 @@ import fallbackImage from '../assets/2.png'
 // NEW: Import custom composables for enhanced functionality (will be used in next increments)
 import { useGeolocation } from 'src/composables/useGeolocation'
 import { useGeocoding } from 'src/composables/useGeocoding'
-// eslint-disable-next-line no-unused-vars
 import { useJeepneyRouteMatching } from 'src/composables/useJeepneyRouteMatching'
-// eslint-disable-next-line no-unused-vars
 import { useWalkingDirections } from 'src/composables/useWalkingDirections'
 
 export default defineComponent({
@@ -666,10 +672,13 @@ export default defineComponent({
   setup() {
     const $q = useQuasar()
     const route = useRoute()
-    
+
     // NEW: Initialize custom composables directly (will be used in next increments)
     const { getCurrentLocation, loading: geoLoading } = useGeolocation()
     const { searchLocations } = useGeocoding()
+    const { findAllRoutes: findMatchingRoutes } = useJeepneyRouteMatching()
+    // eslint-disable-next-line no-unused-vars
+    const { getWalkingDirections, formatDistance, formatDuration } = useWalkingDirections()
     
     // Existing refs
     const optionsSection = ref(null)
@@ -692,9 +701,8 @@ export default defineComponent({
     const jeepneyAvailability = ref({})
     const travelTimeEstimate = ref(null)
     const routeAnimationInterval = ref(null)
-    
+
     // NEW: State for enhanced route finding (will be used in next increments)
-    // eslint-disable-next-line no-unused-vars
     const routeOptions = ref([])
     // eslint-disable-next-line no-unused-vars
     const walkingRoute = ref(null)
@@ -926,7 +934,11 @@ export default defineComponent({
       ]
     }
 
-    const findRoutes = () => {
+    const findRoutes = async () => {
+      console.log('[ApanamPage] findRoutes called')
+      console.log('[ApanamPage] fromLocation:', fromLocation.value)
+      console.log('[ApanamPage] toLocation:', toLocation.value)
+      
       if (!fromLocation.value || !toLocation.value) {
         $q.notify({
           message: 'Please select both starting and ending locations',
@@ -937,33 +949,90 @@ export default defineComponent({
         return
       }
 
-      // Filter options based on selected locations
-      filteredOptions.value = allJeepneyOptions.value.filter((option) => {
-        const fromMatch =
-          selectedFromLocation.value?.coords &&
-          Math.abs(option.startCoords[0] - selectedFromLocation.value.coords[0]) < 0.01 &&
-          Math.abs(option.startCoords[1] - selectedFromLocation.value.coords[1]) < 0.01
+      // Show loading
+      isLoadingOptions.value = true
 
-        const toMatch =
-          selectedToLocation.value?.coords &&
-          Math.abs(option.endCoords[0] - selectedToLocation.value.coords[0]) < 0.01 &&
-          Math.abs(option.endCoords[1] - selectedToLocation.value.coords[1]) < 0.01
-
-        return fromMatch && toMatch
-      })
-
-      if (filteredOptions.value.length === 0) {
+      try {
+        // Get coordinates
+        const startCoords = fromLocation.value.isCurrentLocation || fromLocation.value.isGeocoded
+          ? fromLocation.value.coords  // Already in [lat, lng] format
+          : fromLocation.value.coords || []
+        
+        const endCoords = toLocation.value.isGeocoded
+          ? toLocation.value.coords  // Already in [lat, lng] format
+          : toLocation.value.coords || []
+        
+        console.log('[ApanamPage] Start coords:', startCoords)
+        console.log('[ApanamPage] End coords:', endCoords)
+        
+        if (!startCoords || !endCoords || startCoords.length === 0 || endCoords.length === 0) {
+          isLoadingOptions.value = false
+          $q.notify({
+            message: 'Invalid coordinates. Please select valid locations.',
+            color: 'warning',
+            icon: 'warning',
+            position: 'top',
+          })
+          return
+        }
+        
+        // Use the route matching composable
+        const result = await findMatchingRoutes(startCoords, endCoords)
+        
+        console.log('[ApanamPage] Route matching result:', result)
+        
+        isLoadingOptions.value = false
+        
+        if (!result.hasRoutes) {
+          $q.notify({
+            message: 'No routes found for the selected locations. Try different locations.',
+            color: 'info',
+            icon: 'info',
+            position: 'top',
+          })
+          return
+        }
+        
+        // Combine and sort results
+        routeOptions.value = [
+          ...result.singleRides.map(r => ({ ...r, priority: 'single' })),
+          ...result.doubleRides.map(r => ({ ...r, priority: 'double' }))
+        ]
+        
+        console.log('[ApanamPage] Route options:', routeOptions.value)
+        
+        if (routeOptions.value.length === 0) {
+          $q.notify({
+            message: 'No routes found. Try different locations.',
+            color: 'info',
+            icon: 'info',
+            position: 'top',
+          })
+          return
+        }
+        
+        // Scroll to options section
+        if (optionsSection.value) {
+          optionsSection.value.scrollIntoView({ behavior: 'smooth' })
+        }
+        
         $q.notify({
-          message: 'No routes found for the selected locations. Try different locations.',
-          color: 'info',
-          icon: 'info',
+          message: `Found ${routeOptions.value.length} route option(s)!`,
+          color: 'positive',
+          icon: 'check_circle',
+          position: 'top',
+          timeout: 2000,
+        })
+        
+      } catch (error) {
+        console.error('[ApanamPage] Error finding routes:', error)
+        isLoadingOptions.value = false
+        $q.notify({
+          message: 'Error finding routes. Please try again.',
+          color: 'negative',
+          icon: 'error',
           position: 'top',
         })
-      }
-
-      // Scroll to options section
-      if (optionsSection.value) {
-        optionsSection.value.scrollIntoView({ behavior: 'smooth' })
       }
     }
 
@@ -987,6 +1056,7 @@ export default defineComponent({
     }
 
     const selectOption = (option) => {
+      console.log('[ApanamPage] selectOption called with:', option)
       selectedOption.value = option
       currentStep.value = 1
 
