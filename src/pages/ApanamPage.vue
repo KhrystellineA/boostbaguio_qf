@@ -954,13 +954,8 @@ export default defineComponent({
 
       try {
         // Get coordinates
-        const startCoords = fromLocation.value.isCurrentLocation || fromLocation.value.isGeocoded
-          ? fromLocation.value.coords  // Already in [lat, lng] format
-          : fromLocation.value.coords || []
-        
-        const endCoords = toLocation.value.isGeocoded
-          ? toLocation.value.coords  // Already in [lat, lng] format
-          : toLocation.value.coords || []
+        const startCoords = fromLocation.value.coords || []
+        const endCoords = toLocation.value.coords || []
         
         console.log('[ApanamPage] Start coords:', startCoords)
         console.log('[ApanamPage] End coords:', endCoords)
@@ -983,7 +978,7 @@ export default defineComponent({
         
         isLoadingOptions.value = false
         
-        if (!result.hasRoutes) {
+        if (!result || !result.hasRoutes) {
           $q.notify({
             message: 'No routes found for the selected locations. Try different locations.',
             color: 'info',
@@ -993,10 +988,10 @@ export default defineComponent({
           return
         }
         
-        // Combine and sort results
+        // Combine and sort results - single rides first
         routeOptions.value = [
-          ...result.singleRides.map(r => ({ ...r, priority: 'single' })),
-          ...result.doubleRides.map(r => ({ ...r, priority: 'double' }))
+          ...(result.singleRides || []).map(r => ({ ...r, priority: 'single' })),
+          ...(result.doubleRides || []).map(r => ({ ...r, priority: 'double' }))
         ]
         
         console.log('[ApanamPage] Route options:', routeOptions.value)
