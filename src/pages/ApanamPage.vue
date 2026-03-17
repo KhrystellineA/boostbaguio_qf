@@ -1687,6 +1687,7 @@ export default defineComponent({
       heroImageUrl,
       locationOptions,
       toLocationOptions,
+      routeOptions,
       optionsSection,
       selectedFromLocation,
       selectedToLocation,
