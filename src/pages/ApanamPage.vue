@@ -841,7 +841,6 @@ export default defineComponent({
     const { getCurrentLocation, loading: geoLoading } = useGeolocation()
     const { searchLocations } = useGeocoding()
     const { findAllRoutes: findMatchingRoutes } = useJeepneyRouteMatching()
-    // eslint-disable-next-line no-unused-vars
     const { getWalkingDirections, formatDistance, formatDuration } = useWalkingDirections()
     
     // Existing refs
@@ -867,7 +866,6 @@ export default defineComponent({
 
     // NEW: State for enhanced route finding (will be used in next increments)
     const routeOptions = ref([])
-    // eslint-disable-next-line no-unused-vars
     const walkingRoute = ref(null)
 
     // Location options - All 33 destinations from Maykan
