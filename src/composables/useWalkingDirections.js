@@ -100,10 +100,10 @@ export function useWalkingDirections() {
       'Keep left': 'Keep left',
       'Merge right': 'Merge right',
       'Merge left': 'Merge left',
-      'Fork': 'At the fork',
+      Fork: 'At the fork',
       'End of road': 'At the end of the road',
-      'Roundabout': 'Take the exit',
-      'Continue': 'Continue straight',
+      Roundabout: 'Take the exit',
+      Continue: 'Continue straight',
     }
 
     for (const [key, value] of Object.entries(replacements)) {

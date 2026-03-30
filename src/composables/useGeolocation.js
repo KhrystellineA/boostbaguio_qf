@@ -43,7 +43,8 @@ export function useGeolocation() {
 
           switch (err.code) {
             case err.PERMISSION_DENIED:
-              errorMsg = 'Location permission denied. Please enable location access in your browser settings.'
+              errorMsg =
+                'Location permission denied. Please enable location access in your browser settings.'
               break
             case err.POSITION_UNAVAILABLE:
               errorMsg = 'Location information is unavailable.'

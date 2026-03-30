@@ -235,9 +235,7 @@
         <div class="text-center q-mb-xl">
           <q-spinner-facebook color="primary" size="3em" />
           <h3 class="text-h5 text-weight-bold text-primary q-mt-md">Finding Your Route...</h3>
-          <p class="text-body1 text-grey-7">
-            Searching for the best jeepney options for your trip
-          </p>
+          <p class="text-body1 text-grey-7">Searching for the best jeepney options for your trip</p>
         </div>
         <div class="row justify-center q-gutter-md">
           <div class="col-auto">
@@ -284,7 +282,8 @@
                 <div class="text-h3 q-mb-xs">🚌</div>
                 <div class="text-h6 text-weight-bold">Direct Routes</div>
                 <div class="text-subtitle1 q-mt-xs">
-                  {{ routeOptions.filter(o => o.priority === 'single').length }} option(s) available
+                  {{ routeOptions.filter((o) => o.priority === 'single').length }} option(s)
+                  available
                 </div>
                 <q-separator class="q-my-sm bg-white" />
                 <div class="text-caption">
@@ -294,7 +293,7 @@
               </q-card-section>
             </q-card>
           </div>
-          
+
           <!-- Double Rides Summary -->
           <div class="col-12 col-md-6">
             <q-card class="route-summary-card bg-warning text-white">
@@ -302,7 +301,8 @@
                 <div class="text-h3 q-mb-xs">🔄</div>
                 <div class="text-h6 text-weight-bold">Transfer Routes</div>
                 <div class="text-subtitle1 q-mt-xs">
-                  {{ routeOptions.filter(o => o.priority === 'double').length }} option(s) available
+                  {{ routeOptions.filter((o) => o.priority === 'double').length }} option(s)
+                  available
                 </div>
                 <q-separator class="q-my-sm bg-white" />
                 <div class="text-caption">
@@ -333,17 +333,17 @@
                 </q-badge>
               </div>
             </div>
-            
+
             <!-- Map Container -->
             <div id="route-map" style="height: 500px; width: 100%; border-radius: 12px"></div>
-            
+
             <!-- Walking Instructions -->
             <q-card-section class="q-pt-md" v-if="walkingRoute && walkingRoute.steps">
               <div class="text-subtitle1 text-weight-bold q-mb-md">
                 <q-icon name="directions_walk" color="primary" class="q-mr-xs" />
                 Walking Directions to Terminal
               </div>
-              
+
               <q-timeline color="primary" layout="loose">
                 <q-timeline-entry
                   v-for="(step, index) in walkingRoute.steps"
@@ -361,7 +361,7 @@
                   </div>
                 </q-timeline-entry>
               </q-timeline>
-              
+
               <!-- Walking Summary -->
               <q-card class="bg-grey-2 q-mt-md" flat>
                 <q-card-section class="row items-center justify-between q-py-sm">
@@ -385,7 +385,7 @@
                 </q-card-section>
               </q-card>
             </q-card-section>
-            
+
             <!-- Route Info Summary -->
             <q-card-section class="q-pt-md">
               <div class="row q-col-gutter-md">
@@ -407,7 +407,11 @@
                       Terminal
                     </div>
                     <div class="text-subtitle1 text-weight-bold">
-                      {{ selectedOption.priority === 'single' ? selectedOption.jeepney?.terminalLocation : selectedOption.firstJeepney?.terminalLocation }}
+                      {{
+                        selectedOption.priority === 'single'
+                          ? selectedOption.jeepney?.terminalLocation
+                          : selectedOption.firstJeepney?.terminalLocation
+                      }}
                     </div>
                   </div>
                 </div>
@@ -421,7 +425,10 @@
             v-for="(option, index) in routeOptions"
             :key="option.jeepney?.id || option.firstJeepney?.id || index"
             class="bento-card q-ma-sm route-option-card"
-            :class="{ 'single-ride': option.priority === 'single', 'double-ride': option.priority === 'double' }"
+            :class="{
+              'single-ride': option.priority === 'single',
+              'double-ride': option.priority === 'double',
+            }"
             @click="selectOption(option)"
           >
             <q-card-section>
@@ -429,15 +436,19 @@
                 <div class="col">
                   <div class="row items-center q-mb-xs">
                     <!-- Ride type badge -->
-                    <q-badge 
+                    <q-badge
                       :color="option.priority === 'single' ? 'positive' : 'warning'"
                       class="q-mr-sm ride-type-badge"
                     >
                       {{ option.priority === 'single' ? '🚌 Direct' : '🔄 Transfer' }}
                     </q-badge>
-                    
+
                     <div class="text-h6 text-primary jeepney-name">
-                      {{ option.priority === 'single' ? option.jeepney?.jeepName : option.firstJeepney?.jeepName }}
+                      {{
+                        option.priority === 'single'
+                          ? option.jeepney?.jeepName
+                          : option.firstJeepney?.jeepName
+                      }}
                     </div>
                     <q-btn
                       v-if="isFavoriteRoute(option)"
@@ -460,12 +471,14 @@
                       @click.stop="toggleFavoriteRoute(option)"
                     />
                   </div>
-                  
+
                   <!-- Single ride info -->
                   <div v-if="option.priority === 'single'" class="route-details">
                     <div class="route-detail-item">
                       <q-icon name="pin_drop" size="xs" color="primary" class="q-mr-xs" />
-                      <span class="text-subtitle2">Terminal: {{ option.jeepney?.terminalLocation }}</span>
+                      <span class="text-subtitle2"
+                        >Terminal: {{ option.jeepney?.terminalLocation }}</span
+                      >
                     </div>
                     <div class="route-detail-item">
                       <q-icon name="flag" size="xs" color="secondary" class="q-mr-xs" />
@@ -473,42 +486,64 @@
                     </div>
                     <div class="route-detail-item">
                       <q-icon name="walk" size="xs" color="grey-7" class="q-mr-xs" />
-                      <span class="text-caption">Walk from start: {{ Math.round(option.startDistance) }}m</span>
+                      <span class="text-caption"
+                        >Walk from start: {{ Math.round(option.startDistance) }}m</span
+                      >
                     </div>
                   </div>
-                  
+
                   <!-- Double ride info -->
                   <div v-else class="route-details double-ride-details">
                     <div class="route-detail-item">
                       <q-badge color="primary" class="q-mr-xs">1st</q-badge>
-                      <span class="text-subtitle2">{{ option.firstJeepney?.terminalLocation }}</span>
+                      <span class="text-subtitle2">{{
+                        option.firstJeepney?.terminalLocation
+                      }}</span>
                     </div>
                     <div class="route-detail-item q-ml-md">
                       <q-icon name="arrow_forward" size="xs" color="grey-7" class="q-mr-xs" />
                       <q-badge color="secondary" class="q-mr-xs">2nd</q-badge>
-                      <span class="text-subtitle2">{{ option.secondJeepney?.terminalLocation }}</span>
+                      <span class="text-subtitle2">{{
+                        option.secondJeepney?.terminalLocation
+                      }}</span>
                     </div>
                     <div class="route-detail-item">
                       <q-icon name="walk" size="xs" color="warning" class="q-mr-xs" />
-                      <span class="text-caption">Transfer walk: {{ Math.round(option.walkToTransfer) }}m</span>
+                      <span class="text-caption"
+                        >Transfer walk: {{ Math.round(option.walkToTransfer) }}m</span
+                      >
                     </div>
                     <div class="route-detail-item">
                       <q-icon name="walk" size="xs" color="grey-7" class="q-mr-xs" />
-                      <span class="text-caption">Total walk: {{ Math.round(option.totalWalkDistance) }}m</span>
+                      <span class="text-caption"
+                        >Total walk: {{ Math.round(option.totalWalkDistance) }}m</span
+                      >
                     </div>
                   </div>
                 </div>
                 <div class="col-auto text-right">
                   <div class="fare-badge q-mb-xs">
-                    <q-badge :color="option.priority === 'single' ? 'primary' : 'secondary'" size="lg">
+                    <q-badge
+                      :color="option.priority === 'single' ? 'primary' : 'secondary'"
+                      size="lg"
+                    >
                       <q-icon name="payments" size="xs" class="q-mr-xs" />
-                      ₱{{ option.priority === 'single' ? option.jeepney?.fareRegular : (option.firstJeepney?.fareRegular + option.secondJeepney?.fareRegular) }}
+                      ₱{{
+                        option.priority === 'single'
+                          ? option.jeepney?.fareRegular
+                          : option.firstJeepney?.fareRegular + option.secondJeepney?.fareRegular
+                      }}
                     </q-badge>
                   </div>
                   <div class="duration-badge">
                     <q-badge outline color="grey-7" size="sm">
                       <q-icon name="schedule" size="xs" class="q-mr-xs" />
-                      ~{{ Math.round((option.priority === 'single' ? option.jeepney?.estimatedDuration : 40)) }} min
+                      ~{{
+                        Math.round(
+                          option.priority === 'single' ? option.jeepney?.estimatedDuration : 40
+                        )
+                      }}
+                      min
                     </q-badge>
                   </div>
                 </div>
@@ -817,8 +852,8 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { db } from 'src/boot/firebase'
 import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore'
-import FAQSection from '../components/Home/FAQSection.vue'
-import FooterSection from '../components/Home/FooterSection.vue'
+import FAQSection from '../components/home/FAQSection.vue'
+import FooterSection from '../components/home/FooterSection.vue'
 import fallbackImage from '../assets/2.png'
 
 // NEW: Import custom composables for enhanced functionality (will be used in next increments)
@@ -842,7 +877,7 @@ export default defineComponent({
     const { searchLocations } = useGeocoding()
     const { findAllRoutes: findMatchingRoutes } = useJeepneyRouteMatching()
     const { getWalkingDirections, formatDistance, formatDuration } = useWalkingDirections()
-    
+
     // Existing refs
     const optionsSection = ref(null)
     const fromLocationText = ref('')
@@ -908,10 +943,10 @@ export default defineComponent({
 
     const selectedFromLocation = ref(null)
     const selectedToLocation = ref(null)
-    
+
     // NEW: TO location options (initialized after locationOptions is defined)
     const toLocationOptions = ref([])
-    
+
     // Initialize toLocationOptions
     toLocationOptions.value = [...locationOptions]
 
@@ -1099,7 +1134,7 @@ export default defineComponent({
       console.log('[ApanamPage] findRoutes called')
       console.log('[ApanamPage] fromLocation:', fromLocation.value)
       console.log('[ApanamPage] toLocation:', toLocation.value)
-      
+
       if (!fromLocation.value || !toLocation.value) {
         $q.notify({
           message: 'Please select both starting and ending locations',
@@ -1117,10 +1152,10 @@ export default defineComponent({
         // Get coordinates
         const startCoords = fromLocation.value.coords || []
         const endCoords = toLocation.value.coords || []
-        
+
         console.log('[ApanamPage] Start coords:', startCoords)
         console.log('[ApanamPage] End coords:', endCoords)
-        
+
         if (!startCoords || !endCoords || startCoords.length === 0 || endCoords.length === 0) {
           isLoadingOptions.value = false
           $q.notify({
@@ -1131,14 +1166,14 @@ export default defineComponent({
           })
           return
         }
-        
+
         // Use the route matching composable
         const result = await findMatchingRoutes(startCoords, endCoords)
-        
+
         console.log('[ApanamPage] Route matching result:', result)
-        
+
         isLoadingOptions.value = false
-        
+
         if (!result || !result.hasRoutes) {
           $q.notify({
             message: 'No routes found for the selected locations. Try different locations.',
@@ -1148,15 +1183,15 @@ export default defineComponent({
           })
           return
         }
-        
+
         // Combine and sort results - single rides first
         routeOptions.value = [
-          ...(result.singleRides || []).map(r => ({ ...r, priority: 'single' })),
-          ...(result.doubleRides || []).map(r => ({ ...r, priority: 'double' }))
+          ...(result.singleRides || []).map((r) => ({ ...r, priority: 'single' })),
+          ...(result.doubleRides || []).map((r) => ({ ...r, priority: 'double' })),
         ]
-        
+
         console.log('[ApanamPage] Route options:', routeOptions.value)
-        
+
         if (routeOptions.value.length === 0) {
           $q.notify({
             message: 'No routes found. Try different locations.',
@@ -1166,12 +1201,12 @@ export default defineComponent({
           })
           return
         }
-        
+
         // Scroll to options section
         if (optionsSection.value) {
           optionsSection.value.scrollIntoView({ behavior: 'smooth' })
         }
-        
+
         $q.notify({
           message: `Found ${routeOptions.value.length} route option(s)!`,
           color: 'positive',
@@ -1179,7 +1214,6 @@ export default defineComponent({
           position: 'top',
           timeout: 2000,
         })
-        
       } catch (error) {
         console.error('[ApanamPage] Error finding routes:', error)
         isLoadingOptions.value = false
@@ -1270,7 +1304,11 @@ export default defineComponent({
           }).addTo(routeMap.value)
 
           // Draw walking route if available
-          if (walkingRoute.value && walkingRoute.value.geometry && walkingRoute.value.geometry.length > 0) {
+          if (
+            walkingRoute.value &&
+            walkingRoute.value.geometry &&
+            walkingRoute.value.geometry.length > 0
+          ) {
             // Draw walking path
             const walkingPath = L.polyline(walkingRoute.value.geometry, {
               color: '#2196F3',
@@ -1291,14 +1329,17 @@ export default defineComponent({
             startMarker.bindPopup('<b>🚶 Start</b><br>Walk from here')
 
             // Add end marker (red - terminal)
-            const endMarker = L.marker(walkingRoute.value.geometry[walkingRoute.value.geometry.length - 1], {
-              icon: L.divIcon({
-                className: 'custom-div-icon',
-                html: "<div style='background-color:#F44336;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
-                iconSize: [26, 26],
-                iconAnchor: [13, 13],
-              }),
-            }).addTo(routeMap.value)
+            const endMarker = L.marker(
+              walkingRoute.value.geometry[walkingRoute.value.geometry.length - 1],
+              {
+                icon: L.divIcon({
+                  className: 'custom-div-icon',
+                  html: "<div style='background-color:#F44336;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
+                  iconSize: [26, 26],
+                  iconAnchor: [13, 13],
+                }),
+              }
+            ).addTo(routeMap.value)
             endMarker.bindPopup('<b>🚌 Terminal</b><br>Jeepney stop')
 
             // Fit map to show entire walking route
@@ -1322,20 +1363,26 @@ export default defineComponent({
         }
 
         // Get terminal coordinates
-        const terminalCoords = option.priority === 'single'
-          ? [option.jeepney?.terminalLat, option.jeepney?.terminalLng]
-          : [option.firstJeepney?.terminalLat, option.firstJeepney?.terminalLng]
-        
+        const terminalCoords =
+          option.priority === 'single'
+            ? [option.jeepney?.terminalLat, option.jeepney?.terminalLng]
+            : [option.firstJeepney?.terminalLat, option.firstJeepney?.terminalLng]
+
         if (!terminalCoords || !terminalCoords[0] || !terminalCoords[1]) {
           console.log('[ApanamPage] No terminal coordinates available')
           return
         }
 
-        console.log('[ApanamPage] Fetching walking directions from', startCoords, 'to', terminalCoords)
+        console.log(
+          '[ApanamPage] Fetching walking directions from',
+          startCoords,
+          'to',
+          terminalCoords
+        )
 
         // Use the walking directions composable
         const directions = await getWalkingDirections(startCoords, terminalCoords)
-        
+
         if (directions && directions.steps) {
           walkingRoute.value = directions
           console.log('[ApanamPage] Walking directions fetched:', directions)
@@ -1474,7 +1521,7 @@ export default defineComponent({
 
     const enableFromAutoDetect = async () => {
       console.log('[ApanamPage] GPS button clicked')
-      
+
       const loadingNotify = $q.notify({
         message: 'Detecting your location...',
         icon: 'gps_not_fixed',
@@ -1498,12 +1545,12 @@ export default defineComponent({
           coords: [coords.lat, coords.lng],
           accuracy: coords.accuracy,
         }
-        
+
         // Force Vue reactivity
         await nextTick()
         console.log('[ApanamPage] fromLocationText:', fromLocationText.value)
         console.log('[ApanamPage] fromLocation:', fromLocation.value)
-        
+
         // NOW toggle to show the GPS field
         fromAutoDetect.value = true
         await nextTick()
@@ -1555,7 +1602,7 @@ export default defineComponent({
       }
 
       const searchQuery = fromLocationText.value.trim()
-      
+
       // Show loading
       const loadingNotify = $q.notify({
         message: `Searching for "${searchQuery}"...`,
@@ -1570,14 +1617,14 @@ export default defineComponent({
         // Search using geocoding API
         const results = await searchLocations(searchQuery, true)
         console.log('[ApanamPage] Search results:', results)
-        
+
         loadingNotify()
-        
+
         if (results && results.length > 0) {
           // Use the first result (most relevant)
           const bestMatch = results[0]
           console.log('[ApanamPage] Best match:', bestMatch)
-          
+
           fromLocation.value = {
             label: bestMatch.label,
             value: 'geocoded-location',
@@ -1586,13 +1633,13 @@ export default defineComponent({
             coords: [bestMatch.lat, bestMatch.lng],
             fullAddress: bestMatch.fullAddress,
           }
-          
+
           fromLocationText.value = bestMatch.label
-          
+
           // Force Vue reactivity
           await nextTick()
           console.log('[ApanamPage] Search complete, fromLocationText:', fromLocationText.value)
-          
+
           $q.notify({
             message: `Location found: ${bestMatch.label}`,
             icon: 'check_circle',
@@ -1608,7 +1655,7 @@ export default defineComponent({
             isCurrentLocation: false,
             coords: null,
           }
-          
+
           $q.notify({
             message: 'Location not found in Baguio. Using text search.',
             icon: 'info',
@@ -1620,7 +1667,7 @@ export default defineComponent({
       } catch (error) {
         console.error('[ApanamPage] Search error:', error)
         loadingNotify()
-        
+
         // Fallback on error
         fromLocation.value = {
           label: searchQuery,
@@ -1628,7 +1675,7 @@ export default defineComponent({
           isCurrentLocation: false,
           coords: null,
         }
-        
+
         $q.notify({
           message: 'Search failed. Using text location.',
           icon: 'warning',
@@ -1642,20 +1689,20 @@ export default defineComponent({
     const filterToLocations = async (val, update) => {
       update(async () => {
         const needle = val?.toLowerCase() || ''
-        
+
         // Start with local tourist spots
-        let filtered = locationOptions.filter((opt) => 
-          opt.value !== 'other' && opt.label.toLowerCase().includes(needle)
+        let filtered = locationOptions.filter(
+          (opt) => opt.value !== 'other' && opt.label.toLowerCase().includes(needle)
         )
-        
+
         // If search query is long enough, also search geocoding API
         if (needle.length >= 3) {
           try {
             const geocodeResults = await searchLocations(val, true)
-            
+
             // Add geocoded results (avoid duplicates)
-            geocodeResults.forEach(geo => {
-              const isDuplicate = filtered.some(f => f.label === geo.label)
+            geocodeResults.forEach((geo) => {
+              const isDuplicate = filtered.some((f) => f.label === geo.label)
               if (!isDuplicate) {
                 filtered.push({
                   label: geo.label,
@@ -1671,19 +1718,20 @@ export default defineComponent({
             // Continue with local results only
           }
         }
-        
+
         // Sort by relevance (local spots first, then geocoded)
         filtered.sort((a, b) => {
           if (a.isGeocoded && !b.isGeocoded) return 1
           if (!a.isGeocoded && b.isGeocoded) return -1
           return 0
         })
-        
+
         // Limit results
         filtered = filtered.slice(0, 10)
-        
+
         // Update TO location options
-        toLocationOptions.value = filtered.length > 0 ? filtered : locationOptions.filter(opt => opt.value !== 'other')
+        toLocationOptions.value =
+          filtered.length > 0 ? filtered : locationOptions.filter((opt) => opt.value !== 'other')
       })
     }
 
@@ -2548,7 +2596,9 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 
 /* Route Summary Cards */
 .route-summary-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
   border-radius: 16px;
   overflow: hidden;
 }
@@ -2630,7 +2680,7 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   .options-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .route-summary-card {
     margin-bottom: 12px;
   }

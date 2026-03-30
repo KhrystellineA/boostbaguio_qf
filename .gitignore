@@ -19,6 +19,7 @@ dist/
 # OS files
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # IDE
 .vscode/
@@ -41,4 +42,6 @@ coverage/
 tmp/
 temp/
 .vercel
-.env*.local
+
+# Vercel
+.vercel

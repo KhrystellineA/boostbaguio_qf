@@ -70,10 +70,12 @@
         >
           <template #body-cell-imageUrl="props">
             <q-td :props="props">
-              <q-avatar v-if="props.value" size="60px" square>
-                <img :src="props.value" />
+              <q-avatar size="60px" square>
+                <img
+                  :src="props.value || DEFAULT_JEEPNEY_IMAGE"
+                  @error="$event.target.src = DEFAULT_JEEPNEY_IMAGE"
+                />
               </q-avatar>
-              <q-icon v-else name="directions_bus" size="40px" color="grey-4" />
             </q-td>
           </template>
 
@@ -135,8 +137,11 @@
           <!-- Image Upload -->
           <div class="q-mb-md">
             <div class="text-subtitle2 q-mb-sm">Jeepney Image</div>
-            <div v-if="imagePreview || form.imageUrl" class="image-preview-container q-mb-sm">
-              <img :src="imagePreview || form.imageUrl" class="image-preview" />
+            <div v-show="imagePreview || form.imageUrl" class="image-preview-container q-mb-sm">
+              <img
+                :src="imagePreview || form.imageUrl || DEFAULT_JEEPNEY_IMAGE"
+                class="image-preview"
+              />
               <q-btn
                 round
                 dense
@@ -652,6 +657,7 @@ import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import RouteMap from 'src/components/RouteMap.vue'
+import defaultJeepneyImage from 'src/assets/jeepney.png'
 
 export default {
   name: 'JeepneyManagement',
@@ -681,6 +687,7 @@ export default {
       marker: null,
       routeLine: null,
       routeMarkers: [],
+      DEFAULT_JEEPNEY_IMAGE: defaultJeepneyImage,
       form: {
         jeepName: '',
         terminalLocation: '',
@@ -822,10 +829,21 @@ export default {
       this.loading = true
       try {
         const querySnapshot = await getDocs(collection(db, 'jeepneys'))
-        this.jeepneys = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
+        this.jeepneys = querySnapshot.docs.map((doc) => {
+          const data = doc.data()
+          // Normalize invalid or placeholder image URLs
+          if (
+            !data.imageUrl ||
+            data.imageUrl.includes('800x600') ||
+            data.imageUrl.includes('placeholder')
+          ) {
+            data.imageUrl = this.DEFAULT_JEEPNEY_IMAGE
+          }
+          return {
+            id: doc.id,
+            ...data,
+          }
+        })
       } catch (error) {
         console.error('[Jeepneys] Error loading:', error)
         this.$q.notify({
@@ -1016,6 +1034,12 @@ export default {
         }))
       }
 
+      // Normalize invalid or placeholder image URLs
+      let imageUrl = jeepney.imageUrl || this.DEFAULT_JEEPNEY_IMAGE
+      if (imageUrl.includes('800x600') || imageUrl.includes('placeholder')) {
+        imageUrl = this.DEFAULT_JEEPNEY_IMAGE
+      }
+
       this.form = {
         jeepName: jeepney.jeepName || '',
         terminalLocation: jeepney.terminalLocation || '',
@@ -1029,7 +1053,7 @@ export default {
         touristSpotsServiced: jeepney.touristSpotsServiced || [],
         routeCoordinates: formRoutePoints,
         endPoint: jeepney.endPoint || '',
-        imageUrl: jeepney.imageUrl || '',
+        imageUrl: imageUrl,
         imagePublicId: jeepney.imagePublicId || '',
       }
       this.showAddDialog = true
@@ -1075,7 +1099,7 @@ export default {
         const uniqueId = `JEEP-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
 
         let imageData = {
-          imageUrl: this.form.imageUrl || '',
+          imageUrl: this.form.imageUrl || this.DEFAULT_JEEPNEY_IMAGE,
           imagePublicId: this.form.imagePublicId || '',
         }
 
@@ -1338,7 +1362,7 @@ export default {
         touristSpotsServiced: [],
         routeCoordinates: [],
         endPoint: '',
-        imageUrl: '',
+        imageUrl: this.DEFAULT_JEEPNEY_IMAGE,
         imagePublicId: '',
       }
       this.imageFile = null

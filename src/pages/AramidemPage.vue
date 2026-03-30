@@ -574,7 +574,7 @@ import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import { db } from 'src/boot/firebase'
 import { doc, getDoc, collection, getDocs, query, orderBy } from 'firebase/firestore'
-import FooterSection from '../components/Home/FooterSection.vue'
+import FooterSection from '../components/home/FooterSection.vue'
 import bakeryImage from '../assets/bakery.png'
 
 export default defineComponent({
