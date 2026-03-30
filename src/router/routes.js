@@ -107,7 +107,7 @@ const routes = [
       {
         path: 'adminlogin',
         name: 'AdminLogin',
-        component: () => import('pages/Admin/AdminLogin.vue'),
+        component: () => import('pages/admin/AdminLogin.vue'),
         meta: {
           requiresGuest: true,
           title: 'Admin Login - Boost Baguio',
@@ -117,7 +117,7 @@ const routes = [
       {
         path: 'signup',
         name: 'AdminSignup',
-        component: () => import('pages/Admin/AdminSignup.vue'),
+        component: () => import('pages/admin/AdminSignup.vue'),
         meta: {
           requiresGuest: true,
           title: 'Admin Signup - Boost Baguio',
@@ -127,7 +127,7 @@ const routes = [
       {
         path: 'dashboard',
         name: 'AdminDashboard',
-        component: () => import('pages/Admin/AdminDashboard.vue'),
+        component: () => import('pages/admin/AdminDashboard.vue'),
         meta: {
           requiresAuth: true,
           requiresAdmin: true,

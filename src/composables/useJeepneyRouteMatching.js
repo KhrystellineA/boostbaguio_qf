@@ -180,7 +180,8 @@ export function useJeepneyRouteMatching() {
       const terminalCoords = [jeepney.terminalLat, jeepney.terminalLng]
 
       // Check if start is near terminal OR near route
-      const startNearTerminal = calculateDistance(startCoord, terminalCoords) <= NEAR_TERMINAL_THRESHOLD
+      const startNearTerminal =
+        calculateDistance(startCoord, terminalCoords) <= NEAR_TERMINAL_THRESHOLD
       const startNearRoute = isNearRoute(startCoord, routeCoords, NEAR_ROUTE_THRESHOLD)
 
       // Check if end is near route
@@ -253,7 +254,11 @@ export function useJeepneyRouteMatching() {
           calculateDistance(startCoord, startTerminalCoords) <= NEAR_TERMINAL_THRESHOLD
 
         // Check if transfer point is near this jeepney's route
-        const transferNearRoute = isNearRoute(transferCoord, startRouteCoords, TRANSFER_WALK_THRESHOLD)
+        const transferNearRoute = isNearRoute(
+          transferCoord,
+          startRouteCoords,
+          TRANSFER_WALK_THRESHOLD
+        )
 
         // Double ride: start near first jeepney AND can transfer to second jeepney
         if (startNearTerminal && transferNearRoute.isNear) {

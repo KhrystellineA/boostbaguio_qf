@@ -408,7 +408,7 @@ import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import { db } from 'src/boot/firebase'
 import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore'
-import FooterSection from '../components/Home/FooterSection.vue'
+import FooterSection from '../components/home/FooterSection.vue'
 import RouteMap from 'src/components/RouteMap.vue'
 import fallbackImage from '../assets/44.png'
 

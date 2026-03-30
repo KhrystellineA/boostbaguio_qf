@@ -547,7 +547,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { db } from 'src/boot/firebase'
 import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore'
-import FooterSection from '../components/Home/FooterSection.vue'
+import FooterSection from '../components/home/FooterSection.vue'
 import fallbackImage from '../assets/30.png'
 
 export default defineComponent({

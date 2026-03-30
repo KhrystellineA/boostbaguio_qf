@@ -53,7 +53,7 @@ export default defineConfig({
         '**/*.d.ts',
         '**/*.config.js',
         '**/main.js',
-        'src/pages/Admin/**',
+        'src/pages/admin/**',
         'src/components/admin/**',
       ],
     },

@@ -81,7 +81,8 @@
             >
               <div class="slide-content">
                 <q-img
-                  :src="place.imageUrl || '~assets/place-default.jpg'"
+                  :src="place.imageUrl || fallbackImage"
+                  @error="$event.target.src = fallbackImage"
                   class="carousel-image"
                   spinner-color="primary"
                 >
@@ -161,7 +162,7 @@
             :class="{ active: slide === index }"
             @click="slide = index"
           >
-            <q-img :src="place.imageUrl || '~assets/place-default.jpg'" class="indicator-image" />
+            <q-img :src="place.imageUrl || fallbackImage" class="indicator-image" />
           </div>
         </div>
       </div>
@@ -246,7 +247,8 @@
             @click="selectPlace(place)"
           >
             <q-img
-              :src="place.imageUrl || '~assets/place-default.jpg'"
+              :src="place.imageUrl || fallbackImage"
+              @error="$event.target.src = fallbackImage"
               spinner-color="primary"
               class="place-image"
             >
@@ -355,7 +357,8 @@
         <q-card-section class="q-pa-none" v-if="selectedPlace">
           <q-scroll-area style="height: 65vh">
             <q-img
-              :src="selectedPlace.imageUrl || '~assets/place-default.jpg'"
+              :src="selectedPlace.imageUrl || fallbackImage"
+              @error="$event.target.src = fallbackImage"
               spinner-color="primary"
               class="modal-image"
             />
@@ -559,7 +562,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore'
 import { useUserStore } from 'stores/user-store'
-import FooterSection from '../components/Home/FooterSection.vue'
+import FooterSection from '../components/home/FooterSection.vue'
 import { defaultBaguioPlaces } from 'src/composables/useBaguioPlaces'
 import fallbackImage from '../assets/456.png'
 
@@ -666,10 +669,21 @@ export default defineComponent({
         console.log('[MaykanPage] Fetching places from Firebase...')
         const q = query(collection(db, 'places'), orderBy('name', 'asc'))
         const querySnapshot = await getDocs(q)
-        const firebasePlaces = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
+        const firebasePlaces = querySnapshot.docs.map((doc) => {
+          const data = doc.data()
+          // Normalize invalid or placeholder image URLs
+          if (
+            !data.imageUrl ||
+            data.imageUrl.includes('via.placeholder') ||
+            data.imageUrl.includes('placeholder')
+          ) {
+            data.imageUrl = fallbackImage
+          }
+          return {
+            id: doc.id,
+            ...data,
+          }
+        })
         console.log('[MaykanPage] Loaded places from Firebase:', firebasePlaces.length)
 
         // Always use default data (30 tourist spots) - merge with Firebase if needed

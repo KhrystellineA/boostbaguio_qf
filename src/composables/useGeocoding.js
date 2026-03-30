@@ -75,7 +75,7 @@ export function useGeocoding() {
           place.address?.state?.includes('Baguio') ||
           place.address?.county === 'Baguio City'
 
-        return baguioOnly ? (inBaguio || isBaguioAddress) : true
+        return baguioOnly ? inBaguio || isBaguioAddress : true
       })
 
       // Format results

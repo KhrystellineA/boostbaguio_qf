@@ -46,13 +46,13 @@ import { defineComponent, ref } from 'vue'
 import { useIndexPage } from 'src/composables/useIndexPage'
 
 // Import sections
-import HeroSection from 'src/components/Home/HeroSection.vue'
-import FeaturesSection from 'src/components/Home/FeaturesSection.vue'
-import AboutSection from 'src/components/Home/AboutSection.vue'
-import GallerySection from 'src/components/Home/GallerySection.vue'
-import PartnersSection from 'src/components/Home/PartnersSection.vue'
-import FAQSection from 'src/components/Home/FAQSection.vue'
-import FooterSection from 'src/components/Home/FooterSection.vue'
+import HeroSection from 'src/components/home/HeroSection.vue'
+import FeaturesSection from 'src/components/home/FeaturesSection.vue'
+import AboutSection from 'src/components/home/AboutSection.vue'
+import GallerySection from 'src/components/home/GallerySection.vue'
+import PartnersSection from 'src/components/home/PartnersSection.vue'
+import FAQSection from 'src/components/home/FAQSection.vue'
+import FooterSection from 'src/components/home/FooterSection.vue'
 import BackToTopBtn from 'src/components/BackToTopBtn.vue'
 
 export default defineComponent({
