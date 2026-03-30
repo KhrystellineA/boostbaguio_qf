@@ -88,7 +88,8 @@
             @click="selectRoute(route)"
           >
             <q-img
-              :src="route.imageUrl || '~assets/jeepney.png'"
+              :src="route.imageUrl || fallbackImage"
+              @error="$event.target.src = fallbackImage"
               spinner-color="primary"
               class="route-image"
             />
@@ -517,10 +518,22 @@ export default defineComponent({
         console.log('[PagnaamPage] Fetching routes from Firebase...')
         const routesQuery = query(collection(db, 'jeepneys'), where('isActive', '==', true))
         const querySnapshot = await getDocs(routesQuery)
-        allRoutes.value = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
+        allRoutes.value = querySnapshot.docs.map((doc) => {
+          const data = doc.data()
+          // Normalize invalid or placeholder image URLs
+          if (
+            !data.imageUrl ||
+            data.imageUrl.includes('via.placeholder') ||
+            data.imageUrl.includes('placeholder') ||
+            data.imageUrl.includes('800x600')
+          ) {
+            data.imageUrl = fallbackImage
+          }
+          return {
+            id: doc.id,
+            ...data,
+          }
+        })
         console.log('[PagnaamPage] Loaded routes:', allRoutes.value.length)
       } catch (error) {
         console.error('[PagnaamPage] Error fetching routes:', error)

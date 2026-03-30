@@ -290,7 +290,10 @@
                       @click="selectPlace({ id: item.id, name: item.name })"
                     >
                       <q-avatar>
-                        <img :src="item.imageUrl || '~assets/place-default.jpg'" />
+                        <img
+                          :src="item.imageUrl || fallbackImage"
+                          @error="$event.target.src = fallbackImage"
+                        />
                       </q-avatar>
                       {{ item.name }}
                     </q-chip>
@@ -323,7 +326,10 @@
                     >
                       <q-item-section avatar>
                         <q-avatar square>
-                          <img :src="place.imageUrl || '~assets/place-default.jpg'" />
+                          <img
+                            :src="place.imageUrl || fallbackImage"
+                            @error="$event.target.src = fallbackImage"
+                          />
                         </q-avatar>
                       </q-item-section>
                       <q-item-section>
@@ -777,10 +783,22 @@ export default defineComponent({
         console.log('[AyanMoPage] Fetching places from Firebase...')
         const q = query(collection(db, 'places'), orderBy('name', 'asc'))
         const querySnapshot = await getDocs(q)
-        places.value = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
+        places.value = querySnapshot.docs.map((doc) => {
+          const data = doc.data()
+          // Normalize invalid or placeholder image URLs
+          if (
+            !data.imageUrl ||
+            data.imageUrl.includes('via.placeholder') ||
+            data.imageUrl.includes('placeholder') ||
+            data.imageUrl.includes('800x600')
+          ) {
+            data.imageUrl = fallbackImage
+          }
+          return {
+            id: doc.id,
+            ...data,
+          }
+        })
         console.log('[AyanMoPage] Loaded places:', places.value.length)
       } catch (error) {
         console.error('[AyanMoPage] Error loading places:', error)

@@ -45,7 +45,8 @@
             @click="viewEventDetails(event)"
           >
             <q-img
-              :src="event.imageUrl || '~assets/event-default.jpg'"
+              :src="event.imageUrl || bakeryImage"
+              @error="$event.target.src = bakeryImage"
               spinner-color="primary"
               class="featured-image"
             >
@@ -261,7 +262,8 @@
             @click="viewEventDetails(event)"
           >
             <q-img
-              :src="event.imageUrl || '~assets/event-default.jpg'"
+              :src="event.imageUrl || bakeryImage"
+              @error="$event.target.src = bakeryImage"
               spinner-color="primary"
               class="event-image"
             />
@@ -328,7 +330,8 @@
         <q-card-section class="q-pa-none" v-if="selectedEvent">
           <q-scroll-area style="height: 65vh">
             <q-img
-              :src="selectedEvent.imageUrl || '~assets/event-default.jpg'"
+              :src="selectedEvent.imageUrl || bakeryImage"
+              @error="$event.target.src = bakeryImage"
               spinner-color="primary"
               class="event-detail-image"
             />
@@ -624,6 +627,16 @@ export default defineComponent({
 
         const firebaseEvents = querySnapshot.docs.map((doc) => {
           const data = doc.data()
+          // Normalize invalid or placeholder image URLs
+          let imageUrl = data.imageUrl || ''
+          if (
+            !imageUrl ||
+            imageUrl.includes('via.placeholder') ||
+            imageUrl.includes('placeholder') ||
+            imageUrl.includes('800x600')
+          ) {
+            imageUrl = bakeryImage
+          }
           return {
             id: doc.id,
             name: data.title || data.name, // Map 'title' to 'name' for compatibility
@@ -631,7 +644,7 @@ export default defineComponent({
             startDate: data.startDate,
             endDate: data.endDate,
             description: data.description,
-            imageUrl: data.imageUrl || '',
+            imageUrl: imageUrl,
             featured: data.featured || false,
             organizer: data.organizer,
             contactEmail: data.contactEmail,
