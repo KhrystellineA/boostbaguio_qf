@@ -26,11 +26,12 @@
               From iconic landmarks to hidden gems, MAYKAN provides comprehensive information about
               places to visit in Baguio City with integrated navigation instructions.
             </p>
-            <div class="q-gutter-sm">
-              <q-chip square color="primary" text-color="white" icon="location_on">Tourist Spots</q-chip>
-              <q-chip square color="secondary" text-color="white" icon="restaurant">Cafes & Restaurants</q-chip>
-              <q-chip square color="primary" text-color="white" icon="park">Parks & Nature</q-chip>
-              <q-chip square color="secondary" text-color="white" icon="museum">Cultural Sites</q-chip>
+            <div class="hero-category-pills">
+              <q-chip class="category-pill" color="primary" text-color="white" icon="location_on">Tourist Spots</q-chip>
+              <q-chip class="category-pill" color="orange" text-color="white" icon="restaurant">Cafes & Restaurants</q-chip>
+              <q-chip class="category-pill" color="green-8" text-color="white" icon="park">Parks & Nature</q-chip>
+              <q-chip class="category-pill" color="purple" text-color="white" icon="museum">Museums & Culture</q-chip>
+              <q-chip class="category-pill" color="blue-8" text-color="white" icon="shopping_bag">Shopping</q-chip>
             </div>
           </div>
           <div class="col-md-6 col-12 q-pa-xl">
@@ -47,7 +48,7 @@
     <section class="carousel-section bg-white q-py-xl">
       <div class="container">
         <div class="text-center q-mb-lg">
-          <h2 class="text-h4 text-weight-bold text-primary">Top 30 Tourist Destinations</h2>
+          <h2 class="carousel-title text-primary">Top 30 Tourist Destinations</h2>
           <p class="text-body2 text-grey-7">Swipe through Baguio's most visited places</p>
         </div>
 
@@ -73,16 +74,10 @@
             >
               <div class="slide-content">
                 <q-img
-                  :src="place.imageUrl || '~assets/place-default.jpg'"
+                  :src="getPlaceImage(place)"
                   class="carousel-image"
-                  spinner-color="primary"
-                >
-                  <template v-slot:loading>
-                    <div class="absolute-full flex flex-center bg-grey-3">
-                      <q-spinner color="primary" size="50px" />
-                    </div>
-                  </template>
-                </q-img>
+                  :ratio="16/9"
+                />
                 <div class="slide-overlay">
                   <div class="slide-info">
                     <h3 class="slide-title">{{ place.name }}</h3>
@@ -151,7 +146,7 @@
             :class="{ 'active': slide === index }"
             @click="slide = index"
           >
-            <q-img :src="place.imageUrl || '~assets/place-default.jpg'" class="indicator-image" />
+            <q-img :src="getPlaceImage(place)" class="indicator-image" />
           </div>
         </div>
       </div>
@@ -187,26 +182,25 @@
     <section id="places" class="places-section bg-grey-1 q-py-xl">
       <div class="container">
         <div class="text-center q-mb-xl">
-          <h2 class="text-h3 text-weight-bold text-primary">Discover Baguio's Places</h2>
+          <h2 class="section-title text-primary">Discover Baguio's Places</h2>
           <p class="text-body1">Browse our curated collection of tourist spots, cafes, parks, and more</p>
         </div>
 
         <div class="category-filter-section q-mb-xl">
-          <div class="row justify-center">
-            <q-btn-group spread>
-              <q-btn
-                v-for="category in categories"
-                :key="category.value"
-                :label="category.label"
-                :unelevated="selectedCategory === category.value"
-                :outline="selectedCategory !== category.value"
-                :color="selectedCategory === category.value ? 'primary' : 'dark'"
-                size="md"
-                padding="8px 24px"
-                class="category-btn"
-                @click="filterByCategory(category.value)"
-              />
-            </q-btn-group>
+          <div class="row justify-center no-wrap scrollable-categories">
+            <q-btn
+              v-for="category in categories"
+              :key="category.value"
+              :label="category.label"
+              :unelevated="selectedCategory === category.value"
+              :outline="selectedCategory !== category.value"
+              :color="selectedCategory === category.value ? category.color : 'grey-7'"
+              :text-color="selectedCategory === category.value ? 'white' : 'grey-7'"
+              size="md"
+              padding="12px 28px"
+              class="category-btn pill-btn"
+              @click="filterByCategory(category.value)"
+            />
           </div>
         </div>
 
@@ -229,16 +223,11 @@
             @click="selectPlace(place)"
           >
             <q-img
-              :src="place.imageUrl || '~assets/place-default.jpg'"
-              spinner-color="primary"
+              :src="getPlaceImage(place)"
               class="place-image"
+              :ratio="16/9"
             >
-              <template v-slot:loading>
-                <div class="absolute-full flex flex-center bg-grey-3">
-                  <q-spinner color="primary" size="30px" />
-                </div>
-              </template>
-              
+
               <!-- Save Button Overlay -->
               <div class="save-btn-overlay">
                 <q-btn
@@ -259,7 +248,8 @@
               <q-badge
                 v-for="(cat, idx) in (Array.isArray(place.categories) ? place.categories : [place.category].filter(Boolean))"
                 :key="idx"
-                color="secondary"
+                :color="getCategoryColor(cat)"
+                :data-category="cat"
                 class="text-capitalize q-mr-xs"
               >
                 {{ getCategoryLabel(cat) }}
@@ -330,27 +320,26 @@
     <!-- PLACE DETAILS MODAL (Section 6) -->
     <q-dialog
       v-model="showPlaceDetail"
-      full-width
-      full-height
-      transition-show="slide-up"
-      transition-hide="slide-down"
+      transition-show="scale"
+      transition-hide="scale"
+      class="place-detail-dialog"
     >
       <q-card v-if="selectedPlace" class="place-detail-card">
         <!-- Header with Image -->
         <div class="modal-header">
           <q-img
-            :src="selectedPlace.imageUrl || '~assets/place-default.jpg'"
-            spinner-color="primary"
+            :src="getPlaceImage(selectedPlace)"
             class="modal-image"
+            :ratio="16/9"
           />
           <q-btn
             round
             flat
-            dense
             icon="close"
             color="white"
             v-close-popup
             class="close-btn"
+            size="md"
           />
         </div>
 
@@ -464,15 +453,17 @@
               />
               <q-btn
                 :label="isPlaceSaved(selectedPlace) ? 'Saved' : 'Save Place'"
-                :color="isPlaceSaved(selectedPlace) ? 'positive' : 'white'"
+                :color="isPlaceSaved(selectedPlace) ? 'positive' : 'dark'"
                 :outline="!isPlaceSaved(selectedPlace)"
+                :text-color="isPlaceSaved(selectedPlace) ? 'white' : 'dark'"
                 :icon="isPlaceSaved(selectedPlace) ? 'bookmark' : 'bookmark_border'"
                 @click="toggleSavePlace(selectedPlace)"
               />
               <q-btn
                 label="Share"
-                color="white"
+                color="dark"
                 outline
+                text-color="dark"
                 icon="share"
                 @click="sharePlace"
               />
@@ -540,6 +531,11 @@ import FooterSection from '../components/Home/FooterSection.vue'
 import { defaultBaguioPlaces } from 'src/composables/useBaguioPlaces'
 import fallbackImage from '../assets/456.png'
 
+// Get image URL for a place (tries main image, then fallback)
+const getPlaceImage = (place) => {
+  return place.imageUrl || place.fallbackImage || fallbackImage
+}
+
 export default defineComponent({
   name: 'MaykanPage',
   components: {
@@ -583,18 +579,17 @@ export default defineComponent({
     const rightFaqs = computed(() => faqs.slice(2))
 
     const categories = [
-      { label: 'All Places', value: 'all' },
-      { label: 'Tourist Spots', value: 'tourist-spot' },
-      { label: 'Cafes & Restaurants', value: 'restaurant' },
-      { label: 'Parks & Nature', value: 'park-nature' },
-      { label: 'Museums & Culture', value: 'museum-culture' },
-      { label: 'Shopping', value: 'shopping' },
+      { label: 'All Places', value: 'all', color: 'dark' },
+      { label: 'Tourist Spots', value: 'Tourist Spots', color: 'primary' },
+      { label: 'Cafes & Restaurants', value: 'Cafes & Restaurants', color: 'orange' },
+      { label: 'Parks & Nature', value: 'Parks & Nature', color: 'green-8' },
+      { label: 'Museums & Culture', value: 'Museums & Culture', color: 'purple' },
+      { label: 'Shopping', value: 'Shopping', color: 'blue-8' },
     ]
 
-    // Get top tourist places for carousel (filter by category or popularity)
+    // Get top tourist places for carousel (returns all places)
     const topTouristPlaces = computed(() => {
-      const touristSpots = places.value.filter(p => p.category === 'Tourist Spots')
-      return touristSpots.length > 0 ? touristSpots : places.value.slice(0, 10)
+      return places.value
     })
 
     const onSlideChange = (newSlide) => {
@@ -631,38 +626,15 @@ export default defineComponent({
     const fetchPlaces = async () => {
       loading.value = true
       try {
-        console.log('[MaykanPage] Fetching places from Firebase...')
-        const q = query(collection(db, 'places'), orderBy('name', 'asc'))
-        const querySnapshot = await getDocs(q)
-        const firebasePlaces = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }))
-        console.log('[MaykanPage] Loaded places from Firebase:', firebasePlaces.length)
-        
-        // Always use default data (30 tourist spots) - merge with Firebase if needed
-        if (firebasePlaces.length > 0 && firebasePlaces.length < 30) {
-          console.log('[MaykanPage] Firebase has fewer than 30 places, using default 30 tourist spots')
-          places.value = defaultBaguioPlaces
-        } else if (firebasePlaces.length >= 30) {
-          console.log('[MaykanPage] Using Firebase places')
-          places.value = firebasePlaces
-        } else {
-          console.log('[MaykanPage] No Firebase places, using default data')
-          places.value = defaultBaguioPlaces
-        }
-        
+        console.log('[MaykanPage] ALWAYS using default data with guaranteed images')
+        // ALWAYS use default data with proper images - never use Firebase places
+        places.value = defaultBaguioPlaces
         console.log('[MaykanPage] Total places to display:', places.value.length)
       } catch (error) {
         console.error('[MaykanPage] Error loading places:', error)
         // Fallback to default data on error
         console.log('[MaykanPage] Using default places data')
         places.value = defaultBaguioPlaces
-        $q.notify({
-          type: 'info',
-          message: 'Showing default Baguio places',
-          position: 'top'
-        })
       } finally {
         loading.value = false
       }
@@ -850,18 +822,29 @@ export default defineComponent({
 
     const getCategoryLabel = (category) => {
       const labels = {
-        'tourist-spot': 'Tourist Spots',
-        'restaurant': 'Cafes & Restaurants',
-        'park-nature': 'Parks & Nature',
-        'museum-culture': 'Museums & Culture',
-        'shopping': 'Shopping',
-        'hotel-lodging': 'Hotels & Lodging',
-        'government': 'Government',
-        'hospital': 'Hospital',
-        'school': 'School',
-        'other': 'Other'
+        'Tourist Spots': 'Tourist Spots',
+        'Cafes & Restaurants': 'Cafes & Restaurants',
+        'Parks & Nature': 'Parks & Nature',
+        'Museums & Culture': 'Museums & Culture',
+        'Shopping': 'Shopping',
+        'Hotels & Lodging': 'Hotels & Lodging',
+        'Government': 'Government',
+        'Hospital': 'Hospital',
+        'School': 'School',
+        'Other': 'Other'
       }
       return labels[category] || category
+    }
+
+    const getCategoryColor = (category) => {
+      const colors = {
+        'Tourist Spots': 'primary',
+        'Cafes & Restaurants': 'orange',
+        'Parks & Nature': 'green-8',
+        'Museums & Culture': 'purple',
+        'Shopping': 'blue-8'
+      }
+      return colors[category] || 'grey-7'
     }
 
     onMounted(async () => {
@@ -884,9 +867,11 @@ export default defineComponent({
       filteredPlaces,
       topTouristPlaces,
       slide,
+      getPlaceImage,
       truncateText,
       formatOperatingHours,
       getCategoryLabel,
+      getCategoryColor,
       openSaBaguioGroup,
       filterByCategory,
       selectPlace,
@@ -902,14 +887,28 @@ export default defineComponent({
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Oswald:wght@400;600;700&display=swap');
+
+/* ===================== BASE PAGE ===================== */
 .maykan-page {
-  background-color: #F5F5F5 !important;
+  background-color: #FAFAFA !important;
 }
 
+/* All h2 titles use Bebas Neue */
+.maykan-page h2 {
+  font-family: 'Bebas Neue', 'Oswald', 'Anton', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+}
+
+/* ===================== HERO SECTION ===================== */
 .hero-section {
-  height: 40vh;
+  height: 60vh;
+  min-height: 400px;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   position: relative;
   display: flex;
   align-items: center;
@@ -931,28 +930,78 @@ export default defineComponent({
 .hero-content {
   text-align: center;
   color: white;
-  max-width: 800px;
-  padding: 2rem;
+  max-width: 900px;
+  padding: 3rem;
 }
 
 .hero-title {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-  color: white;
+  font-size: 3.5rem;
+  font-weight: 400;
+  font-family: 'Bebas Neue', 'Oswald', 'Anton', sans-serif;
+  margin-bottom: 1.25rem;
+  color: #FFFFFF;
+  text-shadow: 3px 3px 12px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.1em;
+  line-height: 1.1;
 }
 
 .hero-description {
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   margin: 0;
+  line-height: 1.7;
+  color: #F0F0F0;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
 }
 
-/* Carousel Section Styles */
+/* ===================== EXTENDED HERO ===================== */
+.extended-hero {
+  padding: 5rem 0;
+}
+
+.hero-category-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 1.5rem;
+}
+
+.hero-category-pills .category-pill {
+  font-family: 'Bebas Neue', 'Oswald', 'Anton', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  padding: 10px 20px;
+  border-radius: 50px;
+  height: auto;
+  min-height: 40px;
+  transition: all 0.3s ease;
+}
+
+.hero-category-pills .category-pill:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.hero-category-pills .category-pill .q-icon {
+  font-size: 1.1rem;
+}
+
+/* ===================== CAROUSEL SECTION ===================== */
 .carousel-section {
-  background: white;
+  background: #FFFFFF;
+  padding: 4rem 0;
+}
+
+.carousel-title {
+  font-size: 2.5rem;
+  font-weight: 400;
+  font-family: 'Bebas Neue', 'Oswald', 'Anton', sans-serif;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  margin-bottom: 0.75rem;
 }
 
 .carousel-container {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 
@@ -978,70 +1027,98 @@ export default defineComponent({
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
-  padding: 60px 24px 24px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.75) 50%, transparent 100%);
+  padding: 100px 28px 28px;
   display: flex;
   align-items: flex-end;
 }
 
 .slide-info {
-  color: white;
+  color: #FFFFFF;
   width: 100%;
 }
 
 .slide-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin-bottom: 0.25rem;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  font-size: 2rem;
+  font-weight: 400;
+  font-family: 'Bebas Neue', 'Oswald', 'Anton', sans-serif;
+  margin-bottom: 0.5rem;
+  color: #FFFFFF;
+  text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.08em;
+  line-height: 1.15;
 }
 
 .slide-area {
-  font-size: 1rem;
-  opacity: 0.9;
-  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  opacity: 0.95;
+  margin-bottom: 0.875rem;
   display: flex;
   align-items: center;
+  color: #F5F5F5;
 }
 
 .slide-tags {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .slide-actions {
   display: flex;
-  gap: 8px;
-}
-
-.carousel-indicators {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 8px 0;
-  justify-content: center;
+  gap: 16px;
   flex-wrap: wrap;
 }
 
+/* Carousel Indicators */
+.carousel-indicators {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 16px 0;
+  justify-content: center;
+  flex-wrap: wrap;
+  scrollbar-width: thin;
+  scrollbar-color: #2E5D3E #E8E8E8;
+}
+
+.carousel-indicators::-webkit-scrollbar {
+  height: 8px;
+}
+
+.carousel-indicators::-webkit-scrollbar-track {
+  background: #E8E8E8;
+  border-radius: 4px;
+}
+
+.carousel-indicators::-webkit-scrollbar-thumb {
+  background: #2E5D3E;
+  border-radius: 4px;
+}
+
 .indicator-item {
-  width: 80px;
-  height: 60px;
-  border-radius: 8px;
+  width: 100px;
+  height: 75px;
+  border-radius: 10px;
   overflow: hidden;
   cursor: pointer;
-  opacity: 0.6;
+  opacity: 0.65;
   transition: all 0.3s ease;
-  border: 2px solid transparent;
+  border: 3px solid transparent;
+  flex-shrink: 0;
 }
 
 .indicator-item:hover {
-  opacity: 0.8;
-  transform: scale(1.05);
+  opacity: 0.9;
+  transform: scale(1.08);
 }
 
 .indicator-item.active {
   opacity: 1;
   border-color: #2E5D3E;
   transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(46, 93, 62, 0.4);
 }
 
 .indicator-image {
@@ -1054,82 +1131,319 @@ export default defineComponent({
   background: transparent;
 }
 
-.extended-hero {
-  padding: 3rem 0;
-}
-
+/* ===================== CONTAINER ===================== */
 .container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
 }
 
+/* ===================== COMMUNITY RIBBON ===================== */
 .community-ribbon {
-  padding: 2rem 0;
+  padding: 3rem 0;
+  background: linear-gradient(135deg, #8D6E63 0%, #6D4C41 100%);
 }
 
+/* ===================== PLACES SECTION ===================== */
 .places-section {
-  background-color: #F5F5F5;
+  background-color: #FAFAFA;
+  padding: 4rem 0;
 }
 
+.section-title {
+  font-size: 3rem;
+  font-weight: 400;
+  font-family: 'Bebas Neue', 'Oswald', 'Anton', sans-serif;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+
+/* ===================== PLACES GRID ===================== */
 .places-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 2rem;
+  margin-top: 2.5rem;
 }
 
 .place-card {
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  border-left: 4px solid #2E5D3E;
+  transition: all 0.3s ease;
+  border-left: 5px solid #2E5D3E;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #FFFFFF;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .place-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  transform: translateY(-10px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
 }
 
 .place-image {
-  height: 200px;
+  height: 240px;
+  object-fit: cover;
+  position: relative;
+}
+
+.save-btn-overlay {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
+}
+
+.save-place-btn {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.save-place-btn:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: scale(1.18);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.category-badge {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tags-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag-badge {
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 18px;
+}
+
+.tag-badge-full {
+  padding: 8px 14px;
+  border-radius: 22px;
+  font-size: 0.85rem;
+}
+
+/* ===================== MODAL ===================== */
+.place-detail-dialog .q-dialog__inner {
+  padding: 2rem;
+}
+
+.place-detail-card {
+  border-radius: 24px;
+  overflow: hidden;
+  max-width: 700px;
+  width: 100%;
+  max-height: 90vh;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+  position: relative;
+  height: 280px;
+}
+
+.modal-image {
+  height: 100%;
+  width: 100%;
   object-fit: cover;
 }
 
-.detail-image {
-  height: 400px;
-  object-fit: cover;
+.close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
+.close-btn:hover {
+  background: rgba(0, 0, 0, 0.75);
+  transform: scale(1.1);
+}
+
+.modal-content {
+  max-width: 100%;
+  padding: 1.75rem;
+  overflow-y: auto;
+  max-height: calc(90vh - 280px);
+}
+
+.title-section {
+  padding: 0;
+  margin-bottom: 1.75rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 1.75rem;
+}
+
+.info-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  background: #F8F9FA;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.info-card:hover {
+  background: #E8F5E9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.info-icon {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.info-content {
+  flex: 1;
+}
+
+.info-label {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.info-value {
+  color: #333;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.description-section {
+  padding: 0;
+  margin-bottom: 1.75rem;
+}
+
+.navigation-section {
+  border-radius: 12px;
+  border-left: 4px solid #2E5D3E;
+  padding: 18px;
+  background: linear-gradient(135deg, #F0F9F4 0%, #E8F5E9 100%);
+}
+
+.bg-blue-1 {
+  background-color: #E3F2FD !important;
+}
+
+.rounded-borders {
+  border-radius: 10px !important;
+}
+
+/* ===================== CATEGORY FILTER ===================== */
+.category-filter-section {
+  margin-top: 1.5rem;
+}
+
+.scrollable-categories {
+  overflow-x: auto;
+  padding: 8px 0;
+  scrollbar-width: thin;
+  scrollbar-color: #2E5D3E #E8E8E8;
+}
+
+.scrollable-categories::-webkit-scrollbar {
+  height: 6px;
+}
+
+.scrollable-categories::-webkit-scrollbar-track {
+  background: #E8E8E8;
+  border-radius: 3px;
+}
+
+.scrollable-categories::-webkit-scrollbar-thumb {
+  background: #2E5D3E;
+  border-radius: 3px;
+}
+
+.category-btn {
+  min-width: auto;
+  flex-shrink: 0;
+  margin: 0 6px;
+  transition: all 0.3s ease;
+  font-family: 'Bebas Neue', 'Oswald', 'Anton', sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  border-radius: 50px !important;
+}
+
+.pill-btn {
+  border-radius: 50px !important;
+  padding: 12px 28px !important;
+  min-height: 44px;
+}
+
+.category-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* ===================== FAQs SECTION ===================== */
 .faqs-section {
-  background: #6B5344;
-  padding: 6rem 0;
+  background: linear-gradient(135deg, #6B5344 0%, #4A3830 100%);
+  padding: 5rem 0;
   color: white;
 }
 
 .container-faqs {
-  max-width: 1400px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 0 3rem;
+  padding: 0 24px;
 }
 
 .faqs-header {
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 3.5rem;
 }
 
 .faqs-title {
-  font-size: 2.25rem;
-  font-weight: 800;
-  color: white;
-  margin-bottom: 1rem;
+  font-size: 2.75rem;
+  font-weight: 400;
+  font-family: 'Bebas Neue', 'Oswald', 'Anton', sans-serif;
+  color: #FFFFFF;
+  margin-bottom: 1.25rem;
   letter-spacing: 0.1em;
-  text-transform: uppercase;
+  line-height: 1.1;
 }
 
 .faqs-description {
-  font-size: 1.05rem;
-  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.15rem;
+  color: #F0F0F0;
   line-height: 1.7;
-  max-width: 600px;
+  max-width: 650px;
   margin: 0 auto;
 }
 
@@ -1146,292 +1460,174 @@ export default defineComponent({
 }
 
 .faq-item {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
   transition: all 0.3s;
 }
 
 .faq-item:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.18);
 }
 
-.bg-primary {
-  background-color: #2E5D3E !important;
-}
-
-.text-primary {
-  color: #2E5D3E !important;
-}
-
-.bg-secondary {
-  background-color: #8D6E63 !important;
-}
-
-.text-secondary {
-  color: #8D6E63 !important;
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.image-placeholder {
-  height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-}
-
-/* Place Card Styles */
-.places-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 1.5rem;
-}
-
-.place-card {
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border-left: 4px solid #2E5D3E;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.place-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-}
-
-.place-image {
-  height: 220px;
-  object-fit: cover;
-  position: relative;
-}
-
-.save-btn-overlay {
-  position: absolute;
-  top: 12px;
-  right: 50px;
-  z-index: 10;
-}
-
-.save-place-btn {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(4px);
-  transition: all 0.3s ease;
-  
-  &:hover {
-    background: rgba(255, 255, 255, 1);
-    transform: scale(1.1);
+/* ===================== RESPONSIVE: TABLET ===================== */
+@media (max-width: 1024px) {
+  .hero-section {
+    height: 50vh;
   }
-}
 
-.category-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 10;
-}
-
-.tags-container {
-  display: flex;
-  flex-wrap: wrap;
-}
-
-.tag-badge {
-  font-size: 0.75rem;
-  padding: 4px 10px;
-  border-radius: 16px;
-}
-
-.tag-badge-full {
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-}
-
-/* Modal Styles */
-.place-detail-card {
-  border-radius: 20px 20px 0 0;
-  overflow: hidden;
-}
-
-.modal-header {
-  position: relative;
-  height: 350px;
-}
-
-.modal-image {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-}
-
-.close-btn {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 100;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.close-btn:hover {
-  background: rgba(0, 0, 0, 0.7);
-}
-
-.modal-content {
-  max-width: 1000px;
-  margin: 0 auto;
-  overflow-y: auto;
-  max-height: calc(100vh - 350px);
-}
-
-.title-section {
-  padding: 24px 0;
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-}
-
-.info-card {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  background: #F5F5F5;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-}
-
-.info-card:hover {
-  background: #E8F5E9;
-  transform: translateY(-2px);
-}
-
-.info-icon {
-  width: 40px;
-  height: 40px;
-  background: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.info-content {
-  flex: 1;
-}
-
-.info-label {
-  font-size: 0.85rem;
-  color: #666;
-  margin-bottom: 4px;
-}
-
-.info-value {
-  color: #333;
-  line-height: 1.5;
-}
-
-.description-section {
-  padding: 16px 0;
-}
-
-.navigation-section {
-  border-radius: 12px;
-  border-left: 4px solid #2E5D3E;
-}
-
-.bg-blue-1 {
-  background-color: #E3F2FD !important;
-}
-
-.rounded-borders {
-  border-radius: 8px !important;
-}
-
-@media (max-width: 768px) {
   .hero-title {
-    font-size: 2rem;
+    font-size: 2.75rem;
   }
 
   .hero-description {
-    font-size: 1rem;
+    font-size: 1.2rem;
   }
 
   .places-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 0 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.75rem;
+  }
+}
+
+/* ===================== RESPONSIVE: MOBILE ===================== */
+@media (max-width: 768px) {
+  .hero-section {
+    height: 45vh;
+    min-height: 300px;
   }
 
-  .place-card {
-    min-height: 280px;
+  .hero-content {
+    padding: 2rem;
   }
 
-  .place-image {
-    height: 180px;
+  .hero-title {
+    font-size: 2.25rem;
   }
 
-  /* Touch-friendly buttons */
-  .q-btn {
-    min-height: 44px !important;
-    min-width: 44px !important;
+  .hero-description {
+    font-size: 1.05rem;
+  }
+
+  .extended-hero {
+    padding: 3rem 0;
   }
 
   .carousel-section {
-    padding: 1rem 0;
+    padding: 2.5rem 0;
   }
 
   .carousel-image {
-    height: 300px;
+    min-height: 380px;
   }
 
   .slide-title {
-    font-size: 1.25rem;
+    font-size: 1.65rem;
+    font-family: 'Bebas Neue', 'Oswald', 'Anton', sans-serif;
+    letter-spacing: 0.06em;
+  }
+
+  .slide-area {
+    font-size: 0.95rem;
   }
 
   .slide-actions {
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
   }
 
   .slide-actions .q-btn {
     width: 100%;
-    min-height: 48px !important;
+    min-height: 50px !important;
   }
 
   .carousel-indicators {
     justify-content: flex-start;
     overflow-x: auto;
+    padding: 12px 0;
   }
 
   .indicator-item {
-    min-width: 60px;
+    min-width: 80px;
+    width: 80px;
+    height: 60px;
+  }
+
+  .places-section {
+    padding: 2.5rem 0;
+  }
+
+  .section-title {
+    font-size: 2.25rem;
+  }
+
+  .carousel-title {
+    font-size: 2rem;
+  }
+
+  .places-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 0;
+  }
+
+  .place-card {
+    min-height: 300px;
+  }
+
+  .place-image {
+    height: 220px;
+  }
+
+  .category-filter-section {
+    overflow-x: auto;
+    padding: 0.75rem 0;
+  }
+
+  .category-btn {
+    min-width: 140px;
+    white-space: nowrap;
   }
 
   .modal-header {
-    height: 250px;
+    height: 220px;
   }
 
   .modal-content {
-    max-height: calc(100vh - 250px);
+    padding: 1.25rem;
+    max-height: calc(85vh - 220px);
+  }
+
+  .place-detail-dialog .q-dialog__inner {
+    padding: 1rem;
+  }
+
+  .place-detail-card {
+    max-width: 95vw;
+    max-height: 85vh;
   }
 
   .info-grid {
     grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .faqs-section {
+    padding: 3.5rem 0;
+  }
+
+  .faqs-title {
+    font-size: 1.85rem;
+    font-family: 'Bebas Neue', 'Oswald', 'Anton', sans-serif;
+  }
+
+  .faqs-description {
+    font-size: 1.05rem;
+  }
+
+  .faqs-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
   }
 
   .row {
@@ -1440,11 +1636,83 @@ export default defineComponent({
 
   .col-md-6, .col-md-8, .col-md-4 {
     width: 100%;
+    padding: 1.25rem !important;
   }
 
-  /* Category buttons - scrollable on mobile */
-  .category-btn {
-    min-width: 120px;
+  /* Touch-friendly buttons */
+  .q-btn {
+    min-height: 48px !important;
+    min-width: 48px !important;
+  }
+}
+
+/* ===================== RESPONSIVE: SMALL MOBILE ===================== */
+@media (max-width: 480px) {
+  .hero-section {
+    height: 40vh;
+    min-height: 260px;
+  }
+
+  .hero-title {
+    font-size: 1.85rem;
+    font-family: 'Bebas Neue', 'Oswald', 'Anton', sans-serif;
+    letter-spacing: 0.08em;
+    line-height: 1.1;
+  }
+
+  .hero-description {
+    font-size: 0.95rem;
+  }
+
+  .extended-hero {
+    padding: 2.25rem 0;
+  }
+
+  .carousel-section {
+    padding: 2rem 0;
+  }
+
+  .carousel-title {
+    font-size: 1.75rem;
+  }
+
+  .carousel-image {
+    min-height: 320px;
+  }
+
+  .slide-title {
+    font-size: 1.4rem;
+    font-family: 'Bebas Neue', 'Oswald', 'Anton', sans-serif;
+  }
+
+  .places-grid {
+    gap: 1.25rem;
+  }
+
+  .place-image {
+    height: 200px;
+  }
+
+  .modal-header {
+    height: 240px;
+  }
+
+  .modal-content {
+    padding: 1.25rem;
+    max-height: calc(100vh - 240px);
+  }
+
+  .faqs-title {
+    font-size: 1.5rem;
+    font-family: 'Bebas Neue', 'Oswald', 'Anton', sans-serif;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  .container-faqs {
+    padding: 0 16px;
   }
 }
 </style>
