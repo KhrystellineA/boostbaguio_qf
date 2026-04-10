@@ -400,12 +400,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// Color Palette Variables
-$dark-green: #1B4332;
-$primary-green: #2E5D3E;
-$light-green: #9EC98F;
-$brown: #6B5344;
-$white: #FFFFFF;
+// Color Palette Variables - use global SCSS variables
+$dark-green: #0d5c22;
+$primary-green: #1A7D36;
+$light-green: #2a9d4a;
+$brown: #6d4c41;
+$white: #ffffff;
 
 .page-wrapper {
   background: $white !important;
