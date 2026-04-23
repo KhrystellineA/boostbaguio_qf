@@ -410,7 +410,9 @@ export default defineComponent({
 
         const spots = querySnapshot.docs
           .map((doc) => doc.data())
-          .filter((place) => place.category === 'tourist_spot')
+          .filter(
+            (place) => Array.isArray(place.categories) && place.categories.includes('tourist-spot')
+          )
           .map((place) => place.name)
 
         touristSpotsOptions.value = spots.sort()

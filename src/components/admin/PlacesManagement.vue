@@ -31,6 +31,24 @@
           aria-label="Delete all places"
         />
         <q-btn
+          outline
+          style="border-color: #2d6a4f; color: #2d6a4f"
+          label="Download CSV Template"
+          icon="download"
+          no-caps
+          @click="downloadCsvTemplate"
+          aria-label="Download CSV template for places"
+        />
+        <q-btn
+          unelevated
+          style="background: #2d6a4f; color: white"
+          label="Import CSV"
+          icon="upload_file"
+          no-caps
+          @click="showCsvImportDialog = true"
+          aria-label="Import places from CSV"
+        />
+        <q-btn
           unelevated
           style="background: #2d6a4f; color: white"
           label="Add Place"
@@ -329,6 +347,28 @@
             class="q-mb-md"
           />
 
+          <!-- Phone & Entrance Fee -->
+          <div class="row q-col-gutter-md q-mb-md">
+            <div class="col-6">
+              <q-input
+                v-model="form.phone"
+                outlined
+                label="Phone"
+                placeholder="e.g., +63 74 442 1234"
+                hint="Optional contact number"
+              />
+            </div>
+            <div class="col-6">
+              <q-input
+                v-model="form.entranceFee"
+                outlined
+                label="Entrance Fee"
+                placeholder="e.g., Free, 0, ₱50"
+                hint="Use Free or 0 if no fee"
+              />
+            </div>
+          </div>
+
           <!-- Featured Toggle -->
           <q-toggle
             v-model="form.featured"
@@ -405,6 +445,162 @@
             </div>
           </div>
         </q-card-section>
+      </q-card>
+    </q-dialog>
+
+    <!-- CSV Import Dialog -->
+    <q-dialog v-model="showCsvImportDialog" persistent>
+      <q-card style="min-width: 800px; max-width: 1000px">
+        <q-card-section class="bg-primary text-white">
+          <div class="text-h6">
+            <q-icon name="upload_file" class="q-mr-sm" />
+            Import Places from CSV
+          </div>
+        </q-card-section>
+
+        <q-card-section>
+          <!-- Step 1: File Upload -->
+          <div v-if="importStep === 1">
+            <div class="text-body2 q-mb-md">
+              Upload a CSV file containing place data. Make sure to follow the template format.
+            </div>
+
+            <q-file
+              v-model="csvFile"
+              outlined
+              label="Select CSV File"
+              accept=".csv"
+              class="q-mb-md"
+              @update:model-value="onCsvFileSelected"
+            >
+              <template #prepend>
+                <q-icon name="attach_file" />
+              </template>
+              <template #hint> Only .csv files are accepted </template>
+            </q-file>
+
+            <q-banner v-if="csvError" class="bg-negative text-white q-mb-md" rounded>
+              <q-icon name="error" size="md" />
+              {{ csvError }}
+            </q-banner>
+
+            <q-banner class="bg-info text-white q-mb-md" rounded>
+              <q-icon name="info" size="md" />
+              <div class="text-body2">
+                <strong>Required CSV columns:</strong><br />
+                name, categories, address, latitude, longitude, description<br /><br />
+                <strong>Optional columns:</strong><br />
+                operating_hours_open, operating_hours_close, operating_hours_days, image_url,
+                featured<br /><br />
+                <strong>Notes:</strong><br />
+                • <code>categories</code> is a semicolon-separated list of category values. Valid
+                values: tourist-spot, restaurant, park-nature, museum-culture, shopping,
+                hotel-lodging, government, hospital, school, other<br />
+                • <code>featured</code> accepts true/false (default: false)
+              </div>
+            </q-banner>
+          </div>
+
+          <!-- Step 2: Preview Data -->
+          <div v-if="importStep === 2">
+            <div class="text-body2 q-mb-md">
+              Preview of {{ parsedPlaces.length }} place(s) to be imported:
+            </div>
+
+            <q-table
+              :rows="parsedPlaces"
+              :columns="previewColumns"
+              row-key="index"
+              flat
+              bordered
+              :rows-per-page-options="[10, 25, 50]"
+              style="max-height: 400px"
+            >
+              <template #body-cell-valid="props">
+                <q-td :props="props">
+                  <q-badge :color="props.value ? 'positive' : 'negative'">
+                    {{ props.value ? 'Valid' : 'Invalid' }}
+                  </q-badge>
+                </q-td>
+              </template>
+              <template #body-cell-error="props">
+                <q-td :props="props">
+                  <span class="text-negative text-caption">{{ props.value || '-' }}</span>
+                </q-td>
+              </template>
+            </q-table>
+
+            <div v-if="invalidCount > 0" class="q-mt-md">
+              <q-banner class="bg-warning text-white" rounded>
+                <q-icon name="warning" size="md" />
+                <strong>{{ invalidCount }} invalid row(s) detected.</strong> These will be skipped
+                during import.
+              </q-banner>
+            </div>
+          </div>
+
+          <!-- Step 3: Progress -->
+          <div v-if="importStep === 3">
+            <div class="text-body2 q-mb-md text-center">Importing places... Please wait.</div>
+
+            <q-linear-progress :value="importProgress" color="primary" class="q-mb-md" />
+
+            <div class="text-center">
+              <q-badge color="primary" class="q-pa-sm">
+                {{ importedCount }} / {{ parsedPlaces.length }} imported
+              </q-badge>
+            </div>
+
+            <q-list class="q-mt-md" style="max-height: 300px; overflow-y: auto">
+              <q-item v-for="(log, index) in importLogs" :key="index">
+                <q-item-section avatar>
+                  <q-icon
+                    :name="log.success ? 'check_circle' : 'error'"
+                    :color="log.success ? 'positive' : 'negative'"
+                  />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ log.message }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn
+            v-if="importStep === 1"
+            flat
+            label="Cancel"
+            color="grey-7"
+            @click="closeCsvImportDialog"
+          />
+          <q-btn
+            v-if="importStep === 1"
+            unelevated
+            label="Preview Import"
+            color="primary"
+            @click="parseCsvFile"
+            :disable="!csvFile"
+          />
+          <q-btn v-if="importStep === 2" flat label="Back" color="grey-7" @click="importStep = 1" />
+          <q-btn
+            v-if="importStep === 2"
+            unelevated
+            label="Start Import"
+            color="primary"
+            @click="startImport"
+            :disable="validCount === 0"
+          />
+          <q-btn
+            v-if="importStep === 3"
+            flat
+            label="Close"
+            color="grey-7"
+            @click="closeCsvImportDialog"
+            :disable="isImporting"
+          />
+        </q-card-actions>
       </q-card>
     </q-dialog>
   </div>
@@ -493,6 +689,8 @@ export default {
         imageUrl: '',
         imagePublicId: '',
         featured: false,
+        phone: '',
+        entranceFee: '',
       },
       categories: [
         { label: 'Tourist Spots', value: 'tourist-spot' },
@@ -514,6 +712,26 @@ export default {
         { name: 'address', label: 'Address', field: 'address', align: 'left' },
         { name: 'actions', label: 'Actions', field: 'actions', align: 'center' },
       ],
+
+      // CSV Import
+      showCsvImportDialog: false,
+      importStep: 1,
+      csvFile: null,
+      csvError: '',
+      parsedPlaces: [],
+      importProgress: 0,
+      importedCount: 0,
+      isImporting: false,
+      importLogs: [],
+      previewColumns: [
+        { name: 'name', label: 'Place Name', field: 'name', align: 'left', sortable: true },
+        { name: 'categories', label: 'Categories', field: 'categoriesLabel', align: 'left' },
+        { name: 'address', label: 'Address', field: 'address', align: 'left' },
+        { name: 'latitude', label: 'Lat', field: 'latitude', align: 'center' },
+        { name: 'longitude', label: 'Lng', field: 'longitude', align: 'center' },
+        { name: 'valid', label: 'Status', field: 'valid', align: 'center' },
+        { name: 'error', label: 'Error', field: 'error', align: 'left' },
+      ],
     }
   },
 
@@ -529,6 +747,12 @@ export default {
           place.address?.toLowerCase().includes(searchLower) ||
           place.area?.toLowerCase().includes(searchLower)
       )
+    },
+    validCount() {
+      return this.parsedPlaces.filter((p) => p.valid).length
+    },
+    invalidCount() {
+      return this.parsedPlaces.filter((p) => !p.valid).length
     },
   },
 
@@ -882,6 +1106,8 @@ export default {
         imageUrl: place.imageUrl || '',
         imagePublicId: place.imagePublicId || '',
         featured: place.featured || false,
+        phone: place.phone || '',
+        entranceFee: place.entranceFee || '',
       }
       this.showAddDialog = true
       this.initMap()
@@ -970,6 +1196,8 @@ export default {
           imageUrl: imageData.imageUrl,
           imagePublicId: imageData.imagePublicId,
           featured: this.form.featured || false,
+          phone: this.form.phone || '',
+          entranceFee: this.form.entranceFee || '',
           updatedAt: serverTimestamp(),
           createdAt: this.editingPlace?.createdAt || serverTimestamp(),
         }
@@ -1268,6 +1496,8 @@ export default {
         imageUrl: '',
         imagePublicId: '',
         featured: false,
+        phone: '',
+        entranceFee: '',
       }
       this.imageFile = null
       this.imagePreview = null
@@ -1284,6 +1514,315 @@ export default {
 
     onDialogHide() {
       this.resetForm()
+    },
+
+    downloadCsvTemplate() {
+      const headers = [
+        'name',
+        'categories',
+        'address',
+        'latitude',
+        'longitude',
+        'description',
+        'operating_hours_open',
+        'operating_hours_close',
+        'operating_hours_days',
+        'image_url',
+        'featured',
+        'phone',
+        'entrance_fee',
+      ]
+
+      const sampleData = [
+        'Burnham Park',
+        'tourist-spot;park-nature',
+        'Jose Abad Santos Dr, Baguio, 2600 Benguet',
+        '16.4115',
+        '120.5957',
+        'Historic urban park at the heart of Baguio City, famous for its lagoon and boat rides.',
+        '05:00',
+        '22:00',
+        'Monday-Sunday',
+        '',
+        'true',
+        '+63 74 442 1234',
+        'Free',
+      ]
+
+      const csvContent = [headers.join(','), sampleData.join(',')].join('\n')
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      const url = URL.createObjectURL(blob)
+
+      link.setAttribute('href', url)
+      link.setAttribute('download', 'places_import_template.csv')
+      link.style.visibility = 'hidden'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      this.$q.notify({
+        type: 'positive',
+        message: 'CSV template downloaded',
+        position: 'top',
+      })
+    },
+
+    onCsvFileSelected(file) {
+      this.csvError = ''
+      if (file && file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+        this.csvError = 'Please select a valid CSV file'
+        this.csvFile = null
+      }
+    },
+
+    parseCsvFile() {
+      if (!this.csvFile) return
+
+      this.csvError = ''
+      const reader = new FileReader()
+
+      reader.onload = (e) => {
+        try {
+          const csvText = e.target.result
+          const lines = csvText.split(/\r?\n/).filter((line) => line.trim() !== '')
+
+          if (lines.length < 2) {
+            this.csvError = 'CSV file is empty or invalid'
+            return
+          }
+
+          const headers = this.parseCsvLine(lines[0])
+          const requiredHeaders = [
+            'name',
+            'categories',
+            'address',
+            'latitude',
+            'longitude',
+            'description',
+          ]
+
+          const normalizedHeaders = headers.map((h) => h.trim().toLowerCase().replace(/\s+/g, '_'))
+          const missingHeaders = requiredHeaders.filter((h) => !normalizedHeaders.includes(h))
+          if (missingHeaders.length > 0) {
+            this.csvError = `Missing required columns: ${missingHeaders.join(', ')}`
+            return
+          }
+
+          const parsed = []
+          for (let i = 1; i < lines.length; i++) {
+            const values = this.parseCsvLine(lines[i])
+            parsed.push(this.mapCsvRow(headers, values, i))
+          }
+
+          this.parsedPlaces = parsed
+          this.importStep = 2
+
+          this.$q.notify({
+            type: 'positive',
+            message: `Parsed ${parsed.length} place(s)`,
+            position: 'top',
+          })
+        } catch (error) {
+          console.error('[CSV] Parse error:', error)
+          this.csvError = 'Failed to parse CSV: ' + error.message
+        }
+      }
+
+      reader.onerror = () => {
+        this.csvError = 'Failed to read CSV file'
+      }
+
+      reader.readAsText(this.csvFile)
+    },
+
+    parseCsvLine(line) {
+      const result = []
+      let current = ''
+      let inQuotes = false
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i]
+
+        if (char === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"'
+            i++
+          } else {
+            inQuotes = !inQuotes
+          }
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim())
+          current = ''
+        } else {
+          current += char
+        }
+      }
+
+      result.push(current.trim())
+      return result
+    },
+
+    mapCsvRow(headers, values, rowIndex) {
+      const normalizedHeaders = headers.map((h) => h.trim().toLowerCase().replace(/\s+/g, '_'))
+
+      const getValue = (key) => {
+        const index = normalizedHeaders.indexOf(key)
+        return index !== -1 ? values[index]?.trim() || '' : ''
+      }
+
+      const validCategoryValues = this.categories.map((c) => c.value)
+
+      // Parse categories (semicolon or comma separated)
+      const categoriesStr = getValue('categories')
+      let parsedCategories = []
+      if (categoriesStr) {
+        const separator = categoriesStr.includes(';') ? ';' : ','
+        parsedCategories = categoriesStr
+          .split(separator)
+          .map((s) => s.trim())
+          .filter((s) => s !== '')
+      }
+      const invalidCategories = parsedCategories.filter((c) => !validCategoryValues.includes(c))
+
+      const featuredStr = getValue('featured').toLowerCase()
+      const featured = featuredStr === 'true' || featuredStr === '1' || featuredStr === 'yes'
+
+      const latitude = parseFloat(getValue('latitude'))
+      const longitude = parseFloat(getValue('longitude'))
+
+      const place = {
+        index: rowIndex,
+        name: getValue('name'),
+        categories: parsedCategories,
+        categoriesLabel: parsedCategories.join(', '),
+        address: getValue('address'),
+        latitude: Number.isFinite(latitude) ? latitude : null,
+        longitude: Number.isFinite(longitude) ? longitude : null,
+        description: getValue('description'),
+        operatingHours: {
+          open: getValue('operating_hours_open'),
+          close: getValue('operating_hours_close'),
+          days: getValue('operating_hours_days'),
+        },
+        imageUrl: getValue('image_url'),
+        featured,
+        phone: getValue('phone'),
+        entranceFee: getValue('entrance_fee'),
+        valid: true,
+        error: '',
+      }
+
+      if (!place.name) {
+        place.valid = false
+        place.error = 'Missing name'
+      } else if (place.categories.length === 0) {
+        place.valid = false
+        place.error = 'Missing categories'
+      } else if (invalidCategories.length > 0) {
+        place.valid = false
+        place.error = `Invalid category value(s): ${invalidCategories.join(', ')}`
+      } else if (!place.address) {
+        place.valid = false
+        place.error = 'Missing address'
+      } else if (place.latitude === null || place.longitude === null) {
+        place.valid = false
+        place.error = 'Invalid or missing coordinates'
+      } else if (!place.description) {
+        place.valid = false
+        place.error = 'Missing description'
+      }
+
+      return place
+    },
+
+    async startImport() {
+      this.isImporting = true
+      this.importStep = 3
+      this.importedCount = 0
+      this.importProgress = 0
+      this.importLogs = []
+
+      const validPlaces = this.parsedPlaces.filter((p) => p.valid)
+      const total = validPlaces.length
+
+      const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+      const adminUid = sessionStorage.getItem('adminUid')
+      const { logCreate } = await import('src/utils/activityLogger')
+
+      for (let i = 0; i < validPlaces.length; i++) {
+        const place = validPlaces[i]
+
+        try {
+          const placeData = {
+            name: place.name,
+            categories: place.categories,
+            address: place.address,
+            latitude: place.latitude,
+            longitude: place.longitude,
+            description: place.description,
+            operatingHours: {
+              open: place.operatingHours.open || '',
+              close: place.operatingHours.close || '',
+              days: place.operatingHours.days || '',
+            },
+            imageUrl: place.imageUrl || '',
+            imagePublicId: '',
+            featured: place.featured || false,
+            phone: place.phone || '',
+            entranceFee: place.entranceFee || '',
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          }
+
+          const docRef = await addDoc(collection(db, 'places'), placeData)
+
+          try {
+            await logCreate({ uid: adminUid, ...adminData }, 'places', place.name, docRef.id)
+          } catch (logErr) {
+            console.warn('[CSV Import] Activity log failed:', logErr.message)
+          }
+
+          this.importLogs.push({
+            success: true,
+            message: `Imported: ${place.name}`,
+          })
+
+          this.importedCount++
+        } catch (error) {
+          console.error('[CSV Import] Error:', error)
+          this.importLogs.push({
+            success: false,
+            message: `Failed to import ${place.name}: ${error.message}`,
+          })
+        }
+
+        this.importProgress = (i + 1) / total
+      }
+
+      this.isImporting = false
+
+      this.$q.notify({
+        type: 'positive',
+        message: `Import completed: ${this.importedCount}/${total} places added`,
+        position: 'top',
+        timeout: 5000,
+      })
+
+      this.loadPlaces()
+    },
+
+    closeCsvImportDialog() {
+      this.showCsvImportDialog = false
+      this.importStep = 1
+      this.csvFile = null
+      this.csvError = ''
+      this.parsedPlaces = []
+      this.importProgress = 0
+      this.importedCount = 0
+      this.isImporting = false
+      this.importLogs = []
     },
   },
 

@@ -9,16 +9,46 @@ service cloud.firestore {
       return request.auth != null;
     }
     
-    // Check if user is admin
+    // Check if user is admin (any role)
     function isAdmin() {
-      return isAuthenticated() && 
+      return isAuthenticated() &&
              exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
-    
-    // Check if user is super-admin
+
+    // Get the authenticated admin's document data
+    function adminDoc() {
+      return get(/databases/$(database)/documents/admins/$(request.auth.uid)).data;
+    }
+
+    // Check if user is super-admin (role or permission-based, with legacy fallback)
     function isSuperAdmin() {
-      return isAdmin() && 
-             get(/databases/$(database)/documents/admins/$(request.auth.uid)).data.permissions.hasAny(['super-admin']);
+      return isAdmin() &&
+             (adminDoc().role == 'super_admin' ||
+              adminDoc().permissions.hasAny(['super_admin:all', 'super-admin']));
+    }
+
+    // Check if user can manage places
+    function isPlacesAdmin() {
+      return isAdmin() &&
+             (adminDoc().role == 'super_admin' ||
+              adminDoc().role == 'places_admin' ||
+              adminDoc().permissions.hasAny(['super_admin:all', 'places:write']));
+    }
+
+    // Check if user can manage routes and jeepneys
+    function isRoutesAdmin() {
+      return isAdmin() &&
+             (adminDoc().role == 'super_admin' ||
+              adminDoc().role == 'routes_admin' ||
+              adminDoc().permissions.hasAny(['super_admin:all', 'routes:write']));
+    }
+
+    // Check if user can manage events
+    function isEventsAdmin() {
+      return isAdmin() &&
+             (adminDoc().role == 'super_admin' ||
+              adminDoc().role == 'events_admin' ||
+              adminDoc().permissions.hasAny(['super_admin:all', 'events:write']));
     }
     
     // Check if user owns the resource
@@ -108,8 +138,8 @@ service cloud.firestore {
       // Anyone can read published events
       allow read: if true;
 
-      // Only admins can create events
-      allow create: if isAdmin() &&
+      // Only events admins (or super admins) can create events
+      allow create: if isEventsAdmin() &&
                        request.resource.data.keys().hasAll(['title', 'startDate', 'endDate']) &&
                        request.resource.data.title is string &&
                        request.resource.data.title.size() > 0 &&
@@ -118,13 +148,13 @@ service cloud.firestore {
                        request.resource.data.endDate is timestamp &&
                        request.resource.data.startDate <= request.resource.data.endDate;
 
-      // Only admins can update events
-      allow update: if isAdmin() &&
+      // Only events admins (or super admins) can update events
+      allow update: if isEventsAdmin() &&
                        (!request.resource.data.keys().hasAny(['createdAt']) ||
                         request.resource.data.createdAt is timestamp);
 
-      // Only admins can delete events
-      allow delete: if isAdmin();
+      // Only events admins (or super admins) can delete events
+      allow delete: if isEventsAdmin();
     }
 
     // ========== PLACES COLLECTION ==========
@@ -133,29 +163,28 @@ service cloud.firestore {
       // Anyone can read places
       allow read: if true;
 
-      // Only admins can create places
-      allow create: if isAdmin() &&
-                       request.resource.data.keys().hasAll(['name', 'category']) &&
+      // Only places admins (or super admins) can create places
+      allow create: if isPlacesAdmin() &&
+                       request.resource.data.keys().hasAll(['name', 'categories', 'latitude', 'longitude']) &&
                        request.resource.data.name is string &&
                        request.resource.data.name.size() > 0 &&
                        request.resource.data.name.size() <= 200 &&
-                       request.resource.data.category is string &&
-                       (request.resource.data.latitude is number ||
-                        request.resource.data.location is map) &&
-                       (request.resource.data.latitude is number ?
-                        request.resource.data.latitude >= -90 &&
-                        request.resource.data.latitude <= 90 : true) &&
-                       (request.resource.data.longitude is number ?
-                        request.resource.data.longitude >= -180 &&
-                        request.resource.data.longitude <= 180 : true);
+                       request.resource.data.categories is list &&
+                       request.resource.data.categories.size() > 0 &&
+                       request.resource.data.latitude is number &&
+                       request.resource.data.latitude >= -90 &&
+                       request.resource.data.latitude <= 90 &&
+                       request.resource.data.longitude is number &&
+                       request.resource.data.longitude >= -180 &&
+                       request.resource.data.longitude <= 180;
 
-      // Only admins can update places
-      allow update: if isAdmin() &&
+      // Only places admins (or super admins) can update places
+      allow update: if isPlacesAdmin() &&
                        (!request.resource.data.keys().hasAny(['createdAt']) ||
                         request.resource.data.createdAt is timestamp);
 
-      // Only admins can delete places
-      allow delete: if isAdmin();
+      // Only places admins (or super admins) can delete places
+      allow delete: if isPlacesAdmin();
     }
 
     // ========== ROUTES COLLECTION ==========
@@ -164,8 +193,8 @@ service cloud.firestore {
       // Anyone can read routes
       allow read: if true;
 
-      // Only admins can create routes
-      allow create: if isAdmin() &&
+      // Only routes admins (or super admins) can create routes
+      allow create: if isRoutesAdmin() &&
                        request.resource.data.keys().hasAll(['name', 'routeNumber']) &&
                        request.resource.data.name is string &&
                        request.resource.data.name.size() > 0 &&
@@ -174,13 +203,13 @@ service cloud.firestore {
                        request.resource.data.routeNumber.size() > 0 &&
                        request.resource.data.routeNumber.size() <= 20;
 
-      // Only admins can update routes
-      allow update: if isAdmin() &&
+      // Only routes admins (or super admins) can update routes
+      allow update: if isRoutesAdmin() &&
                        (!request.resource.data.keys().hasAny(['createdAt']) ||
                         request.resource.data.createdAt is timestamp);
 
-      // Only admins can delete routes
-      allow delete: if isAdmin();
+      // Only routes admins (or super admins) can delete routes
+      allow delete: if isRoutesAdmin();
     }
 
     // ========== JEEPNEYS COLLECTION ==========
@@ -189,8 +218,8 @@ service cloud.firestore {
       // Anyone can read jeepneys
       allow read: if true;
 
-      // Only admins can write to jeepneys collection
-      allow create: if isAdmin() &&
+      // Only routes admins (or super admins) can write to jeepneys collection
+      allow create: if isRoutesAdmin() &&
                        request.resource.data.keys().hasAll(['jeepName', 'terminalLocation', 'endPoint']) &&
                        request.resource.data.jeepName is string &&
                        request.resource.data.jeepName.size() > 0 &&
@@ -198,11 +227,11 @@ service cloud.firestore {
                        request.resource.data.terminalLocation is string &&
                        request.resource.data.endPoint is string;
 
-      allow update: if isAdmin() &&
+      allow update: if isRoutesAdmin() &&
                        (!request.resource.data.keys().hasAny(['createdAt']) ||
                         request.resource.data.createdAt is timestamp);
 
-      allow delete: if isAdmin();
+      allow delete: if isRoutesAdmin();
     }
 
     // ========== PHOTOS COLLECTION ==========

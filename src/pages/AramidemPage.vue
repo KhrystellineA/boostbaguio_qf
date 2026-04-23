@@ -4,11 +4,20 @@
     <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
       <div class="hero-overlay">
         <div class="hero-content animate-fade-in">
-          <h1 class="hero-title">ARAMIDEM - Events</h1>
+          <div class="hero-badge">
+            <q-icon name="event" size="16px" class="q-mr-xs" />
+            Baguio Events Calendar
+          </div>
+          <h1 class="hero-title">ARAMIDEM</h1>
           <p class="hero-description">
-            Discover upcoming events in Baguio City with transportation details and navigation
-            instructions.
+            Discover upcoming events in Baguio City — festivals, cultural celebrations, and
+            community gatherings with transportation details and navigation instructions.
           </p>
+          <div class="hero-chips">
+            <q-chip square color="white" text-color="primary" size="sm">Upcoming Events</q-chip>
+            <q-chip square color="white" text-color="primary" size="sm">Festivals</q-chip>
+            <q-chip square color="white" text-color="primary" size="sm">Cultural Events</q-chip>
+          </div>
         </div>
       </div>
     </section>
@@ -1061,14 +1070,13 @@ $bento-radius: 20px;
 }
 
 .hero-section {
-  height: 40vh;
+  min-height: 50vh;
   background-size: cover;
   background-position: center;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0 0 $bento-radius $bento-radius;
 }
 
 .hero-overlay {
@@ -1077,7 +1085,7 @@ $bento-radius: 20px;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(27, 67, 50, 0.7) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1086,25 +1094,54 @@ $bento-radius: 20px;
 .hero-content {
   text-align: center;
   color: white;
-  max-width: 800px;
-  padding: 2rem;
+  max-width: 700px;
+  padding: 2rem 1.5rem;
   position: relative;
   z-index: 1;
 }
 
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
 .hero-title {
-  font-size: 2.5rem;
+  font-size: 3rem;
   margin-bottom: 1rem;
   color: white;
-  font-weight: 700;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
 
 .hero-description {
-  font-size: 1.1rem;
-  margin: 0;
-  opacity: 0.95;
+  font-size: 1.05rem;
+  margin: 0 auto 1.25rem;
+  opacity: 0.92;
   line-height: 1.6;
+  max-width: 560px;
+}
+
+.hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+
+  .q-chip {
+    opacity: 0.9;
+    font-weight: 500;
+  }
 }
 
 .container {
@@ -1527,12 +1564,20 @@ $faqs-bg: $brown;
 }
 
 @media (max-width: 768px) {
+  .hero-section {
+    min-height: 45vh;
+  }
+
   .hero-title {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
 
   .hero-description {
-    font-size: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .hero-chips .q-chip {
+    font-size: 0.7rem;
   }
 
   .featured-grid {
