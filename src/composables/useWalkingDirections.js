@@ -16,26 +16,51 @@ export function useWalkingDirections() {
    * @param {[number, number]} end - [lat, lng]
    * @returns {Promise<{distance: number, duration: number, steps: Array, geometry: Array}>}
    */
+  const fetchOsrmRoute = async (profile, start, end) => {
+    // OSRM expects [lng, lat] format
+    const url = `https://router.project-osrm.org/route/v1/${profile}/${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&geometries=geojson&steps=true`
+    const response = await fetch(url)
+    if (!response.ok) throw new Error(`OSRM ${profile} HTTP ${response.status}`)
+    const data = await response.json()
+    if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
+      throw new Error(`OSRM ${profile} returned no route (${data.code})`)
+    }
+    return data.routes[0]
+  }
+
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
   const getWalkingDirections = async (start, end) => {
     loading.value = true
     error.value = null
 
     try {
-      // OSRM expects [lng, lat] format
-      const url = `https://router.project-osrm.org/route/v1/foot/${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&geometries=geojson&steps=true&annotations=true`
-
-      const response = await fetch(url)
-      if (!response.ok) {
-        throw new Error('Failed to get walking directions')
+      // Use `driving` first — it's proven reliable on the public OSRM demo
+      // server and still follows roads (avoids cutting through buildings).
+      // Try `foot` as secondary — may give better pedestrian paths when available.
+      // Retry driving once with a delay if both fail (handles rate-limiting).
+      let osrmRoute
+      let usedDrivingProfile = false
+      try {
+        osrmRoute = await fetchOsrmRoute('foot', start, end)
+      } catch {
+        try {
+          osrmRoute = await fetchOsrmRoute('driving', start, end)
+          usedDrivingProfile = true
+        } catch {
+          // Retry driving once after a short delay (rate-limit recovery)
+          await delay(600)
+          osrmRoute = await fetchOsrmRoute('driving', start, end)
+          usedDrivingProfile = true
+        }
       }
 
-      const data = await response.json()
-
-      if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
-        throw new Error('No walking route found')
-      }
-
-      const osrmRoute = data.routes[0]
+      // If we used driving, recompute duration from distance at walking pace
+      // (5 km/h ≈ 83 m/min ≈ 1.39 m/s) so ETA doesn't report car-time for a walking leg.
+      const WALK_M_PER_S = 1.39
+      const effectiveDuration = usedDrivingProfile
+        ? osrmRoute.distance / WALK_M_PER_S
+        : osrmRoute.duration
 
       // Parse route steps
       const steps = osrmRoute.legs[0].steps.map((step, index) => {
@@ -71,7 +96,7 @@ export function useWalkingDirections() {
 
       route.value = {
         distance: osrmRoute.distance, // meters
-        duration: osrmRoute.duration, // seconds
+        duration: effectiveDuration, // seconds (walking pace)
         steps,
         geometry: osrmRoute.geometry?.coordinates?.map((coord) => [coord[1], coord[0]]) || [], // Convert to [lat, lng]
       }
@@ -83,7 +108,9 @@ export function useWalkingDirections() {
       error.value = err.message
       loading.value = false
 
-      // Fallback: simple direct route
+      // Fallback: simple direct route (geometry left empty so the map code
+      // knows this is NOT a road-following polyline and can decide how to
+      // render the segment).
       return getSimpleWalkingDirections(start, end)
     }
   }
@@ -127,7 +154,7 @@ export function useWalkingDirections() {
   }
 
   /**
-   * Fallback simple walking directions (direct line)
+   * Fallback simple walking directions (no road-following geometry)
    */
   const getSimpleWalkingDirections = (start, end) => {
     const distance = calculateDistance(start, end)
@@ -159,7 +186,7 @@ export function useWalkingDirections() {
           coordinates: end,
         },
       ],
-      geometry: [start, end],
+      geometry: [], // Empty — no road-following data available
     }
 
     return route.value

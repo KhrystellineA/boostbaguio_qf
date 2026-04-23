@@ -2,46 +2,24 @@
   <q-page class="apanam-page">
     <q-scroll-observer @scroll="onScroll" />
 
-    <!-- HERO SECTION (Section 1) -->
+    <!-- HERO SECTION -->
     <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
       <div class="hero-overlay">
         <div class="hero-content animate-fade-in">
-          <h1 class="hero-title">APANAM - Point to Point Navigation</h1>
-          <p class="hero-description">
-            Plan your route between any two points in Baguio City using the jeepney system. We teach
-            you how to navigate, not track vehicles!
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- EXTENDED HERO SECTION (Section 2) -->
-    <section class="extended-hero bg-white">
-      <div class="container">
-        <div class="row items-center">
-          <div class="col-md-6 col-12 q-pa-xl">
-            <h2 class="text-h4 text-weight-bold text-primary q-mb-lg">Point-to-Point Navigation</h2>
-            <p class="text-body1 q-mb-md">
-              APANAM helps you navigate Baguio City by showing you which jeepneys to take and how to
-              get to their terminals. Our system focuses on teaching you the route rather than
-              tracking vehicles in real-time.
-            </p>
-            <p class="text-body1 q-mb-lg">
-              Input your starting point and destination to get step-by-step instructions on how to
-              navigate Baguio's jeepney system efficiently.
-            </p>
-            <div class="q-gutter-sm">
-              <q-chip square color="primary" text-color="white">Route Planning</q-chip>
-              <q-chip square color="secondary" text-color="white">Step-by-Step Guide</q-chip>
-              <q-chip square color="primary" text-color="white">Terminal Info</q-chip>
-              <q-chip square color="secondary" text-color="white">Fare Estimates</q-chip>
-            </div>
+          <div class="hero-badge">
+            <q-icon name="navigation" size="16px" class="q-mr-xs" />
+            Point-to-Point Navigation
           </div>
-          <div class="col-md-6 col-12 q-pa-xl">
-            <div class="image-placeholder bg-grey-3 q-pa-xl rounded-borders">
-              <q-icon name="directions_bus" size="64px" color="grey-6" />
-              <div class="text-center q-mt-md">Route Planning Visualization</div>
-            </div>
+          <h1 class="hero-title">APANAM</h1>
+          <p class="hero-description">
+            Learn how to navigate Baguio City's jeepney system. Input your starting point and
+            destination to get step-by-step instructions, terminal info, and fare estimates.
+          </p>
+          <div class="hero-chips">
+            <q-chip square color="white" text-color="primary" size="sm">Route Planning</q-chip>
+            <q-chip square color="white" text-color="primary" size="sm">Step-by-Step Guide</q-chip>
+            <q-chip square color="white" text-color="primary" size="sm">Terminal Info</q-chip>
+            <q-chip square color="white" text-color="primary" size="sm">Fare Estimates</q-chip>
           </div>
         </div>
       </div>
@@ -57,43 +35,46 @@
             <div class="row q-col-gutter-lg">
               <div class="col-md-6 col-12">
                 <div class="info-section">
-                  <h3 class="text-h5 text-weight-bold text-primary q-mb-lg">How APANAM Works</h3>
-                  <p class="text-body1 q-mb-md">
-                    APANAM helps you navigate Baguio City by showing you which jeepneys to take and
-                    how to get to their terminals. Our system focuses on teaching you the route
-                    rather than tracking vehicles in real-time.
-                  </p>
+                  <h3 class="text-h5 text-weight-bold text-primary q-mb-md">How It Works</h3>
 
-                  <div class="q-mt-lg">
-                    <q-list>
-                      <q-item>
-                        <q-item-section avatar>
-                          <q-icon name="location_on" color="primary" />
-                        </q-item-section>
-                        <q-item-section>
-                          <q-item-label>Input your starting point and destination</q-item-label>
-                        </q-item-section>
-                      </q-item>
-                      <q-item>
-                        <q-item-section avatar>
-                          <q-icon name="directions_bus" color="primary" />
-                        </q-item-section>
-                        <q-item-section>
-                          <q-item-label>See available jeepney options</q-item-label>
-                        </q-item-section>
-                      </q-item>
-                      <q-item>
-                        <q-item-section avatar>
-                          <q-icon name="help_outline" color="primary" />
-                        </q-item-section>
-                        <q-item-section>
-                          <q-item-label
-                            >Get step-by-step instructions on how to get there</q-item-label
-                          >
-                        </q-item-section>
-                      </q-item>
-                    </q-list>
-                  </div>
+                  <q-list dense class="how-it-works-list">
+                    <q-item>
+                      <q-item-section avatar>
+                        <q-avatar size="36px" color="primary" text-color="white" font-size="14px"
+                          >1</q-avatar
+                        >
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="text-weight-medium"
+                          >Input your starting point and destination</q-item-label
+                        >
+                      </q-item-section>
+                    </q-item>
+                    <q-item>
+                      <q-item-section avatar>
+                        <q-avatar size="36px" color="primary" text-color="white" font-size="14px"
+                          >2</q-avatar
+                        >
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="text-weight-medium"
+                          >See available jeepney options (direct & transfers)</q-item-label
+                        >
+                      </q-item-section>
+                    </q-item>
+                    <q-item>
+                      <q-item-section avatar>
+                        <q-avatar size="36px" color="primary" text-color="white" font-size="14px"
+                          >3</q-avatar
+                        >
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="text-weight-medium"
+                          >Get step-by-step instructions, fare info & map</q-item-label
+                        >
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
                 </div>
               </div>
 
@@ -106,7 +87,6 @@
                     <div class="q-mb-sm">
                       <div class="input-label q-mb-xs">FROM:</div>
                       <q-input
-                        v-if="!fromAutoDetect"
                         :model-value="fromLocationText"
                         @update:model-value="fromLocationText = $event"
                         filled
@@ -114,14 +94,15 @@
                         bg-color="white"
                         class="custom-input"
                         @keyup.enter="searchFromLocation"
+                        @focus="onFromInputFocus"
                       >
                         <template v-slot:prepend>
                           <q-btn
                             flat
                             dense
                             round
-                            icon="gps_fixed"
-                            color="primary"
+                            :icon="fromAutoDetect ? 'gps_fixed' : 'gps_not_fixed'"
+                            :color="fromAutoDetect ? 'positive' : 'primary'"
                             @click="enableFromAutoDetect"
                             :loading="geoLoading"
                           >
@@ -129,6 +110,19 @@
                           </q-btn>
                         </template>
                         <template v-slot:append>
+                          <q-btn
+                            v-if="fromLocationText"
+                            flat
+                            dense
+                            round
+                            icon="clear"
+                            color="grey"
+                            size="sm"
+                            @click="clearFromLocation"
+                            style="margin-right: -4px"
+                          >
+                            <q-tooltip>Clear</q-tooltip>
+                          </q-btn>
                           <q-btn
                             flat
                             dense
@@ -140,34 +134,6 @@
                             style="margin-right: -8px"
                           >
                             <q-tooltip>Search location</q-tooltip>
-                          </q-btn>
-                        </template>
-                      </q-input>
-                      <q-input
-                        v-if="fromAutoDetect"
-                        :model-value="fromLocationText"
-                        @update:model-value="fromLocationText = $event"
-                        filled
-                        readonly
-                        bg-color="white"
-                        class="custom-input"
-                        disable
-                      >
-                        <template v-slot:prepend>
-                          <q-icon name="gps_fixed" color="positive" />
-                        </template>
-                        <template v-slot:append>
-                          <q-btn
-                            flat
-                            dense
-                            round
-                            icon="edit"
-                            color="primary"
-                            size="sm"
-                            @click="disableFromAutoDetect"
-                            style="margin-right: -8px"
-                          >
-                            <q-tooltip>Enter location manually</q-tooltip>
                           </q-btn>
                         </template>
                       </q-input>
@@ -322,91 +288,50 @@
                 <q-icon name="map" class="q-mr-sm" />
                 Route Visualization
               </div>
-              <div class="row q-gutter-xs">
-                <q-badge color="primary" text-color="white">
-                  <q-icon name="walk" class="q-mr-xs" />
-                  Walk
+              <div class="row q-gutter-xs items-center">
+                <q-badge color="orange-8" text-color="white" class="q-pa-xs">
+                  <span
+                    style="
+                      display: inline-block;
+                      width: 18px;
+                      border-top: 2px dashed white;
+                      margin-right: 6px;
+                      vertical-align: middle;
+                    "
+                  ></span>
+                  Walking
                 </q-badge>
-                <q-badge color="secondary" text-color="white">
-                  <q-icon name="directions_bus" class="q-mr-xs" />
-                  Jeepney
+                <q-badge color="indigo-8" text-color="white" class="q-pa-xs">
+                  <span
+                    style="
+                      display: inline-block;
+                      width: 18px;
+                      border-top: 3px solid white;
+                      margin-right: 6px;
+                      vertical-align: middle;
+                    "
+                  ></span>
+                  Jeepney Route
                 </q-badge>
               </div>
             </div>
 
-            <!-- Map Container -->
-            <div id="route-map" style="height: 500px; width: 100%; border-radius: 12px"></div>
+            <!-- Single Consolidated Map -->
+            <div id="route-map" style="height: 450px; width: 100%"></div>
 
-            <!-- Walking Instructions -->
-            <q-card-section class="q-pt-md" v-if="walkingRoute && walkingRoute.steps">
-              <div class="text-subtitle1 text-weight-bold q-mb-md">
-                <q-icon name="directions_walk" color="primary" class="q-mr-xs" />
-                Walking Directions to Terminal
-              </div>
-
-              <q-timeline color="primary" layout="loose">
-                <q-timeline-entry
-                  v-for="(step, index) in walkingRoute.steps"
-                  :key="index"
-                  :title="getStepTitle(step, index)"
-                  :subtitle="formatStepDistance(step)"
-                  :icon="getStepIcon(step, index)"
-                >
-                  <div class="text-body2">
-                    {{ step.instruction }}
-                  </div>
-                  <div class="text-caption text-grey-7 q-mt-xs" v-if="step.direction">
-                    <q-icon name="explore" size="xs" class="q-mr-xs" />
-                    Heading {{ step.direction }}
-                  </div>
-                </q-timeline-entry>
-              </q-timeline>
-
-              <!-- Walking Summary -->
-              <q-card class="bg-grey-2 q-mt-md" flat>
-                <q-card-section class="row items-center justify-between q-py-sm">
-                  <div class="text-caption">
-                    <q-icon name="walk" class="q-mr-xs" />
-                    Total walking distance
-                  </div>
-                  <div class="text-h6 text-weight-bold text-primary">
-                    {{ formatDistance(walkingRoute.distance) }}
-                  </div>
-                </q-card-section>
-                <q-separator />
-                <q-card-section class="row items-center justify-between q-py-sm">
-                  <div class="text-caption">
-                    <q-icon name="schedule" class="q-mr-xs" />
-                    Estimated walking time
-                  </div>
-                  <div class="text-h6 text-weight-bold text-secondary">
-                    {{ formatDuration(walkingRoute.duration) }}
-                  </div>
-                </q-card-section>
-              </q-card>
-            </q-card-section>
-
-            <!-- Route Info Summary -->
-            <q-card-section class="q-pt-md">
-              <div class="row q-col-gutter-md">
-                <div class="col-md-6 col-12">
-                  <div class="route-info bg-blue-1 rounded-borders q-pa-md">
-                    <div class="text-caption text-grey-7 q-mb-xs">
-                      <q-icon name="location_on" class="q-mr-xs" />
-                      Starting Point
-                    </div>
-                    <div class="text-subtitle1 text-weight-bold">
-                      {{ fromLocation?.label || 'Current Location' }}
-                    </div>
+            <!-- Compact route summary bar -->
+            <q-card-section class="q-py-sm">
+              <div class="row q-col-gutter-sm">
+                <div class="col-6">
+                  <div class="row items-center no-wrap">
+                    <q-icon name="location_on" color="positive" size="20px" class="q-mr-xs" />
+                    <div class="text-caption ellipsis">{{ fromLocation?.label || 'Start' }}</div>
                   </div>
                 </div>
-                <div class="col-md-6 col-12">
-                  <div class="route-info bg-amber-1 rounded-borders q-pa-md">
-                    <div class="text-caption text-grey-7 q-mb-xs">
-                      <q-icon name="directions_bus" class="q-mr-xs" />
-                      Terminal
-                    </div>
-                    <div class="text-subtitle1 text-weight-bold">
+                <div class="col-6">
+                  <div class="row items-center no-wrap">
+                    <q-icon name="flag" color="negative" size="20px" class="q-mr-xs" />
+                    <div class="text-caption ellipsis">
                       {{
                         selectedOption.priority === 'single'
                           ? selectedOption.jeepney?.terminalLocation
@@ -416,6 +341,194 @@
                   </div>
                 </div>
               </div>
+              <!-- Walking summary if available -->
+              <div
+                v-if="walkingRoute && walkingRoute.distance"
+                class="row items-center q-mt-xs q-gutter-sm"
+              >
+                <q-badge outline color="orange-8" size="sm">
+                  <q-icon name="directions_walk" size="12px" class="q-mr-xs" />
+                  {{ formatDistance(walkingRoute.distance) }}
+                </q-badge>
+                <q-badge outline color="grey-7" size="sm">
+                  <q-icon name="schedule" size="12px" class="q-mr-xs" />
+                  {{ formatDuration(walkingRoute.duration) }} walk
+                </q-badge>
+              </div>
+            </q-card-section>
+
+            <!-- How to Get There — step-by-step -->
+            <q-separator />
+            <q-card-section class="route-directions">
+              <div class="text-subtitle1 text-weight-bold text-primary q-mb-sm">
+                <q-icon name="directions" class="q-mr-xs" />
+                How to Get There
+              </div>
+
+              <!-- Single ride steps -->
+              <template v-if="selectedOption.priority === 'single'">
+                <div class="direction-step">
+                  <q-avatar
+                    size="28px"
+                    color="positive"
+                    text-color="white"
+                    font-size="13px"
+                    class="q-mr-sm"
+                    >1</q-avatar
+                  >
+                  <div>
+                    <span class="text-weight-medium"
+                      >Walk to
+                      {{
+                        selectedOption.boardingLabel || selectedOption.jeepney?.terminalLocation
+                      }}</span
+                    >
+                    <span v-if="walkingRoute?.distance" class="text-caption text-grey-7 q-ml-xs">
+                      ({{ formatDistance(walkingRoute.distance) }}, ~{{
+                        formatDuration(walkingRoute.duration)
+                      }})
+                    </span>
+                  </div>
+                </div>
+
+                <div class="direction-step">
+                  <q-avatar
+                    size="28px"
+                    color="primary"
+                    text-color="white"
+                    font-size="13px"
+                    class="q-mr-sm"
+                    >2</q-avatar
+                  >
+                  <div>
+                    <span class="text-weight-medium"
+                      >Ride the
+                      <strong>{{ selectedOption.jeepney?.jeepName }}</strong> jeepney</span
+                    >
+                    <div class="text-caption text-grey-7">
+                      Tell the driver:
+                      <em>"Para po sa {{ selectedOption.dropoff?.name || toLocation?.label }}!"</em>
+                      &nbsp;&bull;&nbsp; Fare: ₱{{ selectedOption.jeepney?.fareRegular }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="direction-step">
+                  <q-avatar
+                    size="28px"
+                    color="orange-8"
+                    text-color="white"
+                    font-size="13px"
+                    class="q-mr-sm"
+                    >3</q-avatar
+                  >
+                  <div>
+                    <span class="text-weight-medium"
+                      >Get off at {{ selectedOption.dropoff?.name || 'your stop' }}</span
+                    >
+                    <span
+                      v-if="walkingRouteToDest?.distance"
+                      class="text-caption text-grey-7 q-ml-xs"
+                    >
+                      then walk {{ formatDistance(walkingRouteToDest.distance) }} (~{{
+                        formatDuration(walkingRouteToDest.duration)
+                      }}) to destination
+                    </span>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Double ride steps -->
+              <template v-else>
+                <div class="direction-step">
+                  <q-avatar
+                    size="28px"
+                    color="positive"
+                    text-color="white"
+                    font-size="13px"
+                    class="q-mr-sm"
+                    >1</q-avatar
+                  >
+                  <div>
+                    <span class="text-weight-medium"
+                      >Walk to {{ selectedOption.firstJeepney?.terminalLocation }}</span
+                    >
+                    <span v-if="walkingRoute?.distance" class="text-caption text-grey-7 q-ml-xs">
+                      ({{ formatDistance(walkingRoute.distance) }}, ~{{
+                        formatDuration(walkingRoute.duration)
+                      }})
+                    </span>
+                  </div>
+                </div>
+
+                <div class="direction-step">
+                  <q-avatar
+                    size="28px"
+                    color="primary"
+                    text-color="white"
+                    font-size="13px"
+                    class="q-mr-sm"
+                    >2</q-avatar
+                  >
+                  <div>
+                    <span class="text-weight-medium"
+                      >Ride <strong>{{ selectedOption.firstJeepney?.jeepName }}</strong></span
+                    >
+                    <div class="text-caption text-grey-7">
+                      Get off at {{ selectedOption.transferName || 'the transfer point' }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="direction-step">
+                  <q-avatar
+                    size="28px"
+                    color="warning"
+                    text-color="white"
+                    font-size="13px"
+                    class="q-mr-sm"
+                    >3</q-avatar
+                  >
+                  <div>
+                    <span class="text-weight-medium"
+                      >Transfer to
+                      <strong>{{ selectedOption.secondJeepney?.jeepName }}</strong></span
+                    >
+                    <div class="text-caption text-grey-7">
+                      Tell the driver:
+                      <em>"Para po sa {{ selectedOption.dropoff?.name || toLocation?.label }}!"</em>
+                      &nbsp;&bull;&nbsp; Combined fare: ₱{{
+                        (selectedOption.firstJeepney?.fareRegular || 0) +
+                        (selectedOption.secondJeepney?.fareRegular || 0)
+                      }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="direction-step">
+                  <q-avatar
+                    size="28px"
+                    color="orange-8"
+                    text-color="white"
+                    font-size="13px"
+                    class="q-mr-sm"
+                    >4</q-avatar
+                  >
+                  <div>
+                    <span class="text-weight-medium"
+                      >Get off at {{ selectedOption.dropoff?.name || 'your stop' }}</span
+                    >
+                    <span
+                      v-if="walkingRouteToDest?.distance"
+                      class="text-caption text-grey-7 q-ml-xs"
+                    >
+                      then walk {{ formatDistance(walkingRouteToDest.distance) }} (~{{
+                        formatDuration(walkingRouteToDest.duration)
+                      }}) to destination
+                    </span>
+                  </div>
+                </div>
+              </template>
             </q-card-section>
           </q-card>
         </div>
@@ -477,17 +590,25 @@
                     <div class="route-detail-item">
                       <q-icon name="pin_drop" size="xs" color="primary" class="q-mr-xs" />
                       <span class="text-subtitle2"
-                        >Terminal: {{ option.jeepney?.terminalLocation }}</span
+                        >Board at:
+                        {{ option.boardingLabel || option.jeepney?.terminalLocation }}</span
                       >
                     </div>
-                    <div class="route-detail-item">
+                    <div v-if="option.dropoff?.name" class="route-detail-item">
                       <q-icon name="flag" size="xs" color="secondary" class="q-mr-xs" />
-                      <span class="text-subtitle2">To: {{ option.jeepney?.endPoint }}</span>
+                      <span class="text-subtitle2">Get off at: {{ option.dropoff.name }}</span>
                     </div>
                     <div class="route-detail-item">
                       <q-icon name="walk" size="xs" color="grey-7" class="q-mr-xs" />
                       <span class="text-caption"
-                        >Walk from start: {{ Math.round(option.startDistance) }}m</span
+                        >Walk to board:
+                        {{ Math.round(option.walkToBoard ?? option.startDistance) }}m</span
+                      >
+                    </div>
+                    <div v-if="option.walkFromDropoff != null" class="route-detail-item">
+                      <q-icon name="directions_walk" size="xs" color="grey-7" class="q-mr-xs" />
+                      <span class="text-caption"
+                        >Walk to destination: {{ Math.round(option.walkFromDropoff) }}m</span
                       >
                     </div>
                   </div>
@@ -496,27 +617,32 @@
                   <div v-else class="route-details double-ride-details">
                     <div class="route-detail-item">
                       <q-badge color="primary" class="q-mr-xs">1st</q-badge>
-                      <span class="text-subtitle2">{{
-                        option.firstJeepney?.terminalLocation
-                      }}</span>
+                      <span class="text-subtitle2"
+                        >{{ option.firstJeepney?.jeepName }} from
+                        {{ option.firstJeepney?.terminalLocation }}</span
+                      >
                     </div>
-                    <div class="route-detail-item q-ml-md">
-                      <q-icon name="arrow_forward" size="xs" color="grey-7" class="q-mr-xs" />
-                      <q-badge color="secondary" class="q-mr-xs">2nd</q-badge>
-                      <span class="text-subtitle2">{{
-                        option.secondJeepney?.terminalLocation
-                      }}</span>
+                    <div v-if="option.transferName" class="route-detail-item q-ml-md">
+                      <q-icon
+                        name="transfer_within_a_station"
+                        size="xs"
+                        color="warning"
+                        class="q-mr-xs"
+                      />
+                      <span class="text-caption">Transfer at: {{ option.transferName }}</span>
                     </div>
                     <div class="route-detail-item">
-                      <q-icon name="walk" size="xs" color="warning" class="q-mr-xs" />
-                      <span class="text-caption"
-                        >Transfer walk: {{ Math.round(option.walkToTransfer) }}m</span
-                      >
+                      <q-badge color="secondary" class="q-mr-xs">2nd</q-badge>
+                      <span class="text-subtitle2">{{ option.secondJeepney?.jeepName }}</span>
+                    </div>
+                    <div v-if="option.dropoff?.name" class="route-detail-item q-ml-md">
+                      <q-icon name="flag" size="xs" color="secondary" class="q-mr-xs" />
+                      <span class="text-caption">Get off at: {{ option.dropoff.name }}</span>
                     </div>
                     <div class="route-detail-item">
                       <q-icon name="walk" size="xs" color="grey-7" class="q-mr-xs" />
                       <span class="text-caption"
-                        >Total walk: {{ Math.round(option.totalWalkDistance) }}m</span
+                        >Total walking: {{ Math.round(option.totalWalkDistance) }}m</span
                       >
                     </div>
                   </div>
@@ -561,281 +687,6 @@
       </div>
     </section>
 
-    <!-- NAVIGATION TUTORIAL SECTION (Section 4) -->
-    <section v-if="selectedOption" class="tutorial-section bg-grey-1 q-py-xl">
-      <div class="container">
-        <div class="text-center q-mb-xl">
-          <h3 class="text-h4 text-weight-bold text-primary">How to Get There</h3>
-          <p class="text-body1">
-            Follow these steps to reach your destination using the
-            {{ selectedOption.routeName }} jeepney
-          </p>
-        </div>
-
-        <!-- Teaching Steps Overview -->
-        <div class="teaching-steps-overview q-mb-xl">
-          <div class="row q-col-gutter-md justify-center">
-            <div class="col-md-3 col-6" v-for="(step, idx) in teachingSteps" :key="idx">
-              <div
-                class="teaching-step-card"
-                :class="{
-                  'step-active': currentStep === idx + 1,
-                  'step-done': currentStep > idx + 1,
-                }"
-              >
-                <div class="step-icon-wrapper">
-                  <span class="step-emoji">{{ step.emoji }}</span>
-                </div>
-                <div class="step-label">{{ step.title }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-8 col-12 q-mb-lg">
-            <div class="navigation-steps q-pa-lg">
-              <q-stepper
-                v-model="currentStep"
-                vertical
-                color="primary"
-                animated
-                flat
-                class="bg-transparent"
-              >
-                <q-step
-                  :name="1"
-                  title="Go to Starting Point"
-                  icon="location_on"
-                  :done="currentStep > 1"
-                >
-                  <div class="step-content">
-                    <p class="text-body1 q-mb-md">
-                      <strong>Starting Point:</strong> {{ selectedFromLocation.label }}
-                    </p>
-
-                    <div
-                      v-if="getWalkingInstructions('from')"
-                      class="walking-instructions q-pa-md bg-blue-1 rounded-borders"
-                    >
-                      <div class="row items-center q-mb-sm">
-                        <q-icon
-                          name="directions_walk"
-                          color="primary"
-                          size="24px"
-                          class="q-mr-sm"
-                        />
-                        <span class="text-subtitle2 text-weight-bold">Walking Directions</span>
-                      </div>
-                      <p class="text-body2 mb-0">{{ getWalkingInstructions('from') }}</p>
-                    </div>
-
-                    <div class="q-mt-md">
-                      <q-badge color="info" class="q-mr-sm">
-                        <q-icon name="near_me" size="14px" class="q-mr-xs" />
-                        Distance: {{ getEstimatedDistance('from') }}
-                      </q-badge>
-                      <q-badge color="info">
-                        <q-icon name="schedule" size="14px" class="q-mr-xs" />
-                        Walk Time: {{ getEstimatedWalkTime('from') }}
-                      </q-badge>
-                    </div>
-                  </div>
-                  <q-stepper-navigation>
-                    <q-btn @click="nextStep" color="primary" label="Continue" />
-                  </q-stepper-navigation>
-                </q-step>
-
-                <q-step
-                  :name="2"
-                  title="Reach Jeepney Terminal"
-                  icon="directions_bus"
-                  :done="currentStep > 2"
-                >
-                  <div class="step-content">
-                    <p class="text-body1 q-mb-md">
-                      <strong>Terminal:</strong> {{ selectedOption.terminalStart }}
-                    </p>
-
-                    <div class="terminal-info-card q-pa-md bg-amber-1 rounded-borders q-mb-md">
-                      <div class="row items-center q-mb-sm">
-                        <q-icon name="info" color="warning" size="24px" class="q-mr-sm" />
-                        <span class="text-subtitle2 text-weight-bold">Terminal Landmarks</span>
-                      </div>
-                      <p class="text-body2 mb-0">{{ getTerminalLandmarks('start') }}</p>
-                    </div>
-
-                    <div class="q-mt-md">
-                      <q-badge color="warning" class="q-mr-sm">
-                        <q-icon name="access_time" size="14px" class="q-mr-xs" />
-                        Jeepneys arrive every 5-10 mins
-                      </q-badge>
-                    </div>
-                  </div>
-                  <q-stepper-navigation>
-                    <q-btn @click="nextStep" color="primary" label="Continue" />
-                    <q-btn @click="prevStep" flat color="primary" label="Back" class="q-ml-sm" />
-                  </q-stepper-navigation>
-                </q-step>
-
-                <q-step
-                  :name="3"
-                  title="Take {{ selectedOption.routeName }}"
-                  icon="local_shipping"
-                  :done="currentStep > 3"
-                >
-                  <div class="step-content">
-                    <p class="text-body1 q-mb-md">
-                      Take the {{ selectedOption.routeName }} jeepney from
-                      {{ selectedOption.terminalStart }} to {{ selectedOption.terminalEnd }}
-                    </p>
-
-                    <!-- WHAT TO TELL THE DRIVER CARD -->
-                    <div
-                      class="driver-phrase-card q-pa-lg bg-primary text-white rounded-borders q-mb-md shadow-2"
-                    >
-                      <div class="row items-center q-mb-sm">
-                        <q-icon name="record_voice_over" size="28px" class="q-mr-sm" />
-                        <span class="text-h6 text-weight-bold">What to Tell the Driver</span>
-                      </div>
-                      <p class="text-h5 text-weight-bold q-my-md">"{{ getDriverPhrase() }}"</p>
-                      <p class="text-body2 opacity-80">
-                        Say this clearly when boarding. Drivers will confirm if they pass by your
-                        destination.
-                      </p>
-                    </div>
-
-                    <div class="ride-details-grid row q-col-gutter-sm q-mt-md">
-                      <div class="col-6">
-                        <div class="detail-card q-pa-sm bg-white rounded-borders text-center">
-                          <q-icon name="payments" color="primary" size="24px" />
-                          <div class="text-caption text-grey-7">Fare</div>
-                          <div class="text-h6 text-primary text-weight-bold">
-                            ₱{{ selectedOption.fare }}
-                          </div>
-                        </div>
-                      </div>
-                      <div class="col-6">
-                        <div class="detail-card q-pa-sm bg-white rounded-borders text-center">
-                          <q-icon name="schedule" color="primary" size="24px" />
-                          <div class="text-caption text-grey-7">Duration</div>
-                          <div class="text-h6 text-primary text-weight-bold">
-                            {{ selectedOption.estimatedDuration }} min
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="q-mt-md">
-                      <q-badge color="secondary" class="q-mr-sm">
-                        <q-icon name="visibility" size="14px" class="q-mr-xs" />
-                        Tip: Look for jeepneys with "{{ selectedOption.routeName }}" signage
-                      </q-badge>
-                    </div>
-
-                    <div
-                      v-if="getCulturalContext()"
-                      class="cultural-context-card q-pa-md bg-green-1 rounded-borders q-mt-md"
-                    >
-                      <div class="row items-center q-mb-sm">
-                        <q-icon name="history_edu" color="positive" size="24px" class="q-mr-sm" />
-                        <span class="text-subtitle2 text-weight-bold">Cultural Context</span>
-                      </div>
-                      <p class="text-body2 mb-0">{{ getCulturalContext() }}</p>
-                    </div>
-                  </div>
-                  <q-stepper-navigation>
-                    <q-btn @click="nextStep" color="primary" label="Continue" />
-                    <q-btn @click="prevStep" flat color="primary" label="Back" class="q-ml-sm" />
-                  </q-stepper-navigation>
-                </q-step>
-
-                <q-step :name="4" title="Arrive at Destination" icon="location_city">
-                  <div class="step-content">
-                    <p class="text-body1 q-mb-md">
-                      <strong>Destination:</strong> {{ selectedToLocation.label }}
-                    </p>
-
-                    <div class="arrival-info-card q-pa-md bg-purple-1 rounded-borders q-mb-md">
-                      <div class="row items-center q-mb-sm">
-                        <q-icon name="flag" color="secondary" size="24px" class="q-mr-sm" />
-                        <span class="text-subtitle2 text-weight-bold"
-                          >From Terminal to Destination</span
-                        >
-                      </div>
-                      <p class="text-body1 q-mb-sm">{{ getWalkingInstructions('to') }}</p>
-                    </div>
-
-                    <div class="q-mt-md">
-                      <q-badge color="info" class="q-mr-sm">
-                        <q-icon name="near_me" size="14px" class="q-mr-xs" />
-                        Distance: {{ getEstimatedDistance('to') }}
-                      </q-badge>
-                      <q-badge color="info">
-                        <q-icon name="schedule" size="14px" class="q-mr-xs" />
-                        Walk Time: {{ getEstimatedWalkTime('to') }}
-                      </q-badge>
-                    </div>
-
-                    <div
-                      v-if="getDestinationHighlights()"
-                      class="destination-highlights q-pa-md bg-white rounded-borders shadow-1 q-mt-md"
-                    >
-                      <div class="row items-center q-mb-sm">
-                        <q-icon name="star" color="warning" size="24px" class="q-mr-sm" />
-                        <span class="text-subtitle2 text-weight-bold">What to See Here</span>
-                      </div>
-                      <p class="text-body2 mb-0">{{ getDestinationHighlights() }}</p>
-                    </div>
-                  </div>
-                  <q-stepper-navigation>
-                    <q-btn @click="resetSelection" color="primary" label="Start New Route" />
-                    <q-btn @click="prevStep" flat color="primary" label="Back" class="q-ml-sm" />
-                  </q-stepper-navigation>
-                </q-step>
-              </q-stepper>
-            </div>
-          </div>
-          <div class="col-md-4 col-12">
-            <div class="map-container">
-              <div id="map" style="height: 400px; width: 100%; border-radius: 8px"></div>
-            </div>
-
-            <!-- Quick Reference Card -->
-            <div class="quick-reference-card q-mt-md q-pa-md bg-white rounded-borders shadow-1">
-              <div class="text-subtitle2 text-weight-bold q-mb-sm">Quick Reference</div>
-              <q-list dense>
-                <q-item>
-                  <q-item-section avatar>
-                    <q-icon name="local_atm" color="primary" />
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label caption>Bring small bills</q-item-label>
-                  </q-item-section>
-                </q-item>
-                <q-item>
-                  <q-item-section avatar>
-                    <q-icon name="volume_up" color="primary" />
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label caption>Speak clearly to driver</q-item-label>
-                  </q-item-section>
-                </q-item>
-                <q-item>
-                  <q-item-section avatar>
-                    <q-icon name="group" color="primary" />
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label caption>Jeepneys may wait for passengers</q-item-label>
-                  </q-item-section>
-                </q-item>
-              </q-list>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- FAQS SECTION (Section 5) -->
     <FAQSection />
 
@@ -851,7 +702,7 @@ import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { db } from 'src/boot/firebase'
-import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore'
+import { collection, getDocs, query, where, doc, getDoc, updateDoc } from 'firebase/firestore'
 import FAQSection from '../components/home/FAQSection.vue'
 import FooterSection from '../components/home/FooterSection.vue'
 import fallbackImage from '../assets/2.png'
@@ -861,6 +712,7 @@ import { useGeolocation } from 'src/composables/useGeolocation'
 import { useGeocoding } from 'src/composables/useGeocoding'
 import { useJeepneyRouteMatching } from 'src/composables/useJeepneyRouteMatching'
 import { useWalkingDirections } from 'src/composables/useWalkingDirections'
+import { fuzzyMatch, fetchPlaces, callOSRM } from 'src/composables/useRouteGeneration'
 
 export default defineComponent({
   name: 'ApanamPage',
@@ -874,8 +726,13 @@ export default defineComponent({
 
     // NEW: Initialize custom composables directly (will be used in next increments)
     const { getCurrentLocation, loading: geoLoading } = useGeolocation()
-    const { searchLocations } = useGeocoding()
-    const { findAllRoutes: findMatchingRoutes } = useJeepneyRouteMatching()
+    const { searchLocations, reverseGeocode } = useGeocoding()
+    const {
+      loadJeepneys,
+      jeepneys,
+      calculateDistance: calcDistanceGeo,
+      isNearRoute,
+    } = useJeepneyRouteMatching()
     const { getWalkingDirections, formatDistance, formatDuration } = useWalkingDirections()
 
     // Existing refs
@@ -892,7 +749,6 @@ export default defineComponent({
     const selectedOption = ref(null)
     const currentStep = ref(1)
     const heroImageUrl = ref(fallbackImage)
-    const map = ref(null)
     const routeMap = ref(null)
     const isScrolled = ref(false)
     const favoriteRoutes = ref([])
@@ -902,159 +758,288 @@ export default defineComponent({
     // NEW: State for enhanced route finding (will be used in next increments)
     const routeOptions = ref([])
     const walkingRoute = ref(null)
+    const walkingRouteToDest = ref(null)
+    const walkingRouteTransfer = ref(null)
 
-    // Location options - All 33 destinations from Maykan
-    const locationOptions = [
-      { label: 'SM City Baguio', value: 'sm-baguio', coords: [16.4088516, 120.5972273] },
-      { label: 'Burnham Park', value: 'burnham-park', coords: [16.40954, 120.594808] },
-      { label: 'Session Road', value: 'session-road', coords: [16.4091098, 120.597576] },
-      { label: 'Baguio Cathedral', value: 'baguio-cathedral', coords: [16.412766, 120.598469] },
-      { label: 'Baguio City Market', value: 'baguio-market', coords: [16.4149596, 120.5929984] },
-      { label: 'Camp John Hay', value: 'camp-john-hay', coords: [16.397029, 120.608785] },
-      { label: 'Mines View Park', value: 'mines-view', coords: [16.4240885, 120.6212975] },
-      { label: 'Wright Park', value: 'wright-park', coords: [16.4156996, 120.6123524] },
-      { label: 'The Mansion', value: 'the-mansion', coords: [16.4123678, 120.6188978] },
-      { label: "Teacher's Camp", value: 'teachers-camp', coords: [16.4130217, 120.6072952] },
-      { label: 'Botanical Garden', value: 'botanical-garden', coords: [16.4176, 120.597] },
-      { label: 'Baguio Convention Center', value: 'convention-center', coords: [16.409, 120.594] },
-      { label: 'Baguio General Hospital', value: 'bgh', coords: [16.4068, 120.5995] },
-      { label: 'University of Baguio', value: 'ub', coords: [16.4111, 120.6005] },
-      { label: 'Saint Louis University', value: 'slu', coords: [16.4133, 120.5967] },
-      { label: 'Good Shepherd Convent', value: 'good-shepherd', coords: [16.4196, 120.604] },
-      { label: 'Tam-awan Village', value: 'tam-awan', coords: [16.4231, 120.5889] },
-      { label: 'Lourdes Grotto', value: 'lourdes-grotto', coords: [16.4253, 120.5972] },
-      { label: 'PMA (Philippine Military Academy)', value: 'pma', coords: [16.3928, 120.5962] },
-      { label: 'BenCab Museum', value: 'bencab-museum', coords: [16.3989, 120.5756] },
-      { label: 'Strawberry Farm', value: 'strawberry-farm', coords: [16.3989, 120.5989] },
-      { label: 'Igorot Stone Kingdom', value: 'igorot-stone-kingdom', coords: [16.4589, 120.5889] },
-      { label: 'Baguio National Museum', value: 'national-museum', coords: [16.4156, 120.5989] },
-      { label: 'Mirador Park', value: 'mirador-park', coords: [16.4267, 120.5956] },
-      { label: 'Baguio Craft Brewery', value: 'craft-brewery', coords: [16.4056, 120.5989] },
-      { label: 'Café by the Ruins', value: 'cafe-ruins', coords: [16.4145, 120.6012] },
-      { label: 'Volcano Island Coffee', value: 'volcano-coffee', coords: [16.4145, 120.5972] },
-      { label: 'Pinecone House', value: 'pinecone-house', coords: [16.4123, 120.5967] },
-      { label: 'Baguio Country Club', value: 'country-club', coords: [16.4089, 120.6123] },
-      { label: 'La Trinidad Fish Market', value: 'fish-market', coords: [16.3989, 120.5956] },
-      { label: 'Baguio Sunset Point', value: 'sunset-point', coords: [16.4189, 120.5856] },
-      { label: 'Baguio Heritage Park', value: 'heritage-park', coords: [16.4112, 120.5945] },
-      { label: 'Baguio Arts Village', value: 'arts-village', coords: [16.4245, 120.5878] },
-      { label: 'Other', value: 'other' },
-    ]
+    // Session caches to avoid repeat OSRM/Firestore work
+    const placesCache = ref(null)
+    const jeepneyRouteCache = new Map() // jeepney.id -> coordinates array ([lng,lat] pairs)
+
+    const loadPlacesOnce = async () => {
+      if (!placesCache.value) {
+        placesCache.value = await fetchPlaces()
+      }
+      return placesCache.value
+    }
+
+    // Firestore rejects nested arrays, so route polylines are persisted as
+    // [{ lng, lat }, ...] objects but consumed in-memory as [[lng, lat], ...].
+    // These helpers convert between the two shapes and tolerate legacy docs
+    // that still store the nested-array form.
+    const normalizeRouteCoords = (raw) => {
+      if (!Array.isArray(raw) || raw.length === 0) return null
+      const first = raw[0]
+      if (Array.isArray(first) && first.length === 2) return raw
+      if (first && typeof first === 'object' && 'lng' in first && 'lat' in first) {
+        return raw.map((p) => [p.lng, p.lat])
+      }
+      return null
+    }
+    const coordsForStorage = (coords) => coords.map(([lng, lat]) => ({ lng, lat }))
+
+    // Public OSRM rate-limits aggressive concurrency, so we serialize calls
+    // with a small delay between regenerations.
+    const OSRM_THROTTLE_MS = 250
+    const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+
+    /**
+     * Ensure a jeepney has a road-following routeCoordinates polyline.
+     * - Session cache hit → return immediately.
+     * - Already persisted in Firestore → cache and return.
+     * - Otherwise build waypoints leniently (unmatched endPoint / spots just get skipped
+     *   or geocoded via Nominatim), call OSRM driving, persist to Firestore, cache.
+     * Returns null only if we cannot build at least 2 waypoints.
+     */
+    const ensureJeepneyRoute = async (jeepney) => {
+      if (jeepneyRouteCache.has(jeepney.id)) {
+        return jeepneyRouteCache.get(jeepney.id)
+      }
+      const existing = normalizeRouteCoords(jeepney.routeCoordinates)
+      if (existing && existing.length >= 2) {
+        jeepney.routeCoordinates = existing
+        jeepneyRouteCache.set(jeepney.id, existing)
+        return existing
+      }
+      if (!jeepney.terminalLat || !jeepney.terminalLng) {
+        console.warn(`[ApanamPage] Jeepney "${jeepney.jeepName}" missing terminal coords`)
+        return null
+      }
+
+      const places = await loadPlacesOnce()
+      const terminal = {
+        name: 'Terminal',
+        latitude: jeepney.terminalLat,
+        longitude: jeepney.terminalLng,
+      }
+      const intermediates = []
+      const unmatched = []
+
+      for (const spotName of jeepney.touristSpotsServiced || []) {
+        const place = fuzzyMatch(spotName, places)
+        if (place) {
+          intermediates.push({
+            name: place.name,
+            latitude: place.latitude,
+            longitude: place.longitude,
+          })
+        } else {
+          unmatched.push(`spot: "${spotName}"`)
+        }
+      }
+
+      // endPoint is often a road/street name — try places first, then Nominatim
+      let endPointWaypoint = null
+      if (jeepney.endPoint) {
+        const endPlace = fuzzyMatch(jeepney.endPoint, places)
+        if (endPlace) {
+          endPointWaypoint = {
+            name: endPlace.name,
+            latitude: endPlace.latitude,
+            longitude: endPlace.longitude,
+          }
+        } else {
+          try {
+            const geoResults = await searchLocations(jeepney.endPoint + ', Baguio', true)
+            if (geoResults && geoResults.length > 0) {
+              endPointWaypoint = {
+                name: jeepney.endPoint,
+                latitude: geoResults[0].lat,
+                longitude: geoResults[0].lng,
+              }
+            } else {
+              unmatched.push(`endPoint: "${jeepney.endPoint}"`)
+            }
+          } catch {
+            unmatched.push(`endPoint: "${jeepney.endPoint}" (geocode failed)`)
+          }
+        }
+      }
+
+      // Sort intermediate stops by their projection onto the terminal→endPoint axis
+      // so OSRM visits them roughly in travel order (avoids a zigzagging polyline).
+      // Falls back to distance-from-terminal when no endPoint is available.
+      const anchor = endPointWaypoint || intermediates[intermediates.length - 1]
+      if (anchor && intermediates.length > 1) {
+        const dx = anchor.longitude - terminal.longitude
+        const dy = anchor.latitude - terminal.latitude
+        const denom = dx * dx + dy * dy || 1
+        intermediates.sort((a, b) => {
+          const ta =
+            ((a.longitude - terminal.longitude) * dx + (a.latitude - terminal.latitude) * dy) /
+            denom
+          const tb =
+            ((b.longitude - terminal.longitude) * dx + (b.latitude - terminal.latitude) * dy) /
+            denom
+          return ta - tb
+        })
+      }
+
+      const waypoints = [terminal, ...intermediates]
+      if (endPointWaypoint) waypoints.push(endPointWaypoint)
+
+      if (unmatched.length > 0) {
+        console.warn(
+          `[ApanamPage] Jeepney "${jeepney.jeepName}" could not match:`,
+          unmatched,
+          '— route will still be built from the matched waypoints.'
+        )
+      }
+
+      if (waypoints.length < 2) {
+        console.warn(
+          `[ApanamPage] Jeepney "${jeepney.jeepName}" only has terminal as a waypoint — skipping.`
+        )
+        return null
+      }
+
+      try {
+        const result = await callOSRM(waypoints)
+        const coords = result.coordinates
+        jeepney.routeCoordinates = coords
+        jeepneyRouteCache.set(jeepney.id, coords)
+        try {
+          await updateDoc(doc(db, 'jeepneys', jeepney.id), {
+            routeCoordinates: coordsForStorage(coords),
+            routeDistance: result.distance,
+            routeDuration: result.duration,
+          })
+        } catch (persistErr) {
+          console.warn(
+            `[ApanamPage] Could not persist routeCoordinates for ${jeepney.jeepName}:`,
+            persistErr.message
+          )
+        }
+        return coords
+      } catch (err) {
+        console.warn(`[ApanamPage] OSRM failed for "${jeepney.jeepName}":`, err.message)
+        return null
+      }
+    }
+
+    /**
+     * Find the nearest drop-off spot for a destination from a jeepney's serviced spots.
+     * Looks up each spot's coords via the places collection (fuzzy match) and picks the
+     * one closest to the user's destination. If no named spot is within
+     * DROPOFF_NAMED_THRESHOLD, falls back to the nearest point on the route polyline
+     * (so users still get an accurate drop-off location even when touristSpotsServiced
+     * doesn't include their specific destination).
+     */
+    const findNearestDropoff = (jeepney, places, destCoords, nearestRoutePoint = null) => {
+      const candidates = []
+      const spots = jeepney.touristSpotsServiced || []
+      for (const name of spots) {
+        const place = fuzzyMatch(name, places)
+        if (place) {
+          candidates.push({ name: place.name, coords: [place.latitude, place.longitude] })
+        }
+      }
+      if (jeepney.endPoint) {
+        const endPlace = fuzzyMatch(jeepney.endPoint, places)
+        if (endPlace) {
+          candidates.push({
+            name: endPlace.name,
+            coords: [endPlace.latitude, endPlace.longitude],
+          })
+        }
+      }
+      if (jeepney.terminalLat && jeepney.terminalLng) {
+        candidates.push({
+          name: jeepney.terminalLocation || 'Terminal',
+          coords: [jeepney.terminalLat, jeepney.terminalLng],
+        })
+      }
+      let best = null
+      for (const c of candidates) {
+        const dist = calcDistanceGeo(destCoords, c.coords)
+        if (!best || dist < best.distance) {
+          best = { ...c, distance: dist }
+        }
+      }
+      // Fall back to nearest point on route if no named spot is close enough
+      if (nearestRoutePoint && (!best || best.distance > DROPOFF_NAMED_THRESHOLD)) {
+        const routePointDist = calcDistanceGeo(destCoords, nearestRoutePoint)
+        if (!best || routePointDist < best.distance) {
+          best = {
+            name: 'nearest stop to your destination',
+            coords: nearestRoutePoint,
+            distance: routePointDist,
+          }
+        }
+      }
+      return best
+    }
+
+    // Location options are built from the Firestore `places` collection on mount,
+    // so SM Baguio / Botanical Garden / etc. always use the canonical coordinates
+    // the admin curated, not stale hardcoded values.
+    const OTHER_OPTION = { label: 'Other', value: 'other' }
+    const locationOptions = ref([OTHER_OPTION])
+
+    const loadLocationOptions = async () => {
+      try {
+        const places = await loadPlacesOnce()
+        const fromPlaces = (places || [])
+          .filter(
+            (p) => p?.name && typeof p.latitude === 'number' && typeof p.longitude === 'number'
+          )
+          .map((p) => ({
+            label: p.name,
+            value: `place-${p.id}`,
+            coords: [p.latitude, p.longitude],
+            placeId: p.id,
+          }))
+          .sort((a, b) => a.label.localeCompare(b.label))
+        locationOptions.value = [...fromPlaces, OTHER_OPTION]
+        toLocationOptions.value = [...locationOptions.value]
+      } catch (err) {
+        console.warn('[ApanamPage] Failed to load places for location options:', err.message)
+      }
+    }
+
+    // Fuzzy-match a free-text query against the places collection.
+    // Used by the From search so "SM Baguio" resolves to the admin-curated
+    // SM City Baguio place document instead of whatever Nominatim guesses.
+    const matchQueryToPlace = (query) => {
+      if (!query) return null
+      const places = placesCache.value || []
+      if (places.length === 0) return null
+      const needle = query.toLowerCase().trim()
+      const normalize = (s) =>
+        s
+          .toLowerCase()
+          .replace(/[^a-z0-9\s]/g, '')
+          .replace(/\s+/g, ' ')
+          .trim()
+      const normNeedle = normalize(query)
+      // 1. Exact case-insensitive match
+      let hit = places.find((p) => p.name?.toLowerCase().trim() === needle)
+      if (hit) return hit
+      // 2. Normalized equality
+      hit = places.find((p) => normalize(p.name || '') === normNeedle)
+      if (hit) return hit
+      // 3. Name contains query or vice versa (on normalized forms)
+      hit = places.find((p) => {
+        const n = normalize(p.name || '')
+        return n && (n.includes(normNeedle) || normNeedle.includes(n))
+      })
+      return hit || null
+    }
 
     const selectedFromLocation = ref(null)
     const selectedToLocation = ref(null)
 
-    // NEW: TO location options (initialized after locationOptions is defined)
-    const toLocationOptions = ref([])
-
-    // Initialize toLocationOptions
-    toLocationOptions.value = [...locationOptions]
-
-    // Teaching steps for visual overview
-    const teachingSteps = [
-      { emoji: '🚶', title: 'Walk to Terminal' },
-      { emoji: '📍', title: 'Find Terminal' },
-      { emoji: '💬', title: 'Tell Driver' },
-      { emoji: '🎯', title: 'Arrive' },
-    ]
-
-    // Walking instructions database (landmark-based)
-    const walkingInstructionsDB = {
-      sm: {
-        from: 'Head towards the main entrance of SM Baguio. Walk towards Session Road side.',
-        to: 'From the terminal, walk straight for 2 blocks. You will see SM Baguio on your right.',
-        landmarks: 'Near SM Baguio main entrance, beside BDO Bank',
-      },
-      burnham: {
-        from: 'Walk towards Burnham Park main entrance. Look for the lagoon area.',
-        to: 'From the terminal, cross the street and you will see Burnham Park lagoon. Walk straight for 100 meters.',
-        landmarks: "Near the lagoon, beside the children's playground",
-      },
-      session: {
-        from: 'Head to Session Road. Look for the uphill/downhill slope - this is the main commercial strip.',
-        to: 'From the terminal, walk along Session Road. You will see many shops and restaurants.',
-        landmarks: 'Main Session Road strip, near Jollibee',
-      },
-      ub: {
-        from: 'Walk towards University of Baguio. Look for the main gate with UB signage.',
-        to: 'From the terminal, enter the UB gate. The main building is straight ahead.',
-        landmarks: 'UB Main Gate, near the guard house',
-      },
-      slu: {
-        from: 'Head to Saint Louis University main campus. Look for the SLU marker.',
-        to: 'From the terminal, walk towards the SLU chapel. The campus is on your left.',
-        landmarks: 'SLU Chapel area, near the student center',
-      },
-      'good-shepherd': {
-        from: 'Walk uphill towards Good Shepherd Convent. Look for the iconic architecture.',
-        to: 'From the terminal, follow the path towards the convent. You can buy pastillas here.',
-        landmarks: 'Good Shepherd Convent main building',
-      },
-      'tam-awan': {
-        from: 'Head to Tam-awan Village. This is in the arts district - look for traditional Ifugao huts.',
-        to: 'From the drop-off, walk through the art gallery path. The village proper is 5 minutes away.',
-        landmarks: 'Tam-awan art gallery entrance',
-      },
-      'lourdes-grotto': {
-        from: 'Walk towards the base of Lourdes Grotto. You will see the stairs or take the elevator.',
-        to: 'From the terminal, climb the 252 steps or take the elevator. The shrine is at the top.',
-        landmarks: 'Lourdes Grotto shrine, near the bell tower',
-      },
-      pma: {
-        from: 'Head to PMA main gate. This is a military academy - expect security checks.',
-        to: 'From the gate, follow the main road. The PMA museum is on your right.',
-        landmarks: 'PMA Main Gate, near the sentinel box',
-      },
-    }
-
-    // Driver phrases database (what to say in Tagalog/English)
-    const driverPhrasesDB = {
-      sm: 'SM Baguio po!',
-      burnham: 'Burnham Park po!',
-      session: 'Session Road po!',
-      ub: 'University of Baguio po!',
-      slu: 'SLU po! / Saint Louis University po!',
-      'good-shepherd': 'Good Shepherd po!',
-      'tam-awan': 'Tam-awan Village po!',
-      'lourdes-grotto': 'Lourdes Grotto po!',
-      pma: 'PMA po! / Philippine Military Academy po!',
-    }
-
-    // Cultural context for destinations
-    const culturalContextDB = {
-      sm: 'SM Baguio is the largest mall in Northern Luzon, built on what was once a military base.',
-      burnham:
-        'Burnham Park was designed by American architect Daniel Burnham in 1905. The lagoon is perfect for boat rides!',
-      session:
-        "Session Road is Baguio's main commercial hub, named after an American governor-general. It's the heart of Baguio's nightlife.",
-      ub: 'University of Baguio, founded in 1948, is known for its strong criminology and medical programs.',
-      slu: 'Saint Louis University is one of the oldest universities in the north, established by Belgian missionaries in 1911.',
-      'good-shepherd':
-        'Good Shepherd Convent is famous for its handmade pastillas (milk candies) and embroidered vestments.',
-      'tam-awan':
-        'Tam-awan Village showcases traditional Cordillera architecture with authentic Ifugao huts relocated from the mountains.',
-      'lourdes-grotto':
-        'The Our Lady of Lourdes Grotto has been a pilgrimage site since 1913. The view from the top offers a panoramic view of Baguio.',
-      pma: "The Philippine Military Academy is the country's premier military school, training future AFP officers since 1936.",
-    }
-
-    // Destination highlights
-    const destinationHighlightsDB = {
-      sm: "Check out the SM Baguio Food Court on the 3rd floor for local delicacies. Don't miss the strawberry taho!",
-      burnham:
-        'Rent a boat at the lagoon, bike around the park, or have a picnic at the grassy areas. Great for photos!',
-      session:
-        'Try the famous Baguio coffee at Volcano Island Coffee, shop at Session Road boutiques, and experience the night market.',
-      ub: 'Visit the UB Museum to see Cordillera artifacts. The campus has beautiful views of the city.',
-      slu: "The SLU Museum houses indigenous artifacts. Don't miss the beautiful SLU Chapel architecture.",
-      'good-shepherd':
-        'Buy fresh pastillas at the convent shop. They have unique flavors like ube, strawberry, and cheese.',
-      'tam-awan':
-        'Explore the art galleries, try traditional Cordillera food, and enjoy the mountain view deck.',
-      'lourdes-grotto':
-        'Light a candle at the shrine, ring the bell tower, and enjoy the 360° view of Baguio City.',
-      pma: 'Visit the PMA Museum to see military artifacts. The campus grounds are beautifully maintained with flowering trees.',
-    }
+    // Populated once places load; empty until then.
+    const toLocationOptions = ref([OTHER_OPTION])
 
     const fetchHeroImage = async () => {
       try {
@@ -1130,6 +1115,12 @@ export default defineComponent({
       ]
     }
 
+    // Distance thresholds for route matching (meters)
+    const DEST_NEAR_ROUTE_THRESHOLD = 250 // destination must be this close to jeepney polyline
+    const MAX_WALK_TO_BOARD = 500 // user must be able to reach the route within this walk
+    const DROPOFF_NAMED_THRESHOLD = 400 // use a named spot only if it's this close to destination
+    const TRANSFER_NEAR_ROUTE_THRESHOLD = 400 // transfer point must be this close to connecting route
+
     const findRoutes = async () => {
       console.log('[ApanamPage] findRoutes called')
       console.log('[ApanamPage] fromLocation:', fromLocation.value)
@@ -1145,21 +1136,33 @@ export default defineComponent({
         return
       }
 
-      // Show loading
       isLoadingOptions.value = true
+      selectedOption.value = null
+      routeOptions.value = []
 
       try {
-        // Get coordinates
+        if (jeepneys.value.length === 0) {
+          await loadJeepneys()
+        }
+        const places = await loadPlacesOnce()
+
         const startCoords = fromLocation.value.coords || []
         const endCoords = toLocation.value.coords || []
 
-        console.log('[ApanamPage] Start coords:', startCoords)
-        console.log('[ApanamPage] End coords:', endCoords)
-
-        if (!startCoords || !endCoords || startCoords.length === 0 || endCoords.length === 0) {
+        if (!endCoords || endCoords.length !== 2) {
           isLoadingOptions.value = false
           $q.notify({
-            message: 'Invalid coordinates. Please select valid locations.',
+            message: 'Destination has no coordinates. Please pick a location from the suggestions.',
+            color: 'warning',
+            icon: 'warning',
+            position: 'top',
+          })
+          return
+        }
+        if (!startCoords || startCoords.length !== 2) {
+          isLoadingOptions.value = false
+          $q.notify({
+            message: 'Starting point has no coordinates. Use GPS or pick a suggested location.',
             color: 'warning',
             icon: 'warning',
             position: 'top',
@@ -1167,34 +1170,238 @@ export default defineComponent({
           return
         }
 
-        // Use the route matching composable
-        const result = await findMatchingRoutes(startCoords, endCoords)
+        // Ensure every jeepney has a road-following polyline (generate + persist if missing).
+        // Serialized to avoid 429s from the public OSRM endpoint; cached jeepneys return
+        // immediately so the throttle only kicks in for genuine regenerations.
+        console.log(
+          `[ApanamPage] Processing ${jeepneys.value.length} jeepneys for route matching...`
+        )
+        const processed = []
+        for (const j of jeepneys.value) {
+          const hadCache =
+            jeepneyRouteCache.has(j.id) ||
+            (normalizeRouteCoords(j.routeCoordinates)?.length ?? 0) >= 2
+          const coords = await ensureJeepneyRoute(j)
+          processed.push({ jeepney: j, routeCoords: coords })
+          if (!hadCache) await sleep(OSRM_THROTTLE_MS)
+        }
+        const withRoutes = processed.filter((p) => p.routeCoords && p.routeCoords.length >= 2)
+        console.log(
+          `[ApanamPage] ${withRoutes.length}/${processed.length} jeepneys have usable routes`
+        )
 
-        console.log('[ApanamPage] Route matching result:', result)
+        const singleRides = []
+        const skippedForDistance = []
+        const skippedForStart = []
+
+        for (const { jeepney, routeCoords } of processed) {
+          if (!routeCoords || routeCoords.length < 2) continue
+
+          // Destination must be on (or very near) this jeepney's actual road path
+          const destNear = isNearRoute(endCoords, routeCoords, DEST_NEAR_ROUTE_THRESHOLD)
+          if (!destNear.isNear) {
+            skippedForDistance.push({
+              jeepName: jeepney.jeepName,
+              distance: Math.round(destNear.minDistance),
+            })
+            continue
+          }
+
+          // Boarding is always at the jeepney's terminal — user must be within
+          // walking distance of it.
+          const terminalCoordsArr =
+            jeepney.terminalLat && jeepney.terminalLng
+              ? [jeepney.terminalLat, jeepney.terminalLng]
+              : null
+
+          if (!terminalCoordsArr) {
+            skippedForStart.push({
+              jeepName: jeepney.jeepName,
+              startDistance: Infinity,
+            })
+            continue
+          }
+
+          const terminalDist = calcDistanceGeo(startCoords, terminalCoordsArr)
+
+          if (terminalDist > MAX_WALK_TO_BOARD) {
+            skippedForStart.push({
+              jeepName: jeepney.jeepName,
+              startDistance: Math.round(terminalDist),
+            })
+            continue
+          }
+
+          const boardingPoint = terminalCoordsArr
+          const boardingLabel = jeepney.terminalLocation || 'Terminal'
+          const walkToBoard = terminalDist
+
+          let dropoff = findNearestDropoff(jeepney, places, endCoords, destNear.nearestPoint)
+          // If the drop-off fell back to an unnamed route point, use the destination's own
+          // label so "Para po sa <X>" reads naturally.
+          if (dropoff && dropoff.name === 'nearest stop to your destination') {
+            const destLabel = toLocation.value?.label || toLocation.value?.display_name || 'my stop'
+            dropoff = { ...dropoff, name: destLabel }
+          }
+          const walkFromDropoff = dropoff
+            ? calcDistanceGeo(dropoff.coords, endCoords)
+            : destNear.minDistance
+
+          singleRides.push({
+            jeepney: { ...jeepney },
+            routeGeometry: routeCoords,
+            dropoff,
+            boardingPoint,
+            boardingLabel,
+            walkToBoard,
+            walkFromDropoff,
+            rideType: 'single',
+            priority: 'single',
+            startDistance: walkToBoard,
+            endDistance: destNear.minDistance,
+            confidence: destNear.minDistance < 100 ? 0.95 : 0.85,
+            // Fields consumed by the tutorial stepper section
+            routeName: jeepney.jeepName,
+            terminalStart: boardingLabel,
+            terminalEnd: dropoff?.name || jeepney.endPoint,
+            fare: jeepney.fareRegular,
+            estimatedDuration: jeepney.estimatedDuration || 20,
+          })
+        }
+
+        // Rank: favor short walk to board + short walk from drop-off (drop-off weighted 2x)
+        singleRides.sort((a, b) => {
+          const aScore = (a.walkToBoard || 0) + (a.walkFromDropoff || 0) * 2
+          const bScore = (b.walkToBoard || 0) + (b.walkFromDropoff || 0) * 2
+          return aScore - bScore
+        })
+
+        // Double rides — only if single rides are sparse
+        const doubleRides = []
+        if (singleRides.length < 2) {
+          const startJeepneys = processed.filter(({ jeepney, routeCoords }) => {
+            if (!routeCoords) return false
+            if (!jeepney.terminalLat || !jeepney.terminalLng) return false
+            return (
+              calcDistanceGeo(startCoords, [jeepney.terminalLat, jeepney.terminalLng]) <=
+              MAX_WALK_TO_BOARD
+            )
+          })
+          const destJeepneys = processed.filter(({ routeCoords }) => {
+            if (!routeCoords) return false
+            return isNearRoute(endCoords, routeCoords, DEST_NEAR_ROUTE_THRESHOLD).isNear
+          })
+
+          for (const first of startJeepneys) {
+            for (const second of destJeepneys) {
+              if (first.jeepney.id === second.jeepney.id) continue
+
+              // Candidate transfer points: first jeepney's serviced spots + terminal
+              const candidateSpots = []
+              for (const name of first.jeepney.touristSpotsServiced || []) {
+                const place = fuzzyMatch(name, places)
+                if (place) {
+                  candidateSpots.push({
+                    name: place.name,
+                    coords: [place.latitude, place.longitude],
+                  })
+                }
+              }
+              if (first.jeepney.terminalLat && first.jeepney.terminalLng) {
+                candidateSpots.push({
+                  name: first.jeepney.terminalLocation || 'Terminal',
+                  coords: [first.jeepney.terminalLat, first.jeepney.terminalLng],
+                })
+              }
+
+              let bestTransfer = null
+              for (const spot of candidateSpots) {
+                const near = isNearRoute(
+                  spot.coords,
+                  second.routeCoords,
+                  TRANSFER_NEAR_ROUTE_THRESHOLD
+                )
+                if (near.isNear) {
+                  if (!bestTransfer || near.minDistance < bestTransfer.walkDistance) {
+                    bestTransfer = { spot, walkDistance: near.minDistance }
+                  }
+                }
+              }
+              if (!bestTransfer) continue
+
+              const startDist = first.jeepney.terminalLat
+                ? calcDistanceGeo(startCoords, [
+                    first.jeepney.terminalLat,
+                    first.jeepney.terminalLng,
+                  ])
+                : 0
+              const destNearSecond = isNearRoute(
+                endCoords,
+                second.routeCoords,
+                DEST_NEAR_ROUTE_THRESHOLD
+              )
+              let secondDropoff = findNearestDropoff(
+                second.jeepney,
+                places,
+                endCoords,
+                destNearSecond.nearestPoint
+              )
+              if (secondDropoff && secondDropoff.name === 'nearest stop to your destination') {
+                const destLabel =
+                  toLocation.value?.label || toLocation.value?.display_name || 'my stop'
+                secondDropoff = { ...secondDropoff, name: destLabel }
+              }
+              const walkFromDropoff = secondDropoff
+                ? calcDistanceGeo(secondDropoff.coords, endCoords)
+                : 0
+
+              doubleRides.push({
+                rideType: 'double',
+                priority: 'double',
+                firstJeepney: { ...first.jeepney, startDistance: startDist },
+                secondJeepney: { ...second.jeepney },
+                firstRouteGeometry: first.routeCoords,
+                secondRouteGeometry: second.routeCoords,
+                transferPoint: bestTransfer.spot.coords,
+                transferName: bestTransfer.spot.name,
+                walkToTransfer: bestTransfer.walkDistance,
+                dropoff: secondDropoff,
+                walkFromDropoff,
+                totalWalkDistance: startDist + bestTransfer.walkDistance + walkFromDropoff,
+                confidence: 0.7,
+                routeName: `${first.jeepney.jeepName} → ${second.jeepney.jeepName}`,
+                terminalStart: first.jeepney.terminalLocation,
+                terminalEnd: secondDropoff?.name || second.jeepney.endPoint,
+                fare: (first.jeepney.fareRegular || 0) + (second.jeepney.fareRegular || 0),
+                estimatedDuration: 40,
+              })
+            }
+          }
+          doubleRides.sort((a, b) => a.totalWalkDistance - b.totalWalkDistance)
+        }
+
+        routeOptions.value = [...singleRides, ...doubleRides.slice(0, 5)]
+        console.log('[ApanamPage] Route options:', routeOptions.value)
+        if (singleRides.length === 0) {
+          if (skippedForDistance.length > 0) {
+            console.log(
+              `[ApanamPage] Closest jeepneys to destination (none within ${DEST_NEAR_ROUTE_THRESHOLD}m):`,
+              skippedForDistance.sort((a, b) => a.distance - b.distance).slice(0, 5)
+            )
+          }
+          if (skippedForStart.length > 0) {
+            console.log(
+              `[ApanamPage] Jeepneys that pass the destination but are too far from start (>${MAX_WALK_TO_BOARD}m):`,
+              skippedForStart.sort((a, b) => a.startDistance - b.startDistance).slice(0, 5)
+            )
+          }
+        }
 
         isLoadingOptions.value = false
 
-        if (!result || !result.hasRoutes) {
-          $q.notify({
-            message: 'No routes found for the selected locations. Try different locations.',
-            color: 'info',
-            icon: 'info',
-            position: 'top',
-          })
-          return
-        }
-
-        // Combine and sort results - single rides first
-        routeOptions.value = [
-          ...(result.singleRides || []).map((r) => ({ ...r, priority: 'single' })),
-          ...(result.doubleRides || []).map((r) => ({ ...r, priority: 'double' })),
-        ]
-
-        console.log('[ApanamPage] Route options:', routeOptions.value)
-
         if (routeOptions.value.length === 0) {
           $q.notify({
-            message: 'No routes found. Try different locations.',
+            message: 'No jeepney routes found for this destination. Try a different location.',
             color: 'info',
             icon: 'info',
             position: 'top',
@@ -1202,7 +1409,7 @@ export default defineComponent({
           return
         }
 
-        // Scroll to options section
+        await nextTick()
         if (optionsSection.value) {
           optionsSection.value.scrollIntoView({ behavior: 'smooth' })
         }
@@ -1250,109 +1457,256 @@ export default defineComponent({
       console.log('[ApanamPage] selectOption called with:', option)
       selectedOption.value = option
       currentStep.value = 1
+      walkingRoute.value = null
+      walkingRouteToDest.value = null
+      walkingRouteTransfer.value = null
 
-      // Calculate travel time estimate
       calculateTravelTime(option)
-
-      // Simulate jeepney availability
       simulateJeepneyAvailability(option)
 
-      // Get walking directions to terminal
+      // Small delay so the public OSRM server recovers from the jeepney-route
+      // generation calls that just finished in findRoutes.
+      await sleep(400)
+
+      // Walking legs via OSRM (road-following, not straight lines)
       await fetchWalkingDirections(option)
+      await fetchWalkingToDestination(option)
+      await fetchWalkingTransfer(option)
 
-      // Initialize main map
+      // Build the consolidated map using road-following polylines
       setTimeout(() => {
-        if (document.getElementById('map')) {
-          if (map.value) {
-            map.value.remove()
+        if (!document.getElementById('route-map')) return
+        if (routeMap.value) {
+          routeMap.value.remove()
+        }
+
+        routeMap.value = L.map('route-map').setView([16.4122, 120.5948], 14)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        }).addTo(routeMap.value)
+
+        const allBounds = []
+        const startCoords = fromLocation.value?.coords
+        const endCoords = toLocation.value?.coords
+
+        const boardingCoords =
+          option.boardingPoint ||
+          (option.priority === 'single'
+            ? [option.jeepney?.terminalLat, option.jeepney?.terminalLng]
+            : [option.firstJeepney?.terminalLat, option.firstJeepney?.terminalLng])
+
+        // Helper: jeepney routeCoordinates are stored as [lng, lat] pairs from OSRM
+        const toLatLngList = (coords) =>
+          Array.isArray(coords) ? coords.map(([lng, lat]) => [lat, lng]) : []
+
+        // Clip a [lat, lng] polyline to only show from a boarding point to a dropoff point
+        const clipPolyline = (polyline, fromCoord, toCoord) => {
+          if (!polyline || polyline.length < 2 || !fromCoord || !toCoord) return polyline
+          let fromIdx = 0,
+            fromMin = Infinity
+          let toIdx = polyline.length - 1,
+            toMin = Infinity
+          for (let i = 0; i < polyline.length; i++) {
+            const dFrom = calcDistanceGeo(fromCoord, polyline[i])
+            if (dFrom < fromMin) {
+              fromMin = dFrom
+              fromIdx = i
+            }
+            const dTo = calcDistanceGeo(toCoord, polyline[i])
+            if (dTo < toMin) {
+              toMin = dTo
+              toIdx = i
+            }
           }
-          map.value = L.map('map').setView([16.4122, 120.5948], 13)
+          if (fromIdx > toIdx) [fromIdx, toIdx] = [toIdx, fromIdx]
+          return polyline.slice(fromIdx, toIdx + 1)
+        }
 
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution:
-              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-          }).addTo(map.value)
+        // 1. Walking start → boarding point (OSRM foot with driving fallback, dashed orange)
+        if (walkingRoute.value?.geometry?.length) {
+          L.polyline(walkingRoute.value.geometry, {
+            color: '#E65100',
+            weight: 4,
+            opacity: 0.85,
+            dashArray: '8, 12',
+          }).addTo(routeMap.value)
+          walkingRoute.value.geometry.forEach((c) => allBounds.push(c))
+        } else if (startCoords && boardingCoords && boardingCoords[0]) {
+          L.polyline([startCoords, boardingCoords], {
+            color: '#E65100',
+            weight: 4,
+            opacity: 0.85,
+            dashArray: '8, 12',
+          }).addTo(routeMap.value)
+        }
 
-          // Add markers for start and end locations
-          if (selectedFromLocation.value?.coords) {
-            L.marker(selectedFromLocation.value.coords)
-              .addTo(map.value)
-              .bindPopup(selectedFromLocation.value.label)
+        // 2. Jeepney ride — draw only the segment from boarding to drop-off
+        const firstRideFullPolyline =
+          option.priority === 'single'
+            ? toLatLngList(option.routeGeometry)
+            : toLatLngList(option.firstRouteGeometry)
+        const firstClipEnd =
+          option.priority === 'single' ? option.dropoff?.coords : option.transferPoint
+        const firstRidePolyline = clipPolyline(firstRideFullPolyline, boardingCoords, firstClipEnd)
+        if (firstRidePolyline.length >= 2) {
+          L.polyline(firstRidePolyline, {
+            color: '#283593',
+            weight: 5,
+            opacity: 0.9,
+          }).addTo(routeMap.value)
+          firstRidePolyline.forEach((c) => allBounds.push(c))
+        } else if (boardingCoords && boardingCoords[0] && endCoords && endCoords.length === 2) {
+          // Fallback only if no polyline is available at all
+          L.polyline([boardingCoords, endCoords], {
+            color: '#283593',
+            weight: 5,
+            opacity: 0.9,
+          }).addTo(routeMap.value)
+        }
+
+        // Double-ride extras: transfer walk + second jeepney polyline
+        if (option.priority === 'double') {
+          const transferPoint = option.transferPoint
+          if (transferPoint) {
+            if (walkingRouteTransfer.value?.geometry?.length) {
+              L.polyline(walkingRouteTransfer.value.geometry, {
+                color: '#E65100',
+                weight: 4,
+                opacity: 0.85,
+                dashArray: '8, 12',
+              }).addTo(routeMap.value)
+              walkingRouteTransfer.value.geometry.forEach((c) => allBounds.push(c))
+            } else {
+              const transferStart =
+                boardingCoords && boardingCoords[0]
+                  ? boardingCoords
+                  : firstRidePolyline[firstRidePolyline.length - 1]
+              if (transferStart) {
+                L.polyline([transferStart, transferPoint], {
+                  color: '#E65100',
+                  weight: 4,
+                  opacity: 0.85,
+                  dashArray: '8, 12',
+                }).addTo(routeMap.value)
+                allBounds.push(transferStart, transferPoint)
+              }
+            }
           }
-
-          if (selectedToLocation.value?.coords) {
-            L.marker(selectedToLocation.value.coords)
-              .addTo(map.value)
-              .bindPopup(selectedToLocation.value.label)
+          const secondRideFullPolyline = toLatLngList(option.secondRouteGeometry)
+          const secondRidePolyline = clipPolyline(
+            secondRideFullPolyline,
+            option.transferPoint,
+            option.dropoff?.coords
+          )
+          if (secondRidePolyline.length >= 2) {
+            L.polyline(secondRidePolyline, {
+              color: '#283593',
+              weight: 5,
+              opacity: 0.9,
+            }).addTo(routeMap.value)
+            secondRidePolyline.forEach((c) => allBounds.push(c))
           }
         }
-      }, 100)
 
-      // Initialize route map with walking directions
-      setTimeout(() => {
-        if (document.getElementById('route-map')) {
-          if (routeMap.value) {
-            routeMap.value.remove()
-          }
-
-          // Default to Baguio center
-          routeMap.value = L.map('route-map').setView([16.4122, 120.5948], 14)
-
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution:
-              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        // 3. Walking drop-off → destination (OSRM foot, dashed orange)
+        if (walkingRouteToDest.value?.geometry?.length) {
+          L.polyline(walkingRouteToDest.value.geometry, {
+            color: '#E65100',
+            weight: 4,
+            opacity: 0.85,
+            dashArray: '8, 12',
           }).addTo(routeMap.value)
+          walkingRouteToDest.value.geometry.forEach((c) => allBounds.push(c))
+        } else if (option.dropoff?.coords && endCoords && endCoords.length === 2) {
+          L.polyline([option.dropoff.coords, endCoords], {
+            color: '#E65100',
+            weight: 4,
+            opacity: 0.85,
+            dashArray: '8, 12',
+          }).addTo(routeMap.value)
+        }
 
-          // Draw walking route if available
-          if (
-            walkingRoute.value &&
-            walkingRoute.value.geometry &&
-            walkingRoute.value.geometry.length > 0
-          ) {
-            // Draw walking path
-            const walkingPath = L.polyline(walkingRoute.value.geometry, {
-              color: '#2196F3',
-              weight: 4,
-              opacity: 0.8,
-              dashArray: '10, 10',
-            }).addTo(routeMap.value)
+        // Markers
+        if (startCoords) {
+          L.marker(startCoords, {
+            icon: L.divIcon({
+              className: 'custom-div-icon',
+              html: "<div style='background-color:#4CAF50;width:18px;height:18px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
+              iconSize: [24, 24],
+              iconAnchor: [12, 12],
+            }),
+          })
+            .addTo(routeMap.value)
+            .bindPopup('<b>Start</b>')
+          allBounds.push(startCoords)
+        }
 
-            // Add start marker (green)
-            const startMarker = L.marker(walkingRoute.value.geometry[0], {
-              icon: L.divIcon({
-                className: 'custom-div-icon',
-                html: "<div style='background-color:#4CAF50;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
-                iconSize: [26, 26],
-                iconAnchor: [13, 13],
-              }),
-            }).addTo(routeMap.value)
-            startMarker.bindPopup('<b>🚶 Start</b><br>Walk from here')
+        if (boardingCoords && boardingCoords[0]) {
+          const boardingLabel = option.boardingLabel || 'Board jeepney here'
+          L.marker(boardingCoords, {
+            icon: L.divIcon({
+              className: 'custom-div-icon',
+              html: "<div style='background-color:#E65100;width:18px;height:18px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
+              iconSize: [24, 24],
+              iconAnchor: [12, 12],
+            }),
+          })
+            .addTo(routeMap.value)
+            .bindPopup(`<b>Board jeepney</b><br>${boardingLabel}`)
+        }
 
-            // Add end marker (red - terminal)
-            const endMarker = L.marker(
-              walkingRoute.value.geometry[walkingRoute.value.geometry.length - 1],
-              {
-                icon: L.divIcon({
-                  className: 'custom-div-icon',
-                  html: "<div style='background-color:#F44336;width:20px;height:20px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
-                  iconSize: [26, 26],
-                  iconAnchor: [13, 13],
-                }),
-              }
-            ).addTo(routeMap.value)
-            endMarker.bindPopup('<b>🚌 Terminal</b><br>Jeepney stop')
+        if (option.dropoff?.coords) {
+          L.marker(option.dropoff.coords, {
+            icon: L.divIcon({
+              className: 'custom-div-icon',
+              html: "<div style='background-color:#1565C0;width:18px;height:18px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
+              iconSize: [24, 24],
+              iconAnchor: [12, 12],
+            }),
+          })
+            .addTo(routeMap.value)
+            .bindPopup(`<b>Get off at ${option.dropoff.name}</b>`)
+        }
 
-            // Fit map to show entire walking route
-            routeMap.value.fitBounds(walkingPath.getBounds(), { padding: [50, 50] })
-          } else {
-            // Fallback: show start and end points
-            console.log('[ApanamPage] No walking route geometry available')
-          }
+        if (endCoords && endCoords.length === 2) {
+          L.marker(endCoords, {
+            icon: L.divIcon({
+              className: 'custom-div-icon',
+              html: "<div style='background-color:#C62828;width:18px;height:18px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
+              iconSize: [24, 24],
+              iconAnchor: [12, 12],
+            }),
+          })
+            .addTo(routeMap.value)
+            .bindPopup('<b>Destination</b>')
+          allBounds.push(endCoords)
+        }
+
+        if (allBounds.length >= 2) {
+          routeMap.value.fitBounds(
+            allBounds.filter((c) => c && c[0]),
+            { padding: [40, 40] }
+          )
         }
       }, 200)
     }
 
-    // NEW: Fetch walking directions using OSRM
+    // Use callOSRM (proven reliable for jeepney routes) as a secondary fallback
+    // when useWalkingDirections fails to get road-following geometry.
+    const fetchRoadGeometry = async (from, to) => {
+      try {
+        const result = await callOSRM([
+          { latitude: from[0], longitude: from[1] },
+          { latitude: to[0], longitude: to[1] },
+        ])
+        return result.coordinates.map(([lng, lat]) => [lat, lng])
+      } catch {
+        return null
+      }
+    }
+
+    // Fetch walking directions using OSRM
     const fetchWalkingDirections = async (option) => {
       try {
         // Get start coordinates
@@ -1362,28 +1716,48 @@ export default defineComponent({
           return
         }
 
-        // Get terminal coordinates
-        const terminalCoords =
-          option.priority === 'single'
-            ? [option.jeepney?.terminalLat, option.jeepney?.terminalLng]
-            : [option.firstJeepney?.terminalLat, option.firstJeepney?.terminalLng]
+        // Prefer the boarding point computed in findRoutes (nearest point on route
+        // OR terminal, whichever is closer to user). Fall back to terminal if absent.
+        let boardingCoords = null
+        if (option.priority === 'single') {
+          boardingCoords =
+            option.boardingPoint ||
+            (option.jeepney?.terminalLat
+              ? [option.jeepney.terminalLat, option.jeepney.terminalLng]
+              : null)
+        } else {
+          boardingCoords =
+            option.boardingPoint ||
+            (option.firstJeepney?.terminalLat
+              ? [option.firstJeepney.terminalLat, option.firstJeepney.terminalLng]
+              : null)
+        }
 
-        if (!terminalCoords || !terminalCoords[0] || !terminalCoords[1]) {
-          console.log('[ApanamPage] No terminal coordinates available')
+        if (!boardingCoords || !boardingCoords[0] || !boardingCoords[1]) {
+          console.log('[ApanamPage] No boarding coordinates available')
           return
         }
+
+        // Skip walking leg if user is basically already at boarding point
+        if (calcDistanceGeo(startCoords, boardingCoords) < 30) return
 
         console.log(
           '[ApanamPage] Fetching walking directions from',
           startCoords,
           'to',
-          terminalCoords
+          boardingCoords
         )
 
-        // Use the walking directions composable
-        const directions = await getWalkingDirections(startCoords, terminalCoords)
+        const directions = await getWalkingDirections(startCoords, boardingCoords)
 
         if (directions && directions.steps) {
+          // If the composable's OSRM calls all failed, geometry will be empty.
+          // Try callOSRM (the same function that works for jeepney routes) as
+          // a secondary fallback to get a road-following polyline for the map.
+          if (!directions.geometry?.length) {
+            const geo = await fetchRoadGeometry(startCoords, boardingCoords)
+            if (geo) directions.geometry = geo
+          }
           walkingRoute.value = directions
           console.log('[ApanamPage] Walking directions fetched:', directions)
         }
@@ -1392,26 +1766,53 @@ export default defineComponent({
       }
     }
 
-    // NEW: Helper functions for walking directions display
-    const getStepTitle = (step, index) => {
-      if (index === 0) return 'Start Walking'
-      if (index === walkingRoute.value?.steps?.length - 1) return 'Arrive at Terminal'
-      return `Step ${index}`
-    }
-
-    const getStepIcon = (step, index) => {
-      if (index === 0) return 'directions_walk'
-      if (index === walkingRoute.value?.steps?.length - 1) return 'location_on'
-      return 'explore'
-    }
-
-    const formatStepDistance = (step) => {
-      if (step.distance && step.distance > 0) {
-        return formatDistance(step.distance)
+    // Walking leg from jeepney drop-off spot to the user's actual destination
+    const fetchWalkingToDestination = async (option) => {
+      try {
+        const endCoords = toLocation.value?.coords
+        if (!endCoords || endCoords.length !== 2) return
+        if (!option.dropoff?.coords) return
+        // Skip if the drop-off IS effectively the destination
+        if (option.walkFromDropoff !== undefined && option.walkFromDropoff < 30) return
+        const directions = await getWalkingDirections(option.dropoff.coords, endCoords)
+        if (directions) {
+          if (!directions.geometry?.length) {
+            const geo = await fetchRoadGeometry(option.dropoff.coords, endCoords)
+            if (geo) directions.geometry = geo
+          }
+          walkingRouteToDest.value = directions
+        }
+      } catch (error) {
+        console.error('[ApanamPage] Error fetching walking-to-destination directions:', error)
       }
-      return ''
     }
 
+    // Walking leg for double-ride transfer (first drop-off → second boarding)
+    const fetchWalkingTransfer = async (option) => {
+      try {
+        if (option.priority !== 'double') return
+        const transferStart =
+          option.boardingPoint ||
+          (option.firstJeepney?.terminalLat
+            ? [option.firstJeepney.terminalLat, option.firstJeepney.terminalLng]
+            : null)
+        const transferEnd = option.transferPoint
+        if (!transferStart || !transferEnd) return
+        if (calcDistanceGeo(transferStart, transferEnd) < 30) return
+        const directions = await getWalkingDirections(transferStart, transferEnd)
+        if (directions) {
+          if (!directions.geometry?.length) {
+            const geo = await fetchRoadGeometry(transferStart, transferEnd)
+            if (geo) directions.geometry = geo
+          }
+          walkingRouteTransfer.value = directions
+        }
+      } catch (error) {
+        console.error('[ApanamPage] Error fetching transfer walking directions:', error)
+      }
+    }
+
+    // NEW: Helper functions for walking directions display
     // Calculate travel time estimate
     const calculateTravelTime = (option) => {
       const baseTime = option.estimatedDuration || 15
@@ -1490,32 +1891,26 @@ export default defineComponent({
       }
     }
 
-    const nextStep = () => {
-      if (currentStep.value < 4) {
-        currentStep.value++
-      }
-    }
-
-    const prevStep = () => {
-      if (currentStep.value > 1) {
-        currentStep.value--
-      }
-    }
-
     const resetSelection = () => {
       selectedOption.value = null
       currentStep.value = 1
       filteredOptions.value = []
+      routeOptions.value = []
+      walkingRoute.value = null
+      walkingRouteToDest.value = null
+      walkingRouteTransfer.value = null
       fromLocation.value = null
       toLocation.value = null
+      fromLocationText.value = ''
+      fromAutoDetect.value = false
       customFromLocation.value = ''
       customToLocation.value = ''
       selectedFromLocation.value = null
       selectedToLocation.value = null
 
-      if (map.value) {
-        map.value.remove()
-        map.value = null
+      if (routeMap.value) {
+        routeMap.value.remove()
+        routeMap.value = null
       }
     }
 
@@ -1536,25 +1931,28 @@ export default defineComponent({
         const coords = await getCurrentLocation()
         console.log('[ApanamPage] Location detected:', coords)
 
-        // Set the text FIRST before toggling visibility
-        fromLocationText.value = '📍 Your Current Location'
+        // Reverse geocode to get actual place name
+        let locationLabel = '📍 Your Current Location'
+        try {
+          const geoResult = await reverseGeocode(coords.lat, coords.lng)
+          if (geoResult && geoResult.label && geoResult.label !== 'Unknown location') {
+            locationLabel = `📍 ${geoResult.label}`
+          }
+          console.log('[ApanamPage] Reverse geocoded:', locationLabel)
+        } catch (geoErr) {
+          console.warn('[ApanamPage] Reverse geocoding failed, using fallback label:', geoErr)
+        }
+
+        fromLocationText.value = locationLabel
         fromLocation.value = {
-          label: '📍 Your Current Location',
+          label: locationLabel,
           value: 'current-location',
           isCurrentLocation: true,
           coords: [coords.lat, coords.lng],
           accuracy: coords.accuracy,
         }
 
-        // Force Vue reactivity
         await nextTick()
-        console.log('[ApanamPage] fromLocationText:', fromLocationText.value)
-        console.log('[ApanamPage] fromLocation:', fromLocation.value)
-
-        // NOW toggle to show the GPS field
-        fromAutoDetect.value = true
-        await nextTick()
-        console.log('[ApanamPage] fromAutoDetect:', fromAutoDetect.value)
 
         loadingNotify()
 
@@ -1582,10 +1980,18 @@ export default defineComponent({
       }
     }
 
-    const disableFromAutoDetect = () => {
+    const clearFromLocation = () => {
       fromAutoDetect.value = false
       fromLocation.value = null
       fromLocationText.value = ''
+    }
+
+    const onFromInputFocus = () => {
+      // When user focuses the input to edit, clear the auto-detect flag
+      // so the next search uses the typed text instead of old GPS coords
+      if (fromAutoDetect.value) {
+        fromAutoDetect.value = false
+      }
     }
 
     const searchFromLocation = async () => {
@@ -1613,6 +2019,32 @@ export default defineComponent({
       })
 
       try {
+        // Prefer the admin-curated places collection — Nominatim often mis-resolves
+        // local landmark names (e.g. "SM Baguio" → Session Road).
+        await loadPlacesOnce()
+        const placeHit = matchQueryToPlace(searchQuery)
+        if (placeHit) {
+          console.log('[ApanamPage] Matched query to place:', placeHit.name)
+          fromLocation.value = {
+            label: placeHit.name,
+            value: `place-${placeHit.id}`,
+            isCurrentLocation: false,
+            coords: [placeHit.latitude, placeHit.longitude],
+            placeId: placeHit.id,
+          }
+          fromLocationText.value = placeHit.name
+          loadingNotify()
+          await nextTick()
+          $q.notify({
+            message: `Location found: ${placeHit.name}`,
+            icon: 'check_circle',
+            color: 'positive',
+            timeout: 2000,
+            position: 'top',
+          })
+          return
+        }
+
         console.log('[ApanamPage] Calling searchLocations()...')
         // Search using geocoding API
         const results = await searchLocations(searchQuery, true)
@@ -1690,8 +2122,8 @@ export default defineComponent({
       update(async () => {
         const needle = val?.toLowerCase() || ''
 
-        // Start with local tourist spots
-        let filtered = locationOptions.filter(
+        // Start with places-collection entries (canonical coords from Firestore)
+        let filtered = locationOptions.value.filter(
           (opt) => opt.value !== 'other' && opt.label.toLowerCase().includes(needle)
         )
 
@@ -1731,7 +2163,9 @@ export default defineComponent({
 
         // Update TO location options
         toLocationOptions.value =
-          filtered.length > 0 ? filtered : locationOptions.filter((opt) => opt.value !== 'other')
+          filtered.length > 0
+            ? filtered
+            : locationOptions.value.filter((opt) => opt.value !== 'other')
       })
     }
 
@@ -1764,145 +2198,69 @@ export default defineComponent({
       isScrolled.value = info.position.top > 50
     }
 
-    // Helper function to get walking instructions
-    const getWalkingInstructions = (direction) => {
-      const locationKey =
-        direction === 'from' ? selectedFromLocation.value?.value : selectedToLocation.value?.value
-      if (!locationKey || !walkingInstructionsDB[locationKey]) {
-        return direction === 'from'
-          ? 'Walk towards the nearest jeepney terminal. Look for signage or ask locals for directions.'
-          : 'From the terminal, walk towards your destination. Use the map for guidance.'
-      }
-      return walkingInstructionsDB[locationKey][direction]
-    }
-
-    // Helper function to get terminal landmarks
-    const getTerminalLandmarks = (position) => {
-      const locationKey =
-        position === 'start' ? selectedFromLocation.value?.value : selectedToLocation.value?.value
-      if (!locationKey || !walkingInstructionsDB[locationKey]) {
-        return 'Look for jeepney signage and other passengers. Terminals are usually near main roads.'
-      }
-      return walkingInstructionsDB[locationKey].landmarks
-    }
-
-    // Helper function to get driver phrase
-    const getDriverPhrase = () => {
-      const destKey = selectedToLocation.value?.value
-      if (!destKey || !driverPhrasesDB[destKey]) {
-        return selectedToLocation.value?.label + ' po!'
-      }
-      return driverPhrasesDB[destKey]
-    }
-
-    // Helper function to get cultural context
-    const getCulturalContext = () => {
-      const destKey = selectedToLocation.value?.value
-      if (!destKey || !culturalContextDB[destKey]) {
-        return null
-      }
-      return culturalContextDB[destKey]
-    }
-
-    // Helper function to get destination highlights
-    const getDestinationHighlights = () => {
-      const destKey = selectedToLocation.value?.value
-      if (!destKey || !destinationHighlightsDB[destKey]) {
-        return null
-      }
-      return destinationHighlightsDB[destKey]
-    }
-
-    // Helper function to get estimated distance
-    const getEstimatedDistance = (direction) => {
-      // Simple estimation based on location value
-      const locationKey =
-        direction === 'from' ? selectedFromLocation.value?.value : selectedToLocation.value?.value
-      if (!locationKey) return 'N/A'
-
-      // Mock distances - in production, calculate from actual coordinates
-      const distances = {
-        sm: '200m',
-        burnham: '350m',
-        session: '150m',
-        ub: '500m',
-        slu: '400m',
-        'good-shepherd': '600m',
-        'tam-awan': '800m',
-        'lourdes-grotto': '1.2km',
-        pma: '1.5km',
-      }
-      return distances[locationKey] || '500m'
-    }
-
-    // Helper function to get estimated walk time
-    const getEstimatedWalkTime = (direction) => {
-      const distance = getEstimatedDistance(direction)
-      if (distance === 'N/A') return 'N/A'
-
-      // Rough estimate: 5 min per 400m
-      const distanceNum = parseFloat(distance)
-      if (distance.includes('km')) {
-        return Math.round(distanceNum * 12) + ' min'
-      }
-      return Math.round((distanceNum / 400) * 5) + ' min'
-    }
-
     onMounted(async () => {
       await fetchHeroImage()
       await fetchJeepneyOptions()
+      await loadLocationOptions()
       loadFavoriteRoutes()
 
       // Handle query parameters from IndexPage (hero section inputs)
       if (route.query.toName) {
-        // Set destination from query
+        const toLabel = route.query.toName
         const toCoords = [parseFloat(route.query.toLat), parseFloat(route.query.toLng)]
         toLocation.value = {
-          label: route.query.toName,
+          label: toLabel,
           value: 'custom-from-query',
           coords: toCoords,
         }
 
-        // Set starting point if provided
         if (route.query.fromName) {
-          const fromCoords = [parseFloat(route.query.fromLat), parseFloat(route.query.fromLng)]
-          fromLocation.value = {
-            label: route.query.fromName,
-            value: 'custom-from-query',
-            coords: fromCoords,
-          }
-        } else if (route.query.fromLat && route.query.fromLng) {
-          // Using current location
-          fromLocation.value = {
-            label: '📍 Current Location',
-            value: 'current-location',
-            coords: [parseFloat(route.query.fromLat), parseFloat(route.query.fromLng)],
+          const fromLabel = route.query.fromName
+          const hasFromCoords =
+            route.query.fromLat &&
+            route.query.fromLng &&
+            !Number.isNaN(parseFloat(route.query.fromLat)) &&
+            !Number.isNaN(parseFloat(route.query.fromLng))
+
+          if (hasFromCoords) {
+            const fromCoords = [parseFloat(route.query.fromLat), parseFloat(route.query.fromLng)]
+            fromLocationText.value = fromLabel
+            fromLocation.value = {
+              label: fromLabel,
+              value: 'current-location',
+              isCurrentLocation: true,
+              coords: fromCoords,
+            }
+            fromAutoDetect.value = true
+          } else {
+            fromLocationText.value = fromLabel
           }
         }
 
-        // Scroll to navigation section
+        // Auto-trigger route search once data is ready
         setTimeout(() => {
-          const navSection = document.querySelector('.navigation-section')
-          if (navSection) {
-            navSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          if (fromLocation.value?.coords && toLocation.value?.coords) {
+            findRoutes()
+          } else if (fromLocationText.value && toLocation.value?.coords) {
+            searchFromLocation().then(() => {
+              setTimeout(() => {
+                if (fromLocation.value?.coords) findRoutes()
+              }, 300)
+            })
           }
-        }, 500)
-      }
-
-      // Initialize map if there's a selected option
-      if (selectedOption.value && document.getElementById('map')) {
-        map.value = L.map('map').setView([16.4122, 120.5948], 13)
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        }).addTo(map.value)
+          setTimeout(() => {
+            const navSection = document.querySelector('.navigation-section')
+            if (navSection) {
+              navSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }
+          }, 500)
+        }, 800)
       }
     })
 
     onUnmounted(() => {
-      if (map.value) {
-        map.value.remove()
+      if (routeMap.value) {
+        routeMap.value.remove()
       }
     })
 
@@ -1918,16 +2276,15 @@ export default defineComponent({
       allJeepneyOptions,
       filteredOptions,
       selectedOption,
-      currentStep,
       heroImageUrl,
       locationOptions,
       toLocationOptions,
       routeOptions,
       walkingRoute,
+      walkingRouteToDest,
       optionsSection,
       selectedFromLocation,
       selectedToLocation,
-      teachingSteps,
       favoriteRoutes,
       jeepneyAvailability,
       travelTimeEstimate,
@@ -1935,27 +2292,16 @@ export default defineComponent({
       selectOption,
       toggleFavoriteRoute,
       isFavoriteRoute,
-      nextStep,
-      prevStep,
       resetSelection,
       onFromLocationChange,
       onToLocationChange,
       enableFromAutoDetect,
-      disableFromAutoDetect,
+      clearFromLocation,
+      onFromInputFocus,
       searchFromLocation,
       filterToLocations,
       isScrolled,
       onScroll,
-      getWalkingInstructions,
-      getTerminalLandmarks,
-      getDriverPhrase,
-      getCulturalContext,
-      getDestinationHighlights,
-      getEstimatedDistance,
-      getEstimatedWalkTime,
-      getStepTitle,
-      getStepIcon,
-      formatStepDistance,
       formatDistance,
       formatDuration,
     }
@@ -2007,7 +2353,7 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 }
 
 .hero-section {
-  height: 40vh;
+  min-height: 50vh;
   background-size: cover;
   background-position: center;
   position: relative;
@@ -2033,7 +2379,7 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(27, 67, 50, 0.7) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2042,46 +2388,59 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 .hero-content {
   text-align: center;
   color: white;
-  max-width: 800px;
-  padding: 2rem;
+  max-width: 700px;
+  padding: 2rem 1.5rem;
   position: relative;
   z-index: 1;
 }
 
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
 .hero-title {
-  font-size: 2.5rem;
+  font-size: 3rem;
   margin-bottom: 1rem;
   color: white;
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: 0.02em;
   text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
 
 .hero-description {
-  font-size: 1.1rem;
-  margin: 0;
-  opacity: 0.95;
+  font-size: 1.05rem;
+  margin: 0 auto 1.25rem;
+  opacity: 0.92;
+  line-height: 1.6;
+  max-width: 560px;
 }
 
-.extended-hero {
-  padding: 4rem 0;
-  background: $glass-bg;
-  backdrop-filter: blur(20px);
+.hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+
+  .q-chip {
+    opacity: 0.9;
+    font-weight: 500;
+  }
 }
 
 .navigation-section {
   padding: 4rem 0;
   background: linear-gradient(180deg, $white 0%, $mint-cream 100%);
-}
-
-.image-placeholder {
-  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
-  border-radius: $bento-radius;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 300px;
-  border: 2px dashed #ddd;
 }
 
 .container {
@@ -2119,10 +2478,16 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   }
 
   &:hover {
-    transform: translateY(-8px);
+    transform: translateY(-4px);
     box-shadow:
-      0 32px 80px rgba(0, 0, 0, 0.3),
+      0 32px 80px rgba(0, 0, 0, 0.25),
       0 0 0 1px rgba(255, 255, 255, 0.5);
+  }
+
+  @media (max-width: 1023px) {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
   }
 }
 
@@ -2270,6 +2635,19 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   z-index: 1;
 }
 
+/* Route directions under the map */
+.route-directions {
+  .direction-step {
+    display: flex;
+    align-items: flex-start;
+    padding: 8px 0;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+  }
+}
+
 /* Animated Jeepney Marker */
 .jeepney-marker {
   transition: all 0.1s ease;
@@ -2340,17 +2718,6 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   }
 }
 
-.navigation-steps {
-  background: $white;
-  border-radius: $bento-radius;
-  box-shadow: $bento-shadow;
-  border: 1px solid rgba($primary-green, 0.08);
-}
-
-.tutorial-section {
-  background: linear-gradient(180deg, $mint-cream 0%, $white 100%);
-}
-
 .bg-primary {
   background-color: $primary-green !important;
 }
@@ -2382,167 +2749,8 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   }
 }
 
-.map-container {
-  background: $white;
-  padding: 1rem;
-  border-radius: $bento-radius;
-  box-shadow: $bento-shadow;
-  border: 1px solid rgba($primary-green, 0.08);
-}
-
-/* Teaching Steps Overview Styles */
-.teaching-steps-overview {
-  padding: 1rem 0;
-}
-
-.teaching-step-card {
-  background: $white;
-  border-radius: 16px;
-  padding: 1.5rem 1rem;
-  text-align: center;
-  transition: all 0.3s ease;
-  box-shadow: $bento-shadow;
-  border: 1px solid rgba($primary-green, 0.08);
-}
-
-.teaching-step-card:hover {
-  transform: translateY(-3px);
-  box-shadow: $bento-shadow-hover;
-}
-
-.teaching-step-card.step-active {
-  border-color: $primary-green;
-  background: linear-gradient(135deg, $soft-green 0%, rgba($light-green, 0.1) 100%);
-  box-shadow: 0 4px 16px rgba($primary-green, 0.2);
-}
-
-.teaching-step-card.step-done {
-  background: #f5f5f5;
-  opacity: 0.7;
-}
-
-.step-icon-wrapper {
-  width: 60px;
-  height: 60px;
-  margin: 0 auto 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: linear-gradient(135deg, $soft-green 0%, $mint-cream 100%);
-  transition: all 0.3s ease;
-}
-
-.step-active .step-icon-wrapper {
-  background: linear-gradient(135deg, $primary-green 0%, $light-green 100%);
-}
-
-.step-done .step-icon-wrapper {
-  background: #9e9e9e;
-}
-
-.step-emoji {
-  font-size: 32px;
-  line-height: 1;
-}
-
-.step-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: $dark-green;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-/* Step Content Styles */
-.step-content {
-  padding: 0.5rem 0;
-}
-
-.walking-instructions,
-.terminal-info-card,
-.arrival-info-card {
-  border-left: 4px solid;
-  border-radius: 12px;
-}
-
-.walking-instructions {
-  border-left-color: #2196f3;
-  background: #e3f2fd;
-}
-
-.terminal-info-card {
-  border-left-color: #ffc107;
-  background: #fff8e1;
-}
-
-.arrival-info-card {
-  border-left-color: #9c27b0;
-  background: #f3e5f5;
-}
-
 .mb-0 {
   margin-bottom: 0 !important;
-}
-
-/* Driver Phrase Card - Enhanced */
-.driver-phrase-card {
-  background: linear-gradient(135deg, $primary-green 0%, $light-green 100%);
-  position: relative;
-  overflow: hidden;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba($primary-green, 0.3);
-}
-
-.driver-phrase-card::before {
-  content: '"';
-  position: absolute;
-  top: -20px;
-  right: 20px;
-  font-size: 120px;
-  opacity: 0.1;
-  color: white;
-  font-family: Georgia, serif;
-}
-
-/* Detail Cards */
-.detail-card {
-  transition: all 0.2s ease;
-  background: $white;
-  border-radius: 12px;
-  border: 1px solid rgba($primary-green, 0.08);
-}
-
-.detail-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-2px);
-}
-
-/* Cultural Context Card */
-.cultural-context-card {
-  border-left: 4px solid $primary-green;
-  background: $soft-green;
-  border-radius: 12px;
-}
-
-/* Destination Highlights */
-.destination-highlights {
-  border-left: 4px solid #ff9800;
-  background: #fff3e0;
-  border-radius: 12px;
-}
-
-/* Quick Reference Card */
-.quick-reference-card {
-  font-size: 13px;
-  background: $white;
-  border-radius: $bento-radius;
-  box-shadow: $bento-shadow;
-  border: 1px solid rgba($primary-green, 0.08);
-}
-
-.quick-reference-card .q-item {
-  padding: 4px 0;
 }
 
 /* Opacity utility */
@@ -2676,7 +2884,33 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   gap: 16px;
 }
 
+@media (max-width: 1023px) {
+  .navigation-section {
+    padding: 2.5rem 0;
+  }
+
+  .route-map-container {
+    max-width: 100%;
+  }
+}
+
 @media (max-width: 768px) {
+  .hero-section {
+    min-height: 45vh;
+  }
+
+  .hero-title {
+    font-size: 2.2rem;
+  }
+
+  .hero-description {
+    font-size: 0.95rem;
+  }
+
+  .hero-chips .q-chip {
+    font-size: 0.7rem;
+  }
+
   .options-grid {
     grid-template-columns: 1fr;
   }
@@ -2684,19 +2918,61 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   .route-summary-card {
     margin-bottom: 12px;
   }
+
+  .teaching-step-chip {
+    padding: 6px 10px;
+  }
+
+  .step-label {
+    font-size: 10px;
+  }
+
+  .step-emoji {
+    font-size: 16px;
+  }
+
+  .navigation-section {
+    padding: 2rem 0;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  #route-map {
+    height: 300px !important;
+  }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 480px) {
+  .hero-section {
+    min-height: 40vh;
+  }
+
   .hero-title {
-    font-size: 2rem;
+    font-size: 1.8rem;
   }
 
   .hero-description {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
-  .options-grid {
-    grid-template-columns: 1fr;
+  .hero-badge {
+    font-size: 0.7rem;
+    padding: 4px 12px;
+  }
+
+  .frosted-glass-card {
+    padding: 1.25rem;
+  }
+
+  .jeepney-name {
+    font-size: 0.95rem;
+  }
+
+  .fare-badge .q-badge {
+    font-size: 0.95rem;
+    padding: 4px 8px;
   }
 }
 </style>

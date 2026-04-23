@@ -1,22 +1,10 @@
 <template>
   <q-page class="page-wrapper">
-    <!-- Hero Section with Navigation -->
-    <HeroSection
-      :hero-image="heroImage"
-      :from-location-text="fromLocationText"
-      :from-location="fromLocation"
-      :to-location="toLocation"
-      :from-location-options="fromLocationOptions"
-      :to-location-options="toLocationOptions"
-      :from-auto-detect="fromAutoDetect"
-      @update:from-location-text="fromLocationText = $event"
-      @update:from-location="fromLocation = $event"
-      @update:to-location="toLocation = $event"
-      @search="searchFromLocation"
-      @detect="detectCurrentLocation"
-      @disable-auto="disableFromAutoDetect"
-      @start="startNavigation"
-    />
+    <!-- Hero Section -->
+    <HeroSection :hero-image="heroImage" />
+
+    <!-- Partners Section -->
+    <PartnersSection :partners="partners" />
 
     <!-- Features Section -->
     <FeaturesSection />
@@ -26,9 +14,6 @@
 
     <!-- Gallery Section -->
     <GallerySection />
-
-    <!-- Partners Section -->
-    <PartnersSection :partners="partners" />
 
     <!-- FAQ Section -->
     <FAQSection />
@@ -42,8 +27,9 @@
 </template>
 
 <script>
-import { defineComponent, ref } from 'vue'
-import { useIndexPage } from 'src/composables/useIndexPage'
+import { defineComponent, ref, onMounted } from 'vue'
+import { db } from 'src/boot/firebase'
+import { doc, getDoc } from 'firebase/firestore'
 
 // Import sections
 import HeroSection from 'src/components/home/HeroSection.vue'
@@ -70,22 +56,8 @@ export default defineComponent({
   },
 
   setup() {
-    // Use the composable for logic
-    const {
-      fromLocationText,
-      fromLocation,
-      toLocation,
-      fromLocationOptions,
-      toLocationOptions,
-      fromAutoDetect,
-      heroImage,
-      searchFromLocation,
-      detectCurrentLocation,
-      disableFromAutoDetect,
-      startNavigation,
-    } = useIndexPage()
+    const heroImage = ref('')
 
-    // Partners data
     const partners = ref([
       { id: 1, name: 'Baguio City Tourism', icon: 'business', color: 'primary' },
       { id: 2, name: 'LTFRB Cordillera', icon: 'directions_bus', color: 'secondary' },
@@ -93,31 +65,26 @@ export default defineComponent({
       { id: 4, name: 'Baguio Local Gov', icon: 'account_balance', color: 'positive' },
     ])
 
-    // Scroll to features
-    const scrollToFeatures = () => {
-      const featuresSection = document.querySelector('#features-section')
-      if (featuresSection) {
-        featuresSection.scrollIntoView({ behavior: 'smooth' })
+    const loadHeroImage = async () => {
+      try {
+        const docRef = doc(db, 'pagePhotos', 'home')
+        const docSnap = await getDoc(docRef)
+        if (docSnap.exists()) {
+          const data = docSnap.data()
+          if (data.imageUrl) heroImage.value = data.imageUrl
+        }
+      } catch (error) {
+        console.error('[IndexPage] Error loading hero image:', error)
       }
     }
 
+    onMounted(() => {
+      loadHeroImage()
+    })
+
     return {
-      // State
-      fromLocationText,
-      fromLocation,
-      toLocation,
-      fromLocationOptions,
-      toLocationOptions,
-      fromAutoDetect,
       heroImage,
       partners,
-
-      // Methods
-      searchFromLocation,
-      detectCurrentLocation,
-      disableFromAutoDetect,
-      startNavigation,
-      scrollToFeatures,
     }
   },
 })

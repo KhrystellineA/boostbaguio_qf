@@ -1,18 +1,19 @@
 <template>
-  <section class="partners-section">
-    <div class="container-custom">
-      <h3 class="partners-title scroll-animate">Our Partners & Supporters</h3>
-
-      <div class="partners-row">
-        <div
-          v-for="(partner, index) in partners"
-          :key="partner.id"
-          class="bento-item partner-card"
-          :class="{ 'animate-in': true }"
-          :style="{ animationDelay: `${index * 0.1}s` }"
-        >
-          <q-icon :name="partner.icon" :size="partner.size || 'md'" :color="partner.color" />
-          <div class="partner-name">{{ partner.name }}</div>
+  <section class="partners-banner">
+    <div class="marquee-track">
+      <div class="marquee-content">
+        <div v-for="partner in partners" :key="'a-' + partner.id" class="partner-chip">
+          <q-icon :name="partner.icon" size="18px" :color="partner.color" />
+          <span>{{ partner.name }}</span>
+        </div>
+        <!-- Duplicates for seamless loop -->
+        <div v-for="partner in partners" :key="'b-' + partner.id" class="partner-chip">
+          <q-icon :name="partner.icon" size="18px" :color="partner.color" />
+          <span>{{ partner.name }}</span>
+        </div>
+        <div v-for="partner in partners" :key="'c-' + partner.id" class="partner-chip">
+          <q-icon :name="partner.icon" size="18px" :color="partner.color" />
+          <span>{{ partner.name }}</span>
         </div>
       </div>
     </div>
@@ -33,74 +34,71 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.partners-section {
-  padding: 2.5rem 0;
-  background: linear-gradient(180deg, #ffffff 0%, #f1f8f4 100%);
+$brown: #3e2723;
+
+.partners-banner {
+  background: $brown;
+  padding: 14px 0;
+  overflow: hidden;
+  position: relative;
 }
 
-.partners-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #1b4332;
-  text-align: center;
-  margin-bottom: 2rem;
+.marquee-track {
+  width: 100%;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent 0%, black 8%, black 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 8%,
+    black 92%,
+    transparent 100%
+  );
 }
 
-.partners-row {
+.marquee-content {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1.5rem;
-  padding: 0 1rem;
+  gap: 2rem;
+  width: max-content;
+  animation: scroll-marquee 20s linear infinite;
+}
 
-  .partner-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    min-width: 130px;
-    padding: 1.25rem 0.75rem;
-    background: rgba(255, 255, 255, 0.8);
-    border-radius: 12px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    transition: all 0.3s ease;
+.partner-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
 
-    &:hover {
-      transform: translateY(-4px);
-      background: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    }
+  span {
+    opacity: 0.9;
+  }
+}
 
-    .partner-name {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #2e5d3e;
-      text-align: center;
-    }
+@keyframes scroll-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-33.333%);
   }
 }
 
 @media (max-width: 599px) {
-  .partners-section {
-    padding: 2rem 0;
+  .partners-banner {
+    padding: 10px 0;
   }
 
-  .partners-title {
-    font-size: 1.15rem;
+  .marquee-content {
+    gap: 1.5rem;
+    animation-duration: 15s;
   }
 
-  .partners-row {
-    gap: 1rem;
-
-    .partner-card {
-      min-width: 100px;
-      padding: 1rem 0.5rem;
-
-      .partner-name {
-        font-size: 0.7rem;
-      }
-    }
+  .partner-chip {
+    font-size: 0.75rem;
   }
 }
 </style>

@@ -28,10 +28,19 @@ export function useJeepneyRouteMatching() {
       const jeepneysQuery = query(collection(db, 'jeepneys'), where('isActive', '==', true))
       const snapshot = await getDocs(jeepneysQuery)
 
-      jeepneys.value = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }))
+      jeepneys.value = snapshot.docs.map((doc) => {
+        const data = doc.data()
+        // routeCoordinates may be stored as [{lng,lat},...] objects (new shape)
+        // or [[lng,lat],...] nested arrays (legacy). Normalize to nested.
+        const raw = data.routeCoordinates
+        if (Array.isArray(raw) && raw.length > 0) {
+          const first = raw[0]
+          if (first && typeof first === 'object' && !Array.isArray(first) && 'lng' in first) {
+            data.routeCoordinates = raw.map((p) => [p.lng, p.lat])
+          }
+        }
+        return { id: doc.id, ...data }
+      })
 
       loading.value = false
       return jeepneys.value

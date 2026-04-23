@@ -1,6 +1,6 @@
 <template>
   <section class="hero-section" aria-label="Hero section">
-    <!-- Background Image - Full Width -->
+    <!-- Background Image -->
     <div class="hero-bg-wrapper">
       <q-img
         :src="heroImage || defaultHeroImage"
@@ -13,116 +13,47 @@
           </div>
         </template>
       </q-img>
+      <div class="hero-overlay" />
     </div>
 
-    <!-- Content Container -->
-    <div class="container-custom">
+    <!-- Content -->
+    <div class="hero-inner">
       <div class="hero-content">
-        <div class="content-grid">
-          <div class="left-content scroll-animate" :class="{ 'animate-in': true }">
-            <h1 class="hero-title">BOOST BAGUIO</h1>
-            <p class="hero-description">
-              Commute like a local in Baguio with ease. Discover tourist spots, events, and nearby
-              attractions right at the palm of your hand!
-            </p>
-            <p class="hero-tagline">Navigate. Connect. Sustain.</p>
-          </div>
+        <p class="hero-tag">Your Baguio City Companion</p>
+        <h1 class="hero-title">BOOST BAGUIO</h1>
+        <p class="hero-description">
+          Commute like a local, discover tourist spots, browse events, and find nearby attractions —
+          all in one place.
+        </p>
 
-          <div class="right-content route-card scroll-animate" :class="{ 'animate-in': true }">
-            <div class="card-header">
-              <q-icon name="navigation" size="24px" class="q-mr-sm" />
-              <span class="card-title">APANAM - Point to Point Navigation</span>
-            </div>
-
-            <div class="input-group">
-              <div class="input-label">FROM:</div>
-              <q-input
-                v-if="!fromAutoDetect"
-                :model-value="fromLocationText"
-                @update:model-value="$emit('update:fromLocationText', $event)"
-                filled
-                placeholder="Enter starting location"
-                bg-color="white"
-                class="custom-input"
-                @keyup.enter="searchFromLocation"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="my_location" color="grey-7" />
-                </template>
-                <template v-slot:append>
-                  <q-btn
-                    flat
-                    dense
-                    round
-                    icon="search"
-                    color="primary"
-                    size="sm"
-                    @click="searchFromLocation"
-                    style="margin-right: -8px"
-                  >
-                    <q-tooltip>Search location</q-tooltip>
-                  </q-btn>
-                </template>
-              </q-input>
-              <q-input
-                v-else
-                filled
-                readonly
-                :value="fromLocationText || 'Detecting your location...'"
-                bg-color="white"
-                class="custom-input"
-                disable
-              >
-                <template v-slot:prepend>
-                  <q-icon name="gps_fixed" color="positive" />
-                </template>
-                <template v-slot:append>
-                  <q-btn
-                    flat
-                    dense
-                    round
-                    icon="edit"
-                    color="primary"
-                    size="sm"
-                    @click="disableFromAutoDetect"
-                    style="margin-right: -8px"
-                  >
-                    <q-tooltip>Enter location manually</q-tooltip>
-                  </q-btn>
-                </template>
-              </q-input>
-            </div>
-
-            <div class="input-group">
-              <div class="input-label">TO:</div>
-              <q-select
-                :model-value="toLocation"
-                @update:model-value="$emit('update:toLocation', $event)"
-                :options="toLocationOptions"
-                filled
-                placeholder="Select destination"
-                bg-color="white"
-                class="custom-input"
-                emit-value
-                map-options
-              >
-                <template v-slot:prepend>
-                  <q-icon name="place" color="grey-7" />
-                </template>
-              </q-select>
-            </div>
-
-            <q-btn
-              class="start-nav-btn"
-              color="primary"
-              label="START NAVIGATION"
-              unelevated
-              no-caps
-              @click="startNavigation"
-              :disable="!fromLocation && !fromLocationText"
-            />
-          </div>
+        <!-- Feature quick-links -->
+        <div class="hero-actions">
+          <router-link to="/apanam" class="hero-btn hero-btn--primary">
+            <q-icon name="navigation" size="20px" />
+            <span>Navigate</span>
+          </router-link>
+          <router-link to="/pagnaam" class="hero-btn hero-btn--outline">
+            <q-icon name="directions_bus" size="20px" />
+            <span>Jeepney Routes</span>
+          </router-link>
+          <router-link to="/maykan" class="hero-btn hero-btn--outline">
+            <q-icon name="place" size="20px" />
+            <span>Places</span>
+          </router-link>
+          <router-link to="/aramidem" class="hero-btn hero-btn--outline">
+            <q-icon name="event" size="20px" />
+            <span>Events</span>
+          </router-link>
+          <router-link to="/ayanmo" class="hero-btn hero-btn--outline">
+            <q-icon name="near_me" size="20px" />
+            <span>Nearby</span>
+          </router-link>
         </div>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="scroll-hint" @click="scrollDown">
+        <q-icon name="keyboard_arrow_down" size="28px" />
       </div>
     </div>
   </section>
@@ -137,41 +68,7 @@ export default {
       type: String,
       default: '',
     },
-    fromLocationText: {
-      type: String,
-      default: '',
-    },
-    fromLocation: {
-      type: [Object, null],
-      default: null,
-    },
-    toLocation: {
-      type: [Object, null],
-      default: null,
-    },
-    fromLocationOptions: {
-      type: Array,
-      default: () => [],
-    },
-    toLocationOptions: {
-      type: Array,
-      default: () => [],
-    },
-    fromAutoDetect: {
-      type: Boolean,
-      default: false,
-    },
   },
-
-  emits: [
-    'update:fromLocationText',
-    'update:fromLocation',
-    'update:toLocation',
-    'search',
-    'detect',
-    'disable-auto',
-    'start',
-  ],
 
   computed: {
     defaultHeroImage() {
@@ -180,17 +77,9 @@ export default {
   },
 
   methods: {
-    searchFromLocation() {
-      this.$emit('search')
-    },
-    detectCurrentLocation() {
-      this.$emit('detect')
-    },
-    disableFromAutoDetect() {
-      this.$emit('disable-auto')
-    },
-    startNavigation() {
-      this.$emit('start')
+    scrollDown() {
+      const next = this.$el.nextElementSibling
+      if (next) next.scrollIntoView({ behavior: 'smooth' })
     },
   },
 }
@@ -204,159 +93,172 @@ $white: #ffffff;
 
 .hero-section {
   width: 100%;
-  min-height: 100vh;
-  padding: 0;
+  min-height: 70vh;
   position: relative;
   overflow: hidden;
 }
 
-.container-custom {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 5%;
-  position: relative;
-  z-index: 10;
-}
-
+/* Background */
 .hero-bg-wrapper {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
+  inset: 0;
   z-index: 1;
 
   .hero-bg {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center;
   }
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba($dark-green, 0.55) 0%,
+    rgba($dark-green, 0.4) 50%,
+    rgba($dark-green, 0.65) 100%
+  );
+}
+
+/* Layout */
+.hero-inner {
+  position: relative;
+  z-index: 10;
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 5% 2.5rem;
 }
 
 .hero-content {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  min-height: 100vh;
+  text-align: center;
+  max-width: 720px;
 }
 
-.content-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  align-items: center;
-  width: 100%;
+/* Typography */
+.hero-tag {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: $light-green;
+  margin-bottom: 1rem;
+}
+
+.hero-title {
+  font-size: 4.5rem;
+  font-weight: 900;
+  color: $white;
+  margin: 0 0 1.25rem;
+  letter-spacing: 3px;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 
   @media (max-width: 959px) {
-    grid-template-columns: 1fr;
-    gap: 2rem;
+    font-size: 3.25rem;
+  }
+  @media (max-width: 599px) {
+    font-size: 2.5rem;
   }
 }
 
-.left-content {
-  color: $white;
+.hero-description {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: rgba($white, 0.92);
+  margin-bottom: 2.5rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 
-  .hero-title {
-    font-size: 4rem;
-    font-weight: 900;
-    margin: 0 0 1.5rem 0;
-    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    letter-spacing: 2px;
-
-    @media (max-width: 959px) {
-      font-size: 3rem;
-    }
-
-    @media (max-width: 599px) {
-      font-size: 2.5rem;
-    }
-  }
-
-  .hero-description {
-    font-size: 1.1rem;
-    line-height: 1.8;
-    margin-bottom: 1rem;
-    opacity: 0.95;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-
-    @media (max-width: 959px) {
-      font-size: 1rem;
-    }
-  }
-
-  .hero-tagline {
-    font-size: 1rem;
-    font-weight: 600;
-    font-style: italic;
-    opacity: 0.9;
-    margin-top: 1.5rem;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-  }
-}
-
-.route-card {
-  padding: 1.75rem;
-  border-radius: 16px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-  background: rgba(255, 255, 255, 0.98);
-  backdrop-filter: blur(10px);
-
-  .card-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid rgba(46, 93, 62, 0.1);
-
-    .card-title {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: $primary-green;
-      text-align: center;
-    }
-  }
-
-  .input-group {
-    margin-bottom: 1rem;
-
-    .input-label {
-      font-size: 0.65rem;
-      font-weight: 700;
-      color: #666;
-      margin-bottom: 0.5rem;
-      letter-spacing: 0.5px;
-    }
-
-    .custom-input {
-      width: 100%;
-    }
-  }
-
-  .start-nav-btn {
-    width: 100%;
-    height: 48px;
+  @media (max-width: 599px) {
     font-size: 0.95rem;
-    font-weight: 600;
-    margin-top: 0.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 16px rgba(46, 93, 62, 0.3);
+  }
+}
+
+/* Feature buttons */
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  cursor: pointer;
+
+  &--primary {
+    background: $primary-green;
+    color: $white;
+    box-shadow: 0 4px 16px rgba($primary-green, 0.4);
 
     &:hover {
+      background: $dark-green;
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(46, 93, 62, 0.4);
+      box-shadow: 0 6px 20px rgba($primary-green, 0.5);
+    }
+  }
+
+  &--outline {
+    background: rgba($white, 0.12);
+    color: $white;
+    border: 1.5px solid rgba($white, 0.35);
+    backdrop-filter: blur(6px);
+
+    &:hover {
+      background: rgba($white, 0.22);
+      border-color: rgba($white, 0.6);
+      transform: translateY(-2px);
     }
   }
 }
 
+/* Scroll indicator */
+.scroll-hint {
+  margin-top: auto;
+  color: rgba($white, 0.6);
+  cursor: pointer;
+  animation: bounce 2s infinite;
+  transition: color 0.2s;
+
+  &:hover {
+    color: $white;
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+/* Mobile */
 @media (max-width: 599px) {
-  .hero-content {
-    padding: 2rem 4%;
+  .hero-inner {
+    padding: 5rem 6% 2rem;
   }
 
-  .route-card {
-    padding: 1.25rem;
+  .hero-actions {
+    gap: 8px;
+  }
+
+  .hero-btn {
+    padding: 9px 16px;
+    font-size: 0.8rem;
   }
 }
 </style>

@@ -2,49 +2,24 @@
   <q-page class="ayan-mo-page">
     <q-scroll-observer @scroll="onScroll" />
 
-    <!-- HERO SECTION (Section 1) -->
+    <!-- HERO SECTION -->
     <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
       <div class="hero-overlay">
         <div class="hero-content animate-fade-in">
-          <h1 class="hero-title">AYAN MO - Near Me</h1>
-          <p class="hero-description">
-            With our Near Me feature, you can easily explore nearby attractions and local favorites
-            in Baguio City. Get personalized recommendations based on your location and enjoy a
-            seamless travel experience.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- EXTENDED HERO SECTION (Section 2) -->
-    <section class="extended-hero bg-white">
-      <div class="container">
-        <div class="row items-center">
-          <div class="col-md-6 col-12 q-pa-xl">
-            <h2 class="text-h4 text-weight-bold text-primary q-mb-lg">
-              Discover Baguio Around You
-            </h2>
-            <p class="text-body1 q-mb-md">
-              AYAN MO helps you find places near your current location with category filtering.
-              Whether you're looking for tourist spots, cafes, restaurants, parks, or other
-              attractions, our system helps you discover what's nearby.
-            </p>
-            <p class="text-body1 q-mb-lg">
-              Simply enable location services and explore the recommendations based on your current
-              position.
-            </p>
-            <div class="q-gutter-sm">
-              <q-chip square color="primary" text-color="white">Nearby Places</q-chip>
-              <q-chip square color="secondary" text-color="white">Category Filter</q-chip>
-              <q-chip square color="primary" text-color="white">Location-Based</q-chip>
-              <q-chip square color="secondary" text-color="white">Local Favorites</q-chip>
-            </div>
+          <div class="hero-badge">
+            <q-icon name="my_location" size="16px" class="q-mr-xs" />
+            Nearby Places Finder
           </div>
-          <div class="col-md-6 col-12 q-pa-xl">
-            <div class="image-placeholder bg-grey-3 q-pa-xl rounded-borders">
-              <q-icon name="my_location" size="64px" color="grey-6" />
-              <div class="text-center q-mt-md">Nearby Place Discovery</div>
-            </div>
+          <h1 class="hero-title">AYAN MO</h1>
+          <p class="hero-description">
+            Discover what's around you in Baguio City. Enable location services to find nearby
+            tourist spots, cafes, restaurants, parks, and local favorites — sorted by distance.
+          </p>
+          <div class="hero-chips">
+            <q-chip square color="white" text-color="primary" size="sm">Nearby Places</q-chip>
+            <q-chip square color="white" text-color="primary" size="sm">Category Filter</q-chip>
+            <q-chip square color="white" text-color="primary" size="sm">Location-Based</q-chip>
+            <q-chip square color="white" text-color="primary" size="sm">Local Favorites</q-chip>
           </div>
         </div>
       </div>
@@ -110,33 +85,105 @@
                   </q-input>
                 </div>
 
-                <!-- Category Filter -->
+                <!-- Location Search - Find Places Near a Specific Location -->
+                <div class="location-search-section q-mb-md">
+                  <q-input
+                    v-model="customLocationQuery"
+                    outlined
+                    dense
+                    placeholder="Enter a location in Baguio (e.g., Session Road, SM Baguio)"
+                    class="location-search-input"
+                    @keyup.enter="searchLocation"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="place" />
+                    </template>
+                    <template v-slot:append>
+                      <q-btn
+                        flat
+                        dense
+                        round
+                        icon="search"
+                        @click="searchLocation"
+                        :loading="isSearchingLocation"
+                        size="sm"
+                      >
+                        <q-tooltip>Search location</q-tooltip>
+                      </q-btn>
+                    </template>
+                  </q-input>
+                  <div v-if="customLocationName" class="selected-location-badge">
+                    <q-icon name="location_on" size="14px" color="primary" />
+                    <span>{{ customLocationName }}</span>
+                    <q-btn flat dense round icon="close" size="xs" @click="clearCustomLocation">
+                      <q-tooltip>Clear location</q-tooltip>
+                    </q-btn>
+                  </div>
+                </div>
+
+                <!-- Category Filter - Horizontal Scrollable Chips -->
                 <div class="category-filter-section q-mb-md">
                   <div class="text-subtitle2 text-weight-bold text-primary q-mb-sm">
                     Filter by Category
                   </div>
-                  <div class="category-buttons">
-                    <q-btn-group spread outline class="full-width">
-                      <q-btn
-                        v-for="category in categories"
-                        :key="category.value"
-                        :label="category.label"
-                        :unelevated="selectedCategory === category.value"
-                        :outline="selectedCategory !== category.value"
-                        :color="selectedCategory === category.value ? 'primary' : 'dark'"
-                        size="sm"
-                        padding="6px 12px"
-                        class="category-btn"
-                        @click="filterByCategory(category.value)"
-                      />
-                    </q-btn-group>
+                  <div class="category-chips-container">
+                    <q-chip
+                      v-for="category in categories"
+                      :key="category.value"
+                      :color="selectedCategory === category.value ? 'primary' : 'grey-3'"
+                      :text-color="selectedCategory === category.value ? 'white' : 'grey-8'"
+                      clickable
+                      dense
+                      class="category-chip"
+                      @click="filterByCategory(category.value)"
+                    >
+                      <q-icon :name="category.icon" size="14px" class="q-mr-xs" />
+                      {{ category.label }}
+                    </q-chip>
                   </div>
                 </div>
 
-                <!-- Location Button -->
-                <div class="location-control-section">
+                <!-- Radius Selector -->
+                <div class="radius-control-section q-mb-md">
+                  <div class="text-subtitle2 text-weight-bold text-primary q-mb-sm">
+                    Search Radius
+                  </div>
+                  <div class="radius-chips-container">
+                    <q-chip
+                      v-for="radius in radiusOptions"
+                      :key="radius.value"
+                      :color="searchRadius === radius.value ? 'primary' : 'grey-3'"
+                      :text-color="searchRadius === radius.value ? 'white' : 'grey-8'"
+                      clickable
+                      dense
+                      class="radius-chip"
+                      @click="searchRadius = radius.value"
+                    >
+                      {{ radius.label }}
+                    </q-chip>
+                  </div>
+                </div>
+
+                <!-- Location Buttons -->
+                <div class="location-controls-section">
                   <q-btn
+                    v-if="!customLocationName"
                     label="Use Current Location"
+                    color="primary"
+                    icon="my_location"
+                    class="full-width"
+                    unelevated
+                    @click="getCurrentLocation"
+                    :loading="isLoadingLocation"
+                  >
+                    <template v-slot:loading>
+                      <q-spinner-facebook size="sm" />
+                      Detecting...
+                    </template>
+                  </q-btn>
+                  <q-btn
+                    v-else
+                    label="Use My Location Instead"
                     color="primary"
                     icon="my_location"
                     class="full-width"
@@ -225,20 +272,6 @@
                         class="q-my-sm"
                       />
                     </div>
-
-                    <div class="col-12" v-if="userLocation">
-                      <div class="text-caption text-grey-7 q-mb-xs">
-                        Max Distance: {{ maxDistance }} km
-                      </div>
-                      <q-slider
-                        v-model="maxDistance"
-                        :min="1"
-                        :max="50"
-                        label
-                        label-always
-                        class="q-my-sm"
-                      />
-                    </div>
                   </div>
                 </div>
 
@@ -310,7 +343,7 @@
                   <p class="q-mt-sm text-caption text-grey-6">
                     {{
                       userLocation
-                        ? 'No places found near your location'
+                        ? 'No places found within the selected radius'
                         : 'Select a location to see nearby places'
                     }}
                   </p>
@@ -347,7 +380,7 @@
                               )
                             }}
                           </q-badge>
-                          <span class="q-ml-xs">{{ calculateDistance(place) }} km away</span>
+                          <span class="q-ml-xs">{{ getDistanceText(place) }}</span>
                         </q-item-label>
                       </q-item-section>
                       <q-item-section side>
@@ -568,6 +601,7 @@ export default defineComponent({
     const loading = ref(true)
     const searchQuery = ref('')
     const selectedCategory = ref('all')
+    const searchRadius = ref(1) // Default 1km
     const userLocation = ref(null)
     const selectedPlace = ref(null)
     const heroImageUrl = ref(fallbackImage)
@@ -576,6 +610,13 @@ export default defineComponent({
     const isScrolled = ref(false)
     const mapInstance = ref(null)
     const userMarker = ref(null)
+    const placeMarkers = ref([])
+
+    // Custom location search features
+    const customLocationQuery = ref('')
+    const customLocationName = ref('')
+    const customLocationCoords = ref(null)
+    const isSearchingLocation = ref(false)
 
     // Advanced search features
     const searchHistory = ref([])
@@ -590,12 +631,19 @@ export default defineComponent({
     const reportIssueText = ref('')
 
     const categories = [
-      { label: 'All Categories', value: 'all' },
-      { label: 'Tourist Spots', value: 'tourist-spot' },
-      { label: 'Cafes & Restaurants', value: 'restaurant' },
-      { label: 'Parks & Nature', value: 'park-nature' },
-      { label: 'Museums & Culture', value: 'museum-culture' },
-      { label: 'Shopping', value: 'shopping' },
+      { label: 'All', value: 'all', icon: 'apps', color: 'primary' },
+      { label: 'Tourist Spots', value: 'tourist-spot', icon: 'place', color: 'green' },
+      { label: 'Cafes & Restaurants', value: 'restaurant', icon: 'restaurant', color: 'orange' },
+      { label: 'Parks & Nature', value: 'park-nature', icon: 'park', color: 'teal' },
+      { label: 'Museums & Culture', value: 'museum-culture', icon: 'museum', color: 'purple' },
+      { label: 'Shopping', value: 'shopping', icon: 'shopping_bag', color: 'pink' },
+    ]
+
+    const radiusOptions = [
+      { label: '500m', value: 0.5 },
+      { label: '1km', value: 1 },
+      { label: '2km', value: 2 },
+      { label: '5km', value: 5 },
     ]
 
     const faqs = [
@@ -628,13 +676,22 @@ export default defineComponent({
     const filteredPlaces = computed(() => {
       let result = places.value
 
-      // Filter by category
+      // Filter by category - handle both formats (kebab-case and full names)
       if (selectedCategory.value !== 'all') {
         result = result.filter((place) => {
           const placeCategories = Array.isArray(place.categories)
             ? place.categories
             : [place.category].filter(Boolean)
-          return placeCategories.includes(selectedCategory.value)
+
+          // Check if any category matches (handle both "tourist-spot" and "Tourist Spots")
+          return placeCategories.some((cat) => {
+            const catLower = cat.toLowerCase()
+            const selectedLower = selectedCategory.value.toLowerCase()
+            return (
+              catLower === selectedLower ||
+              catLower.replace(/[-\s]/g, '') === selectedLower.replace(/[-\s]/g, '')
+            )
+          })
         })
       }
 
@@ -657,15 +714,15 @@ export default defineComponent({
         result = result.filter((place) => place.rating && place.rating >= minRating.value)
       }
 
-      // Filter by maximum distance
-      if (userLocation.value && maxDistance.value < 50) {
+      // Filter by search radius
+      if (userLocation.value && searchRadius.value < 50) {
         result = result.filter((place) => {
           const distance = calculateDistanceRaw(place)
-          return distance !== Infinity && distance <= maxDistance.value
+          return distance !== Infinity && distance <= searchRadius.value
         })
       }
 
-      // Sort by selected criteria
+      // Sort by selected criteria (default to distance, closest first)
       if (sortBy.value === 'distance' && userLocation.value) {
         result.sort((a, b) => {
           const distA = calculateDistanceRaw(a)
@@ -683,6 +740,13 @@ export default defineComponent({
           const ratingA = a.rating || 0
           const ratingB = b.rating || 0
           return sortOrder.value === 'asc' ? ratingA - ratingB : ratingB - ratingA
+        })
+      } else if (userLocation.value) {
+        // Default sort by distance (closest first)
+        result.sort((a, b) => {
+          const distA = calculateDistanceRaw(a)
+          const distB = calculateDistanceRaw(b)
+          return distA - distB
         })
       }
 
@@ -911,6 +975,11 @@ export default defineComponent({
             position: 'top',
           })
           isLoadingLocation.value = false
+
+          // Add place markers to map
+          setTimeout(() => {
+            addPlaceMarkersToMap()
+          }, 300)
         },
         (error) => {
           console.error('[AyanMoPage] Geolocation error:', error)
@@ -938,13 +1007,190 @@ export default defineComponent({
       )
     }
 
+    // Search for a custom location using geocoding
+    const searchLocation = async () => {
+      if (!customLocationQuery.value || customLocationQuery.value.trim().length < 2) {
+        $q.notify({
+          type: 'warning',
+          message: 'Please enter a location name',
+          position: 'top',
+        })
+        return
+      }
+
+      isSearchingLocation.value = true
+
+      try {
+        // Use Nominatim geocoding API
+        const searchQuery = `${customLocationQuery.value.trim()}, Baguio City, Philippines`
+        const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=1&addressdetails=1`
+
+        const response = await fetch(url, {
+          headers: {
+            'Accept-Language': 'en',
+          },
+        })
+
+        if (!response.ok) {
+          throw new Error('Location search failed')
+        }
+
+        const data = await response.json()
+
+        if (data && data.length > 0) {
+          const result = data[0]
+          const lat = parseFloat(result.lat)
+          const lng = parseFloat(result.lon)
+
+          // Validate if location is within Baguio area
+          const isInBaguio = lat >= 16.38 && lat <= 16.48 && lng >= 120.55 && lng <= 120.65
+
+          if (!isInBaguio) {
+            $q.notify({
+              type: 'warning',
+              message: 'Location appears to be outside Baguio City. Try a more specific location.',
+              position: 'top',
+              timeout: 5000,
+            })
+            isSearchingLocation.value = false
+            return
+          }
+
+          // Update user location to the searched location
+          userLocation.value = {
+            latitude: lat,
+            longitude: lng,
+            accuracy: 100, // Approximate accuracy for searched location
+          }
+
+          customLocationName.value = result.display_name.split(',')[0] // First part of address
+          customLocationCoords.value = { lat, lng }
+
+          // Update map view
+          if (mapInstance.value) {
+            mapInstance.value.flyTo([lat, lng], 15, {
+              duration: 1.5,
+            })
+
+            // Remove existing user marker if any
+            if (userMarker.value) {
+              mapInstance.value.removeLayer(userMarker.value)
+            }
+
+            // Add custom "Searched Location" marker
+            const locationIcon = L.divIcon({
+              className: 'user-location-marker',
+              html: `
+                <div style="
+                  position: relative;
+                  width: 40px;
+                  height: 40px;
+                  background: #2196F3;
+                  border: 3px solid white;
+                  border-radius: 50%;
+                  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                ">
+                  <div style="
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 16px;
+                    height: 16px;
+                    background: white;
+                    border-radius: 50%;
+                  "></div>
+                </div>
+                <div style="
+                  position: absolute;
+                  top: 45px;
+                  left: 50%;
+                  transform: translateX(-50%);
+                  background: white;
+                  padding: 4px 8px;
+                  border-radius: 4px;
+                  font-size: 11px;
+                  font-weight: bold;
+                  white-space: nowrap;
+                  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+                  color: #333;
+                ">${customLocationName.value}</div>
+              `,
+              iconSize: [40, 55],
+              iconAnchor: [20, 55],
+            })
+
+            userMarker.value = L.marker([lat, lng], { icon: locationIcon })
+              .addTo(mapInstance.value)
+              .bindPopup(`<strong>Searched Location</strong><br/>${result.display_name}`)
+              .openPopup()
+          }
+
+          $q.notify({
+            type: 'positive',
+            message: `Showing places near "${customLocationName.value}"`,
+            icon: 'place',
+            position: 'top',
+            timeout: 3000,
+          })
+
+          // Add place markers after a short delay
+          setTimeout(() => {
+            addPlaceMarkersToMap()
+          }, 300)
+        } else {
+          $q.notify({
+            type: 'warning',
+            message: 'Location not found. Try a different search term.',
+            position: 'top',
+          })
+        }
+      } catch (error) {
+        console.error('[AyanMo] Location search error:', error)
+        $q.notify({
+          type: 'negative',
+          message: 'Failed to search location. Please try again.',
+          position: 'top',
+        })
+      } finally {
+        isSearchingLocation.value = false
+      }
+    }
+
+    // Clear custom location
+    const clearCustomLocation = () => {
+      customLocationQuery.value = ''
+      customLocationName.value = ''
+      customLocationCoords.value = null
+      userLocation.value = null
+
+      // Remove user marker from map
+      if (userMarker.value && mapInstance.value) {
+        mapInstance.value.removeLayer(userMarker.value)
+        userMarker.value = null
+      }
+
+      // Reset map view to Baguio center
+      if (mapInstance.value) {
+        mapInstance.value.setView([16.4122, 120.5948], 13)
+      }
+
+      $q.notify({
+        type: 'info',
+        message: 'Location cleared. Use current location or search again.',
+        position: 'top',
+        timeout: 3000,
+      })
+    }
+
     const calculateDistance = (place) => {
-      if (!userLocation.value || !place.coordinates) return 'N/A'
+      const coords = getPlaceCoords(place)
+      if (!userLocation.value || !coords) return 'N/A'
 
       const lat1 = userLocation.value.latitude
       const lon1 = userLocation.value.longitude
-      const lat2 = place.coordinates.latitude
-      const lon2 = place.coordinates.longitude
+      const lat2 = coords[0]
+      const lon2 = coords[1]
 
       // Haversine formula for distance calculation
       const R = 6371 // Earth's radius in km
@@ -960,12 +1206,13 @@ export default defineComponent({
     }
 
     const calculateDistanceRaw = (place) => {
-      if (!userLocation.value || !place.coordinates) return Infinity
+      const coords = getPlaceCoords(place)
+      if (!userLocation.value || !coords) return Infinity
 
       const lat1 = userLocation.value.latitude
       const lon1 = userLocation.value.longitude
-      const lat2 = place.coordinates.latitude
-      const lon2 = place.coordinates.longitude
+      const lat2 = coords[0]
+      const lon2 = coords[1]
 
       const R = 6371
       const dLat = deg2rad(lat2 - lat1)
@@ -975,6 +1222,19 @@ export default defineComponent({
         Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
       const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
       return R * c
+    }
+
+    const getDistanceText = (place) => {
+      const distanceKm = calculateDistanceRaw(place)
+      if (distanceKm === Infinity) return 'Distance unknown'
+
+      if (distanceKm < 1) {
+        // Less than 1km, show in meters
+        const meters = Math.round(distanceKm * 1000)
+        return `${meters}m away`
+      }
+      // 1km or more, show in km
+      return `${distanceKm.toFixed(1)}km away`
     }
 
     const deg2rad = (deg) => {
@@ -1021,36 +1281,142 @@ export default defineComponent({
       return ''
     }
 
+    const getPlaceCoords = (place) => {
+      // Handle both formats:
+      // 1. coords array: [lat, lng]
+      // 2. Separate latitude and longitude fields
+      if (place.coords && Array.isArray(place.coords) && place.coords.length === 2) {
+        return place.coords
+      }
+      if (place.latitude != null && place.longitude != null) {
+        return [place.latitude, place.longitude]
+      }
+      return null
+    }
+
+    const addPlaceMarkersToMap = () => {
+      if (!mapInstance.value) {
+        console.log('[AyanMo] Map not initialized yet')
+        return
+      }
+
+      // Clear existing place markers
+      placeMarkers.value.forEach((marker) => {
+        if (marker) {
+          try {
+            mapInstance.value.removeLayer(marker)
+          } catch (e) {
+            console.error('[AyanMo] Error removing marker:', e)
+          }
+        }
+      })
+      placeMarkers.value = []
+
+      // Don't add markers if no user location
+      if (!userLocation.value) {
+        console.log('[AyanMo] No user location, skipping markers')
+        return
+      }
+
+      console.log('[AyanMo] Adding markers for', filteredPlaces.value.length, 'places')
+      console.log('[AyanMo] User location:', userLocation.value)
+
+      // Add markers for filtered places
+      filteredPlaces.value.forEach((place, index) => {
+        const coords = getPlaceCoords(place)
+
+        if (!coords) {
+          console.log(`[AyanMo] Place ${index} (${place.name}) has no valid coords`)
+          return
+        }
+
+        const category = Array.isArray(place.categories) ? place.categories[0] : place.category
+        const hexColor = getCategoryHexColor(getCategoryColor([category]))
+
+        console.log(
+          `[AyanMo] Adding marker ${index}: ${place.name} at`,
+          coords,
+          'Category:',
+          category,
+          'Color:',
+          hexColor
+        )
+
+        try {
+          // L.circleMarker is the ONLY marker type that stays 100% locked to coordinates during zoom
+          // because Leaflet draws it directly on its SVG/Canvas layer, not as a DOM element
+          const marker = L.circleMarker(coords, {
+            radius: 10,
+            fillColor: hexColor,
+            color: '#ffffff',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.9,
+          }).addTo(mapInstance.value).bindPopup(`
+              <div style="min-width: 200px; padding: 4px;">
+                <strong style="font-size: 14px; display: block; margin-bottom: 4px;">${place.name}</strong>
+                <span style="color: #666; font-size: 12px;">${getDistanceText(place)}</span><br/>
+                <span style="color: #999; font-size: 11px;">${category || 'Unknown'}</span>
+              </div>
+            `)
+
+          marker.on('click', () => {
+            selectPlace(place)
+          })
+
+          placeMarkers.value.push(marker)
+          console.log(`[AyanMo] Marker ${index} added successfully`)
+        } catch (error) {
+          console.error(`[AyanMo] Error adding marker ${index}:`, error)
+        }
+      })
+
+      console.log('[AyanMo] Total markers added:', placeMarkers.value.length)
+    }
+
+    const getCategoryHexColor = (colorName) => {
+      const colors = {
+        green: '#4CAF50',
+        orange: '#FF9800',
+        teal: '#009688',
+        purple: '#9C27B0',
+        pink: '#E91E63',
+        yellow: '#FFEB3B',
+        grey: '#9E9E9E',
+        primary: '#2e5d3e',
+      }
+      return colors[colorName] || '#FFEB3B'
+    }
     const getCategoryColor = (categories) => {
       const categoryArray = Array.isArray(categories) ? categories : [categories]
-      const firstCategory = categoryArray[0] || 'other'
+      const firstCategory = (categoryArray[0] || 'other').toLowerCase().trim()
 
       const colors = {
         'tourist-spot': 'green',
+        'tourist spots': 'green',
         restaurant: 'orange',
+        'cafes & restaurants': 'orange',
         'park-nature': 'teal',
+        'parks & nature': 'teal',
         'museum-culture': 'purple',
+        'museums & culture': 'purple',
         shopping: 'pink',
-        'hotel-lodging': 'blue',
-        government: 'red',
-        hospital: 'pink',
-        school: 'indigo',
-        other: 'grey',
+        other: 'yellow',
       }
-      return colors[firstCategory] || 'grey'
+      return colors[firstCategory] || 'yellow'
     }
 
     const getCategoryLabel = (category) => {
       const labels = {
         'tourist-spot': 'Tourist Spots',
+        'tourist spots': 'Tourist Spots',
         restaurant: 'Cafes & Restaurants',
+        'cafes & restaurants': 'Cafes & Restaurants',
         'park-nature': 'Parks & Nature',
+        'parks & nature': 'Parks & Nature',
         'museum-culture': 'Museums & Culture',
+        'museums & culture': 'Museums & Culture',
         shopping: 'Shopping',
-        'hotel-lodging': 'Hotels & Lodging',
-        government: 'Government',
-        hospital: 'Hospital',
-        school: 'School',
         other: 'Other',
       }
       return labels[category] || category
@@ -1141,6 +1507,13 @@ export default defineComponent({
         }).addTo(mapInstance.value)
 
         console.log('[AyanMoPage] Map initialized')
+
+        // Invalidate map size after a short delay to ensure proper rendering
+        setTimeout(() => {
+          if (mapInstance.value) {
+            mapInstance.value.invalidateSize()
+          }
+        }, 200)
       }
 
       // Auto-detect user location on page load (non-intrusive)
@@ -1208,6 +1581,11 @@ export default defineComponent({
               userMarker.value = L.marker([position.coords.latitude, position.coords.longitude], {
                 icon: userIcon,
               }).addTo(mapInstance.value)
+
+              // Add place markers after user location is set
+              setTimeout(() => {
+                addPlaceMarkersToMap()
+              }, 500)
             }
 
             console.log('[AyanMoPage] Auto-detected user location')
@@ -1239,17 +1617,43 @@ export default defineComponent({
       console.log('[AyanMoPage] Search query changed:', newVal)
     })
 
+    // Watch for filtered places changes and update map markers
+    watch(
+      filteredPlaces,
+      () => {
+        console.log('[AyanMoPage] Filtered places changed:', filteredPlaces.value.length)
+        addPlaceMarkersToMap()
+      },
+      { deep: true }
+    )
+
+    // Watch for places loading completion
+    watch(
+      places,
+      (newPlaces) => {
+        console.log('[AyanMoPage] Places loaded:', newPlaces.length)
+        if (newPlaces.length > 0 && userLocation.value) {
+          setTimeout(() => {
+            addPlaceMarkersToMap()
+          }, 300)
+        }
+      },
+      { deep: true }
+    )
+
     return {
       places,
       loading,
       searchQuery,
       selectedCategory,
+      searchRadius,
       userLocation,
       selectedPlace,
       heroImageUrl,
       isLoadingLocation,
       isLoadingPlaces,
       categories,
+      radiusOptions,
       faqs,
       leftFaqs,
       rightFaqs,
@@ -1260,6 +1664,7 @@ export default defineComponent({
       selectPlace,
       navigateToPlace,
       calculateDistance,
+      getDistanceText,
       truncateText,
       formatOperatingHours,
       getCategoryLabel,
@@ -1283,6 +1688,14 @@ export default defineComponent({
       clearSearchHistory,
       addToRecentlyViewed,
       clearRecentlyViewed,
+      // Custom location search
+      customLocationQuery,
+      customLocationName,
+      isSearchingLocation,
+      searchLocation,
+      clearCustomLocation,
+      // Map markers
+      addPlaceMarkersToMap,
     }
   },
 })
@@ -1326,14 +1739,13 @@ $bento-radius: 20px;
 }
 
 .hero-section {
-  height: 40vh;
+  min-height: 50vh;
   background-size: cover;
   background-position: center;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0 0 $bento-radius $bento-radius;
 }
 
 .hero-overlay {
@@ -1342,7 +1754,7 @@ $bento-radius: 20px;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(27, 67, 50, 0.7) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1351,31 +1763,54 @@ $bento-radius: 20px;
 .hero-content {
   text-align: center;
   color: white;
-  max-width: 800px;
-  padding: 2rem;
+  max-width: 700px;
+  padding: 2rem 1.5rem;
   position: relative;
   z-index: 1;
 }
 
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
 .hero-title {
-  font-size: 2.5rem;
+  font-size: 3rem;
   margin-bottom: 1rem;
   color: white;
-  font-weight: 700;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
 
 .hero-description {
-  font-size: 1.1rem;
-  margin: 0;
-  opacity: 0.95;
+  font-size: 1.05rem;
+  margin: 0 auto 1.25rem;
+  opacity: 0.92;
   line-height: 1.6;
+  max-width: 560px;
 }
 
-.extended-hero {
-  padding: 4rem 0;
-  background: $glass-bg;
-  backdrop-filter: blur(20px);
+.hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+
+  .q-chip {
+    opacity: 0.9;
+    font-weight: 500;
+  }
 }
 
 .container {
@@ -1456,14 +1891,100 @@ $bento-radius: 20px;
   }
 }
 
-.category-filter-section {
-  .category-btn {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: none;
-    border-radius: 12px !important;
-    padding: 8px 14px !important;
+.location-search-section {
+  :deep(.q-field) {
+    background: $white;
+    backdrop-filter: blur(20px);
+    border-radius: 14px;
+    border: 1px solid $glass-border;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
     transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    &.q-field--focused {
+      box-shadow: 0 4px 16px rgba($primary-green, 0.15);
+      border-color: $primary-green;
+    }
+  }
+
+  :deep(.q-field__control) {
+    border-radius: 14px;
+  }
+
+  :deep(.q-field__prepend) {
+    color: $primary-green;
+  }
+
+  .selected-location-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    padding: 6px 10px;
+    background: rgba($primary-green, 0.08);
+    border-radius: 10px;
+    border: 1px solid rgba($primary-green, 0.2);
+
+    span {
+      flex: 1;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: $primary-green;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    :deep(.q-btn) {
+      padding: 2px;
+    }
+  }
+}
+
+.category-filter-section {
+  .category-chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .category-chip {
+      margin: 0;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border-radius: 20px !important;
+      padding: 6px 14px !important;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+    }
+  }
+}
+
+.radius-control-section {
+  .radius-chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    .radius-chip {
+      margin: 0;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border-radius: 20px !important;
+      padding: 6px 14px !important;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+    }
   }
 }
 
@@ -1472,6 +1993,58 @@ $bento-radius: 20px;
     border-radius: 12px;
     font-weight: 600;
     padding: 12px !important;
+  }
+}
+
+// Custom Pin Markers - circleMarker with category colors
+:deep(.leaflet-interactive) {
+  cursor: pointer;
+  transition: radius 0.2s ease;
+}
+
+:deep(.leaflet-marker-pane) {
+  z-index: 600;
+}
+
+:deep(.leaflet-shadow-pane) {
+  z-index: 500;
+}
+
+// Custom Map Markers
+:deep(.custom-place-marker) {
+  .marker-pin {
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: rotate(-45deg) scale(1.1);
+    }
+  }
+}
+
+:deep(.leaflet-popup-content-wrapper) {
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+:deep(.leaflet-popup-content) {
+  margin: 12px;
+  line-height: 1.5;
+}
+
+:deep(.user-location-marker) {
+  .pulse-ring {
+    animation: pulse-ring 2s infinite;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
   }
 }
 
@@ -1764,17 +2337,6 @@ $faqs-bg: $brown;
   }
 }
 
-.image-placeholder {
-  height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  background: linear-gradient(135deg, $soft-green 0%, $mint-cream 100%);
-  border-radius: $bento-radius;
-  border: 1px solid $glass-border;
-}
-
 .category-btn {
   border-radius: 25px;
   text-transform: none;
@@ -1789,12 +2351,20 @@ $faqs-bg: $brown;
 }
 
 @media (max-width: 768px) {
+  .hero-section {
+    min-height: 45vh;
+  }
+
   .hero-title {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
 
   .hero-description {
-    font-size: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .hero-chips .q-chip {
+    font-size: 0.7rem;
   }
 
   .places-grid {
@@ -1820,18 +2390,33 @@ $faqs-bg: $brown;
     right: 0;
     left: 0;
     width: 100%;
-    max-height: 55vh;
+    max-height: 60vh;
     border-radius: $bento-radius $bento-radius 0 0;
+    overflow-y: auto;
   }
 
   .bento-card {
     border-radius: $bento-radius $bento-radius 0 0;
-    max-height: 55vh;
+    max-height: 60vh;
   }
 
   .map-wrapper {
     height: 100vh;
     border-radius: 0;
+  }
+
+  /* Mobile: Category chips horizontal scroll */
+  .category-chips-container,
+  .radius-chips-container {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+
+    .category-chip,
+    .radius-chip {
+      flex-shrink: 0;
+    }
   }
 
   .faqs-grid {
@@ -1840,6 +2425,22 @@ $faqs-bg: $brown;
 
   .container-faqs {
     padding: 0 20px;
+  }
+
+  /* Mobile: Improved spacing */
+  .places-list-section {
+    :deep(.q-scroll-area) {
+      max-height: 250px;
+    }
+  }
+
+  .advanced-filters {
+    padding: 12px;
+  }
+
+  .search-history,
+  .recently-viewed {
+    padding: 12px;
   }
 }
 </style>

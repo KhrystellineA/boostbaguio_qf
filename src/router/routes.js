@@ -97,6 +97,15 @@ const routes = [
             'Download routes and places for offline access. Navigate Baguio City without internet connection.',
         },
       },
+      {
+        path: '/repair-jeepney-spots',
+        component: () => import('pages/RepairJeepneySpots.vue'),
+        meta: {
+          requiresAuth: true,
+          requiresAdmin: true,
+          title: 'Repair Jeepney Spots - Boost Baguio',
+        },
+      },
     ],
   },
 

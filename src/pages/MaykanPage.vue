@@ -1,51 +1,31 @@
 <template>
   <q-page class="maykan-page">
-    <!-- HERO SECTION (Section 1) -->
+    <!-- HERO SECTION -->
     <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
       <div class="hero-overlay">
         <div class="hero-content animate-fade-in">
-          <h1 class="hero-title">MAYKAN - Places</h1>
-          <p class="hero-description">
-            Discover Baguio's gems! Uncover curated tourist spots with easy commute guides tailored
-            for your Baguio adventure.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- EXTENDED HERO SECTION (Section 2) -->
-    <section class="extended-hero bg-white">
-      <div class="container">
-        <div class="row items-center">
-          <div class="col-md-6 col-12 q-pa-xl">
-            <h2 class="text-h4 text-weight-bold text-primary q-mb-lg">Baguio's Hidden Gems</h2>
-            <p class="text-body1 q-mb-md">
-              Baguio City is filled with breathtaking sights and experiences waiting to be
-              discovered. Our curated list of tourist spots ensures you navigate the city
-              effortlessly while enjoying its rich culture.
-            </p>
-            <p class="text-body1 q-mb-lg">
-              From iconic landmarks to hidden gems, MAYKAN provides comprehensive information about
-              places to visit in Baguio City with integrated navigation instructions.
-            </p>
-            <div class="q-gutter-sm">
-              <q-chip square color="primary" text-color="white" icon="location_on"
-                >Tourist Spots</q-chip
-              >
-              <q-chip square color="secondary" text-color="white" icon="restaurant"
-                >Cafes & Restaurants</q-chip
-              >
-              <q-chip square color="primary" text-color="white" icon="park">Parks & Nature</q-chip>
-              <q-chip square color="secondary" text-color="white" icon="museum"
-                >Cultural Sites</q-chip
-              >
-            </div>
+          <div class="hero-badge">
+            <q-icon name="location_on" size="16px" class="q-mr-xs" />
+            Baguio Places & Spots
           </div>
-          <div class="col-md-6 col-12 q-pa-xl">
-            <div class="image-placeholder bg-grey-3 q-pa-xl rounded-borders">
-              <q-icon name="location_on" size="64px" color="grey-6" />
-              <div class="text-center q-mt-md">Place Discovery</div>
-            </div>
+          <h1 class="hero-title">MAYKAN</h1>
+          <p class="hero-description">
+            Discover Baguio's gems — from iconic landmarks to hidden spots. Curated tourist
+            destinations, cafes, restaurants, parks, and cultural sites with integrated navigation.
+          </p>
+          <div class="hero-chips">
+            <q-chip square color="white" text-color="primary" size="sm" icon="location_on"
+              >Tourist Spots</q-chip
+            >
+            <q-chip square color="white" text-color="primary" size="sm" icon="restaurant"
+              >Cafes & Restaurants</q-chip
+            >
+            <q-chip square color="white" text-color="primary" size="sm" icon="park"
+              >Parks & Nature</q-chip
+            >
+            <q-chip square color="white" text-color="primary" size="sm" icon="museum"
+              >Cultural Sites</q-chip
+            >
           </div>
         </div>
       </div>
@@ -55,7 +35,7 @@
     <section class="carousel-section bg-white q-py-xl">
       <div class="container">
         <div class="text-center q-mb-lg">
-          <h2 class="text-h4 text-weight-bold text-primary">Top 30 Tourist Destinations</h2>
+          <h2 class="text-h4 text-weight-bold text-primary">Top Tourist Destinations</h2>
           <p class="text-body2 text-grey-7">Swipe through Baguio's most visited places</p>
         </div>
 
@@ -82,7 +62,6 @@
               <div class="slide-content">
                 <q-img
                   :src="place.imageUrl || fallbackImage"
-                  @error="$event.target.src = fallbackImage"
                   class="carousel-image"
                   spinner-color="primary"
                 >
@@ -91,22 +70,16 @@
                       <q-spinner color="primary" size="50px" />
                     </div>
                   </template>
+                  <template v-slot:error>
+                    <div class="absolute-full flex flex-center bg-grey-2">
+                      <img :src="fallbackImage" class="fallback-img" />
+                    </div>
+                  </template>
                 </q-img>
                 <div class="slide-overlay">
                   <div class="slide-info">
                     <h3 class="slide-title">{{ place.name }}</h3>
-                    <p class="slide-area">{{ place.area }}</p>
-                    <div class="slide-tags">
-                      <q-badge
-                        v-for="(tag, idx) in place.tags"
-                        :key="idx"
-                        color="white"
-                        text-color="primary"
-                        class="q-mr-xs q-mb-xs"
-                      >
-                        {{ tag }}
-                      </q-badge>
-                    </div>
+                    <p v-if="place.address" class="slide-area">{{ place.address }}</p>
                     <div class="slide-actions">
                       <q-btn
                         label="Set as Destination"
@@ -162,7 +135,13 @@
             :class="{ active: slide === index }"
             @click="slide = index"
           >
-            <q-img :src="place.imageUrl || fallbackImage" class="indicator-image" />
+            <q-img :src="place.imageUrl || fallbackImage" class="indicator-image">
+              <template v-slot:error>
+                <div class="absolute-full flex flex-center bg-grey-2">
+                  <img :src="fallbackImage" class="fallback-img" />
+                </div>
+              </template>
+            </q-img>
           </div>
         </div>
       </div>
@@ -248,13 +227,17 @@
           >
             <q-img
               :src="place.imageUrl || fallbackImage"
-              @error="$event.target.src = fallbackImage"
               spinner-color="primary"
               class="place-image"
             >
               <template v-slot:loading>
                 <div class="absolute-full flex flex-center bg-grey-3">
                   <q-spinner color="primary" size="30px" />
+                </div>
+              </template>
+              <template v-slot:error>
+                <div class="absolute-full flex flex-center bg-grey-2">
+                  <img :src="fallbackImage" class="fallback-img" />
                 </div>
               </template>
 
@@ -291,33 +274,11 @@
               <div class="row items-center justify-between q-mb-sm">
                 <div>
                   <div class="text-h6 text-primary text-weight-bold">{{ place.name }}</div>
-                  <div class="text-subtitle2 text-grey-7">
+                  <div v-if="place.address" class="text-subtitle2 text-grey-7">
                     <q-icon name="location_on" size="14px" class="q-mr-xs" />
-                    {{ place.area }}
+                    {{ place.address }}
                   </div>
                 </div>
-              </div>
-
-              <!-- Tags -->
-              <div class="tags-container q-mb-sm" v-if="place.tags && place.tags.length">
-                <q-badge
-                  v-for="(tag, idx) in place.tags.slice(0, 3)"
-                  :key="idx"
-                  color="primary"
-                  text-color="white"
-                  class="q-mr-xs q-mb-xs tag-badge"
-                  outline
-                >
-                  {{ tag }}
-                </q-badge>
-                <q-badge
-                  v-if="place.tags.length > 3"
-                  color="grey-7"
-                  text-color="white"
-                  class="q-mb-xs tag-badge"
-                >
-                  +{{ place.tags.length - 3 }}
-                </q-badge>
               </div>
 
               <p class="text-body2 q-mt-md text-grey-8">
@@ -345,9 +306,9 @@
           <div class="row items-center">
             <div class="col">
               <div class="text-h5 text-weight-bold">{{ selectedPlace?.name }}</div>
-              <div class="text-subtitle2">
+              <div v-if="selectedPlace?.address" class="text-subtitle2">
                 <q-icon name="location_on" size="16px" class="q-mr-xs" />
-                {{ selectedPlace?.area }}
+                {{ selectedPlace?.address }}
               </div>
             </div>
             <q-btn icon="close" flat round dense v-close-popup />
@@ -358,10 +319,15 @@
           <q-scroll-area style="height: 65vh">
             <q-img
               :src="selectedPlace.imageUrl || fallbackImage"
-              @error="$event.target.src = fallbackImage"
               spinner-color="primary"
               class="modal-image"
-            />
+            >
+              <template v-slot:error>
+                <div class="absolute-full flex flex-center bg-grey-2">
+                  <img :src="fallbackImage" class="fallback-img" />
+                </div>
+              </template>
+            </q-img>
 
             <q-card-section class="q-pa-lg">
               <div class="row q-col-gutter-lg">
@@ -563,7 +529,6 @@ import {
 } from 'firebase/firestore'
 import { useUserStore } from 'stores/user-store'
 import FooterSection from '../components/home/FooterSection.vue'
-import { defaultBaguioPlaces } from 'src/composables/useBaguioPlaces'
 import fallbackImage from '../assets/456.png'
 
 export default defineComponent({
@@ -624,9 +589,13 @@ export default defineComponent({
       { label: 'Shopping', value: 'shopping' },
     ]
 
-    // Get top tourist places for carousel (filter by category or popularity)
+    // Get top tourist places for carousel (featured first, fall back to tourist-spot category)
     const topTouristPlaces = computed(() => {
-      const touristSpots = places.value.filter((p) => p.category === 'Tourist Spots')
+      const featured = places.value.filter((p) => p.featured === true)
+      if (featured.length > 0) return featured
+      const touristSpots = places.value.filter(
+        (p) => Array.isArray(p.categories) && p.categories.includes('tourist-spot')
+      )
       return touristSpots.length > 0 ? touristSpots : places.value.slice(0, 10)
     })
 
@@ -674,6 +643,8 @@ export default defineComponent({
           // Normalize invalid or placeholder image URLs
           if (
             !data.imageUrl ||
+            typeof data.imageUrl !== 'string' ||
+            !data.imageUrl.trim() ||
             data.imageUrl.includes('via.placeholder') ||
             data.imageUrl.includes('placeholder')
           ) {
@@ -685,30 +656,13 @@ export default defineComponent({
           }
         })
         console.log('[MaykanPage] Loaded places from Firebase:', firebasePlaces.length)
-
-        // Always use default data (30 tourist spots) - merge with Firebase if needed
-        if (firebasePlaces.length > 0 && firebasePlaces.length < 30) {
-          console.log(
-            '[MaykanPage] Firebase has fewer than 30 places, using default 30 tourist spots'
-          )
-          places.value = defaultBaguioPlaces
-        } else if (firebasePlaces.length >= 30) {
-          console.log('[MaykanPage] Using Firebase places')
-          places.value = firebasePlaces
-        } else {
-          console.log('[MaykanPage] No Firebase places, using default data')
-          places.value = defaultBaguioPlaces
-        }
-
-        console.log('[MaykanPage] Total places to display:', places.value.length)
+        places.value = firebasePlaces
       } catch (error) {
         console.error('[MaykanPage] Error loading places:', error)
-        // Fallback to default data on error
-        console.log('[MaykanPage] Using default places data')
-        places.value = defaultBaguioPlaces
+        places.value = []
         $q.notify({
-          type: 'info',
-          message: 'Showing default Baguio places',
+          type: 'negative',
+          message: 'Failed to load places. Please try again later.',
           position: 'top',
         })
       } finally {
@@ -741,8 +695,8 @@ export default defineComponent({
         path: '/apanam',
         query: {
           toName: place.name,
-          toLat: place.coords ? place.coords[0] : '',
-          toLng: place.coords ? place.coords[1] : '',
+          toLat: place.latitude ?? '',
+          toLng: place.longitude ?? '',
         },
       })
       showPlaceDetail.value = false
@@ -768,7 +722,7 @@ export default defineComponent({
       const isSaved = savedPlacesIds.value.has(place.id)
 
       try {
-        const savedPlaceRef = doc(db, 'savedPlaces', `${userStore.user.uid}_${place.id}`)
+        const savedPlaceRef = doc(db, 'users', userStore.user.uid, 'savedPlaces', place.id)
 
         if (isSaved) {
           // Unsave place
@@ -782,21 +736,17 @@ export default defineComponent({
         } else {
           // Save place
           await setDoc(savedPlaceRef, {
-            userId: userStore.user.uid,
             placeId: place.id,
             name: place.name,
-            area: place.area,
-            categories: Array.isArray(place.categories)
-              ? place.categories
-              : [place.category].filter(Boolean),
-            tags: place.tags || [],
+            categories: Array.isArray(place.categories) ? place.categories : [],
             description: place.description,
             address: place.address,
             operatingHours: place.operatingHours,
             entranceFee: place.entranceFee,
             phone: place.phone,
             imageUrl: place.imageUrl,
-            coords: place.coords,
+            latitude: place.latitude,
+            longitude: place.longitude,
             savedAt: serverTimestamp(),
           })
           savedPlacesIds.value.add(place.id)
@@ -823,13 +773,11 @@ export default defineComponent({
       }
 
       try {
-        const q = query(collection(db, 'savedPlaces'), orderBy('savedAt', 'desc'))
-        const querySnapshot = await getDocs(q)
+        const savedPlacesRef = collection(db, 'users', userStore.user.uid, 'savedPlaces')
+        const querySnapshot = await getDocs(savedPlacesRef)
+        savedPlacesIds.value.clear()
         querySnapshot.docs.forEach((doc) => {
-          const data = doc.data()
-          if (data.userId === userStore.user.uid) {
-            savedPlacesIds.value.add(data.placeId)
-          }
+          savedPlacesIds.value.add(doc.id)
         })
         console.log('[MaykanPage] Loaded saved places:', savedPlacesIds.value.size)
       } catch (error) {
@@ -997,6 +945,7 @@ export default defineComponent({
       selectedPlace,
       selectedCategory,
       heroImageUrl,
+      fallbackImage,
       faqs,
       leftFaqs,
       rightFaqs,
@@ -1047,14 +996,13 @@ $bento-radius: 20px;
 }
 
 .hero-section {
-  height: 40vh;
+  min-height: 50vh;
   background-size: cover;
   background-position: center;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0 0 $bento-radius $bento-radius;
 }
 
 .hero-overlay {
@@ -1063,7 +1011,7 @@ $bento-radius: 20px;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(27, 67, 50, 0.7) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1072,25 +1020,54 @@ $bento-radius: 20px;
 .hero-content {
   text-align: center;
   color: white;
-  max-width: 800px;
-  padding: 2rem;
+  max-width: 700px;
+  padding: 2rem 1.5rem;
   position: relative;
   z-index: 1;
 }
 
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
 .hero-title {
-  font-size: 2.5rem;
+  font-size: 3rem;
   margin-bottom: 1rem;
   color: white;
-  font-weight: 700;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
 
 .hero-description {
-  font-size: 1.1rem;
-  margin: 0;
-  opacity: 0.95;
+  font-size: 1.05rem;
+  margin: 0 auto 1.25rem;
+  opacity: 0.92;
   line-height: 1.6;
+  max-width: 560px;
+}
+
+.hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+
+  .q-chip {
+    opacity: 0.9;
+    font-weight: 500;
+  }
 }
 
 /* Carousel Section Styles */
@@ -1221,12 +1198,6 @@ $bento-radius: 20px;
   background: transparent;
 }
 
-.extended-hero {
-  padding: 4rem 0;
-  background: $glass-bg;
-  backdrop-filter: blur(20px);
-}
-
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -1285,6 +1256,12 @@ $bento-radius: 20px;
   height: 220px;
   object-fit: cover;
   position: relative;
+}
+
+.fallback-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .save-btn-overlay {
@@ -1500,17 +1477,6 @@ $faqs-bg: $brown;
   }
 }
 
-.image-placeholder {
-  height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  background: linear-gradient(135deg, $soft-green 0%, $mint-cream 100%);
-  border-radius: $bento-radius;
-  border: 1px solid $glass-border;
-}
-
 .category-btn {
   border-radius: 25px !important;
   text-transform: none;
@@ -1525,12 +1491,20 @@ $faqs-bg: $brown;
 }
 
 @media (max-width: 768px) {
+  .hero-section {
+    min-height: 45vh;
+  }
+
   .hero-title {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
 
   .hero-description {
-    font-size: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .hero-chips .q-chip {
+    font-size: 0.7rem;
   }
 
   .places-grid {

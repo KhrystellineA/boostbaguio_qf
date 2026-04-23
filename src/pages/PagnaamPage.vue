@@ -1,45 +1,23 @@
 <template>
   <q-page class="pagnaam-page">
-    <!-- HERO SECTION (Section 1) -->
+    <!-- HERO SECTION -->
     <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
       <div class="hero-overlay">
         <div class="hero-content animate-fade-in">
-          <h1 class="hero-title">PAGNAAM - City Jeeps</h1>
-          <p class="hero-description">
-            Discover all jeepney routes operating in Baguio City with comprehensive information
-            about terminals, fares, and operating hours.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- EXTENDED HERO SECTION (Section 2) -->
-    <section class="extended-hero bg-white">
-      <div class="container">
-        <div class="row items-center">
-          <div class="col-md-6 col-12 q-pa-xl">
-            <h2 class="text-h4 text-weight-bold text-primary q-mb-lg">Baguio's Jeepney System</h2>
-            <p class="text-body1 q-mb-md">
-              Baguio City's transportation system centers around its iconic jeepneys - the colorful
-              Filipino public utility vehicles that have become a symbol of the city. Our PAGNAAM
-              feature provides comprehensive information about all routes operating in Baguio City.
-            </p>
-            <p class="text-body1 q-mb-lg">
-              Unlike conventional public transportation systems, Baguio's jeepneys operate with
-              unique routes and terminologies. Our system focuses on teaching you how to navigate
-              this system effectively.
-            </p>
-            <div class="q-gutter-sm">
-              <q-chip square color="primary" text-color="white">Route Information</q-chip>
-              <q-chip square color="secondary" text-color="white">Terminal Locations</q-chip>
-              <q-chip square color="primary" text-color="white">Operating Hours</q-chip>
-            </div>
+          <div class="hero-badge">
+            <q-icon name="directions_bus" size="16px" class="q-mr-xs" />
+            City Jeepney Directory
           </div>
-          <div class="col-md-6 col-12 q-pa-xl">
-            <div class="image-placeholder bg-grey-3 q-pa-xl rounded-borders">
-              <q-icon name="directions_bus" size="64px" color="grey-6" />
-              <div class="text-center q-mt-md">Jeepney Route Visualization</div>
-            </div>
+          <h1 class="hero-title">PAGNAAM</h1>
+          <p class="hero-description">
+            Explore all jeepney routes in Baguio City — comprehensive information about terminals,
+            fares, operating hours, and the unique routes that make up the city's iconic transport
+            system.
+          </p>
+          <div class="hero-chips">
+            <q-chip square color="white" text-color="primary" size="sm">Route Information</q-chip>
+            <q-chip square color="white" text-color="primary" size="sm">Terminal Locations</q-chip>
+            <q-chip square color="white" text-color="primary" size="sm">Operating Hours</q-chip>
           </div>
         </div>
       </div>
@@ -708,14 +686,13 @@ $bento-radius: 20px;
 }
 
 .hero-section {
-  height: 40vh;
+  min-height: 50vh;
   background-size: cover;
   background-position: center;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 0 0 $bento-radius $bento-radius;
 }
 
 .hero-overlay {
@@ -724,7 +701,7 @@ $bento-radius: 20px;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(27, 67, 50, 0.7) 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -733,31 +710,54 @@ $bento-radius: 20px;
 .hero-content {
   text-align: center;
   color: white;
-  max-width: 800px;
-  padding: 2rem;
+  max-width: 700px;
+  padding: 2rem 1.5rem;
   position: relative;
   z-index: 1;
 }
 
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
 .hero-title {
-  font-size: 2.5rem;
+  font-size: 3rem;
   margin-bottom: 1rem;
   color: white;
-  font-weight: 700;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 }
 
 .hero-description {
-  font-size: 1.1rem;
-  margin: 0;
-  opacity: 0.95;
+  font-size: 1.05rem;
+  margin: 0 auto 1.25rem;
+  opacity: 0.92;
   line-height: 1.6;
+  max-width: 560px;
 }
 
-.extended-hero {
-  padding: 4rem 0;
-  background: $glass-bg;
-  backdrop-filter: blur(20px);
+.hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+
+  .q-chip {
+    opacity: 0.9;
+    font-weight: 500;
+  }
 }
 
 .container {
@@ -1017,17 +1017,6 @@ $faqs-bg: $brown;
   }
 }
 
-.image-placeholder {
-  height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  background: linear-gradient(135deg, $soft-green 0%, $mint-cream 100%);
-  border-radius: $bento-radius;
-  border: 1px solid $glass-border;
-}
-
 .map-container {
   background: $glass-bg;
   backdrop-filter: blur(20px);
@@ -1038,12 +1027,20 @@ $faqs-bg: $brown;
 }
 
 @media (max-width: 768px) {
+  .hero-section {
+    min-height: 45vh;
+  }
+
   .hero-title {
-    font-size: 2rem;
+    font-size: 2.2rem;
   }
 
   .hero-description {
-    font-size: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .hero-chips .q-chip {
+    font-size: 0.7rem;
   }
 
   .routes-grid {
