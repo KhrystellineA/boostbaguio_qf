@@ -28,7 +28,7 @@
   top: -100px;
   left: 50%;
   transform: translateX(-50%);
-  background: #2E5D3E;
+  background: #2e5d3e;
   color: white;
   padding: 12px 24px;
   text-decoration: none;
@@ -40,13 +40,13 @@
 
 .skip-link:focus {
   top: 0;
-  outline: 3px solid #FFD60A;
+  outline: 3px solid #ffd60a;
   outline-offset: 2px;
 }
 
 /* Enhanced focus indicators */
 *:focus-visible {
-  outline: 3px solid #2E5D3E;
+  outline: 3px solid #2e5d3e;
   outline-offset: 2px;
 }
 
@@ -57,7 +57,7 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 [tabindex]:focus-visible {
-  outline: 3px solid #2E5D3E;
+  outline: 3px solid #2e5d3e;
   outline-offset: 2px;
   box-shadow: 0 0 0 6px rgba(46, 93, 62, 0.2);
 }
@@ -89,7 +89,7 @@ textarea:focus-visible,
   }
 
   a {
-    color: #0000EE;
+    color: #0000ee;
     text-decoration: underline;
   }
 
@@ -254,7 +254,7 @@ a:visited {
 }
 
 /* Icon accessibility */
-.q-icon[aria-hidden="true"] {
+.q-icon[aria-hidden='true'] {
   pointer-events: none;
 }
 

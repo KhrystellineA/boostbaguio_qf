@@ -1533,38 +1533,87 @@ export default {
         'entrance_fee',
       ]
 
-      const sampleData = [
-        'Burnham Park',
-        'tourist-spot;park-nature',
-        'Jose Abad Santos Dr, Baguio, 2600 Benguet',
-        '16.4115',
-        '120.5957',
-        'Historic urban park at the heart of Baguio City, famous for its lagoon and boat rides.',
-        '05:00',
-        '22:00',
-        'Monday-Sunday',
-        '',
-        'true',
-        '+63 74 442 1234',
-        'Free',
-      ]
+      const escapeCsv = (value) => {
+        if (value === null || value === undefined) return ''
+        const str = String(value)
+        if (/[",\r\n]/.test(str)) {
+          return `"${str.replace(/"/g, '""')}"`
+        }
+        return str
+      }
 
-      const csvContent = [headers.join(','), sampleData.join(',')].join('\n')
+      const rows = this.places.map((place) => {
+        const categories = Array.isArray(place.categories)
+          ? place.categories.join(';')
+          : place.category || ''
+        const oh = place.operatingHours || {}
+        return [
+          place.name || '',
+          categories,
+          place.address || '',
+          place.latitude ?? '',
+          place.longitude ?? '',
+          place.description || '',
+          oh.open || '',
+          oh.close || '',
+          oh.days || '',
+          place.imageUrl || '',
+          place.featured ? 'true' : 'false',
+          place.phone || '',
+          place.entranceFee || '',
+        ]
+          .map(escapeCsv)
+          .join(',')
+      })
 
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      // Fall back to a sample row if no current data, so the format is still visible
+      if (rows.length === 0) {
+        rows.push(
+          [
+            'Burnham Park',
+            'tourist-spot;park-nature',
+            'Jose Abad Santos Dr, Baguio, 2600 Benguet',
+            '16.4115',
+            '120.5957',
+            'Historic urban park at the heart of Baguio City, famous for its lagoon and boat rides.',
+            '05:00',
+            '22:00',
+            'Monday-Sunday',
+            '',
+            'true',
+            '+63 74 442 1234',
+            'Free',
+          ]
+            .map(escapeCsv)
+            .join(',')
+        )
+      }
+
+      const csvContent = [headers.join(','), ...rows].join('\n')
+
+      // BOM so Excel reads UTF-8 (ñ, accented chars) correctly
+      const blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' })
       const link = document.createElement('a')
       const url = URL.createObjectURL(blob)
 
+      const today = new Date().toISOString().slice(0, 10)
+      const filename =
+        this.places.length > 0 ? `places_current_data_${today}.csv` : 'places_import_template.csv'
+
       link.setAttribute('href', url)
-      link.setAttribute('download', 'places_import_template.csv')
+      link.setAttribute('download', filename)
       link.style.visibility = 'hidden'
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
+      URL.revokeObjectURL(url)
 
       this.$q.notify({
         type: 'positive',
-        message: 'CSV template downloaded',
+        message:
+          this.places.length > 0
+            ? `Downloaded ${this.places.length} place(s) as CSV`
+            : 'CSV template downloaded',
         position: 'top',
       })
     },

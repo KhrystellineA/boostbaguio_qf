@@ -527,6 +527,33 @@
       </q-card>
     </q-dialog>
 
+    <!-- "SA BAGUIO" FACEBOOK GROUP BANNER -->
+    <section class="community-ribbon bg-secondary text-white">
+      <div class="container">
+        <div class="row items-center justify-between">
+          <div class="col-md-8 col-12 q-pa-md">
+            <div class="text-h6 text-weight-bold">Want more organic content?</div>
+            <p class="text-body2">
+              Visit Sa Baguio Facebook group to see more personal and unique suggestions and
+              experiences!
+            </p>
+          </div>
+          <div class="col-md-4 col-12 q-pa-md text-right">
+            <q-btn
+              label="Sa Baguio!"
+              unelevated
+              color="white"
+              text-color="dark"
+              padding="10px 28px"
+              class="btn-hover-lift"
+              icon-right="open_in_new"
+              @click="openSaBaguioGroup"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- FAQS SECTION -->
     <section class="faqs-section">
       <div class="container-faqs">
@@ -885,6 +912,10 @@ export default defineComponent({
       })
     }
 
+    const openSaBaguioGroup = () => {
+      window.open('https://www.facebook.com/groups/sabaguio/', '_blank', 'noopener,noreferrer')
+    }
+
     const reportIssue = (event) => {
       eventToReport.value = event
       reportIssueText.value = ''
@@ -1032,6 +1063,7 @@ export default defineComponent({
       viewEventDetails,
       navigateToEvent,
       shareEvent,
+      openSaBaguioGroup,
       reportIssue,
       submitReport,
       formatDate,
@@ -1429,6 +1461,27 @@ $bento-radius: 20px;
 
 .animate-fade-in {
   animation: fadeIn 0.6s ease-out;
+}
+
+/* "Sa Baguio" Community Ribbon */
+.community-ribbon {
+  padding: 2.5rem 0;
+  background: linear-gradient(135deg, $brown 0%, adjust-color($brown, $lightness: -8%) 100%);
+  border-radius: $bento-radius;
+  margin: 2rem auto;
+  max-width: 1100px;
+  box-shadow: 0 8px 24px rgba($brown, 0.2);
+}
+
+.btn-hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 12px;
+  font-weight: 600;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
 }
 
 /* FAQ Section Styles */
