@@ -1473,37 +1473,87 @@ export default {
         'tourist_spots_serviced',
       ]
 
-      const sampleData = [
-        'J-001',
-        'Baguio City Market Terminal',
-        '16.4109',
-        '120.5964',
-        '13',
-        '10',
-        '10.40',
-        '10.40',
-        'SM City Baguio',
-        '06:00',
-        '22:00',
-        'Burnham Park;Session Road;SM City Baguio',
-      ]
+      const escapeCsv = (value) => {
+        if (value === null || value === undefined) return ''
+        const str = String(value)
+        if (/[",\r\n]/.test(str)) {
+          return `"${str.replace(/"/g, '""')}"`
+        }
+        return str
+      }
 
-      const csvContent = [headers.join(','), sampleData.join(',')].join('\n')
+      const rows = this.jeepneys.map((j) => {
+        const oh = j.operatingHours || {}
+        const tourist = Array.isArray(j.touristSpotsServiced)
+          ? j.touristSpotsServiced.join(';')
+          : j.touristSpotsServiced || ''
+        return [
+          j.jeepName || '',
+          j.terminalLocation || '',
+          j.terminalLat ?? '',
+          j.terminalLng ?? '',
+          j.fareRegular ?? '',
+          j.fareStudent ?? '',
+          j.fareSenior ?? '',
+          j.farePWD ?? '',
+          j.endPoint || '',
+          oh.open || '',
+          oh.close || '',
+          tourist,
+        ]
+          .map(escapeCsv)
+          .join(',')
+      })
 
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      // Fall back to a sample row if no current data, so the format is still visible
+      if (rows.length === 0) {
+        rows.push(
+          [
+            'J-001',
+            'Baguio City Market Terminal',
+            '16.4109',
+            '120.5964',
+            '13',
+            '10',
+            '10.40',
+            '10.40',
+            'SM City Baguio',
+            '06:00',
+            '22:00',
+            'Burnham Park;Session Road;SM City Baguio',
+          ]
+            .map(escapeCsv)
+            .join(',')
+        )
+      }
+
+      const csvContent = [headers.join(','), ...rows].join('\n')
+
+      // BOM so Excel reads UTF-8 (ñ, accented chars) correctly
+      const blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' })
       const link = document.createElement('a')
       const url = URL.createObjectURL(blob)
 
+      const today = new Date().toISOString().slice(0, 10)
+      const filename =
+        this.jeepneys.length > 0
+          ? `jeepneys_current_data_${today}.csv`
+          : 'jeepney_import_template.csv'
+
       link.setAttribute('href', url)
-      link.setAttribute('download', 'jeepney_import_template.csv')
+      link.setAttribute('download', filename)
       link.style.visibility = 'hidden'
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
+      URL.revokeObjectURL(url)
 
       this.$q.notify({
         type: 'positive',
-        message: 'CSV template downloaded',
+        message:
+          this.jeepneys.length > 0
+            ? `Downloaded ${this.jeepneys.length} jeepney(s) as CSV`
+            : 'CSV template downloaded',
         position: 'top',
       })
     },

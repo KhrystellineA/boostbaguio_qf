@@ -19,15 +19,15 @@
     />
 
     <q-page-container>
-      <q-page class="q-pa-md">
+      <q-page class="admin-page q-pa-md">
         <!-- Dashboard Content -->
         <div v-if="activeMenu === 'dashboard'">
-          <div class="row q-mb-md">
-            <div class="col">
-              <h4 class="q-my-none text-primary">Dashboard Overview</h4>
-              <p class="text-grey-7 q-mb-none">
+          <div class="dashboard-header q-mb-lg">
+            <div>
+              <h4 class="dashboard-title q-my-none">Dashboard Overview</h4>
+              <p class="dashboard-subtitle q-mt-xs q-mb-none">
                 <span v-if="adminData.role === 'super_admin'"
-                  >Full system access - Manage all aspects</span
+                  >Full system access — manage all aspects of Boost Baguio</span
                 >
                 <span v-else-if="adminData.role === 'places_admin'"
                   >Manage tourist spots, restaurants, hotels, and other places</span
@@ -54,17 +54,40 @@
           <!-- Recent Activity -->
           <div class="row q-mt-md">
             <div class="col-12">
-              <q-card>
+              <q-card class="activity-card">
                 <q-card-section>
-                  <div class="text-h6 q-mb-md">Recent Activity</div>
-                  <q-list separator>
-                    <q-item v-for="activity in recentActivities" :key="activity.id">
+                  <div class="row items-center justify-between q-mb-md">
+                    <div class="activity-card-title">Recent Activity</div>
+                    <q-chip
+                      square
+                      dense
+                      class="activity-card-chip"
+                      icon="history"
+                      :label="`${recentActivities.length} recent`"
+                    />
+                  </div>
+                  <q-list class="activity-list" separator>
+                    <q-item
+                      v-for="activity in recentActivities"
+                      :key="activity.id"
+                      class="activity-item"
+                    >
                       <q-item-section avatar>
-                        <q-icon :name="activity.icon" :color="activity.color" />
+                        <div class="activity-icon" :class="`activity-icon--${activity.color}`">
+                          <q-icon :name="activity.icon" size="18px" />
+                        </div>
                       </q-item-section>
                       <q-item-section>
-                        <q-item-label>{{ activity.title }}</q-item-label>
-                        <q-item-label caption>{{ activity.time }}</q-item-label>
+                        <q-item-label class="activity-title">{{ activity.title }}</q-item-label>
+                        <q-item-label caption class="activity-time">{{
+                          activity.time
+                        }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                    <q-item v-if="recentActivities.length === 0" class="activity-empty">
+                      <q-item-section class="text-center text-grey-6 q-py-lg">
+                        <q-icon name="inbox" size="40px" color="grey-4" />
+                        <div class="q-mt-sm text-body2">No recent activity</div>
                       </q-item-section>
                     </q-item>
                   </q-list>
@@ -296,42 +319,174 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+$primary-green: #2e5d3e;
+$dark-green: #1b4332;
+$app-bg: #f4f5f7;
+
 // Override Quasar primary color to green for admin dashboard
 :deep(.text-primary) {
-  color: #2e5d3e !important;
+  color: $primary-green !important;
 }
 
 :deep(.bg-primary) {
-  background-color: #2e5d3e !important;
+  background-color: $primary-green !important;
 }
 
 :deep(.q-btn.bg-primary) {
-  background-color: #2e5d3e !important;
+  background-color: $primary-green !important;
 }
 
 :deep(.q-btn.q-btn--primary) {
-  background-color: #2e5d3e !important;
+  background-color: $primary-green !important;
 }
 
 :deep(.q-tab--active.text-primary) {
-  color: #2e5d3e !important;
+  color: $primary-green !important;
 }
 
 :deep(.q-item--active .text-primary) {
-  color: #2e5d3e !important;
+  color: $primary-green !important;
 }
 
 :deep(.q-item--active.bg-primary) {
-  background-color: #2e5d3e !important;
+  background-color: $primary-green !important;
 }
 
-.stat-card {
+// App background
+:deep(.q-layout) {
+  background: $app-bg;
+}
+
+:deep(.q-page-container) {
+  background: $app-bg;
+}
+
+.admin-page {
+  background: $app-bg;
+  min-height: calc(100vh - 96px);
+  padding: 8px 20px 24px !important;
+}
+
+.dashboard-header {
+  padding: 4px 4px 0;
+}
+
+.dashboard-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1d1d1f;
+  letter-spacing: -0.01em;
+}
+
+.dashboard-subtitle {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.activity-card {
+  border-radius: 22px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+
+  :deep(.q-card__section) {
+    padding: 22px 24px;
+  }
+}
+
+.activity-card-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1d1d1f;
+}
+
+.activity-card-chip {
+  background: rgba($primary-green, 0.08);
+  color: $primary-green;
+  font-weight: 600;
+  border-radius: 999px;
+
+  :deep(.q-icon) {
+    color: $primary-green;
+  }
+}
+
+.activity-list {
+  :deep(.q-separator) {
+    background: rgba(0, 0, 0, 0.04);
+  }
+}
+
+.activity-item {
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
+  padding: 12px 8px;
+  transition: background 0.2s ease;
 
   &:hover {
-    transform: translateY(-2px);
+    background: #f9fafb;
+  }
+}
+
+.activity-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba($primary-green, 0.1);
+  color: $primary-green;
+
+  &--green {
+    background: rgba(46, 93, 62, 0.12);
+    color: $primary-green;
+  }
+  &--blue {
+    background: rgba(33, 150, 243, 0.12);
+    color: #1976d2;
+  }
+  &--red {
+    background: rgba(244, 67, 54, 0.12);
+    color: #d32f2f;
+  }
+  &--purple {
+    background: rgba(149, 117, 205, 0.15);
+    color: #6a3fb5;
+  }
+  &--grey {
+    background: rgba(0, 0, 0, 0.06);
+    color: #6c757d;
+  }
+  &--teal {
+    background: rgba(0, 150, 136, 0.12);
+    color: #00897b;
+  }
+  &--orange {
+    background: rgba(255, 152, 0, 0.12);
+    color: #e67e00;
+  }
+}
+
+.activity-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.activity-time {
+  font-size: 12px;
+  color: #9aa0a6;
+  margin-top: 2px;
+}
+
+@media (max-width: 700px) {
+  .admin-page {
+    padding: 4px 12px 20px !important;
+  }
+
+  .dashboard-title {
+    font-size: 22px;
   }
 }
 </style>

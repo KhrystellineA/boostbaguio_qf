@@ -24,6 +24,24 @@
           @click="deleteAllEvents"
         />
         <q-btn
+          outline
+          style="border-color: #2d6a4f; color: #2d6a4f"
+          label="Download CSV Template"
+          icon="download"
+          no-caps
+          @click="downloadCsvTemplate"
+          aria-label="Download CSV template for events"
+        />
+        <q-btn
+          unelevated
+          style="background: #2d6a4f; color: white"
+          label="Import CSV"
+          icon="upload_file"
+          no-caps
+          @click="showCsvImportDialog = true"
+          aria-label="Import events from CSV"
+        />
+        <q-btn
           unelevated
           style="background: #2d6a4f; color: white"
           label="Add Event"
@@ -292,6 +310,163 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <!-- CSV Import Dialog -->
+    <q-dialog v-model="showCsvImportDialog" persistent>
+      <q-card style="min-width: 800px; max-width: 1000px">
+        <q-card-section class="bg-primary text-white">
+          <div class="text-h6">
+            <q-icon name="upload_file" class="q-mr-sm" />
+            Import Events from CSV
+          </div>
+        </q-card-section>
+
+        <q-card-section>
+          <!-- Step 1: File Upload -->
+          <div v-if="importStep === 1">
+            <div class="text-body2 q-mb-md">
+              Upload a CSV file containing event data. Make sure to follow the template format.
+            </div>
+
+            <q-file
+              v-model="csvFile"
+              outlined
+              label="Select CSV File"
+              accept=".csv"
+              class="q-mb-md"
+              @update:model-value="onCsvFileSelected"
+            >
+              <template #prepend>
+                <q-icon name="attach_file" />
+              </template>
+              <template #hint> Only .csv files are accepted </template>
+            </q-file>
+
+            <q-banner v-if="csvError" class="bg-negative text-white q-mb-md" rounded>
+              <q-icon name="error" size="md" />
+              {{ csvError }}
+            </q-banner>
+
+            <q-banner class="bg-info text-white q-mb-md" rounded>
+              <q-icon name="info" size="md" />
+              <div class="text-body2">
+                <strong>Required CSV columns:</strong><br />
+                title, organizer, location, start_date, end_date<br /><br />
+                <strong>Optional columns:</strong><br />
+                start_time, end_time, description, image_url, featured<br /><br />
+                <strong>Notes:</strong><br />
+                • <code>start_date</code> and <code>end_date</code> use the format
+                <code>YYYY-MM-DD</code> (e.g. 2026-12-25)<br />
+                • <code>start_time</code> and <code>end_time</code> use 24-hour format
+                <code>HH:MM</code> (e.g. 14:30)<br />
+                • <code>featured</code> accepts true/false (default: false)<br />
+                • Event status is auto-calculated from the dates and is not imported
+              </div>
+            </q-banner>
+          </div>
+
+          <!-- Step 2: Preview Data -->
+          <div v-if="importStep === 2">
+            <div class="text-body2 q-mb-md">
+              Preview of {{ parsedEvents.length }} event(s) to be imported:
+            </div>
+
+            <q-table
+              :rows="parsedEvents"
+              :columns="previewColumns"
+              row-key="index"
+              flat
+              bordered
+              :rows-per-page-options="[10, 25, 50]"
+              style="max-height: 400px"
+            >
+              <template #body-cell-valid="props">
+                <q-td :props="props">
+                  <q-badge :color="props.value ? 'positive' : 'negative'">
+                    {{ props.value ? 'Valid' : 'Invalid' }}
+                  </q-badge>
+                </q-td>
+              </template>
+              <template #body-cell-error="props">
+                <q-td :props="props">
+                  <span class="text-negative text-caption">{{ props.value || '-' }}</span>
+                </q-td>
+              </template>
+            </q-table>
+
+            <div v-if="invalidCount > 0" class="q-mt-md">
+              <q-banner class="bg-warning text-white" rounded>
+                <q-icon name="warning" size="md" />
+                <strong>{{ invalidCount }} invalid row(s) detected.</strong> These will be skipped
+                during import.
+              </q-banner>
+            </div>
+          </div>
+
+          <!-- Step 3: Progress -->
+          <div v-if="importStep === 3">
+            <div class="text-body2 q-mb-md text-center">Importing events... Please wait.</div>
+
+            <q-linear-progress :value="importProgress" color="primary" class="q-mb-md" />
+
+            <div class="text-center">
+              <q-badge color="primary" class="q-pa-sm">
+                {{ importedCount }} / {{ parsedEvents.length }} imported
+              </q-badge>
+            </div>
+
+            <q-list class="q-mt-md" style="max-height: 300px; overflow-y: auto">
+              <q-item v-for="(log, index) in importLogs" :key="index">
+                <q-item-section avatar>
+                  <q-icon
+                    :name="log.success ? 'check_circle' : 'error'"
+                    :color="log.success ? 'positive' : 'negative'"
+                  />
+                </q-item-section>
+                <q-item-section>
+                  <q-item-label>{{ log.message }}</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn
+            v-if="importStep === 1"
+            flat
+            label="Cancel"
+            color="grey-7"
+            @click="closeCsvImportDialog"
+          />
+          <q-btn
+            v-if="importStep === 1"
+            unelevated
+            label="Preview Import"
+            color="primary"
+            @click="parseCsvFile"
+            :disable="!csvFile"
+          />
+          <q-btn v-if="importStep === 2" flat label="Back" color="grey-7" @click="importStep = 1" />
+          <q-btn
+            v-if="importStep === 2"
+            unelevated
+            label="Start Import"
+            color="primary"
+            @click="startImport"
+            :disable="validCount === 0"
+          />
+          <q-btn
+            v-if="importStep === 3"
+            flat
+            label="Close"
+            color="grey-7"
+            @click="closeCsvImportDialog"
+            :disable="isImporting"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -368,6 +543,26 @@ export default {
         { name: 'status', label: 'Status', field: 'status', align: 'left' },
         { name: 'actions', label: 'Actions', field: 'actions', align: 'center' },
       ],
+
+      // CSV Import
+      showCsvImportDialog: false,
+      importStep: 1,
+      csvFile: null,
+      csvError: '',
+      parsedEvents: [],
+      importProgress: 0,
+      importedCount: 0,
+      isImporting: false,
+      importLogs: [],
+      previewColumns: [
+        { name: 'title', label: 'Event Name', field: 'title', align: 'left', sortable: true },
+        { name: 'organizer', label: 'Organizer', field: 'organizer', align: 'left' },
+        { name: 'location', label: 'Location', field: 'location', align: 'left' },
+        { name: 'startDate', label: 'Start', field: 'startDate', align: 'center' },
+        { name: 'endDate', label: 'End', field: 'endDate', align: 'center' },
+        { name: 'valid', label: 'Status', field: 'valid', align: 'center' },
+        { name: 'error', label: 'Error', field: 'error', align: 'left' },
+      ],
     }
   },
 
@@ -391,6 +586,12 @@ export default {
           event.location?.toLowerCase().includes(searchLower) ||
           event.organizer?.toLowerCase().includes(searchLower)
       )
+    },
+    validCount() {
+      return this.parsedEvents.filter((e) => e.valid).length
+    },
+    invalidCount() {
+      return this.parsedEvents.filter((e) => !e.valid).length
     },
   },
 
@@ -856,6 +1057,343 @@ export default {
 
     onDialogHide() {
       this.resetForm()
+    },
+
+    // CSV Import / Export
+    downloadCsvTemplate() {
+      const headers = [
+        'title',
+        'organizer',
+        'location',
+        'start_date',
+        'end_date',
+        'start_time',
+        'end_time',
+        'description',
+        'image_url',
+        'featured',
+      ]
+
+      const escapeCsv = (value) => {
+        if (value === null || value === undefined) return ''
+        const str = String(value)
+        if (/[",\r\n]/.test(str)) {
+          return `"${str.replace(/"/g, '""')}"`
+        }
+        return str
+      }
+
+      const rows = this.events.map((e) =>
+        [
+          e.title || '',
+          e.organizer || '',
+          e.location || '',
+          e.startDate || '',
+          e.endDate || '',
+          e.startTime || '',
+          e.endTime || '',
+          e.description || '',
+          e.imageUrl || '',
+          e.featured ? 'true' : 'false',
+        ]
+          .map(escapeCsv)
+          .join(',')
+      )
+
+      // Fall back to a sample row if no current data, so the format is still visible
+      if (rows.length === 0) {
+        rows.push(
+          [
+            'Panagbenga Festival',
+            'Baguio City Tourism Office',
+            'Session Road, Baguio City',
+            '2026-02-01',
+            '2026-02-28',
+            '08:00',
+            '20:00',
+            'Annual flower festival celebrating the blooming season in Baguio.',
+            '',
+            'true',
+          ]
+            .map(escapeCsv)
+            .join(',')
+        )
+      }
+
+      const csvContent = [headers.join(','), ...rows].join('\n')
+
+      // BOM so Excel reads UTF-8 (ñ, accented chars) correctly
+      const blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      const url = URL.createObjectURL(blob)
+
+      const today = new Date().toISOString().slice(0, 10)
+      const filename =
+        this.events.length > 0 ? `events_current_data_${today}.csv` : 'events_import_template.csv'
+
+      link.setAttribute('href', url)
+      link.setAttribute('download', filename)
+      link.style.visibility = 'hidden'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+
+      this.$q.notify({
+        type: 'positive',
+        message:
+          this.events.length > 0
+            ? `Downloaded ${this.events.length} event(s) as CSV`
+            : 'CSV template downloaded',
+        position: 'top',
+      })
+    },
+
+    onCsvFileSelected(file) {
+      this.csvError = ''
+      if (file && file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
+        this.csvError = 'Please select a valid CSV file'
+        this.csvFile = null
+      }
+    },
+
+    parseCsvFile() {
+      if (!this.csvFile) return
+
+      this.csvError = ''
+      const reader = new FileReader()
+
+      reader.onload = (e) => {
+        try {
+          const csvText = e.target.result.replace(/^\uFEFF/, '')
+          const lines = csvText.split(/\r?\n/).filter((line) => line.trim() !== '')
+
+          if (lines.length < 2) {
+            this.csvError = 'CSV file is empty or invalid'
+            return
+          }
+
+          const headers = this.parseCsvLine(lines[0])
+          const requiredHeaders = ['title', 'organizer', 'location', 'start_date', 'end_date']
+
+          const normalizedHeaders = headers.map((h) => h.trim().toLowerCase().replace(/\s+/g, '_'))
+          const missingHeaders = requiredHeaders.filter((h) => !normalizedHeaders.includes(h))
+          if (missingHeaders.length > 0) {
+            this.csvError = `Missing required columns: ${missingHeaders.join(', ')}`
+            return
+          }
+
+          const parsed = []
+          for (let i = 1; i < lines.length; i++) {
+            const values = this.parseCsvLine(lines[i])
+            parsed.push(this.mapCsvRow(headers, values, i))
+          }
+
+          this.parsedEvents = parsed
+          this.importStep = 2
+
+          this.$q.notify({
+            type: 'positive',
+            message: `Parsed ${parsed.length} event(s)`,
+            position: 'top',
+          })
+        } catch (error) {
+          console.error('[Events CSV] Parse error:', error)
+          this.csvError = 'Failed to parse CSV: ' + error.message
+        }
+      }
+
+      reader.onerror = () => {
+        this.csvError = 'Failed to read CSV file'
+      }
+
+      reader.readAsText(this.csvFile)
+    },
+
+    parseCsvLine(line) {
+      const result = []
+      let current = ''
+      let inQuotes = false
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i]
+
+        if (char === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"'
+            i++
+          } else {
+            inQuotes = !inQuotes
+          }
+        } else if (char === ',' && !inQuotes) {
+          result.push(current.trim())
+          current = ''
+        } else {
+          current += char
+        }
+      }
+
+      result.push(current.trim())
+      return result
+    },
+
+    mapCsvRow(headers, values, rowIndex) {
+      const normalizedHeaders = headers.map((h) => h.trim().toLowerCase().replace(/\s+/g, '_'))
+
+      const getValue = (key) => {
+        const index = normalizedHeaders.indexOf(key)
+        return index !== -1 ? values[index]?.trim() || '' : ''
+      }
+
+      const isValidDate = (str) =>
+        /^\d{4}-\d{2}-\d{2}$/.test(str) && !isNaN(new Date(str).getTime())
+      const isValidTime = (str) => str === '' || /^\d{2}:\d{2}$/.test(str)
+
+      const featuredStr = getValue('featured').toLowerCase()
+      const featured = featuredStr === 'true' || featuredStr === '1' || featuredStr === 'yes'
+
+      const event = {
+        index: rowIndex,
+        title: getValue('title'),
+        organizer: getValue('organizer'),
+        location: getValue('location'),
+        startDate: getValue('start_date'),
+        endDate: getValue('end_date'),
+        startTime: getValue('start_time'),
+        endTime: getValue('end_time'),
+        description: getValue('description'),
+        imageUrl: getValue('image_url'),
+        featured,
+        valid: true,
+        error: '',
+      }
+
+      if (!event.title) {
+        event.valid = false
+        event.error = 'Missing title'
+      } else if (!event.organizer) {
+        event.valid = false
+        event.error = 'Missing organizer'
+      } else if (!event.location) {
+        event.valid = false
+        event.error = 'Missing location'
+      } else if (!event.startDate || !isValidDate(event.startDate)) {
+        event.valid = false
+        event.error = 'Invalid start_date (use YYYY-MM-DD)'
+      } else if (!event.endDate || !isValidDate(event.endDate)) {
+        event.valid = false
+        event.error = 'Invalid end_date (use YYYY-MM-DD)'
+      } else if (new Date(event.endDate) < new Date(event.startDate)) {
+        event.valid = false
+        event.error = 'end_date must be on or after start_date'
+      } else if (!isValidTime(event.startTime)) {
+        event.valid = false
+        event.error = 'Invalid start_time (use HH:MM)'
+      } else if (!isValidTime(event.endTime)) {
+        event.valid = false
+        event.error = 'Invalid end_time (use HH:MM)'
+      } else if (
+        event.startTime &&
+        event.endTime &&
+        event.startDate === event.endDate &&
+        event.endTime < event.startTime
+      ) {
+        event.valid = false
+        event.error = 'end_time must be on or after start_time'
+      }
+
+      return event
+    },
+
+    async startImport() {
+      this.isImporting = true
+      this.importStep = 3
+      this.importedCount = 0
+      this.importProgress = 0
+      this.importLogs = []
+
+      const validEvents = this.parsedEvents.filter((e) => e.valid)
+      const total = validEvents.length
+
+      const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+      const adminUid = sessionStorage.getItem('adminUid')
+      const { logCreate } = await import('src/utils/activityLogger')
+
+      for (let i = 0; i < validEvents.length; i++) {
+        const event = validEvents[i]
+
+        try {
+          const status = this.calculateStatus(
+            event.startDate,
+            event.endDate,
+            event.startTime,
+            event.endTime
+          )
+
+          const eventData = {
+            title: event.title,
+            organizer: event.organizer,
+            location: event.location,
+            startDate: event.startDate,
+            endDate: event.endDate,
+            startTime: event.startTime || '',
+            endTime: event.endTime || '',
+            description: event.description || '',
+            imageUrl: event.imageUrl || '',
+            imagePublicId: '',
+            featured: event.featured || false,
+            status,
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          }
+
+          const docRef = await addDoc(collection(db, 'events'), eventData)
+
+          try {
+            await logCreate({ uid: adminUid, ...adminData }, 'events', event.title, docRef.id)
+          } catch (logErr) {
+            console.warn('[Events CSV Import] Activity log failed:', logErr.message)
+          }
+
+          this.importLogs.push({
+            success: true,
+            message: `Imported: ${event.title}`,
+          })
+
+          this.importedCount++
+        } catch (error) {
+          console.error('[Events CSV Import] Error:', error)
+          this.importLogs.push({
+            success: false,
+            message: `Failed to import ${event.title}: ${error.message}`,
+          })
+        }
+
+        this.importProgress = (i + 1) / total
+      }
+
+      this.isImporting = false
+
+      this.$q.notify({
+        type: 'positive',
+        message: `Import completed: ${this.importedCount}/${total} events added`,
+        position: 'top',
+        timeout: 5000,
+      })
+
+      this.loadEvents()
+    },
+
+    closeCsvImportDialog() {
+      this.showCsvImportDialog = false
+      this.importStep = 1
+      this.csvFile = null
+      this.csvError = ''
+      this.parsedEvents = []
+      this.importProgress = 0
+      this.importedCount = 0
+      this.isImporting = false
+      this.importLogs = []
     },
   },
 
