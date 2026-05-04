@@ -3,36 +3,38 @@
     <q-scroll-observer @scroll="onScroll" />
 
     <!-- HERO SECTION -->
-    <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
-      <div class="hero-overlay">
-        <div class="hero-content animate-fade-in">
-          <div class="hero-badge">
-            <q-icon name="my_location" size="16px" class="q-mr-xs" />
+    <section class="ayan-mo-hero">
+      <div class="hero-card" :style="{ backgroundImage: `url(${heroImageUrl})` }">
+        <div class="hero-overlay-grad" />
+        <div class="hero-inner animate-fade-in">
+          <span class="hero-tag">
+            <q-icon name="my_location" size="14px" />
             Nearby Places Finder
-          </div>
-          <h1 class="hero-title">AYAN MO</h1>
+          </span>
+          <h1 class="hero-title">
+            <em>Ayan Mo</em>
+          </h1>
           <p class="hero-description">
             Discover what's around you in Baguio City. Enable location services to find nearby
             tourist spots, cafes, restaurants, parks, and local favorites — sorted by distance.
           </p>
           <div class="hero-chips">
-            <q-chip square color="white" text-color="primary" size="sm">Nearby Places</q-chip>
-            <q-chip square color="white" text-color="primary" size="sm">Category Filter</q-chip>
-            <q-chip square color="white" text-color="primary" size="sm">Location-Based</q-chip>
-            <q-chip square color="white" text-color="primary" size="sm">Local Favorites</q-chip>
+            <span class="hero-chip">Nearby Places</span>
+            <span class="hero-chip">Category Filter</span>
+            <span class="hero-chip">Location-Based</span>
+            <span class="hero-chip">Local Favorites</span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- AYAN MO SECTION (Section 3) -->
-    <section class="ayan-mo-section bg-grey-1 q-py-xl">
+    <section class="ayan-mo-section">
       <div class="container">
-        <div class="text-center q-mb-xl">
-          <h2 class="text-h3 text-weight-bold text-primary">Find Places Near You</h2>
-          <p class="text-body1">
-            Explore nearby places with category filtering and distance sorting
-          </p>
+        <div class="section-eyebrow text-center">
+          <p class="eyebrow-text">DISCOVER NEARBY</p>
+          <h2 class="eyebrow-title">Find places <em>near you</em></h2>
+          <p class="eyebrow-description">Explore with category filters and distance sorting.</p>
         </div>
 
         <!-- Map Container - Full Width -->
@@ -397,11 +399,13 @@
     </section>
 
     <!-- INFO SECTION (Section 5) -->
-    <section v-if="selectedPlace" class="info-section bg-grey-1 q-py-xl">
+    <section v-if="selectedPlace" class="info-section">
       <div class="container">
-        <div class="text-center q-mb-xl">
-          <h2 class="text-h3 text-weight-bold text-primary">Place Information</h2>
-          <p class="text-body1">Details for {{ selectedPlace.name }}</p>
+        <div class="section-eyebrow text-center">
+          <p class="eyebrow-text">PLACE INFORMATION</p>
+          <h2 class="eyebrow-title">
+            Details for <em>{{ selectedPlace.name }}</em>
+          </h2>
         </div>
 
         <div class="row">
@@ -528,9 +532,10 @@
     <!-- FAQS SECTION (Section 6) -->
     <section class="faqs-section">
       <div class="container-faqs">
-        <div class="faqs-header">
-          <h2 class="faqs-title">AYAN MO FAQs</h2>
-          <p class="faqs-description">Common questions about discovering nearby places</p>
+        <div class="section-eyebrow text-center">
+          <p class="eyebrow-text">QUESTIONS &amp; ANSWERS</p>
+          <h2 class="eyebrow-title"><em>Ayan Mo</em> FAQs</h2>
+          <p class="eyebrow-description">Common questions about discovering nearby places.</p>
         </div>
         <div class="faqs-grid">
           <div class="faqs-column">
@@ -539,12 +544,11 @@
               :key="index"
               :label="faq.question"
               class="faq-item"
-              dark
               expand-icon="add"
-              expanded-icon="close"
+              expanded-icon="remove"
               header-class="faq-header"
             >
-              <q-card dark class="faq-card">
+              <q-card class="faq-card" flat>
                 <q-card-section class="faq-answer">
                   {{ faq.answer }}
                 </q-card-section>
@@ -557,12 +561,11 @@
               :key="index"
               :label="faq.question"
               class="faq-item"
-              dark
               expand-icon="add"
-              expanded-icon="close"
+              expanded-icon="remove"
               header-class="faq-header"
             >
-              <q-card dark class="faq-card">
+              <q-card class="faq-card" flat>
                 <q-card-section class="faq-answer">
                   {{ faq.answer }}
                 </q-card-section>
@@ -1702,103 +1705,174 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-// Color Variables
+// Color Palette — aligned with home page
 $dark-green: #1b4332;
 $primary-green: #2e5d3e;
 $light-green: #9ec98f;
+$sage: #b8cfa3;
+$mint-bg: #e8f0e0;
 $soft-green: #e8f5e9;
 $mint-cream: #f1f8f4;
-$blush-pink: #fce4ec;
+$ink: #14241a;
+$muted: #5b6b5f;
+$border: #e6ebe1;
 $white: #ffffff;
 $brown: #6b5344;
-$glass-bg: rgba(255, 255, 255, 0.85);
-$glass-border: rgba(255, 255, 255, 0.3);
-$bento-radius: 20px;
+
+$bento-radius: 18px;
+$bento-shadow: 0 6px 18px rgba(20, 36, 26, 0.06);
+$bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
 
 .ayan-mo-page {
-  background: linear-gradient(180deg, $mint-cream 0%, $white 100%) !important;
+  background: $white !important;
   min-height: 100vh;
 }
 
-/* Navbar Animation */
+/* Floating navbar (kept) */
 .transition-all {
   transition: all 0.3s ease;
 }
 
 .floating-nav {
-  background: $glass-bg !important;
-  backdrop-filter: blur(20px);
-  color: $dark-green !important;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
+  color: $ink !important;
+  box-shadow: 0 4px 30px rgba(20, 36, 26, 0.1);
   width: calc(100% - 32px);
   left: 16px;
   right: 16px;
-  border-radius: $bento-radius;
+  border-radius: 16px;
   margin-top: 16px;
-  border: 1px solid $glass-border;
 }
 
-.hero-section {
-  min-height: 50vh;
+/* Section eyebrow — shared header */
+.section-eyebrow {
+  margin-bottom: 2.25rem;
+
+  &.text-center {
+    text-align: center;
+  }
+}
+
+.eyebrow-text {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: $primary-green;
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.eyebrow-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+  font-weight: 600;
+  color: $ink;
+  margin: 0 0 0.75rem;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+
+  em {
+    font-style: italic;
+    font-weight: 600;
+    color: $primary-green;
+  }
+}
+
+.eyebrow-description {
+  font-size: 0.95rem;
+  color: $muted;
+  line-height: 1.7;
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+/* HERO — rounded card */
+.ayan-mo-hero {
+  width: 100%;
+  padding: 1.25rem 1.25rem 2rem;
+  background: $white;
+}
+
+.hero-card {
+  position: relative;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  height: clamp(420px, 58vh, 560px);
+  border-radius: 24px;
+  overflow: hidden;
+  isolation: isolate;
   background-size: cover;
   background-position: center;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  box-shadow: 0 20px 50px rgba(20, 36, 26, 0.18);
 }
 
-.hero-overlay {
+.hero-overlay-grad {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(27, 67, 50, 0.7) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hero-content {
-  text-align: center;
-  color: white;
-  max-width: 700px;
-  padding: 2rem 1.5rem;
-  position: relative;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 36, 26, 0.45) 0%,
+    rgba(20, 36, 26, 0.2) 50%,
+    rgba(20, 36, 26, 0.65) 100%
+  );
   z-index: 1;
 }
 
-.hero-badge {
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 5%;
+  color: $white;
+}
+
+.hero-tag {
   display: inline-flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 20px;
-  padding: 6px 16px;
-  font-size: 0.8rem;
+  gap: 7px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
+  color: $white;
+  backdrop-filter: blur(8px);
+  margin-bottom: 1.25rem;
 }
 
 .hero-title {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  color: white;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  font-weight: 700;
+  color: $white;
+  margin: 0 0 1rem;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+
+  em {
+    font-style: italic;
+    color: $sage;
+    font-weight: 700;
+  }
 }
 
 .hero-description {
-  font-size: 1.05rem;
-  margin: 0 auto 1.25rem;
-  opacity: 0.92;
-  line-height: 1.6;
-  max-width: 560px;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba($white, 0.94);
+  margin: 0 auto 1.75rem;
+  max-width: 600px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
 }
 
 .hero-chips {
@@ -1806,22 +1880,30 @@ $bento-radius: 20px;
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
+}
 
-  .q-chip {
-    opacity: 0.9;
-    font-weight: 500;
-  }
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: $primary-green;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 2rem;
 }
 
 .ayan-mo-section {
   padding: 4rem 0;
-  background: transparent;
+  background: $white;
 }
 
 /* Map Wrapper with Floating Bento */
@@ -1831,8 +1913,8 @@ $bento-radius: 20px;
   height: 700px;
   border-radius: $bento-radius;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  border: 1px solid $glass-border;
+  box-shadow: $bento-shadow;
+  border: 1px solid $border;
 }
 
 .map-wrapper #map {
@@ -1851,86 +1933,70 @@ $bento-radius: 20px;
 }
 
 .bento-card {
-  background: $glass-bg;
-  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(14px);
   border-radius: $bento-radius;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-  border: 1px solid $glass-border;
+  box-shadow: 0 12px 32px rgba(20, 36, 26, 0.14);
+  border: 1px solid $border;
   overflow: hidden;
 
   :deep(.q-card__section) {
-    padding: 20px;
+    padding: 1.25rem;
   }
 }
 
-.search-bar-section {
+.search-bar-section,
+.location-search-section {
   :deep(.q-field) {
     background: $white;
-    backdrop-filter: blur(20px);
-    border-radius: 14px;
-    border: 1px solid $glass-border;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-    transition: all 0.3s ease;
+    border-radius: 999px;
+    border: 1px solid $border;
+    box-shadow: none;
+    transition: all 0.25s ease;
 
     &:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      border-color: rgba($primary-green, 0.4);
     }
 
     &.q-field--focused {
-      box-shadow: 0 4px 16px rgba($primary-green, 0.15);
       border-color: $primary-green;
+      box-shadow: 0 0 0 3px rgba($primary-green, 0.12);
     }
   }
 
   :deep(.q-field__control) {
-    border-radius: 14px;
+    border-radius: 999px;
+    padding: 0 0.85rem;
+
+    &:before,
+    &:after {
+      border: none !important;
+    }
   }
 
   :deep(.q-field__prepend) {
     color: $primary-green;
+  }
+
+  :deep(.q-field__native) {
+    color: $ink;
   }
 }
 
 .location-search-section {
-  :deep(.q-field) {
-    background: $white;
-    backdrop-filter: blur(20px);
-    border-radius: 14px;
-    border: 1px solid $glass-border;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-    transition: all 0.3s ease;
-
-    &:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    }
-
-    &.q-field--focused {
-      box-shadow: 0 4px 16px rgba($primary-green, 0.15);
-      border-color: $primary-green;
-    }
-  }
-
-  :deep(.q-field__control) {
-    border-radius: 14px;
-  }
-
-  :deep(.q-field__prepend) {
-    color: $primary-green;
-  }
-
   .selected-location-badge {
     display: flex;
     align-items: center;
     gap: 6px;
     margin-top: 8px;
-    padding: 6px 10px;
-    background: rgba($primary-green, 0.08);
-    border-radius: 10px;
-    border: 1px solid rgba($primary-green, 0.2);
+    padding: 6px 12px;
+    background: $mint-bg;
+    border-radius: 999px;
+    border: 1px solid rgba($primary-green, 0.18);
 
     span {
       flex: 1;
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
       color: $primary-green;
       white-space: nowrap;
@@ -1944,55 +2010,44 @@ $bento-radius: 20px;
   }
 }
 
-.category-filter-section {
-  .category-chips-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-
-    .category-chip {
-      margin: 0;
-      font-size: 0.8rem;
-      font-weight: 600;
-      transition: all 0.3s ease;
-      border-radius: 20px !important;
-      padding: 6px 14px !important;
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      }
-    }
-  }
-}
-
+.category-filter-section,
 .radius-control-section {
+  .text-subtitle2 {
+    font-size: 0.74rem !important;
+    font-weight: 700 !important;
+    color: $primary-green !important;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
+
+  .category-chips-container,
   .radius-chips-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
 
+    .category-chip,
     .radius-chip {
       margin: 0;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 600;
-      transition: all 0.3s ease;
-      border-radius: 20px !important;
-      padding: 6px 14px !important;
+      transition: all 0.25s ease;
+      border-radius: 999px !important;
+      padding: 6px 12px !important;
 
       &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-1px);
       }
     }
   }
 }
 
-.location-control-section {
+.location-controls-section {
   :deep(.q-btn) {
-    border-radius: 12px;
+    border-radius: 999px;
     font-weight: 600;
-    padding: 12px !important;
+    padding: 10px !important;
+    text-transform: none;
   }
 }
 
@@ -2049,20 +2104,28 @@ $bento-radius: 20px;
 }
 
 .places-list-section {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(10px);
+  background: $white;
+
+  .text-subtitle2 {
+    font-size: 0.74rem !important;
+    font-weight: 700 !important;
+    color: $primary-green !important;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+  }
 }
 
 .place-list-item {
   border-radius: 12px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background: $white;
+  border: 1px solid $border;
   margin-bottom: 8px !important;
 
   &:hover {
-    background: linear-gradient(90deg, $soft-green 0%, rgba($soft-green, 0.5) 100%);
-    transform: translateX(6px);
-    box-shadow: 0 4px 16px rgba($primary-green, 0.1);
+    background: $mint-bg;
+    border-color: rgba($primary-green, 0.3);
+    transform: translateX(4px);
   }
 
   :deep(.q-item__section--avatar) {
@@ -2072,27 +2135,29 @@ $bento-radius: 20px;
   :deep(.q-avatar) {
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 6px rgba(20, 36, 26, 0.08);
+  }
+
+  :deep(.q-item__label) {
+    color: $ink;
   }
 }
 
 /* Old styles kept for compatibility */
 .controls-section {
-  background: $glass-bg;
-  backdrop-filter: blur(20px);
+  background: $white;
   padding: 1.5rem;
   border-radius: $bento-radius;
-  border: 1px solid $glass-border;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid $border;
+  box-shadow: $bento-shadow;
 }
 
 .map-container {
-  background: $glass-bg;
-  backdrop-filter: blur(20px);
+  background: $white;
   padding: 1.5rem;
   border-radius: $bento-radius;
-  border: 1px solid $glass-border;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid $border;
+  box-shadow: $bento-shadow;
 }
 
 .map-placeholder-text {
@@ -2116,148 +2181,116 @@ $bento-radius: 20px;
 /* Info Section */
 .info-section {
   padding: 4rem 0;
-  background: transparent;
+  background: $mint-bg;
 }
 
 .info-card {
-  background: $glass-bg;
-  backdrop-filter: blur(20px);
+  background: $white;
   border-radius: $bento-radius;
-  border: 1px solid $glass-border;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid $border;
+  box-shadow: $bento-shadow;
   overflow: hidden;
 
   :deep(.q-card__section) {
-    padding: 24px;
+    padding: 1.75rem;
+  }
+
+  :deep(.text-h4) {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-weight: 600 !important;
+    color: $ink !important;
+    letter-spacing: -0.01em;
+  }
+
+  :deep(.q-btn) {
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: none;
   }
 }
 
 .info-details {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  background: $soft-green;
+  gap: 10px;
+  background: $mint-bg;
   padding: 16px;
-  border-radius: 12px;
+  border-radius: 14px;
   margin: 16px 0;
+  border: 1px solid rgba($primary-green, 0.12);
 }
 
 .info-row {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 0.95rem;
-  color: $dark-green;
+  font-size: 0.9rem;
+  color: $ink;
 }
 
 .map-placeholder {
-  background: linear-gradient(135deg, $soft-green 0%, $mint-cream 100%);
+  background: $mint-bg;
   border-radius: $bento-radius;
-  border: 1px solid $glass-border;
+  border: 1px solid $border;
+  color: $muted;
 }
 
-// FAQ Section with Glassmorphism
-$faqs-bg: $brown;
-
+/* FAQ Section — light, matches home */
 .faqs-section {
-  background: linear-gradient(135deg, $faqs-bg 0%, adjust-color($faqs-bg, $lightness: -10%) 100%);
+  background: $white;
   padding: 5rem 0;
-  color: $white;
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    pointer-events: none;
-  }
+  color: $ink;
+  border-top: 1px solid $border;
 }
 
 .container-faqs {
-  max-width: 1400px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 0 32px;
-  position: relative;
-  z-index: 1;
-}
-
-.faqs-header {
-  text-align: center;
-  margin-bottom: 4rem;
-}
-
-.faqs-title {
-  font-size: 2.25rem;
-  font-weight: 800;
-  color: $white;
-  margin-bottom: 1rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
-}
-
-.faqs-description {
-  font-size: 1.05rem;
-  color: rgba($white, 0.9);
-  line-height: 1.7;
-  max-width: 600px;
-  margin: 0 auto;
+  padding: 0 2rem;
 }
 
 .faqs-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  margin-bottom: 4rem;
+  gap: 0.85rem;
 }
 
 .faqs-column {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 0.75rem;
 }
 
 .faq-item {
-  background: rgba($white, 0.1);
-  border: 1px solid rgba($white, 0.2);
-  border-radius: $bento-radius;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 14px;
   overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    background: rgba($white, 0.15);
-    border-color: rgba($white, 0.3);
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    border-color: rgba($primary-green, 0.35);
+    box-shadow: 0 6px 18px rgba(20, 36, 26, 0.06);
   }
 
   :deep(.q-item) {
-    padding: 18px 24px;
-    min-height: 70px;
+    padding: 0.95rem 1.25rem;
+    min-height: auto;
+    border-radius: 14px;
   }
 
   :deep(.q-item__label) {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: $white;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: $ink;
+    text-transform: none;
+    letter-spacing: -0.005em;
     line-height: 1.4;
   }
 
   :deep(.q-icon) {
-    color: $light-green;
-    font-size: 22px;
-    transition: transform 0.3s ease;
-  }
-
-  &:hover :deep(.q-icon) {
-    transform: scale(1.15) rotate(90deg);
+    color: $primary-green;
+    font-size: 18px;
   }
 
   :deep(.q-expansion-item__content) {
@@ -2271,43 +2304,93 @@ $faqs-bg: $brown;
 }
 
 .faq-answer {
-  padding: 0 24px 24px;
-  font-size: 0.95rem;
-  color: rgba($white, 0.9);
-  line-height: 1.8;
+  padding: 0 1.25rem 1.1rem;
+  font-size: 0.88rem;
+  color: $muted;
+  line-height: 1.65;
 }
 
-// Advanced Filters
+/* Advanced Filters */
 .advanced-filters {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(10px);
+  background: $mint-bg;
   border-radius: 14px;
-  padding: 18px;
-  border: 1px solid $glass-border;
+  padding: 16px;
+  border: 1px solid rgba($primary-green, 0.12);
 }
 
-// Search History
+/* Search History */
 .search-history,
 .recently-viewed {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
-  padding: 14px;
-  border: 1px solid $glass-border;
+  background: $mint-bg;
+  border-radius: 14px;
+  padding: 12px;
+  border: 1px solid rgba($primary-green, 0.12);
 }
 
 .q-chip {
   font-size: 0.75rem;
   font-weight: 600;
-  border-radius: 10px !important;
+  border-radius: 999px !important;
 
   :deep(.q-chip__content) {
     font-weight: 500;
   }
 }
 
+/* Custom map markers + leaflet popups */
+:deep(.leaflet-interactive) {
+  cursor: pointer;
+  transition: radius 0.2s ease;
+}
+
+:deep(.leaflet-marker-pane) {
+  z-index: 600;
+}
+
+:deep(.leaflet-shadow-pane) {
+  z-index: 500;
+}
+
+:deep(.custom-place-marker) {
+  .marker-pin {
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: rotate(-45deg) scale(1.1);
+    }
+  }
+}
+
+:deep(.leaflet-popup-content-wrapper) {
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(20, 36, 26, 0.14);
+}
+
+:deep(.leaflet-popup-content) {
+  margin: 12px;
+  line-height: 1.5;
+}
+
+:deep(.user-location-marker) {
+  .pulse-ring {
+    animation: pulse-ring 2s infinite;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Color overrides for Quasar utilities scoped to this page */
 .bg-primary {
-  background: linear-gradient(135deg, $primary-green 0%, $dark-green 100%) !important;
+  background: $primary-green !important;
 }
 
 .text-primary {
@@ -2329,7 +2412,7 @@ $faqs-bg: $brown;
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -2337,39 +2420,56 @@ $faqs-bg: $brown;
   }
 }
 
-.category-btn {
-  border-radius: 25px;
-  text-transform: none;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  font-size: 0.8rem;
-  padding: 8px 16px !important;
+.map-placeholder-text {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: $muted;
+}
 
-  &:not(.q-btn--unelevated) {
-    border: 2px solid $primary-green;
+@media (max-width: 1023px) {
+  .ayan-mo-section,
+  .info-section {
+    padding: 3rem 0;
+  }
+
+  .faqs-section {
+    padding: 4rem 0;
+  }
+
+  .faqs-grid {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
-  .hero-section {
-    min-height: 45vh;
+  .ayan-mo-hero {
+    padding: 0.75rem 0.75rem 1.5rem;
+  }
+
+  .hero-card {
+    height: clamp(420px, 60vh, 560px);
+    border-radius: 20px;
   }
 
   .hero-title {
-    font-size: 2.2rem;
+    font-size: 2.4rem;
   }
 
   .hero-description {
     font-size: 0.95rem;
   }
 
-  .hero-chips .q-chip {
-    font-size: 0.7rem;
+  .hero-chip {
+    font-size: 0.72rem;
+    padding: 6px 12px;
   }
 
-  .places-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+  .container,
+  .container-faqs {
+    padding: 0 1.25rem;
   }
 
   .row {
@@ -2403,6 +2503,7 @@ $faqs-bg: $brown;
   .map-wrapper {
     height: 100vh;
     border-radius: 0;
+    border: none;
   }
 
   /* Mobile: Category chips horizontal scroll */
@@ -2419,28 +2520,31 @@ $faqs-bg: $brown;
     }
   }
 
-  .faqs-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .container-faqs {
-    padding: 0 20px;
-  }
-
-  /* Mobile: Improved spacing */
   .places-list-section {
     :deep(.q-scroll-area) {
       max-height: 250px;
     }
   }
 
-  .advanced-filters {
-    padding: 12px;
-  }
-
+  .advanced-filters,
   .search-history,
   .recently-viewed {
     padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-card {
+    height: clamp(380px, 60vh, 500px);
+    border-radius: 18px;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-description {
+    font-size: 0.9rem;
   }
 }
 </style>

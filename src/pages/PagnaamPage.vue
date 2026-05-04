@@ -1,34 +1,40 @@
 <template>
   <q-page class="pagnaam-page">
     <!-- HERO SECTION -->
-    <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
-      <div class="hero-overlay">
-        <div class="hero-content animate-fade-in">
-          <div class="hero-badge">
-            <q-icon name="directions_bus" size="16px" class="q-mr-xs" />
+    <section class="pagnaam-hero">
+      <div class="hero-card" :style="{ backgroundImage: `url(${heroImageUrl})` }">
+        <div class="hero-overlay-grad" />
+        <div class="hero-inner animate-fade-in">
+          <span class="hero-tag">
+            <q-icon name="directions_bus" size="14px" />
             City Jeepney Directory
-          </div>
-          <h1 class="hero-title">PAGNAAM</h1>
+          </span>
+          <h1 class="hero-title">
+            <em>Pagnaam</em>
+          </h1>
           <p class="hero-description">
             Explore all jeepney routes in Baguio City — comprehensive information about terminals,
             fares, operating hours, and the unique routes that make up the city's iconic transport
             system.
           </p>
           <div class="hero-chips">
-            <q-chip square color="white" text-color="primary" size="sm">Route Information</q-chip>
-            <q-chip square color="white" text-color="primary" size="sm">Terminal Locations</q-chip>
-            <q-chip square color="white" text-color="primary" size="sm">Operating Hours</q-chip>
+            <span class="hero-chip">Route Information</span>
+            <span class="hero-chip">Terminal Locations</span>
+            <span class="hero-chip">Operating Hours</span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- JEEPNEY DIRECTORIES SECTION (Section 3) -->
-    <section class="directories-section bg-grey-1 q-py-xl">
+    <section class="directories-section">
       <div class="container">
-        <div class="text-center q-mb-xl">
-          <h2 class="text-h3 text-weight-bold text-primary">Jeepney Directories</h2>
-          <p class="text-body1">Browse all available jeepney routes in Baguio City</p>
+        <div class="section-eyebrow text-center">
+          <p class="eyebrow-text">JEEPNEY DIRECTORIES</p>
+          <h2 class="eyebrow-title">Browse every <em>route</em> in the city</h2>
+          <p class="eyebrow-description">
+            Comprehensive details for every active jeepney route in Baguio.
+          </p>
         </div>
 
         <div class="search-bar-section q-mb-xl">
@@ -331,9 +337,12 @@
     <!-- FAQS SECTION (Section 5) -->
     <section class="faqs-section">
       <div class="container-faqs">
-        <div class="faqs-header">
-          <h2 class="faqs-title">PAGNAAM FAQs</h2>
-          <p class="faqs-description">Common questions about navigating Baguio's jeepney system</p>
+        <div class="section-eyebrow text-center">
+          <p class="eyebrow-text">QUESTIONS &amp; ANSWERS</p>
+          <h2 class="eyebrow-title"><em>Pagnaam</em> FAQs</h2>
+          <p class="eyebrow-description">
+            Common questions about navigating Baguio's jeepney system.
+          </p>
         </div>
         <div class="faqs-grid">
           <div class="faqs-column">
@@ -342,12 +351,11 @@
               :key="index"
               :label="faq.question"
               class="faq-item"
-              dark
               expand-icon="add"
-              expanded-icon="close"
+              expanded-icon="remove"
               header-class="faq-header"
             >
-              <q-card dark class="faq-card">
+              <q-card class="faq-card" flat>
                 <q-card-section class="faq-answer">
                   {{ faq.answer }}
                 </q-card-section>
@@ -360,12 +368,11 @@
               :key="index"
               :label="faq.question"
               class="faq-item"
-              dark
               expand-icon="add"
-              expanded-icon="close"
+              expanded-icon="remove"
               header-class="faq-header"
             >
-              <q-card dark class="faq-card">
+              <q-card class="faq-card" flat>
                 <q-card-section class="faq-answer">
                   {{ faq.answer }}
                 </q-card-section>
@@ -667,85 +674,115 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-// Color Variables
+// Color Palette — aligned with home page
 $dark-green: #1b4332;
 $primary-green: #2e5d3e;
 $light-green: #9ec98f;
+$sage: #b8cfa3;
+$mint-bg: #e8f0e0;
 $soft-green: #e8f5e9;
 $mint-cream: #f1f8f4;
-$blush-pink: #fce4ec;
+$ink: #14241a;
+$muted: #5b6b5f;
+$border: #e6ebe1;
 $white: #ffffff;
 $brown: #6b5344;
-$glass-bg: rgba(255, 255, 255, 0.85);
-$glass-border: rgba(255, 255, 255, 0.3);
-$bento-radius: 20px;
+
+$bento-radius: 18px;
+$bento-shadow: 0 6px 18px rgba(20, 36, 26, 0.06);
+$bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
 
 .pagnaam-page {
-  background: linear-gradient(180deg, $mint-cream 0%, $white 100%) !important;
+  background: $white !important;
   min-height: 100vh;
 }
 
-.hero-section {
-  min-height: 50vh;
+/* HERO — rounded card mountain backdrop */
+.pagnaam-hero {
+  width: 100%;
+  padding: 1.25rem 1.25rem 2rem;
+  background: $white;
+}
+
+.hero-card {
+  position: relative;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  height: clamp(420px, 58vh, 560px);
+  border-radius: 24px;
+  overflow: hidden;
+  isolation: isolate;
   background-size: cover;
   background-position: center;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  box-shadow: 0 20px 50px rgba(20, 36, 26, 0.18);
 }
 
-.hero-overlay {
+.hero-overlay-grad {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(27, 67, 50, 0.7) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hero-content {
-  text-align: center;
-  color: white;
-  max-width: 700px;
-  padding: 2rem 1.5rem;
-  position: relative;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 36, 26, 0.45) 0%,
+    rgba(20, 36, 26, 0.2) 50%,
+    rgba(20, 36, 26, 0.65) 100%
+  );
   z-index: 1;
 }
 
-.hero-badge {
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 5%;
+  color: $white;
+}
+
+.hero-tag {
   display: inline-flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 20px;
-  padding: 6px 16px;
-  font-size: 0.8rem;
+  gap: 7px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
+  color: $white;
+  backdrop-filter: blur(8px);
+  margin-bottom: 1.25rem;
 }
 
 .hero-title {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  color: white;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  font-weight: 700;
+  color: $white;
+  margin: 0 0 1rem;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+
+  em {
+    font-style: italic;
+    color: $sage;
+    font-weight: 700;
+  }
 }
 
 .hero-description {
-  font-size: 1.05rem;
-  margin: 0 auto 1.25rem;
-  opacity: 0.92;
-  line-height: 1.6;
-  max-width: 560px;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba($white, 0.94);
+  margin: 0 auto 1.75rem;
+  max-width: 600px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
 }
 
 .hero-chips {
@@ -753,76 +790,134 @@ $bento-radius: 20px;
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
+}
 
-  .q-chip {
-    opacity: 0.9;
-    font-weight: 500;
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: $primary-green;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Section eyebrow */
+.section-eyebrow {
+  margin-bottom: 2.5rem;
+
+  &.text-center {
+    text-align: center;
   }
+}
+
+.eyebrow-text {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: $primary-green;
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.eyebrow-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+  font-weight: 600;
+  color: $ink;
+  margin: 0 0 0.75rem;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+
+  em {
+    font-style: italic;
+    font-weight: 600;
+    color: $primary-green;
+  }
+}
+
+.eyebrow-description {
+  font-size: 0.95rem;
+  color: $muted;
+  line-height: 1.7;
+  max-width: 540px;
+  margin: 0 auto;
 }
 
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 2rem;
 }
 
+/* Directories section */
 .directories-section {
+  background: $white;
   padding: 4rem 0;
-  background: transparent;
 }
 
 .search-bar-section {
   max-width: 700px;
-  margin: 0 auto 2rem;
+  margin: 0 auto 2.5rem;
 
   :deep(.q-field) {
-    background: $glass-bg;
-    backdrop-filter: blur(20px);
-    border-radius: $bento-radius;
-    border: 1px solid $glass-border;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-    transition: all 0.3s ease;
+    background: $white;
+    border-radius: 999px;
+    border: 1px solid $border;
+    box-shadow: 0 2px 8px rgba(20, 36, 26, 0.04);
+    transition: all 0.25s ease;
 
     &:hover {
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      border-color: rgba($primary-green, 0.4);
     }
 
     &.q-field--focused {
-      box-shadow: 0 8px 24px rgba($primary-green, 0.15);
       border-color: $primary-green;
+      box-shadow: 0 0 0 3px rgba($primary-green, 0.12);
     }
   }
 
   :deep(.q-field__control) {
-    border-radius: $bento-radius;
+    border-radius: 999px;
+    padding: 0 1rem;
+
+    &:before,
+    &:after {
+      border: none !important;
+    }
   }
 
   :deep(.q-field__prepend) {
     color: $primary-green;
   }
+
+  :deep(.q-field__native) {
+    color: $ink;
+  }
 }
 
-// Bento Grid for Routes
+/* Routes grid — image-card style from home */
 .routes-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
-  padding: 0 10px;
+  gap: 1.5rem;
 }
 
 .route-card {
-  background: $glass-bg;
-  backdrop-filter: blur(20px);
+  background: $white;
   border-radius: $bento-radius;
-  border: 1px solid $glass-border;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid $border;
+  box-shadow: $bento-shadow;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
 
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 32px rgba($primary-green, 0.15);
+    transform: translateY(-4px);
+    box-shadow: $bento-shadow-hover;
     border-color: rgba($primary-green, 0.3);
   }
 
@@ -832,7 +927,15 @@ $bento-radius: 20px;
   }
 
   :deep(.q-card__section) {
-    padding: 20px;
+    padding: 1.25rem;
+  }
+
+  :deep(.text-h6) {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 1.15rem !important;
+    font-weight: 600 !important;
+    color: $ink !important;
+    letter-spacing: -0.005em;
   }
 }
 
@@ -842,131 +945,99 @@ $bento-radius: 20px;
 }
 
 .fare-matrix {
-  background: $soft-green;
+  background: $mint-bg;
   border-radius: 12px;
   padding: 12px;
   margin-top: 12px;
+
+  .text-caption {
+    color: $primary-green !important;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  :deep(.q-badge) {
+    border-radius: 999px;
+    padding: 4px 8px;
+    font-weight: 600;
+    font-size: 0.75rem;
+  }
 }
 
+/* Dialog */
 .route-dialog-card {
   border-radius: $bento-radius;
   overflow: hidden;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
-  border: 1px solid $glass-border;
-
-  :deep(.q-card__section) {
-    background: linear-gradient(135deg, $soft-green 0%, $mint-cream 100%);
-  }
+  box-shadow: 0 16px 48px rgba(20, 36, 26, 0.18);
+  border: 1px solid $border;
+  background: $white;
 
   .map-card {
     border-radius: $bento-radius;
     overflow: hidden;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    box-shadow: $bento-shadow;
+    border: 1px solid $border;
   }
 }
 
-// FAQ Section with Glassmorphism
-$faqs-bg: $brown;
-
+/* FAQ section — light, matches home */
 .faqs-section {
-  background: linear-gradient(135deg, $faqs-bg 0%, adjust-color($faqs-bg, $lightness: -10%) 100%);
+  background: $white;
   padding: 5rem 0;
-  color: $white;
+  color: $ink;
   position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    pointer-events: none;
-  }
+  border-top: 1px solid $border;
 }
 
 .container-faqs {
-  max-width: 1400px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 0 32px;
-  position: relative;
-  z-index: 1;
-}
-
-.faqs-header {
-  text-align: center;
-  margin-bottom: 4rem;
-}
-
-.faqs-title {
-  font-size: 2.25rem;
-  font-weight: 800;
-  color: $white;
-  margin-bottom: 1rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
-}
-
-.faqs-description {
-  font-size: 1.05rem;
-  color: rgba($white, 0.9);
-  line-height: 1.7;
-  max-width: 600px;
-  margin: 0 auto;
+  padding: 0 2rem;
 }
 
 .faqs-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  margin-bottom: 4rem;
+  gap: 0.85rem;
 }
 
 .faqs-column {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 0.75rem;
 }
 
 .faq-item {
-  background: rgba($white, 0.1);
-  border: 1px solid rgba($white, 0.2);
-  border-radius: $bento-radius;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 14px;
   overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    background: rgba($white, 0.15);
-    border-color: rgba($white, 0.3);
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    border-color: rgba($primary-green, 0.35);
+    box-shadow: 0 6px 18px rgba(20, 36, 26, 0.06);
   }
 
   :deep(.q-item) {
-    padding: 18px 24px;
-    min-height: 70px;
+    padding: 0.95rem 1.25rem;
+    min-height: auto;
+    border-radius: 14px;
   }
 
   :deep(.q-item__label) {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: $white;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: $ink;
+    text-transform: none;
+    letter-spacing: -0.005em;
     line-height: 1.4;
   }
 
   :deep(.q-icon) {
-    color: $light-green;
-    font-size: 22px;
-    transition: transform 0.3s ease;
-  }
-
-  &:hover :deep(.q-icon) {
-    transform: scale(1.15) rotate(90deg);
+    color: $primary-green;
+    font-size: 18px;
   }
 
   :deep(.q-expansion-item__content) {
@@ -980,14 +1051,15 @@ $faqs-bg: $brown;
 }
 
 .faq-answer {
-  padding: 0 24px 24px;
-  font-size: 0.95rem;
-  color: rgba($white, 0.9);
-  line-height: 1.8;
+  padding: 0 1.25rem 1.1rem;
+  font-size: 0.88rem;
+  color: $muted;
+  line-height: 1.65;
 }
 
+/* Color overrides for Quasar utilities scoped to this page */
 .bg-primary {
-  background: linear-gradient(135deg, $primary-green 0%, $dark-green 100%) !important;
+  background: $primary-green !important;
 }
 
 .text-primary {
@@ -1009,7 +1081,7 @@ $faqs-bg: $brown;
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -1018,42 +1090,58 @@ $faqs-bg: $brown;
 }
 
 .map-container {
-  background: $glass-bg;
-  backdrop-filter: blur(20px);
+  background: $white;
+  border: 1px solid $border;
   padding: 1.5rem;
   border-radius: $bento-radius;
-  border: 1px solid $glass-border;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  box-shadow: $bento-shadow;
+}
+
+@media (max-width: 1023px) {
+  .directories-section {
+    padding: 3rem 0;
+  }
+
+  .faqs-section {
+    padding: 4rem 0;
+  }
+
+  .faqs-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
-  .hero-section {
-    min-height: 45vh;
+  .pagnaam-hero {
+    padding: 0.75rem 0.75rem 1.5rem;
+  }
+
+  .hero-card {
+    height: clamp(420px, 60vh, 560px);
+    border-radius: 20px;
   }
 
   .hero-title {
-    font-size: 2.2rem;
+    font-size: 2.4rem;
   }
 
   .hero-description {
     font-size: 0.95rem;
   }
 
-  .hero-chips .q-chip {
-    font-size: 0.7rem;
+  .hero-chip {
+    font-size: 0.72rem;
+    padding: 6px 12px;
+  }
+
+  .container,
+  .container-faqs {
+    padding: 0 1.25rem;
   }
 
   .routes-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .faqs-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .container-faqs {
-    padding: 0 20px;
+    gap: 1rem;
   }
 
   .row {
@@ -1065,6 +1153,21 @@ $faqs-bg: $brown;
   .col-md-8 {
     width: 100%;
     margin-bottom: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-card {
+    height: clamp(380px, 60vh, 500px);
+    border-radius: 18px;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-description {
+    font-size: 0.9rem;
   }
 }
 </style>

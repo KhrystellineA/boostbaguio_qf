@@ -3,39 +3,45 @@
     <q-scroll-observer @scroll="onScroll" />
 
     <!-- HERO SECTION -->
-    <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
-      <div class="hero-overlay">
-        <div class="hero-content animate-fade-in">
-          <div class="hero-badge">
-            <q-icon name="navigation" size="16px" class="q-mr-xs" />
+    <section class="apanam-hero">
+      <div class="hero-card" :style="{ backgroundImage: `url(${heroImageUrl})` }">
+        <div class="hero-overlay-grad" />
+        <div class="hero-inner animate-fade-in">
+          <span class="hero-tag">
+            <q-icon name="navigation" size="14px" />
             Point-to-Point Navigation
-          </div>
-          <h1 class="hero-title">APANAM</h1>
+          </span>
+          <h1 class="hero-title">
+            <em>Apanam</em>
+          </h1>
           <p class="hero-description">
             Learn how to navigate Baguio City's jeepney system. Input your starting point and
             destination to get step-by-step instructions, terminal info, and fare estimates.
           </p>
           <div class="hero-chips">
-            <q-chip square color="white" text-color="primary" size="sm">Route Planning</q-chip>
-            <q-chip square color="white" text-color="primary" size="sm">Step-by-Step Guide</q-chip>
-            <q-chip square color="white" text-color="primary" size="sm">Terminal Info</q-chip>
-            <q-chip square color="white" text-color="primary" size="sm">Fare Estimates</q-chip>
+            <span class="hero-chip">Route Planning</span>
+            <span class="hero-chip">Step-by-Step Guide</span>
+            <span class="hero-chip">Terminal Info</span>
+            <span class="hero-chip">Fare Estimates</span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- MAIN FEATURE SECTION (Section 3) -->
-    <section class="navigation-section bg-grey-1">
+    <section class="navigation-section">
       <div class="container">
+        <div class="section-eyebrow">
+          <p class="eyebrow-text">PLAN YOUR ROUTE</p>
+          <h2 class="eyebrow-title">Get from <em>here</em> to <em>there</em></h2>
+        </div>
+
         <div class="navigation-wrapper">
           <div class="navigation-content">
-            <div class="text-overline text-primary q-mb-sm">Plan Your Route</div>
-
             <div class="row q-col-gutter-lg">
               <div class="col-md-6 col-12">
                 <div class="info-section">
-                  <h3 class="text-h5 text-weight-bold text-primary q-mb-md">How It Works</h3>
+                  <h3 class="how-it-works-title">How it works</h3>
 
                   <q-list dense class="how-it-works-list">
                     <q-item>
@@ -80,7 +86,7 @@
 
               <div class="col-md-6 col-12">
                 <div class="frosted-glass-card q-pa-lg">
-                  <h4 class="text-primary text-weight-bold q-mb-lg">Enter Your Locations</h4>
+                  <h4 class="form-card-title">Enter your locations</h4>
 
                   <div class="q-mb-md">
                     <!-- FROM Location -->
@@ -227,15 +233,13 @@
     </section>
 
     <!-- JEEPNEY OPTIONS SECTION (Section 3) -->
-    <section v-if="routeOptions.length > 0" class="options-section bg-white q-py-xl">
+    <section v-if="routeOptions.length > 0" class="options-section q-py-xl">
       <div class="container">
-        <div class="text-center q-mb-xl">
-          <h3 class="text-h4 text-weight-bold text-primary">
-            <q-icon name="directions_bus" class="q-mr-sm" />
-            Available Jeepney Options
-          </h3>
-          <p class="text-body1">
-            Choose from the available routes that connect your start and end points
+        <div class="section-eyebrow text-center">
+          <p class="eyebrow-text">AVAILABLE OPTIONS</p>
+          <h3 class="eyebrow-title">Choose your <em>jeepney</em></h3>
+          <p class="eyebrow-description">
+            Pick from the available routes that connect your start and end points.
           </p>
         </div>
 
@@ -2237,6 +2241,14 @@ export default defineComponent({
           }
         }
 
+        // Scroll to the navigation form right away so the user sees their TO input
+        nextTick(() => {
+          const navSection = document.querySelector('.navigation-section')
+          if (navSection) {
+            navSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          }
+        })
+
         // Auto-trigger route search once data is ready
         setTimeout(() => {
           if (fromLocation.value?.coords && toLocation.value?.coords) {
@@ -2248,12 +2260,6 @@ export default defineComponent({
               }, 300)
             })
           }
-          setTimeout(() => {
-            const navSection = document.querySelector('.navigation-section')
-            if (navSection) {
-              navSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
-            }
-          }, 500)
         }, 800)
       }
     })
@@ -2310,32 +2316,31 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-// Color Palette
+// Color Palette — aligned with home page
 $dark-green: #1b4332;
 $primary-green: #2e5d3e;
 $light-green: #9ec98f;
+$sage: #b8cfa3;
+$mint-bg: #e8f0e0;
 $soft-green: #e8f5e9;
 $mint-cream: #f1f8f4;
-$blush-pink: #fce4ec;
+$ink: #14241a;
+$muted: #5b6b5f;
+$border: #e6ebe1;
 $white: #ffffff;
 $brown: #6b5344;
 
-// Glassmorphism
-$glass-bg: rgba(255, 255, 255, 0.85);
-$glass-border: rgba(255, 255, 255, 0.3);
-$glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-
-// Bento
-$bento-radius: 20px;
-$bento-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
-$bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
+// Card vars
+$bento-radius: 18px;
+$bento-shadow: 0 6px 18px rgba(20, 36, 26, 0.06);
+$bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
 
 .apanam-page {
-  background: linear-gradient(180deg, $mint-cream 0%, $white 100%) !important;
+  background: $white !important;
   min-height: 100vh;
 }
 
-/* Navbar Animation */
+/* Floating navbar (kept) */
 .transition-all {
   transition: all 0.3s ease;
 }
@@ -2343,8 +2348,8 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 .floating-nav {
   background: rgba(255, 255, 255, 0.95) !important;
   backdrop-filter: blur(10px);
-  color: #212121 !important;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  color: $ink !important;
+  box-shadow: 0 4px 30px rgba(20, 36, 26, 0.1);
   width: calc(100% - 32px);
   left: 16px;
   right: 16px;
@@ -2352,78 +2357,92 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   margin-top: 16px;
 }
 
-.hero-section {
-  min-height: 50vh;
+/* HERO — rounded card mountain backdrop */
+.apanam-hero {
+  width: 100%;
+  padding: 1.25rem 1.25rem 2rem;
+  background: $white;
+}
+
+.hero-card {
+  position: relative;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  height: clamp(420px, 58vh, 560px);
+  border-radius: 24px;
+  overflow: hidden;
+  isolation: isolate;
   background-size: cover;
   background-position: center;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    pointer-events: none;
-  }
+  box-shadow: 0 20px 50px rgba(20, 36, 26, 0.18);
 }
 
-.hero-overlay {
+.hero-overlay-grad {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(27, 67, 50, 0.7) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hero-content {
-  text-align: center;
-  color: white;
-  max-width: 700px;
-  padding: 2rem 1.5rem;
-  position: relative;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 36, 26, 0.45) 0%,
+    rgba(20, 36, 26, 0.2) 50%,
+    rgba(20, 36, 26, 0.65) 100%
+  );
   z-index: 1;
 }
 
-.hero-badge {
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 5%;
+  color: $white;
+}
+
+.hero-tag {
   display: inline-flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 20px;
-  padding: 6px 16px;
-  font-size: 0.8rem;
+  gap: 7px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
+  color: $white;
+  backdrop-filter: blur(8px);
+  margin-bottom: 1.25rem;
 }
 
 .hero-title {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  color: white;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  font-weight: 700;
+  color: $white;
+  margin: 0 0 1rem;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+
+  em {
+    font-style: italic;
+    color: $sage;
+    font-weight: 700;
+  }
 }
 
 .hero-description {
-  font-size: 1.05rem;
-  margin: 0 auto 1.25rem;
-  opacity: 0.92;
-  line-height: 1.6;
-  max-width: 560px;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba($white, 0.94);
+  margin: 0 auto 1.75rem;
+  max-width: 600px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
 }
 
 .hero-chips {
@@ -2431,57 +2450,119 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
+}
 
-  .q-chip {
-    opacity: 0.9;
-    font-weight: 500;
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: $primary-green;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Section eyebrow — shared header */
+.section-eyebrow {
+  margin-bottom: 2.25rem;
+
+  &.text-center {
+    text-align: center;
   }
 }
 
+.eyebrow-text {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: $primary-green;
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.eyebrow-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+  font-weight: 600;
+  color: $ink;
+  margin: 0 0 0.5rem;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+
+  em {
+    font-style: italic;
+    font-weight: 600;
+    color: $primary-green;
+  }
+}
+
+.eyebrow-description {
+  font-size: 0.95rem;
+  color: $muted;
+  line-height: 1.7;
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+/* Navigation section */
 .navigation-section {
   padding: 4rem 0;
-  background: linear-gradient(180deg, $white 0%, $mint-cream 100%);
+  background: $white;
 }
 
 .container {
-  max-width: 1280px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 2rem;
+}
+
+.info-section {
+  padding: 1.5rem 0;
+}
+
+.how-it-works-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: $ink;
+  margin: 0 0 1.25rem;
+  letter-spacing: -0.005em;
+}
+
+.how-it-works-list {
+  :deep(.q-item) {
+    padding: 0.5rem 0;
+  }
+
+  :deep(.q-avatar) {
+    background: $primary-green !important;
+    color: $white !important;
+  }
+
+  :deep(.q-item__label) {
+    color: $ink;
+    font-size: 0.95rem;
+  }
 }
 
 .frosted-glass-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: $white;
+  border: 1px solid $border;
   border-radius: 20px;
-  padding: 2rem;
+  padding: 1.75rem;
   width: 100%;
   max-width: 520px;
   margin-left: auto;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow:
-    0 24px 64px rgba(0, 0, 0, 0.2),
-    0 0 0 1px rgba(255, 255, 255, 0.3);
-  border: none;
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 40%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, transparent 100%);
-    border-radius: 20px 20px 0 0;
-    pointer-events: none;
-  }
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(20, 36, 26, 0.06);
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow:
-      0 32px 80px rgba(0, 0, 0, 0.25),
-      0 0 0 1px rgba(255, 255, 255, 0.5);
+    transform: translateY(-3px);
+    box-shadow: 0 14px 36px rgba(20, 36, 26, 0.1);
+    border-color: rgba($primary-green, 0.25);
   }
 
   @media (max-width: 1023px) {
@@ -2491,38 +2572,29 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   }
 }
 
-.card-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid rgba($primary-green, 0.15);
-}
-
-.card-title {
+.form-card-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
   font-size: 1.2rem;
-  font-weight: 700;
-  color: $primary-green;
-  letter-spacing: 0.02em;
-  line-height: 1.3;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  color: $ink;
+  margin: 0 0 1.25rem;
+  letter-spacing: -0.005em;
 }
 
 .input-label {
   font-size: 0.7rem;
   font-weight: 700;
-  color: $brown;
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.08em;
+  color: $primary-green;
+  margin-bottom: 0.4rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .input-label-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
 
   .input-label {
     margin-bottom: 0;
@@ -2531,94 +2603,48 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 
 .custom-input {
   :deep(.q-field__control) {
-    border-radius: 10px;
+    border-radius: 12px;
     min-height: 48px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(248, 248, 248, 1) 100%);
-    transition: all 0.3s ease;
-    border: 1.5px solid rgba($primary-green, 0.15);
-    box-shadow:
-      inset 0 2px 4px rgba(0, 0, 0, 0.06),
-      0 1px 0 rgba(255, 255, 255, 1);
+    background: $white;
+    transition: all 0.25s ease;
+    border: 1px solid $border;
 
     &:hover {
-      box-shadow:
-        inset 0 2px 4px rgba(0, 0, 0, 0.08),
-        0 4px 12px rgba($primary-green, 0.1);
-      border-color: $primary-green;
+      border-color: rgba($primary-green, 0.4);
     }
 
     &.q-field--focused {
       border-color: $primary-green;
-      box-shadow:
-        inset 0 2px 4px rgba(0, 0, 0, 0.1),
-        0 6px 20px rgba($primary-green, 0.15),
-        0 0 0 3px rgba($primary-green, 0.08);
+      box-shadow: 0 0 0 3px rgba($primary-green, 0.12);
     }
   }
 
   :deep(.q-field__native) {
     font-size: 0.9rem;
-    color: $dark-green;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+    color: $ink;
   }
 
   :deep(.q-field__label) {
-    color: #999;
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+    color: $muted;
   }
 }
 
-.start-nav-btn {
-  background: linear-gradient(180deg, $primary-green 0%, $dark-green 100%) !important;
-  color: white !important;
-  font-weight: 600;
-  border-radius: 10px;
-  text-transform: none;
-  font-size: 0.95rem;
-  width: 100%;
-  height: 48px;
-  letter-spacing: 0.02em;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow:
-    0 4px 16px rgba($primary-green, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 40%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
-    border-radius: 10px 10px 0 0;
-    pointer-events: none;
-  }
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow:
-      0 8px 24px rgba($primary-green, 0.4),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-
-  &:active {
-    transform: translateY(0);
-    box-shadow:
-      0 4px 12px rgba($primary-green, 0.3),
-      inset 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
+/* Quasar primary button override on this page */
+:deep(.q-btn.bg-primary),
+:deep(.q-btn--standard.text-white.bg-primary) {
+  background: $primary-green !important;
+  color: $white !important;
 }
 
 .options-section {
-  background: linear-gradient(180deg, $mint-cream 0%, $white 100%);
+  background: $white;
+  padding: 4rem 0;
+  border-top: 1px solid $border;
 }
 
 /* Route Map Container */
 .route-map-container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
 }
 
@@ -2627,11 +2653,11 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   box-shadow: $bento-shadow;
   background: $white;
-  border: 1px solid rgba($primary-green, 0.08);
+  border: 1px solid $border;
 }
 
 #route-map {
-  border-radius: 12px;
+  border-radius: 0;
   z-index: 1;
 }
 
@@ -2640,10 +2666,10 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   .direction-step {
     display: flex;
     align-items: flex-start;
-    padding: 8px 0;
+    padding: 10px 0;
 
     &:not(:last-child) {
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      border-bottom: 1px solid $border;
     }
   }
 }
@@ -2673,23 +2699,24 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 }
 
 .route-info {
-  background: $soft-green;
+  background: $mint-bg;
   padding: 16px;
-  border-radius: 12px;
+  border-radius: 14px;
   border-left: 4px solid $primary-green;
 }
 
 .route-info .info-label {
-  font-size: 0.75rem;
-  color: $dark-green;
-  font-weight: 600;
+  font-size: 0.74rem;
+  color: $primary-green;
+  font-weight: 700;
   text-transform: uppercase;
+  letter-spacing: 0.1em;
   margin-bottom: 8px;
 }
 
 .route-info .info-value {
-  font-size: 0.95rem;
-  color: $dark-green;
+  font-size: 0.92rem;
+  color: $ink;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -2698,23 +2725,23 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 .options-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
+  gap: 1.25rem;
 }
 
-/* Bento Card Style - Enhanced */
+/* Card style for route options & summaries */
 .bento-card {
   background: $white;
   border-radius: $bento-radius;
-  border: 1px solid rgba($primary-green, 0.08);
+  border: 1px solid $border;
   box-shadow: $bento-shadow;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
 
   &:hover {
-    transform: translateY(-8px);
+    transform: translateY(-4px);
     box-shadow: $bento-shadow-hover;
-    border-color: rgba($primary-green, 0.15);
+    border-color: rgba($primary-green, 0.3);
   }
 }
 
@@ -2791,15 +2818,18 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 
 /* Loading Section Styles */
 .loading-section {
+  background: $white;
   min-height: 400px;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 4rem 0;
 }
 
 .loading-section .q-chip {
   font-size: 0.85rem;
   padding: 8px 12px;
+  border-radius: 999px;
 }
 
 /* Route Summary Cards */
@@ -2807,47 +2837,54 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   transition:
     transform 0.3s ease,
     box-shadow 0.3s ease;
-  border-radius: 16px;
+  border-radius: $bento-radius;
   overflow: hidden;
+  border: 1px solid transparent;
 }
 
 .route-summary-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 28px rgba(20, 36, 26, 0.14);
 }
 
 /* Route Option Cards */
 .route-option-card {
   transition: all 0.3s ease;
-  border: 2px solid transparent;
-  border-radius: 16px;
+  border: 1px solid $border;
+  border-radius: $bento-radius;
   overflow: hidden;
 }
 
 .route-option-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: $bento-shadow-hover;
   cursor: pointer;
 }
 
 .route-option-card.single-ride:hover {
-  border-color: $positive;
+  border-color: $primary-green;
 }
 
 .route-option-card.double-ride:hover {
-  border-color: $warning;
+  border-color: $sage;
 }
 
 /* Ride Type Badge */
 .ride-type-badge {
-  font-size: 0.75rem;
-  padding: 4px 8px;
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
 }
 
 /* Jeepney Name */
 .jeepney-name {
+  font-family: 'Georgia', 'Times New Roman', serif;
   font-size: 1.1rem;
+  font-weight: 600;
+  color: $ink !important;
   line-height: 1.3;
+  letter-spacing: -0.005em;
 }
 
 /* Route Details */
@@ -2858,8 +2895,9 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 .route-detail-item {
   display: flex;
   align-items: center;
-  margin-bottom: 4px;
-  font-size: 0.9rem;
+  margin-bottom: 6px;
+  font-size: 0.88rem;
+  color: $muted;
 }
 
 .double-ride-details .route-detail-item {
@@ -2868,13 +2906,15 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 
 /* Fare and Duration Badges */
 .fare-badge .q-badge {
-  font-size: 1.1rem;
+  font-size: 1rem;
   padding: 6px 12px;
+  border-radius: 999px;
 }
 
 .duration-badge .q-badge {
-  font-size: 0.85rem;
-  padding: 4px 8px;
+  font-size: 0.78rem;
+  padding: 4px 10px;
+  border-radius: 999px;
 }
 
 /* Options Grid */
@@ -2886,7 +2926,11 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 
 @media (max-width: 1023px) {
   .navigation-section {
-    padding: 2.5rem 0;
+    padding: 3rem 0;
+  }
+
+  .options-section {
+    padding: 3rem 0;
   }
 
   .route-map-container {
@@ -2895,20 +2939,26 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 768px) {
-  .hero-section {
-    min-height: 45vh;
+  .apanam-hero {
+    padding: 0.75rem 0.75rem 1.5rem;
+  }
+
+  .hero-card {
+    height: clamp(420px, 60vh, 560px);
+    border-radius: 20px;
   }
 
   .hero-title {
-    font-size: 2.2rem;
+    font-size: 2.4rem;
   }
 
   .hero-description {
     font-size: 0.95rem;
   }
 
-  .hero-chips .q-chip {
-    font-size: 0.7rem;
+  .hero-chip {
+    font-size: 0.72rem;
+    padding: 6px 12px;
   }
 
   .options-grid {
@@ -2919,24 +2969,12 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
     margin-bottom: 12px;
   }
 
-  .teaching-step-chip {
-    padding: 6px 10px;
-  }
-
-  .step-label {
-    font-size: 10px;
-  }
-
-  .step-emoji {
-    font-size: 16px;
-  }
-
   .navigation-section {
-    padding: 2rem 0;
+    padding: 2.5rem 0;
   }
 
   .container {
-    padding: 0 16px;
+    padding: 0 1.25rem;
   }
 
   #route-map {
@@ -2945,25 +2983,27 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 480px) {
-  .hero-section {
-    min-height: 40vh;
+  .hero-card {
+    height: clamp(380px, 60vh, 500px);
+    border-radius: 18px;
   }
 
   .hero-title {
-    font-size: 1.8rem;
+    font-size: 2rem;
   }
 
   .hero-description {
     font-size: 0.9rem;
   }
 
-  .hero-badge {
+  .hero-tag {
     font-size: 0.7rem;
-    padding: 4px 12px;
+    padding: 5px 12px;
   }
 
   .frosted-glass-card {
     padding: 1.25rem;
+    border-radius: 16px;
   }
 
   .jeepney-name {
@@ -2971,8 +3011,8 @@ $bento-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.1);
   }
 
   .fare-badge .q-badge {
-    font-size: 0.95rem;
-    padding: 4px 8px;
+    font-size: 0.9rem;
+    padding: 4px 10px;
   }
 }
 </style>

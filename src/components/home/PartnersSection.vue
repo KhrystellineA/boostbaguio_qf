@@ -3,16 +3,15 @@
     <div class="marquee-track">
       <div class="marquee-content">
         <div v-for="partner in partners" :key="'a-' + partner.id" class="partner-chip">
-          <q-icon :name="partner.icon" size="18px" :color="partner.color" />
+          <q-icon :name="partner.icon" size="16px" />
           <span>{{ partner.name }}</span>
         </div>
-        <!-- Duplicates for seamless loop -->
         <div v-for="partner in partners" :key="'b-' + partner.id" class="partner-chip">
-          <q-icon :name="partner.icon" size="18px" :color="partner.color" />
+          <q-icon :name="partner.icon" size="16px" />
           <span>{{ partner.name }}</span>
         </div>
         <div v-for="partner in partners" :key="'c-' + partner.id" class="partner-chip">
-          <q-icon :name="partner.icon" size="18px" :color="partner.color" />
+          <q-icon :name="partner.icon" size="16px" />
           <span>{{ partner.name }}</span>
         </div>
       </div>
@@ -34,11 +33,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-$brown: #3e2723;
+$ink: #14241a;
+$primary-green: #2e5d3e;
+$muted: #5b6b5f;
+$white: #ffffff;
 
 .partners-banner {
-  background: $brown;
-  padding: 14px 0;
+  background: $white;
+  padding: 18px 0;
   overflow: hidden;
   position: relative;
 }
@@ -58,9 +60,9 @@ $brown: #3e2723;
 
 .marquee-content {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
   width: max-content;
-  animation: scroll-marquee 20s linear infinite;
+  animation: scroll-marquee 24s linear infinite;
 }
 
 .partner-chip {
@@ -68,13 +70,20 @@ $brown: #3e2723;
   align-items: center;
   gap: 8px;
   white-space: nowrap;
-  color: rgba(255, 255, 255, 0.85);
-  font-size: 0.82rem;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba($ink, 0.1);
+  color: $ink;
+  font-size: 0.78rem;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
+
+  .q-icon {
+    color: $primary-green;
+  }
 
   span {
-    opacity: 0.9;
+    opacity: 0.85;
   }
 }
 
@@ -89,16 +98,17 @@ $brown: #3e2723;
 
 @media (max-width: 599px) {
   .partners-banner {
-    padding: 10px 0;
+    padding: 14px 0;
   }
 
   .marquee-content {
-    gap: 1.5rem;
-    animation-duration: 15s;
+    gap: 1rem;
+    animation-duration: 18s;
   }
 
   .partner-chip {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
+    padding: 6px 12px;
   }
 }
 </style>

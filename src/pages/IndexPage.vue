@@ -92,7 +92,7 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .page-wrapper {
-  background: linear-gradient(180deg, #e8f5e9 0%, #f1f8f4 50%, #ffffff 100%) !important;
+  background: #ffffff !important;
   min-height: 100vh;
 }
 </style>

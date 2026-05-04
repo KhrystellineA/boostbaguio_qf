@@ -3,11 +3,16 @@
     <div class="container-gallery">
       <!-- Header -->
       <div class="gallery-header">
-        <h2 class="gallery-title">IMAGE GALLERY</h2>
+        <p class="gallery-tag">A LOOK AT BAGUIO</p>
+        <h2 class="gallery-title">
+          <em>Snapshots</em> of the city
+          <br class="hide-mobile" />
+          and its culture
+        </h2>
         <p class="gallery-description">Explore the beauty of Baguio City and its culture.</p>
       </div>
 
-      <!-- Carousel -->
+      <!-- Carousel with mosaic slides -->
       <div v-if="galleryImages.length > 0" class="carousel-wrapper">
         <q-carousel
           v-model="slide"
@@ -19,7 +24,7 @@
           navigation
           padding
           arrows
-          height="400px"
+          height="500px"
           class="gallery-carousel"
           role="region"
           aria-label="Photo gallery carousel"
@@ -32,11 +37,11 @@
             class="carousel-slide"
             :aria-label="`Gallery slide ${index + 1} of ${imageGroups.length}`"
           >
-            <div class="images-grid" role="list">
+            <div class="mosaic-grid" :data-count="images.length" role="list">
               <div
                 v-for="(image, imgIndex) in images"
                 :key="imgIndex"
-                class="gallery-image-wrapper"
+                :class="['mosaic-cell', `mosaic-cell--${imgIndex}`]"
                 role="listitem"
               >
                 <q-img
@@ -56,7 +61,6 @@
           </q-carousel-slide>
         </q-carousel>
 
-        <!-- Navigation Arrows -->
         <div class="nav-arrows" aria-label="Gallery navigation">
           <q-btn
             flat
@@ -105,11 +109,11 @@ export default {
     const galleryImages = ref([])
     const loading = ref(true)
 
-    // Split images into groups of 4 for carousel slides
     const imageGroups = computed(() => {
       const groups = []
-      for (let i = 0; i < galleryImages.value.length; i += 4) {
-        groups.push(galleryImages.value.slice(i, i + 4))
+      // Group into 5 for mosaic look (similar to Travadog)
+      for (let i = 0; i < galleryImages.value.length; i += 5) {
+        groups.push(galleryImages.value.slice(i, i + 5))
       }
       return groups
     })
@@ -167,44 +171,59 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// Color Palette Variables
-$dark-green: #1b4332;
 $primary-green: #2e5d3e;
-$light-green: #9ec98f;
-$brown: #6b5344;
+$ink: #14241a;
+$muted: #5b6b5f;
+$border: #e6ebe1;
 $white: #ffffff;
 
 .gallery-section {
   background: $white;
-  padding: 6rem 0;
+  padding: 5rem 0;
 }
 
 .container-gallery {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 3rem;
+  padding: 0 2rem;
 }
 
 // Header
 .gallery-header {
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
 }
 
-.gallery-title {
-  font-size: 2.25rem;
-  font-weight: 800;
+.gallery-tag {
+  font-size: 0.74rem;
+  font-weight: 600;
   color: $primary-green;
-  margin-bottom: 1rem;
-  letter-spacing: 0.05em;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
+.gallery-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+  font-weight: 600;
+  color: $ink;
+  margin: 0 0 0.85rem;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+
+  em {
+    font-style: italic;
+    color: $primary-green;
+    font-weight: 600;
+  }
+}
+
 .gallery-description {
-  font-size: 1.05rem;
-  color: $brown;
+  font-size: 0.95rem;
+  color: $muted;
   line-height: 1.7;
-  max-width: 600px;
+  max-width: 540px;
   margin: 0 auto;
 }
 
@@ -216,23 +235,18 @@ $white: #ffffff;
 }
 
 .gallery-carousel {
-  border-radius: 20px;
+  border-radius: 0;
   overflow: visible;
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba($primary-green, 0.1);
-  background: $white;
+  background: transparent;
 
   :deep(.q-carousel__navigation) {
     bottom: -50px;
 
-    .q-carousel__control {
-      .q-btn {
-        color: $primary-green;
+    .q-carousel__control .q-btn {
+      color: $primary-green;
 
-        &.q-btn--active {
-          background: $primary-green;
-        }
+      &.q-btn--active {
+        background: $primary-green;
       }
     }
   }
@@ -240,28 +254,94 @@ $white: #ffffff;
 
 .carousel-slide {
   padding: 0 !important;
-}
-
-.images-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
   height: 100%;
-  padding: 0 1rem;
 }
 
-.gallery-image-wrapper {
-  border-radius: 16px;
+// Mosaic grid — Travadog style
+.mosaic-grid {
+  display: grid;
+  gap: 1rem;
+  height: 100%;
+  width: 100%;
+  padding: 0 0.5rem;
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+
+  &[data-count='1'] {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+  }
+
+  &[data-count='2'] {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr;
+  }
+
+  &[data-count='3'],
+  &[data-count='4'] {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: 1fr 1fr;
+  }
+}
+
+.mosaic-cell {
+  border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  background: $white;
+  border: 1px solid $border;
   transition:
     transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
     box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
 
   &:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(20, 36, 26, 0.12);
+  }
+}
+
+// 5-image mosaic placement
+.mosaic-grid[data-count='5'] {
+  .mosaic-cell--0 {
+    grid-row: 1 / span 1;
+    grid-column: 1 / span 2;
+  }
+  .mosaic-cell--1 {
+    grid-row: 1 / span 1;
+    grid-column: 3 / span 1;
+  }
+  .mosaic-cell--2 {
+    grid-row: 2 / span 1;
+    grid-column: 1 / span 1;
+  }
+  .mosaic-cell--3 {
+    grid-row: 2 / span 1;
+    grid-column: 2 / span 1;
+  }
+  .mosaic-cell--4 {
+    grid-row: 2 / span 1;
+    grid-column: 3 / span 1;
+  }
+}
+
+// 4-image
+.mosaic-grid[data-count='4'] {
+  .mosaic-cell--0 {
+    grid-row: 1 / span 2;
+    grid-column: 1 / span 2;
+  }
+  .mosaic-cell--1 {
+    grid-row: 1 / span 1;
+    grid-column: 3 / span 1;
+  }
+  .mosaic-cell--2 {
+    grid-row: 2 / span 1;
+    grid-column: 3 / span 1;
+  }
+  .mosaic-cell--3 {
+    grid-row: 1 / span 2;
+    grid-column: 1 / span 1;
+    display: none; // collapsed for 3-cell visual
   }
 }
 
@@ -281,7 +361,7 @@ $white: #ffffff;
   display: flex;
   justify-content: space-between;
   pointer-events: none;
-  padding: 0 1rem;
+  padding: 0 0.5rem;
   z-index: 10;
 }
 
@@ -289,14 +369,15 @@ $white: #ffffff;
   pointer-events: all;
   background: $white;
   color: $primary-green;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  border: 1px solid $border;
+  box-shadow: 0 4px 16px rgba(20, 36, 26, 0.1);
   border-radius: 50%;
   transition: all 0.3s ease;
 
   &:hover {
     background: $white;
-    transform: scale(1.1);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    transform: scale(1.08);
+    box-shadow: 0 6px 20px rgba(20, 36, 26, 0.16);
   }
 }
 
@@ -308,8 +389,8 @@ $white: #ffffff;
   transform: translateX(50%);
 }
 
-// Loading State
-.loading-state {
+.loading-state,
+.empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -318,23 +399,8 @@ $white: #ffffff;
   gap: 1rem;
 
   p {
-    color: #666;
+    color: $muted;
     font-size: 0.95rem;
-  }
-}
-
-// Empty State
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 0;
-
-  .empty-text {
-    color: #666;
-    font-size: 0.95rem;
-    margin-top: 1rem;
   }
 }
 
@@ -344,17 +410,33 @@ $white: #ffffff;
     padding: 4rem 0;
   }
 
-  .images-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
+  .mosaic-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 0.75rem;
   }
 
-  .gallery-carousel {
-    height: auto;
-  }
-
-  .gallery-title {
-    font-size: 1.75rem;
+  .mosaic-grid[data-count='5'] {
+    .mosaic-cell--0 {
+      grid-row: 1 / span 1;
+      grid-column: 1 / span 2;
+    }
+    .mosaic-cell--1 {
+      grid-row: 2 / span 1;
+      grid-column: 1 / span 1;
+    }
+    .mosaic-cell--2 {
+      grid-row: 2 / span 1;
+      grid-column: 2 / span 1;
+    }
+    .mosaic-cell--3 {
+      grid-row: 3 / span 1;
+      grid-column: 1 / span 1;
+    }
+    .mosaic-cell--4 {
+      grid-row: 3 / span 1;
+      grid-column: 2 / span 1;
+    }
   }
 }
 
@@ -363,17 +445,33 @@ $white: #ffffff;
     padding: 3rem 0;
   }
 
+  .container-gallery {
+    padding: 0 1.25rem;
+  }
+
   .gallery-header {
     margin-bottom: 2rem;
   }
 
-  .gallery-title {
-    font-size: 1.5rem;
+  .hide-mobile {
+    display: none;
   }
 
-  .images-grid {
+  .mosaic-grid {
     grid-template-columns: 1fr;
-    padding: 0 0.5rem;
+    grid-auto-rows: 180px;
+    grid-template-rows: none;
+  }
+
+  .mosaic-grid[data-count='5'] {
+    .mosaic-cell--0,
+    .mosaic-cell--1,
+    .mosaic-cell--2,
+    .mosaic-cell--3,
+    .mosaic-cell--4 {
+      grid-row: auto;
+      grid-column: 1 / -1;
+    }
   }
 
   .nav-arrows {
@@ -381,11 +479,11 @@ $white: #ffffff;
   }
 
   .nav-prev {
-    transform: translateX(-20%);
+    transform: translateX(-15%);
   }
 
   .nav-next {
-    transform: translateX(20%);
+    transform: translateX(15%);
   }
 }
 </style>
