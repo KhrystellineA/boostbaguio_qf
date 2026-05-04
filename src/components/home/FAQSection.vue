@@ -3,7 +3,12 @@
     <div class="container-faqs">
       <!-- Header -->
       <div class="faqs-header">
-        <h2 class="faqs-title">FAQS</h2>
+        <p class="faqs-tag">QUESTIONS &amp; ANSWERS</p>
+        <h2 class="faqs-title">
+          <em>Frequently</em> asked
+          <br class="hide-mobile" />
+          questions
+        </h2>
         <p class="faqs-description">
           Find answers to common questions about our app and its features.
         </p>
@@ -11,20 +16,18 @@
 
       <!-- FAQs Grid -->
       <div class="faqs-grid" role="list">
-        <!-- Left Column -->
         <div class="faqs-column" role="listitem">
           <q-expansion-item
             v-for="(faq, index) in leftFaqs"
             :key="index"
             :label="faq.question"
             class="faq-item"
-            dark
             expand-icon="add"
-            expanded-icon="close"
+            expanded-icon="remove"
             header-class="faq-header"
             :aria-label="`Question: ${faq.question}`"
           >
-            <q-card dark class="faq-card">
+            <q-card class="faq-card">
               <q-card-section class="faq-answer">
                 {{ faq.answer }}
               </q-card-section>
@@ -32,20 +35,18 @@
           </q-expansion-item>
         </div>
 
-        <!-- Right Column -->
         <div class="faqs-column" role="listitem">
           <q-expansion-item
             v-for="(faq, index) in rightFaqs"
             :key="index"
             :label="faq.question"
             class="faq-item"
-            dark
             expand-icon="add"
-            expanded-icon="close"
+            expanded-icon="remove"
             header-class="faq-header"
             :aria-label="`Question: ${faq.question}`"
           >
-            <q-card dark class="faq-card">
+            <q-card class="faq-card">
               <q-card-section class="faq-answer">
                 {{ faq.answer }}
               </q-card-section>
@@ -128,98 +129,102 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// Color Palette Variables
-$dark-green: #1b4332;
 $primary-green: #2e5d3e;
-$light-green: #9ec98f;
-$brown: #6b5344;
+$mint-bg: #e8f0e0;
+$ink: #14241a;
+$muted: #5b6b5f;
+$border: #e6ebe1;
 $white: #ffffff;
 
 .faqs-section {
-  background: $brown;
-  padding: 6rem 0;
-  color: $white;
-  position: relative;
+  background: $white;
+  padding: 5rem 0;
+  color: $ink;
 }
 
 .container-faqs {
-  max-width: 1400px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 0 3rem;
+  padding: 0 2rem;
 }
 
-// Header
 .faqs-header {
   text-align: center;
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
+}
+
+.faqs-tag {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: $primary-green;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 .faqs-title {
-  font-size: 2.25rem;
-  font-weight: 800;
-  color: $white;
-  margin-bottom: 1rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+  font-weight: 600;
+  color: $ink;
+  margin: 0 0 0.85rem;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+
+  em {
+    font-style: italic;
+    font-weight: 600;
+    color: $primary-green;
+  }
 }
 
 .faqs-description {
-  font-size: 1.05rem;
-  color: rgba($white, 0.9);
+  font-size: 0.95rem;
+  color: $muted;
   line-height: 1.7;
-  max-width: 600px;
+  max-width: 540px;
   margin: 0 auto;
 }
 
-// FAQs Grid
 .faqs-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 2.5rem;
-  margin-bottom: 4rem;
+  gap: 0.85rem;
 }
 
 .faqs-column {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.75rem;
 }
 
 .faq-item {
-  background: rgba($white, 0.1);
-  border: 1px solid rgba($white, 0.2);
-  border-radius: 16px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.3s ease;
 
   &:hover {
-    background: rgba($white, 0.15);
-    border-color: rgba($white, 0.3);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-color: rgba($primary-green, 0.35);
+    box-shadow: 0 6px 18px rgba(20, 36, 26, 0.06);
   }
 
   :deep(.q-item) {
-    padding: 1.25rem 1.5rem;
+    padding: 0.95rem 1.25rem;
+    border-radius: 14px;
   }
 
   :deep(.q-item__label) {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: $white;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: $ink;
+    letter-spacing: -0.005em;
   }
 
   :deep(.q-icon) {
-    color: $light-green;
-    font-size: 20px;
-    transition: transform 0.3s ease;
-  }
-
-  &:hover :deep(.q-icon) {
-    transform: scale(1.1);
+    color: $primary-green;
+    font-size: 18px;
   }
 }
 
@@ -229,13 +234,12 @@ $white: #ffffff;
 }
 
 .faq-answer {
-  padding: 0 1.5rem 1.5rem;
-  font-size: 0.95rem;
-  color: rgba($white, 0.85);
-  line-height: 1.7;
+  padding: 0 1.25rem 1.1rem;
+  font-size: 0.88rem;
+  color: $muted;
+  line-height: 1.65;
 }
 
-// Responsive
 @media (max-width: 1023px) {
   .faqs-section {
     padding: 4rem 0;
@@ -243,11 +247,6 @@ $white: #ffffff;
 
   .faqs-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .faqs-title {
-    font-size: 1.75rem;
   }
 }
 
@@ -256,34 +255,26 @@ $white: #ffffff;
     padding: 3rem 0;
   }
 
+  .container-faqs {
+    padding: 0 1.25rem;
+  }
+
+  .hide-mobile {
+    display: none;
+  }
+
   .faqs-header {
     margin-bottom: 2rem;
   }
 
-  .faqs-title {
-    font-size: 1.5rem;
-  }
-
-  .faqs-grid {
-    margin-bottom: 3rem;
-  }
-
-  .cta-title {
-    font-size: 1.25rem;
-  }
-
-  .cta-description {
-    font-size: 0.875rem;
-  }
-
   .faq-item {
     :deep(.q-item__label) {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
     }
   }
 
   .faq-answer {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
   }
 }
 </style>

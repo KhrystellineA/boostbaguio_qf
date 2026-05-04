@@ -1,78 +1,92 @@
 <template>
   <footer class="footer">
-    <!-- Contact CTA Button -->
-    <div class="contact-cta-bar">
-      <div class="container-cta">
-        <p class="cta-text">Have questions or feedback? We'd love to hear from you!</p>
-        <q-btn
-          label="Contact Us"
-          unelevated
-          rounded
-          class="contact-cta-btn"
-          @click="openContactDialog"
-        />
-      </div>
-    </div>
+    <!-- Dark CTA card -->
+    <section class="contact-cta-card-section">
+      <div class="contact-cta-card">
+        <div class="cta-bg" aria-hidden="true" />
+        <div class="cta-overlay" aria-hidden="true" />
+        <div class="cta-inner">
+          <p class="cta-eyebrow">DO YOU NEED OUR HELP?</p>
+          <h2 class="cta-title">
+            Contact us for help
+            <br class="hide-mobile" />
+            or <em>information</em>
+          </h2>
+          <p class="cta-text">We can reach you through the button below.</p>
 
-    <!-- Contact Section -->
-    <section class="contact-section">
-      <div class="container-contact">
-        <div class="contact-grid">
-          <!-- Email -->
-          <div class="contact-item">
-            <div class="contact-icon">
-              <q-icon name="email" size="48px" />
-            </div>
-            <h3 class="contact-title">EMAIL</h3>
-            <p class="contact-description">
-              We'd love to hear from you! Share your thoughts or questions.
-            </p>
-            <a href="mailto:contact@boostbaguio.com" class="contact-link">
-              contact@boostbaguio.com
-            </a>
-          </div>
-
-          <!-- Phone -->
-          <div class="contact-item">
-            <div class="contact-icon">
-              <q-icon name="phone" size="48px" />
-            </div>
-            <h3 class="contact-title">PHONE</h3>
-            <p class="contact-description">Reach us anytime for assistance or inquiries.</p>
-            <a href="tel:+639266321140" class="contact-link"> +63 926 632 1140 </a>
-          </div>
-
-          <!-- Office -->
-          <div class="contact-item">
-            <div class="contact-icon">
-              <q-icon name="location_on" size="48px" />
-            </div>
-            <h3 class="contact-title">OFFICE</h3>
-            <p class="contact-description">Visit us for support or collaboration opportunities.</p>
-            <a href="#" class="contact-link"> Baguio City, PH </a>
+          <div class="cta-form">
+            <q-input
+              v-model="email"
+              outlined
+              dense
+              placeholder="Enter your email"
+              class="cta-input"
+              bg-color="transparent"
+            />
+            <q-btn label="Submit" unelevated class="cta-submit" @click="openContactDialog" />
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Main Footer Section -->
+    <!-- Contact Section -->
+    <section class="contact-section">
+      <div class="container-contact">
+        <div class="contact-grid">
+          <div class="contact-item">
+            <div class="contact-icon"><q-icon name="email" size="18px" /></div>
+            <div>
+              <h3 class="contact-title">Email</h3>
+              <a href="mailto:contact@boostbaguio.com" class="contact-link">
+                contact@boostbaguio.com
+              </a>
+              <p class="contact-description">
+                We'd love to hear from you! Share your thoughts or questions.
+              </p>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-icon"><q-icon name="phone" size="18px" /></div>
+            <div>
+              <h3 class="contact-title">Phone</h3>
+              <a href="tel:+639266321140" class="contact-link">+63 926 632 1140</a>
+              <p class="contact-description">Reach us anytime for assistance or inquiries.</p>
+            </div>
+          </div>
+
+          <div class="contact-item">
+            <div class="contact-icon"><q-icon name="location_on" size="18px" /></div>
+            <div>
+              <h3 class="contact-title">Office</h3>
+              <a href="#" class="contact-link">Baguio City, PH</a>
+              <p class="contact-description">
+                Visit us for support or collaboration opportunities.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Footer -->
     <section class="main-footer">
       <div class="container-footer">
         <div class="footer-grid">
-          <!-- Newsletter Section -->
-          <div class="footer-newsletter">
+          <!-- Brand + Newsletter -->
+          <div class="footer-brand-block">
             <div class="footer-logo">
               <img src="../../assets/logo.png" alt="Boost Baguio Logo" class="logo-img" />
+              <span class="brand-name">Boost Baguio</span>
             </div>
             <p class="newsletter-text">Join our newsletter for the latest updates and features.</p>
             <div class="newsletter-form">
               <q-input
-                v-model="email"
+                v-model="newsletterEmail"
                 outlined
                 dense
-                placeholder="Enter your email"
+                placeholder="Your email"
                 class="email-input"
-                dark
                 bg-color="transparent"
               />
               <q-btn label="Subscribe" unelevated class="subscribe-btn" @click="handleSubscribe" />
@@ -83,15 +97,23 @@
           </div>
         </div>
 
-        <!-- Footer Bottom -->
         <div class="footer-bottom">
-          <div class="footer-bottom-content">
-            <p class="copyright">© 2025 Boost Baguio. All rights reserved.</p>
-            <div class="footer-bottom-links">
-              <a href="#privacy">Privacy Policy</a>
-              <a href="#terms">Terms of Service</a>
-              <a href="#cookies">Cookies Settings</a>
-            </div>
+          <p class="copyright">© 2025 Boost Baguio. All rights reserved.</p>
+          <div class="footer-bottom-links">
+            <a href="#privacy">Privacy Policy</a>
+            <a href="#terms">Terms of Service</a>
+            <a href="#cookies">Cookies Settings</a>
+          </div>
+          <div class="footer-social">
+            <a href="#" aria-label="Facebook" class="social-icon"
+              ><q-icon name="facebook" size="18px"
+            /></a>
+            <a href="#" aria-label="Twitter" class="social-icon"
+              ><q-icon name="public" size="18px"
+            /></a>
+            <a href="#" aria-label="Instagram" class="social-icon"
+              ><q-icon name="photo_camera" size="18px"
+            /></a>
           </div>
         </div>
       </div>
@@ -107,12 +129,12 @@ export default {
   emits: ['open-contact'],
   setup() {
     const email = ref('')
+    const newsletterEmail = ref('')
 
     const handleSubscribe = () => {
-      if (email.value) {
-        console.log('Subscribing email:', email.value)
-        // Add subscription logic here
-        email.value = ''
+      if (newsletterEmail.value) {
+        console.log('Subscribing email:', newsletterEmail.value)
+        newsletterEmail.value = ''
       }
     }
 
@@ -124,6 +146,7 @@ export default {
 
     return {
       email,
+      newsletterEmail,
       handleSubscribe,
       openContactDialog,
     }
@@ -132,401 +155,442 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// Color Palette Variables
 $dark-green: #1b4332;
 $primary-green: #2e5d3e;
-$light-green: #9ec98f;
-$brown: #6b5344;
+$sage: #b8cfa3;
+$mint-bg: #e8f0e0;
+$ink: #14241a;
+$muted: #5b6b5f;
+$border: #e6ebe1;
 $white: #ffffff;
 
-// Contact CTA Bar
-.contact-cta-bar {
-  background: $primary-green;
-  padding: 2.5rem 0;
-  position: relative;
-  overflow: hidden;
+// Dark CTA card
+.contact-cta-card-section {
+  background: $white;
+  padding: 4rem 1.25rem 2.5rem;
 }
 
-.container-cta {
-  max-width: 1400px;
+.contact-cta-card {
+  position: relative;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 3rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 2rem;
-  position: relative;
-  z-index: 1;
+  border-radius: 24px;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 4.5rem 2rem;
+  text-align: center;
+  color: $white;
+  box-shadow: 0 18px 40px rgba(20, 36, 26, 0.18);
 }
 
-.cta-text {
-  color: rgba($white, 0.95);
-  font-size: 1.1rem;
-  margin: 0;
-  font-weight: 400;
-  letter-spacing: 0.02em;
+.cta-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920');
+  background-size: cover;
+  background-position: center;
 }
 
-.contact-cta-btn {
-  background: $white !important;
-  color: $primary-green !important;
+.cta-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(20, 36, 26, 0.7) 0%, rgba(27, 67, 50, 0.78) 100%);
+}
+
+.cta-inner {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.cta-eyebrow {
+  font-size: 0.74rem;
   font-weight: 600;
-  padding: 0.875rem 2.5rem;
-  border-radius: 50px;
-  text-transform: none;
-  font-size: 1rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  white-space: nowrap;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  letter-spacing: 0.2em;
+  color: rgba($white, 0.85);
+  margin: 0 0 1rem;
+}
 
-  &:hover {
-    background: $white !important;
-    transform: translateY(-3px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+.cta-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  font-weight: 600;
+  margin: 0 0 1rem;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  color: $white;
+
+  em {
+    font-style: italic;
+    color: $sage;
+    font-weight: 600;
   }
 }
 
-// Contact Section
+.cta-text {
+  font-size: 0.95rem;
+  color: rgba($white, 0.85);
+  margin: 0 0 1.75rem;
+  line-height: 1.65;
+}
+
+.cta-form {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  padding: 6px;
+  gap: 4px;
+  backdrop-filter: blur(12px);
+  max-width: 480px;
+  width: 100%;
+}
+
+.cta-input {
+  flex: 1;
+
+  :deep(.q-field__control) {
+    background: transparent;
+    border-radius: 999px;
+    padding: 0 1rem;
+    color: $white;
+
+    &:before,
+    &:after {
+      border: none !important;
+    }
+  }
+
+  :deep(input) {
+    color: $white;
+    font-size: 0.9rem;
+
+    &::placeholder {
+      color: rgba($white, 0.6);
+    }
+  }
+}
+
+.cta-submit {
+  background: $sage !important;
+  color: $ink !important;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0 1.5rem;
+  text-transform: none;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: $white !important;
+    transform: translateY(-1px);
+  }
+}
+
+// Contact strip
 .contact-section {
-  background: #1a1a1a;
-  padding: 5rem 0;
+  background: $white;
+  padding: 1rem 0 2rem;
 }
 
 .container-contact {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 3rem;
+  padding: 0 2rem;
 }
 
 .contact-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 4rem;
+  gap: 1.5rem;
 }
 
 .contact-item {
-  text-align: center;
-  color: $white;
-  padding: 2rem;
-  border-radius: 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid $border;
+  border-radius: 14px;
+  background: $white;
   transition: all 0.3s ease;
 
   &:hover {
-    background: rgba($white, 0.03);
-    transform: translateY(-4px);
+    border-color: rgba($primary-green, 0.35);
+    box-shadow: 0 6px 16px rgba(20, 36, 26, 0.06);
   }
 }
 
 .contact-icon {
-  margin-bottom: 1.5rem;
-  color: $white;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 72px;
-  height: 72px;
   border-radius: 50%;
-  background: rgba($primary-green, 0.2);
-  transition: all 0.3s ease;
-
-  .contact-item:hover & {
-    background: rgba($primary-green, 0.3);
-    transform: scale(1.1);
-  }
+  background: $mint-bg;
+  color: $primary-green;
 }
 
 .contact-title {
-  font-size: 1rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: $white;
-  margin-bottom: 1rem;
-  letter-spacing: 0.15em;
+  color: $primary-green;
+  margin: 0 0 0.2rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
-.contact-description {
-  font-size: 0.9rem;
-  color: rgba($white, 0.75);
-  line-height: 1.7;
-  margin-bottom: 1.25rem;
-  max-width: 300px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 .contact-link {
-  font-size: 0.95rem;
-  color: $light-green;
+  font-size: 0.92rem;
+  color: $ink;
   text-decoration: none;
-  transition: all 0.3s ease;
-  font-weight: 500;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.25rem;
 
   &:hover {
-    color: $white;
+    color: $primary-green;
     text-decoration: underline;
   }
 }
 
-// Main Footer Section
+.contact-description {
+  font-size: 0.8rem;
+  color: $muted;
+  line-height: 1.55;
+  margin: 0;
+}
+
+// Main Footer
 .main-footer {
-  background: $dark-green;
-  padding: 4rem 0 2rem;
+  background: $white;
+  padding: 3rem 0 2rem;
+  border-top: 1px solid $border;
 }
 
 .container-footer {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 0 3rem;
+  padding: 0 2rem;
 }
 
 .footer-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 3rem;
-  margin-bottom: 3rem;
-  padding-bottom: 3rem;
-  border-bottom: 1px solid rgba($white, 0.15);
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 
-// Newsletter
-.footer-newsletter {
-  max-width: 450px;
+.footer-brand-block {
+  max-width: 460px;
   margin: 0 auto;
   text-align: center;
 }
 
 .footer-logo {
-  margin-bottom: 1.5rem;
   display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
 
   .logo-img {
-    height: 56px;
+    height: 32px;
     width: auto;
-    filter: brightness(0) invert(1);
+  }
+
+  .brand-name {
+    font-family: 'Georgia', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: $ink;
+    letter-spacing: -0.01em;
   }
 }
 
 .newsletter-text {
-  font-size: 1rem;
-  color: rgba($white, 0.85);
-  line-height: 1.7;
-  margin-bottom: 1.5rem;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
+  font-size: 0.88rem;
+  color: $muted;
+  line-height: 1.6;
+  margin: 0 0 1rem;
 }
 
 .newsletter-form {
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1.25rem;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
+  align-items: center;
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 999px;
+  padding: 4px;
+  gap: 4px;
+  margin: 0 auto 0.75rem;
+  max-width: 380px;
 }
 
 .email-input {
   flex: 1;
 
   :deep(.q-field__control) {
-    border-radius: 10px;
-    border: 1px solid rgba($white, 0.25);
-    color: $white;
-    background: rgba($white, 0.05);
+    background: transparent;
+    border-radius: 999px;
+    padding: 0 0.85rem;
 
-    &:before {
-      border: none;
-    }
-
-    &:hover {
-      background: rgba($white, 0.08);
-      border-color: rgba($white, 0.4);
-    }
-
-    &.q-field--focused {
-      background: rgba($white, 0.1);
-      border-color: $light-green;
+    &:before,
+    &:after {
+      border: none !important;
     }
   }
 
   :deep(input) {
-    color: $white;
+    color: $ink;
+    font-size: 0.85rem;
 
     &::placeholder {
-      color: rgba($white, 0.4);
+      color: rgba($ink, 0.45);
     }
   }
 }
 
 .subscribe-btn {
-  background: $light-green !important;
-  color: $dark-green !important;
+  background: $primary-green !important;
+  color: $white !important;
   font-weight: 600;
-  padding: 0 1.75rem;
-  border-radius: 10px;
+  border-radius: 999px;
+  padding: 0 1.1rem;
   text-transform: none;
   white-space: nowrap;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  font-size: 0.82rem;
 
   &:hover {
-    background: $white !important;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    background: $dark-green !important;
   }
 }
 
 .privacy-notice {
-  font-size: 0.8rem;
-  color: rgba($white, 0.5);
-  line-height: 1.6;
+  font-size: 0.74rem;
+  color: $muted;
+  line-height: 1.55;
+  margin: 0;
 }
 
 // Footer Bottom
 .footer-bottom {
   display: flex;
-  justify-content: center;
-  padding-top: 2rem;
-}
-
-.footer-bottom-content {
-  display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: space-between;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid $border;
 }
 
 .copyright {
-  font-size: 0.9rem;
-  color: rgba($white, 0.6);
+  font-size: 0.78rem;
+  color: $muted;
   margin: 0;
 }
 
 .footer-bottom-links {
   display: flex;
-  gap: 2rem;
+  gap: 1.25rem;
 
   a {
-    font-size: 0.9rem;
-    color: rgba($white, 0.7);
+    font-size: 0.78rem;
+    color: $muted;
     text-decoration: none;
-    transition: all 0.3s ease;
-    position: relative;
-
-    &::after {
-      content: '';
-      position: absolute;
-      bottom: -4px;
-      left: 0;
-      width: 0;
-      height: 1px;
-      background: $light-green;
-      transition: width 0.3s ease;
-    }
 
     &:hover {
-      color: $white;
-
-      &::after {
-        width: 100%;
-      }
+      color: $primary-green;
     }
+  }
+}
+
+.footer-social {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.social-icon {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: $mint-bg;
+  color: $primary-green;
+  text-decoration: none;
+  transition: all 0.25s ease;
+
+  &:hover {
+    background: $primary-green;
+    color: $white;
+    transform: translateY(-2px);
   }
 }
 
 // Responsive
 @media (max-width: 1023px) {
-  .container-cta {
-    flex-direction: column;
-    text-align: center;
-    gap: 1.5rem;
-  }
-
-  .contact-cta-btn {
-    width: 100%;
-    max-width: 280px;
-  }
-
   .contact-grid {
     grid-template-columns: 1fr;
-    gap: 3rem;
   }
 
-  .footer-newsletter {
-    max-width: 100%;
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
   }
 
-  .newsletter-form {
+  .footer-brand-block {
     max-width: 100%;
   }
 }
 
 @media (max-width: 599px) {
-  .contact-cta-bar {
-    padding: 2rem 0;
+  .contact-cta-card-section {
+    padding: 2.5rem 1rem 1.5rem;
   }
 
-  .container-cta {
-    padding: 0 2rem;
+  .contact-cta-card {
+    padding: 3rem 1.25rem;
+    border-radius: 18px;
   }
 
-  .cta-text {
-    font-size: 1rem;
-  }
-
-  .contact-section {
-    padding: 4rem 0;
-  }
-
-  .container-contact {
-    padding: 0 2rem;
-  }
-
-  .contact-grid {
-    gap: 2rem;
-  }
-
-  .contact-icon {
-    width: 64px;
-    height: 64px;
-  }
-
-  .main-footer {
-    padding: 3rem 0 1.5rem;
-  }
-
-  .container-footer {
-    padding: 0 2rem;
-  }
-
-  .footer-grid {
-    gap: 2.5rem;
-    margin-bottom: 2.5rem;
-    padding-bottom: 2.5rem;
-  }
-
-  .footer-newsletter {
-    max-width: 100%;
-  }
-
-  .newsletter-form {
+  .cta-form {
     flex-direction: column;
-    max-width: 100%;
+    border-radius: 18px;
+    padding: 8px;
+    gap: 8px;
   }
 
-  .subscribe-btn {
+  .cta-input {
     width: 100%;
   }
 
-  .footer-bottom-content {
-    gap: 1rem;
+  .cta-submit {
+    width: 100%;
+    padding: 0.6rem 1rem;
   }
 
-  .footer-bottom-links {
+  .container-contact {
+    padding: 0 1.25rem;
+  }
+
+  .container-footer {
+    padding: 0 1.25rem;
+  }
+
+  .hide-mobile {
+    display: none;
+  }
+
+  .footer-bottom {
     flex-direction: column;
-    gap: 0.75rem;
     align-items: center;
+    text-align: center;
   }
 }
 </style>

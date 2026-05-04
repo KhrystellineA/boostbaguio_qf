@@ -1,42 +1,40 @@
 <template>
   <q-page class="maykan-page">
     <!-- HERO SECTION -->
-    <section class="hero-section" :style="{ backgroundImage: `url(${heroImageUrl})` }">
-      <div class="hero-overlay">
-        <div class="hero-content animate-fade-in">
-          <div class="hero-badge">
-            <q-icon name="location_on" size="16px" class="q-mr-xs" />
-            Baguio Places & Spots
-          </div>
-          <h1 class="hero-title">MAYKAN</h1>
+    <section class="maykan-hero">
+      <div class="hero-card" :style="{ backgroundImage: `url(${heroImageUrl})` }">
+        <div class="hero-overlay-grad" />
+        <div class="hero-inner animate-fade-in">
+          <span class="hero-tag">
+            <q-icon name="location_on" size="14px" />
+            Baguio Places &amp; Spots
+          </span>
+          <h1 class="hero-title">
+            <em>Maykan</em>
+          </h1>
           <p class="hero-description">
             Discover Baguio's gems — from iconic landmarks to hidden spots. Curated tourist
             destinations, cafes, restaurants, parks, and cultural sites with integrated navigation.
           </p>
           <div class="hero-chips">
-            <q-chip square color="white" text-color="primary" size="sm" icon="location_on"
-              >Tourist Spots</q-chip
+            <span class="hero-chip"><q-icon name="location_on" size="14px" /> Tourist Spots</span>
+            <span class="hero-chip"
+              ><q-icon name="restaurant" size="14px" /> Cafes &amp; Restaurants</span
             >
-            <q-chip square color="white" text-color="primary" size="sm" icon="restaurant"
-              >Cafes & Restaurants</q-chip
-            >
-            <q-chip square color="white" text-color="primary" size="sm" icon="park"
-              >Parks & Nature</q-chip
-            >
-            <q-chip square color="white" text-color="primary" size="sm" icon="museum"
-              >Cultural Sites</q-chip
-            >
+            <span class="hero-chip"><q-icon name="park" size="14px" /> Parks &amp; Nature</span>
+            <span class="hero-chip"><q-icon name="museum" size="14px" /> Cultural Sites</span>
           </div>
         </div>
       </div>
     </section>
 
     <!-- PHOTO CAROUSEL SECTION (Section 3) -->
-    <section class="carousel-section bg-white q-py-xl">
+    <section class="carousel-section">
       <div class="container">
-        <div class="text-center q-mb-lg">
-          <h2 class="text-h4 text-weight-bold text-primary">Top Tourist Destinations</h2>
-          <p class="text-body2 text-grey-7">Swipe through Baguio's most visited places</p>
+        <div class="section-eyebrow text-center">
+          <p class="eyebrow-text">TOP DESTINATIONS</p>
+          <h2 class="eyebrow-title">Baguio's most <em>visited</em> places</h2>
+          <p class="eyebrow-description">Swipe through the city's must-see spots.</p>
         </div>
 
         <div class="carousel-container">
@@ -148,39 +146,35 @@
     </section>
 
     <!-- "SA BAGUIO" FACEBOOK GROUP BANNER (Section 3) -->
-    <section class="community-ribbon bg-secondary text-white">
+    <section class="community-ribbon-section">
       <div class="container">
-        <div class="row items-center justify-between">
-          <div class="col-md-8 col-12 q-pa-md">
-            <div class="text-h6 text-weight-bold">Want more organic content?</div>
-            <p class="text-body2">
-              Visit Sa Baguio Facebook group to see more personal and unique suggestions and
-              experiences!
+        <div class="community-ribbon">
+          <div class="ribbon-text">
+            <p class="ribbon-eyebrow">COMMUNITY</p>
+            <h3 class="ribbon-title">Want more <em>organic</em> content?</h3>
+            <p class="ribbon-description">
+              Visit Sa Baguio Facebook group for more personal suggestions and experiences.
             </p>
           </div>
-          <div class="col-md-4 col-12 q-pa-md text-right">
-            <q-btn
-              label="Sa Baguio!"
-              unelevated
-              color="white"
-              text-color="dark"
-              padding="10px 28px"
-              class="btn-hover-lift"
-              icon-right="open_in_new"
-              @click="openSaBaguioGroup"
-            />
-          </div>
+          <q-btn
+            label="Sa Baguio!"
+            unelevated
+            class="ribbon-btn"
+            icon-right="open_in_new"
+            @click="openSaBaguioGroup"
+          />
         </div>
       </div>
     </section>
 
     <!-- PLACES SECTION (Section 4) -->
-    <section id="places" class="places-section bg-grey-1 q-py-xl">
+    <section id="places" class="places-section">
       <div class="container">
-        <div class="text-center q-mb-xl">
-          <h2 class="text-h3 text-weight-bold text-primary">Discover Baguio's Places</h2>
-          <p class="text-body1">
-            Browse our curated collection of tourist spots, cafes, parks, and more
+        <div class="section-eyebrow text-center">
+          <p class="eyebrow-text">EXPLORE PLACES</p>
+          <h2 class="eyebrow-title">Discover <em>Baguio's</em> places</h2>
+          <p class="eyebrow-description">
+            Browse our curated collection of tourist spots, cafes, parks, and more.
           </p>
         </div>
 
@@ -461,9 +455,10 @@
     <!-- FAQS SECTION (Section 7) -->
     <section class="faqs-section">
       <div class="container-faqs">
-        <div class="faqs-header">
-          <h2 class="faqs-title">MAYKAN FAQs</h2>
-          <p class="faqs-description">Common questions about discovering places in Baguio</p>
+        <div class="section-eyebrow text-center">
+          <p class="eyebrow-text">QUESTIONS &amp; ANSWERS</p>
+          <h2 class="eyebrow-title"><em>Maykan</em> FAQs</h2>
+          <p class="eyebrow-description">Common questions about discovering places in Baguio.</p>
         </div>
         <div class="faqs-grid">
           <div class="faqs-column">
@@ -472,12 +467,11 @@
               :key="index"
               :label="faq.question"
               class="faq-item"
-              dark
               expand-icon="add"
-              expanded-icon="close"
+              expanded-icon="remove"
               header-class="faq-header"
             >
-              <q-card dark class="faq-card">
+              <q-card class="faq-card" flat>
                 <q-card-section class="faq-answer">
                   {{ faq.answer }}
                 </q-card-section>
@@ -490,12 +484,11 @@
               :key="index"
               :label="faq.question"
               class="faq-item"
-              dark
               expand-icon="add"
-              expanded-icon="close"
+              expanded-icon="remove"
               header-class="faq-header"
             >
-              <q-card dark class="faq-card">
+              <q-card class="faq-card" flat>
                 <q-card-section class="faq-answer">
                   {{ faq.answer }}
                 </q-card-section>
@@ -977,85 +970,157 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-// Color Variables
+// Color Palette — aligned with home page
 $dark-green: #1b4332;
 $primary-green: #2e5d3e;
 $light-green: #9ec98f;
+$sage: #b8cfa3;
+$mint-bg: #e8f0e0;
 $soft-green: #e8f5e9;
 $mint-cream: #f1f8f4;
-$blush-pink: #fce4ec;
+$ink: #14241a;
+$muted: #5b6b5f;
+$border: #e6ebe1;
 $white: #ffffff;
 $brown: #6b5344;
-$glass-bg: rgba(255, 255, 255, 0.85);
-$glass-border: rgba(255, 255, 255, 0.3);
-$bento-radius: 20px;
+
+$bento-radius: 18px;
+$bento-shadow: 0 6px 18px rgba(20, 36, 26, 0.06);
+$bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
 
 .maykan-page {
-  background: linear-gradient(180deg, $mint-cream 0%, $white 100%) !important;
+  background: $white !important;
   min-height: 100vh;
 }
 
-.hero-section {
-  min-height: 50vh;
+/* Section eyebrow — shared header */
+.section-eyebrow {
+  margin-bottom: 2.25rem;
+
+  &.text-center {
+    text-align: center;
+  }
+}
+
+.eyebrow-text {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: $primary-green;
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.eyebrow-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(1.7rem, 3.2vw, 2.3rem);
+  font-weight: 600;
+  color: $ink;
+  margin: 0 0 0.75rem;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+
+  em {
+    font-style: italic;
+    font-weight: 600;
+    color: $primary-green;
+  }
+}
+
+.eyebrow-description {
+  font-size: 0.95rem;
+  color: $muted;
+  line-height: 1.7;
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+/* HERO — rounded card */
+.maykan-hero {
+  width: 100%;
+  padding: 1.25rem 1.25rem 2rem;
+  background: $white;
+}
+
+.hero-card {
+  position: relative;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  height: clamp(420px, 58vh, 560px);
+  border-radius: 24px;
+  overflow: hidden;
+  isolation: isolate;
   background-size: cover;
   background-position: center;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  box-shadow: 0 20px 50px rgba(20, 36, 26, 0.18);
 }
 
-.hero-overlay {
+.hero-overlay-grad {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4) 0%, rgba(27, 67, 50, 0.7) 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.hero-content {
-  text-align: center;
-  color: white;
-  max-width: 700px;
-  padding: 2rem 1.5rem;
-  position: relative;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 36, 26, 0.45) 0%,
+    rgba(20, 36, 26, 0.2) 50%,
+    rgba(20, 36, 26, 0.65) 100%
+  );
   z-index: 1;
 }
 
-.hero-badge {
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 5%;
+  color: $white;
+}
+
+.hero-tag {
   display: inline-flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 20px;
-  padding: 6px 16px;
-  font-size: 0.8rem;
+  gap: 7px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 999px;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
+  color: $white;
+  backdrop-filter: blur(8px);
+  margin-bottom: 1.25rem;
 }
 
 .hero-title {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  color: white;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(2.4rem, 6vw, 4.5rem);
+  font-weight: 700;
+  color: $white;
+  margin: 0 0 1rem;
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+
+  em {
+    font-style: italic;
+    color: $sage;
+    font-weight: 700;
+  }
 }
 
 .hero-description {
-  font-size: 1.05rem;
-  margin: 0 auto 1.25rem;
-  opacity: 0.92;
-  line-height: 1.6;
-  max-width: 560px;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgba($white, 0.94);
+  margin: 0 auto 1.75rem;
+  max-width: 600px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.3);
 }
 
 .hero-chips {
@@ -1063,18 +1128,30 @@ $bento-radius: 20px;
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
+}
 
-  .q-chip {
-    opacity: 0.9;
-    font-weight: 500;
+.hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: $primary-green;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .q-icon {
+    color: $primary-green;
   }
 }
 
-/* Carousel Section Styles */
+/* Carousel Section */
 .carousel-section {
-  background: $glass-bg;
-  backdrop-filter: blur(20px);
-  padding: 3rem 0;
+  background: $white;
+  padding: 4rem 0;
 }
 
 .carousel-container {
@@ -1108,12 +1185,7 @@ $bento-radius: 20px;
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(
-    to top,
-    rgba($dark-green, 0.95) 0%,
-    rgba($dark-green, 0.7) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(to top, rgba($ink, 0.92) 0%, rgba($ink, 0.6) 60%, transparent 100%);
   padding: 80px 24px 24px;
   display: flex;
   align-items: flex-end;
@@ -1126,16 +1198,18 @@ $bento-radius: 20px;
 }
 
 .slide-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin-bottom: 0.25rem;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.85rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  letter-spacing: -0.01em;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .slide-area {
-  font-size: 1rem;
-  opacity: 0.95;
-  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  opacity: 0.92;
+  margin-bottom: 1rem;
   display: flex;
   align-items: center;
 }
@@ -1149,8 +1223,9 @@ $bento-radius: 20px;
   gap: 10px;
 
   :deep(.q-btn) {
-    border-radius: 12px;
+    border-radius: 999px;
     font-weight: 600;
+    text-transform: none;
   }
 }
 
@@ -1169,23 +1244,21 @@ $bento-radius: 20px;
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
-  opacity: 0.6;
+  opacity: 0.55;
   transition: all 0.3s ease;
   border: 2px solid transparent;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 
   &:hover {
     opacity: 0.85;
-    transform: scale(1.08);
-    box-shadow: 0 4px 16px rgba($primary-green, 0.2);
+    transform: translateY(-2px);
   }
 }
 
 .indicator-item.active {
   opacity: 1;
   border-color: $primary-green;
-  transform: scale(1.12);
-  box-shadow: 0 4px 16px rgba($primary-green, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba($primary-green, 0.25);
 }
 
 .indicator-image {
@@ -1201,44 +1274,106 @@ $bento-radius: 20px;
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 2rem;
+}
+
+/* Community ribbon — clean, mint-green card */
+.community-ribbon-section {
+  background: $white;
+  padding: 1rem 0 3rem;
 }
 
 .community-ribbon {
-  padding: 2.5rem 0;
-  background: linear-gradient(135deg, $brown 0%, adjust-color($brown, $lightness: -8%) 100%);
-  border-radius: $bento-radius;
-  margin: 2rem auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: $mint-bg;
+  border: 1px solid rgba($primary-green, 0.18);
+  border-radius: 22px;
+  padding: 2rem 2.25rem;
   max-width: 1100px;
-  box-shadow: 0 8px 24px rgba($brown, 0.2);
+  margin: 0 auto;
+}
+
+.ribbon-text {
+  flex: 1 1 320px;
+}
+
+.ribbon-eyebrow {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: $primary-green;
+  margin: 0 0 0.4rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.ribbon-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: $ink;
+  margin: 0 0 0.4rem;
+  letter-spacing: -0.005em;
+  line-height: 1.25;
+
+  em {
+    font-style: italic;
+    color: $primary-green;
+    font-weight: 600;
+  }
+}
+
+.ribbon-description {
+  font-size: 0.92rem;
+  color: $muted;
+  margin: 0;
+  line-height: 1.55;
+}
+
+.ribbon-btn {
+  background: $primary-green !important;
+  color: $white !important;
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 0.65rem 1.5rem;
+  text-transform: none;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: $dark-green !important;
+    transform: translateY(-2px);
+  }
 }
 
 .places-section {
   padding: 4rem 0;
-  background: transparent;
+  background: $white;
 }
 
-// Bento Grid for Places
+/* Places grid */
 .places-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
-  padding: 0 10px;
+  gap: 1.5rem;
 }
 
 .place-card {
-  background: $glass-bg;
-  backdrop-filter: blur(20px);
+  background: $white;
   border-radius: $bento-radius;
-  border: 1px solid $glass-border;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid $border;
+  box-shadow: $bento-shadow;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
+  position: relative;
 
   &:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 32px rgba($primary-green, 0.15);
+    transform: translateY(-4px);
+    box-shadow: $bento-shadow-hover;
     border-color: rgba($primary-green, 0.3);
   }
 
@@ -1248,7 +1383,15 @@ $bento-radius: 20px;
   }
 
   :deep(.q-card__section) {
-    padding: 20px;
+    padding: 1.25rem;
+  }
+
+  :deep(.text-h6) {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 1.15rem !important;
+    font-weight: 600 !important;
+    color: $ink !important;
+    letter-spacing: -0.005em;
   }
 }
 
@@ -1291,9 +1434,14 @@ $bento-radius: 20px;
   z-index: 10;
 
   :deep(.q-badge) {
-    border-radius: 12px;
-    padding: 6px 12px;
+    border-radius: 999px;
+    padding: 5px 12px;
     font-weight: 600;
+    background: rgba(255, 255, 255, 0.92) !important;
+    color: $primary-green !important;
+    border: 1px solid rgba($primary-green, 0.18);
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
     backdrop-filter: blur(8px);
   }
 }
@@ -1315,8 +1463,9 @@ $bento-radius: 20px;
 .place-detail-card {
   border-radius: $bento-radius;
   overflow: hidden;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
-  border: 1px solid $glass-border;
+  box-shadow: 0 16px 48px rgba(20, 36, 26, 0.18);
+  border: 1px solid $border;
+  background: $white;
 }
 
 .modal-image {
@@ -1325,108 +1474,62 @@ $bento-radius: 20px;
   object-fit: cover;
 }
 
-// FAQ Section with Glassmorphism
-$faqs-bg: $brown;
-
+/* FAQ Section — light, matches home */
 .faqs-section {
-  background: linear-gradient(135deg, $faqs-bg 0%, adjust-color($faqs-bg, $lightness: -10%) 100%);
+  background: $white;
   padding: 5rem 0;
-  color: $white;
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    pointer-events: none;
-  }
+  color: $ink;
+  border-top: 1px solid $border;
 }
 
 .container-faqs {
-  max-width: 1400px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 0 32px;
-  position: relative;
-  z-index: 1;
-}
-
-.faqs-header {
-  text-align: center;
-  margin-bottom: 4rem;
-}
-
-.faqs-title {
-  font-size: 2.25rem;
-  font-weight: 800;
-  color: $white;
-  margin-bottom: 1rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
-}
-
-.faqs-description {
-  font-size: 1.05rem;
-  color: rgba($white, 0.9);
-  line-height: 1.7;
-  max-width: 600px;
-  margin: 0 auto;
+  padding: 0 2rem;
 }
 
 .faqs-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
-  margin-bottom: 4rem;
+  gap: 0.85rem;
 }
 
 .faqs-column {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 0.75rem;
 }
 
 .faq-item {
-  background: rgba($white, 0.1);
-  border: 1px solid rgba($white, 0.2);
-  border-radius: $bento-radius;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
+  background: $white;
+  border: 1px solid $border;
+  border-radius: 14px;
   overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
-    background: rgba($white, 0.15);
-    border-color: rgba($white, 0.3);
-    transform: translateY(-4px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    border-color: rgba($primary-green, 0.35);
+    box-shadow: 0 6px 18px rgba(20, 36, 26, 0.06);
   }
 
   :deep(.q-item) {
-    padding: 18px 24px;
-    min-height: 70px;
+    padding: 0.95rem 1.25rem;
+    min-height: auto;
+    border-radius: 14px;
   }
 
   :deep(.q-item__label) {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: $white;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: $ink;
+    text-transform: none;
+    letter-spacing: -0.005em;
     line-height: 1.4;
   }
 
   :deep(.q-icon) {
-    color: $light-green;
-    font-size: 22px;
-    transition: transform 0.3s ease;
-  }
-
-  &:hover :deep(.q-icon) {
-    transform: scale(1.15) rotate(90deg);
+    color: $primary-green;
+    font-size: 18px;
   }
 
   :deep(.q-expansion-item__content) {
@@ -1440,14 +1543,15 @@ $faqs-bg: $brown;
 }
 
 .faq-answer {
-  padding: 0 24px 24px;
-  font-size: 0.95rem;
-  color: rgba($white, 0.9);
-  line-height: 1.8;
+  padding: 0 1.25rem 1.1rem;
+  font-size: 0.88rem;
+  color: $muted;
+  line-height: 1.65;
 }
 
+/* Color overrides for Quasar utilities scoped to this page */
 .bg-primary {
-  background: linear-gradient(135deg, $primary-green 0%, $dark-green 100%) !important;
+  background: $primary-green !important;
 }
 
 .text-primary {
@@ -1469,7 +1573,7 @@ $faqs-bg: $brown;
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -1477,44 +1581,89 @@ $faqs-bg: $brown;
   }
 }
 
+.category-filter-section {
+  margin-bottom: 2.5rem;
+}
+
 .category-btn {
-  border-radius: 25px !important;
+  border-radius: 999px !important;
   text-transform: none;
   font-weight: 600;
   transition: all 0.3s ease;
   font-size: 0.85rem;
-  padding: 10px 20px !important;
+  padding: 9px 20px !important;
+  margin: 4px;
 
   &:not(.q-btn--unelevated) {
-    border: 2px solid $primary-green;
+    border: 1px solid $border;
+    color: $ink !important;
+  }
+
+  &.q-btn--unelevated {
+    background: $primary-green !important;
+    color: $white !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .carousel-section,
+  .places-section {
+    padding: 3rem 0;
+  }
+
+  .faqs-section {
+    padding: 4rem 0;
+  }
+
+  .faqs-grid {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
-  .hero-section {
-    min-height: 45vh;
+  .maykan-hero {
+    padding: 0.75rem 0.75rem 1.5rem;
+  }
+
+  .hero-card {
+    height: clamp(420px, 60vh, 560px);
+    border-radius: 20px;
   }
 
   .hero-title {
-    font-size: 2.2rem;
+    font-size: 2.4rem;
   }
 
   .hero-description {
     font-size: 0.95rem;
   }
 
-  .hero-chips .q-chip {
-    font-size: 0.7rem;
+  .hero-chip {
+    font-size: 0.72rem;
+    padding: 6px 12px;
+  }
+
+  .container,
+  .container-faqs {
+    padding: 0 1.25rem;
+  }
+
+  .community-ribbon {
+    padding: 1.5rem;
+    border-radius: 18px;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .ribbon-btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .places-grid {
     grid-template-columns: 1fr;
-    gap: 16px;
-    padding: 0 12px;
-  }
-
-  .place-card {
-    min-height: auto;
+    gap: 1rem;
   }
 
   .place-image {
@@ -1527,16 +1676,12 @@ $faqs-bg: $brown;
     min-width: 44px !important;
   }
 
-  .carousel-section {
-    padding: 2rem 0;
-  }
-
   .carousel-image {
     height: 320px;
   }
 
   .slide-title {
-    font-size: 1.35rem;
+    font-size: 1.4rem;
   }
 
   .slide-actions {
@@ -1558,20 +1703,8 @@ $faqs-bg: $brown;
     min-width: 70px;
   }
 
-  .modal-header {
-    height: 250px;
-  }
-
-  .modal-content {
-    height: calc(100vh - 320px);
-  }
-
   .modal-image {
     height: 240px;
-  }
-
-  .info-grid {
-    grid-template-columns: 1fr;
   }
 
   .row {
@@ -1584,17 +1717,23 @@ $faqs-bg: $brown;
     width: 100%;
   }
 
-  /* Category buttons - scrollable on mobile */
   .category-btn {
-    min-width: 130px;
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-card {
+    height: clamp(380px, 60vh, 500px);
+    border-radius: 18px;
   }
 
-  .faqs-grid {
-    grid-template-columns: 1fr;
+  .hero-title {
+    font-size: 2rem;
   }
 
-  .container-faqs {
-    padding: 0 20px;
+  .hero-description {
+    font-size: 0.9rem;
   }
 }
 </style>
