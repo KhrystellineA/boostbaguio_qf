@@ -324,6 +324,37 @@ service cloud.firestore {
       allow update, delete: if isAuthenticated() && isAdmin();
     }
 
+    // ========== FEATURE REQUESTS COLLECTION ==========
+    // Places-admin / events-admin submit pending "feature this place/event"
+    // requests; super-admin approves or rejects them from the notifications
+    // dropdown. Approval flips `featured: true` on the target doc, which is
+    // gated by the existing places/events update rules above.
+
+    match /featureRequests/{requestId} {
+      // Any admin can read feature-request docs. Needed so non-super admins
+      // can run duplicate-pending checks before submitting a new request, and
+      // so the super-admin notifications dropdown can list everything.
+      allow read: if isAdmin();
+
+      // Any admin can submit a pending request for a place or event. They
+      // must own the requestedBy field (== their uid) and the initial status
+      // must be 'pending' so non-super admins can't pre-approve their own.
+      allow create: if isAdmin() &&
+                       request.resource.data.keys().hasAll([
+                         'targetType', 'targetId', 'requestedBy', 'status'
+                       ]) &&
+                       request.resource.data.targetType in ['place', 'event'] &&
+                       request.resource.data.targetId is string &&
+                       request.resource.data.targetId.size() > 0 &&
+                       request.resource.data.requestedBy == request.auth.uid &&
+                       request.resource.data.status == 'pending';
+
+      // Only super admin decides (approve / reject) or deletes a request.
+      allow update: if isSuperAdmin() &&
+                       request.resource.data.status in ['approved', 'rejected'];
+      allow delete: if isSuperAdmin();
+    }
+
     // ========== DEFAULT DENY ==========
     // Deny all other access not explicitly allowed
     match /{document=**} {

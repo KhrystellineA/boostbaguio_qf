@@ -1,9 +1,24 @@
+<!--
+  Analytics block rendered inside the admin Dashboard, below the stat cards.
+  Sections (when `categories` includes 'places'): summary cards (today's
+  searches/saves/visits, active users), real-time foot-traffic Leaflet map,
+  popular-places lists, peak-hours, popular-times-by-day heatmap, 7-day
+  activity bar chart, popular-categories pie, engagement metrics.
+
+  For categories without instrumented events (routes / events / admins) a
+  dashed "Not yet tracked" placeholder card is rendered for that category.
+
+  Data source: src/utils/analytics.js + the analytics_* Firestore
+  collections written by user-facing pages.
+-->
 <template>
   <div>
-    <div class="row q-mb-md items-center">
+    <div class="row q-mb-md items-center" v-if="!hideHeader">
       <div class="col">
-        <h4 class="q-my-none text-pine-green">Analytics Dashboard</h4>
-        <p class="text-grey-7 q-mb-none">Real-time foot traffic and popularity metrics</p>
+        <h4 class="q-my-none text-pine-green">Analytics</h4>
+        <p class="text-grey-7 q-mb-none">
+          Showing data for: <strong>{{ activeCategoriesLabel }}</strong>
+        </p>
       </div>
       <div class="col-auto q-gutter-sm">
         <q-btn
@@ -36,312 +51,338 @@
       </div>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="row q-col-gutter-md q-mb-md">
-      <div class="col-12 col-md-3">
-        <q-card class="stat-card">
-          <q-card-section>
-            <div class="row items-center">
-              <div class="col">
-                <div class="stat-icon bg-blue-1">
-                  <q-icon name="search" size="md" color="blue" />
-                </div>
-              </div>
-              <div class="col text-right">
-                <div class="stat-value">{{ stats.todaySearches }}</div>
-                <div class="stat-label">Searches Today</div>
-              </div>
+    <!-- Per-category placeholders for analytics that aren't yet instrumented. -->
+    <div v-for="cat in untrackedCategories" :key="cat" class="q-mb-md">
+      <q-card class="not-tracked-card q-pa-lg">
+        <div class="row items-center q-col-gutter-md">
+          <div class="col-auto">
+            <q-icon :name="categoryMeta[cat].icon" size="42px" color="grey-5" />
+          </div>
+          <div class="col">
+            <div class="text-h6 text-grey-9">{{ categoryMeta[cat].label }} analytics</div>
+            <div class="text-body2 text-grey-7">
+              We don't track {{ categoryMeta[cat].label.toLowerCase() }} engagement events yet, so
+              there's no data to chart here. Once event tracking is wired up for this category, this
+              section will populate automatically.
             </div>
-          </q-card-section>
-        </q-card>
-      </div>
-
-      <div class="col-12 col-md-3">
-        <q-card class="stat-card">
-          <q-card-section>
-            <div class="row items-center">
-              <div class="col">
-                <div class="stat-icon bg-green-1">
-                  <q-icon name="bookmark" size="md" color="green" />
-                </div>
-              </div>
-              <div class="col text-right">
-                <div class="stat-value">{{ stats.todaySaves }}</div>
-                <div class="stat-label">Saves Today</div>
-              </div>
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
-
-      <div class="col-12 col-md-3">
-        <q-card class="stat-card">
-          <q-card-section>
-            <div class="row items-center">
-              <div class="col">
-                <div class="stat-icon bg-orange-1">
-                  <q-icon name="directions_walk" size="md" color="orange" />
-                </div>
-              </div>
-              <div class="col text-right">
-                <div class="stat-value">{{ stats.todayVisits }}</div>
-                <div class="stat-label">Visits Today</div>
-              </div>
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
-
-      <div class="col-12 col-md-3">
-        <q-card class="stat-card">
-          <q-card-section>
-            <div class="row items-center">
-              <div class="col">
-                <div class="stat-icon bg-purple-1">
-                  <q-icon name="people" size="md" color="purple" />
-                </div>
-              </div>
-              <div class="col text-right">
-                <div class="stat-value">{{ realTimeTraffic.length }}</div>
-                <div class="stat-label">Active Users Now</div>
-              </div>
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
+          </div>
+          <div class="col-auto">
+            <q-chip outline color="grey-7" icon="hourglass_empty" label="Not yet tracked" />
+          </div>
+        </div>
+      </q-card>
     </div>
 
-    <!-- Real-Time Foot Traffic Map -->
-    <q-card class="q-mb-md">
-      <q-card-section>
-        <div class="text-h6 text-primary q-mb-sm">
-          <q-icon name="radar" class="q-mr-xs" />
-          Real-Time Foot Traffic (Last 30 min)
-        </div>
-        <div id="traffic-map" style="height: 400px; border-radius: 8px"></div>
-        <div class="text-caption text-grey-7 q-mt-sm">
-          Shows user locations in the last 30 minutes. Larger circles = more activity.
-        </div>
-      </q-card-section>
-    </q-card>
-
-    <!-- Most Popular Places -->
-    <div class="row q-col-gutter-md">
-      <div class="col-12 col-md-6">
-        <q-card>
-          <q-card-section>
-            <div class="text-h6 text-primary q-mb-sm">
-              <q-icon name="trending_up" class="q-mr-xs" />
-              Most Visited Places
-            </div>
-            <q-list separator>
-              <q-item v-for="(place, index) in popularByVisits" :key="place.placeId">
-                <q-item-section avatar>
-                  <q-avatar color="primary" text-color="white" :label="`${index + 1}`" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label class="text-weight-bold">{{
-                    place.name || 'Loading...'
-                  }}</q-item-label>
-                  <q-item-label caption>{{ place.count }} visits</q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-badge color="green">👣 {{ place.count }}</q-badge>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-card-section>
-        </q-card>
-      </div>
-
-      <div class="col-12 col-md-6">
-        <q-card>
-          <q-card-section>
-            <div class="text-h6 text-primary q-mb-sm">
-              <q-icon name="star" class="q-mr-xs" />
-              Most Saved Places
-            </div>
-            <q-list separator>
-              <q-item v-for="(place, index) in popularBySaves" :key="place.placeId">
-                <q-item-section avatar>
-                  <q-avatar color="amber" text-color="white" :label="`${index + 1}`" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label class="text-weight-bold">{{
-                    place.name || 'Loading...'
-                  }}</q-item-label>
-                  <q-item-label caption>{{ place.count }} saves</q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-badge color="amber">⭐ {{ place.count }}</q-badge>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-card-section>
-        </q-card>
-      </div>
-
-      <div class="col-12 col-md-6">
-        <q-card>
-          <q-card-section>
-            <div class="text-h6 text-primary q-mb-sm">
-              <q-icon name="search" class="q-mr-xs" />
-              Most Searched Places
-            </div>
-            <q-list separator>
-              <q-item v-for="(place, index) in popularBySearches" :key="place.placeId">
-                <q-item-section avatar>
-                  <q-avatar color="blue" text-color="white" :label="`${index + 1}`" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label class="text-weight-bold">{{
-                    place.name || 'Loading...'
-                  }}</q-item-label>
-                  <q-item-label caption>{{ place.count }} searches</q-item-label>
-                </q-item-section>
-                <q-item-section side>
-                  <q-badge color="blue">🔍 {{ place.count }}</q-badge>
-                </q-item-section>
-              </q-item>
-            </q-list>
-          </q-card-section>
-        </q-card>
-      </div>
-
-      <div class="col-12 col-md-6">
-        <q-card>
-          <q-card-section>
-            <div class="text-h6 text-primary q-mb-sm">
-              <q-icon name="schedule" class="q-mr-xs" />
-              Peak Hours Today
-            </div>
-            <div class="row q-col-gutter-sm">
-              <div class="col-4" v-for="hour in peakHours" :key="hour.hour">
-                <q-card flat bordered class="text-center q-pa-sm">
-                  <div class="text-h6 text-primary">{{ formatHour(hour.hour) }}</div>
-                  <q-linear-progress :value="hour.intensity" color="primary" class="q-mt-xs" />
-                  <div class="text-caption text-grey-7">{{ hour.count }} users</div>
-                </q-card>
+    <!-- Places-based analytics — only render when places is in the active filter -->
+    <template v-if="showPlacesAnalytics">
+      <!-- Summary Cards -->
+      <div class="row q-col-gutter-md q-mb-md">
+        <div class="col-12 col-md-3">
+          <q-card class="stat-card">
+            <q-card-section>
+              <div class="row items-center">
+                <div class="col">
+                  <div class="stat-icon bg-blue-1">
+                    <q-icon name="search" size="md" color="blue" />
+                  </div>
+                </div>
+                <div class="col text-right">
+                  <div class="stat-value">{{ stats.todaySearches }}</div>
+                  <div class="stat-label">Searches Today</div>
+                </div>
               </div>
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
-    </div>
-
-    <!-- Popular Times by Day -->
-    <q-card class="q-mt-md">
-      <q-card-section>
-        <div class="text-h6 text-primary q-mb-sm">
-          <q-icon name="calendar_today" class="q-mr-xs" />
-          Popular Times by Day of Week
+            </q-card-section>
+          </q-card>
         </div>
-        <q-tabs v-model="selectedDay" class="bg-grey-2 q-mb-md" align="left">
-          <q-tab name="0" label="Sunday" />
-          <q-tab name="1" label="Monday" />
-          <q-tab name="2" label="Tuesday" />
-          <q-tab name="3" label="Wednesday" />
-          <q-tab name="4" label="Thursday" />
-          <q-tab name="5" label="Friday" />
-          <q-tab name="6" label="Saturday" />
-        </q-tabs>
 
-        <div class="row q-col-gutter-xs">
-          <div class="col-12">
-            <div class="row q-col-gutter-xs items-end" style="height: 200px">
-              <div class="col" v-for="hour in hours24" :key="hour" style="height: 100%">
-                <div class="column items-center full-height">
-                  <q-linear-progress
-                    :value="getPopularTimeIntensity(selectedDay, hour)"
-                    color="primary"
-                    style="height: 100%; width: 100%"
-                    class="rounded-borders"
-                  />
-                  <div class="text-caption text-grey-7 q-mt-xs">{{ hour }}</div>
+        <div class="col-12 col-md-3">
+          <q-card class="stat-card">
+            <q-card-section>
+              <div class="row items-center">
+                <div class="col">
+                  <div class="stat-icon bg-green-1">
+                    <q-icon name="bookmark" size="md" color="green" />
+                  </div>
+                </div>
+                <div class="col text-right">
+                  <div class="stat-value">{{ stats.todaySaves }}</div>
+                  <div class="stat-label">Saves Today</div>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <q-card class="stat-card">
+            <q-card-section>
+              <div class="row items-center">
+                <div class="col">
+                  <div class="stat-icon bg-orange-1">
+                    <q-icon name="directions_walk" size="md" color="orange" />
+                  </div>
+                </div>
+                <div class="col text-right">
+                  <div class="stat-value">{{ stats.todayVisits }}</div>
+                  <div class="stat-label">Visits Today</div>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <q-card class="stat-card">
+            <q-card-section>
+              <div class="row items-center">
+                <div class="col">
+                  <div class="stat-icon bg-purple-1">
+                    <q-icon name="people" size="md" color="purple" />
+                  </div>
+                </div>
+                <div class="col text-right">
+                  <div class="stat-value">{{ realTimeTraffic.length }}</div>
+                  <div class="stat-label">Active Users Now</div>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+
+      <!-- Real-Time Foot Traffic Map -->
+      <q-card class="q-mb-md">
+        <q-card-section>
+          <div class="text-h6 text-primary q-mb-sm">
+            <q-icon name="radar" class="q-mr-xs" />
+            Real-Time Foot Traffic (Last 30 min)
+          </div>
+          <div id="traffic-map" style="height: 400px; border-radius: 8px"></div>
+          <div class="text-caption text-grey-7 q-mt-sm">
+            Shows user locations in the last 30 minutes. Larger circles = more activity.
+          </div>
+        </q-card-section>
+      </q-card>
+
+      <!-- Most Popular Places -->
+      <div class="row q-col-gutter-md">
+        <div class="col-12 col-md-6">
+          <q-card>
+            <q-card-section>
+              <div class="text-h6 text-primary q-mb-sm">
+                <q-icon name="trending_up" class="q-mr-xs" />
+                Most Visited Places
+              </div>
+              <q-list separator>
+                <q-item v-for="(place, index) in popularByVisits" :key="place.placeId">
+                  <q-item-section avatar>
+                    <q-avatar color="primary" text-color="white" :label="`${index + 1}`" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label class="text-weight-bold">{{
+                      place.name || 'Loading...'
+                    }}</q-item-label>
+                    <q-item-label caption>{{ place.count }} visits</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-badge color="green">👣 {{ place.count }}</q-badge>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <q-card>
+            <q-card-section>
+              <div class="text-h6 text-primary q-mb-sm">
+                <q-icon name="star" class="q-mr-xs" />
+                Most Saved Places
+              </div>
+              <q-list separator>
+                <q-item v-for="(place, index) in popularBySaves" :key="place.placeId">
+                  <q-item-section avatar>
+                    <q-avatar color="amber" text-color="white" :label="`${index + 1}`" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label class="text-weight-bold">{{
+                      place.name || 'Loading...'
+                    }}</q-item-label>
+                    <q-item-label caption>{{ place.count }} saves</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-badge color="amber">⭐ {{ place.count }}</q-badge>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <q-card>
+            <q-card-section>
+              <div class="text-h6 text-primary q-mb-sm">
+                <q-icon name="search" class="q-mr-xs" />
+                Most Searched Places
+              </div>
+              <q-list separator>
+                <q-item v-for="(place, index) in popularBySearches" :key="place.placeId">
+                  <q-item-section avatar>
+                    <q-avatar color="blue" text-color="white" :label="`${index + 1}`" />
+                  </q-item-section>
+                  <q-item-section>
+                    <q-item-label class="text-weight-bold">{{
+                      place.name || 'Loading...'
+                    }}</q-item-label>
+                    <q-item-label caption>{{ place.count }} searches</q-item-label>
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-badge color="blue">🔍 {{ place.count }}</q-badge>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <q-card>
+            <q-card-section>
+              <div class="text-h6 text-primary q-mb-sm">
+                <q-icon name="schedule" class="q-mr-xs" />
+                Peak Hours Today
+              </div>
+              <div class="row q-col-gutter-sm">
+                <div class="col-4" v-for="hour in peakHours" :key="hour.hour">
+                  <q-card flat bordered class="text-center q-pa-sm">
+                    <div class="text-h6 text-primary">{{ formatHour(hour.hour) }}</div>
+                    <q-linear-progress :value="hour.intensity" color="primary" class="q-mt-xs" />
+                    <div class="text-caption text-grey-7">{{ hour.count }} users</div>
+                  </q-card>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+
+      <!-- Popular Times by Day -->
+      <q-card class="q-mt-md">
+        <q-card-section>
+          <div class="text-h6 text-primary q-mb-sm">
+            <q-icon name="calendar_today" class="q-mr-xs" />
+            Popular Times by Day of Week
+          </div>
+          <q-tabs v-model="selectedDay" class="bg-grey-2 q-mb-md" align="left">
+            <q-tab name="0" label="Sunday" />
+            <q-tab name="1" label="Monday" />
+            <q-tab name="2" label="Tuesday" />
+            <q-tab name="3" label="Wednesday" />
+            <q-tab name="4" label="Thursday" />
+            <q-tab name="5" label="Friday" />
+            <q-tab name="6" label="Saturday" />
+          </q-tabs>
+
+          <div class="row q-col-gutter-xs">
+            <div class="col-12">
+              <div class="row q-col-gutter-xs items-end" style="height: 200px">
+                <div class="col" v-for="hour in hours24" :key="hour" style="height: 100%">
+                  <div class="column items-center full-height">
+                    <q-linear-progress
+                      :value="getPopularTimeIntensity(selectedDay, hour)"
+                      color="primary"
+                      style="height: 100%; width: 100%"
+                      class="rounded-borders"
+                    />
+                    <div class="text-caption text-grey-7 q-mt-xs">{{ hour }}</div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </q-card-section>
-    </q-card>
+        </q-card-section>
+      </q-card>
 
-    <!-- Analytics Charts Section -->
-    <div class="row q-col-gutter-md q-mt-md">
-      <!-- Searches vs Saves Trend -->
-      <div class="col-12 col-md-6">
-        <q-card>
-          <q-card-section>
-            <div class="text-h6 text-primary q-mb-sm">
-              <q-icon name="trending_up" class="q-mr-xs" />
-              Activity Trends (Last 7 Days)
-            </div>
-            <div style="height: 250px">
-              <Bar :data="activityChartData" :options="activityChartOptions" />
-            </div>
-          </q-card-section>
-        </q-card>
+      <!-- Analytics Charts Section -->
+      <div class="row q-col-gutter-md q-mt-md">
+        <!-- Searches vs Saves Trend -->
+        <div class="col-12 col-md-6">
+          <q-card>
+            <q-card-section>
+              <div class="text-h6 text-primary q-mb-sm">
+                <q-icon name="trending_up" class="q-mr-xs" />
+                Activity Trends (Last 7 Days)
+              </div>
+              <div style="height: 250px">
+                <Bar :data="activityChartData" :options="activityChartOptions" />
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <!-- Category Distribution -->
+        <div class="col-12 col-md-6">
+          <q-card>
+            <q-card-section>
+              <div class="text-h6 text-primary q-mb-sm">
+                <q-icon name="pie_chart" class="q-mr-xs" />
+                Most Popular Categories
+              </div>
+              <div style="height: 250px">
+                <Pie :data="categoryChartData" :options="categoryChartOptions" />
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
       </div>
 
-      <!-- Category Distribution -->
-      <div class="col-12 col-md-6">
-        <q-card>
-          <q-card-section>
-            <div class="text-h6 text-primary q-mb-sm">
-              <q-icon name="pie_chart" class="q-mr-xs" />
-              Most Popular Categories
-            </div>
-            <div style="height: 250px">
-              <Pie :data="categoryChartData" :options="categoryChartOptions" />
-            </div>
-          </q-card-section>
-        </q-card>
-      </div>
-    </div>
-
-    <!-- User Engagement Metrics -->
-    <q-card class="q-mt-md">
-      <q-card-section>
-        <div class="text-h6 text-primary q-mb-md">
-          <q-icon name="insights" class="q-mr-xs" />
-          User Engagement Metrics
-        </div>
-        <div class="row q-col-gutter-md">
-          <div class="col-12 col-md-3">
-            <div class="engagement-card text-center q-pa-md">
-              <div class="text-h3 text-weight-bold text-primary">
-                {{ engagementMetrics.avgSessionDuration }}
+      <!-- User Engagement Metrics -->
+      <q-card class="q-mt-md">
+        <q-card-section>
+          <div class="text-h6 text-primary q-mb-md">
+            <q-icon name="insights" class="q-mr-xs" />
+            User Engagement Metrics
+          </div>
+          <div class="row q-col-gutter-md">
+            <div class="col-12 col-md-3">
+              <div class="engagement-card text-center q-pa-md">
+                <div class="text-h3 text-weight-bold text-primary">
+                  {{ engagementMetrics.avgSessionDuration }}
+                </div>
+                <div class="text-caption text-grey-7">Avg. Session (min)</div>
               </div>
-              <div class="text-caption text-grey-7">Avg. Session (min)</div>
+            </div>
+            <div class="col-12 col-md-3">
+              <div class="engagement-card text-center q-pa-md">
+                <div class="text-h3 text-weight-bold text-green">
+                  {{ engagementMetrics.placesPerSession }}
+                </div>
+                <div class="text-caption text-grey-7">Places/Session</div>
+              </div>
+            </div>
+            <div class="col-12 col-md-3">
+              <div class="engagement-card text-center q-pa-md">
+                <div class="text-h3 text-weight-bold text-orange">
+                  {{ engagementMetrics.searchToVisitRate }}%
+                </div>
+                <div class="text-caption text-grey-7">Search → Visit Rate</div>
+              </div>
+            </div>
+            <div class="col-12 col-md-3">
+              <div class="engagement-card text-center q-pa-md">
+                <div class="text-h3 text-weight-bold text-blue">
+                  {{ engagementMetrics.retentionRate }}%
+                </div>
+                <div class="text-caption text-grey-7">User Retention</div>
+              </div>
             </div>
           </div>
-          <div class="col-12 col-md-3">
-            <div class="engagement-card text-center q-pa-md">
-              <div class="text-h3 text-weight-bold text-green">
-                {{ engagementMetrics.placesPerSession }}
-              </div>
-              <div class="text-caption text-grey-7">Places/Session</div>
-            </div>
-          </div>
-          <div class="col-12 col-md-3">
-            <div class="engagement-card text-center q-pa-md">
-              <div class="text-h3 text-weight-bold text-orange">
-                {{ engagementMetrics.searchToVisitRate }}%
-              </div>
-              <div class="text-caption text-grey-7">Search → Visit Rate</div>
-            </div>
-          </div>
-          <div class="col-12 col-md-3">
-            <div class="engagement-card text-center q-pa-md">
-              <div class="text-h3 text-weight-bold text-blue">
-                {{ engagementMetrics.retentionRate }}%
-              </div>
-              <div class="text-caption text-grey-7">User Retention</div>
-            </div>
-          </div>
-        </div>
-      </q-card-section>
-    </q-card>
+        </q-card-section>
+      </q-card>
+    </template>
+    <!-- /showPlacesAnalytics -->
   </div>
 </template>
 
@@ -367,6 +408,19 @@ import 'leaflet/dist/leaflet.css'
 
 export default {
   name: 'AnalyticsManagement',
+
+  props: {
+    /** Active filter categories. 'places' is the only one with real data. */
+    categories: {
+      type: Array,
+      default: () => ['places'],
+    },
+    /** When the parent owns the page header, hide the internal one. */
+    hideHeader: {
+      type: Boolean,
+      default: false,
+    },
+  },
 
   data() {
     return {
@@ -523,8 +577,11 @@ export default {
       // Initialize map if not exists
       if (!this.trafficMap) {
         this.trafficMap = L.map('traffic-map').setView([16.4023, 120.596], 13)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors',
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: 'abcd',
+          maxZoom: 20,
         }).addTo(this.trafficMap)
       }
 
@@ -825,6 +882,26 @@ export default {
   },
 
   computed: {
+    categoryMeta() {
+      return {
+        routes: { label: 'Routes / Jeepneys', icon: 'directions_bus' },
+        places: { label: 'Places', icon: 'place' },
+        events: { label: 'Events', icon: 'event' },
+        admins: { label: 'Admins', icon: 'people' },
+      }
+    },
+    activeCategoriesLabel() {
+      const labels = (this.categories || []).map((c) => this.categoryMeta[c]?.label || c)
+      return labels.length ? labels.join(', ') : '—'
+    },
+    showPlacesAnalytics() {
+      return (this.categories || []).includes('places')
+    },
+    untrackedCategories() {
+      const order = ['routes', 'events', 'admins']
+      return order.filter((c) => (this.categories || []).includes(c))
+    },
+
     // Activity trend chart data
     activityChartData() {
       return {
@@ -910,6 +987,13 @@ export default {
 <style lang="scss" scoped>
 .text-pine-green {
   color: #2d6a4f;
+}
+
+.not-tracked-card {
+  border-radius: 18px;
+  border: 1px dashed rgba(0, 0, 0, 0.12);
+  background: #fafafa;
+  box-shadow: none;
 }
 
 .stat-card {

@@ -1,3 +1,17 @@
+<!--
+  Admin module: jeepneys + their stored route polylines (the `jeepneys`
+  Firestore collection).
+  - Searchable table; multi-select bulk delete.
+  - Add/edit dialog: jeepney metadata, image upload, terminal location
+    picker (Leaflet), `touristSpotsServiced` chips, route-coordinate editor,
+    fare matrix.
+  - Route column has TWO action buttons:
+      • green map button  → preview the stored polyline (RouteMap)
+      • red compare-arrows → open RouteCompareDialog (overlay stored vs
+        fresh OSRM, with Apply/Generate to overwrite Firestore)
+  - CSV bulk import.
+  Mounted from: AdminDashboard when activeMenu === 'routes'.
+-->
 <template>
   <div>
     <div class="row q-mb-md items-center">
@@ -82,7 +96,6 @@
           <template #body-cell-route="props">
             <q-td :props="props">
               <q-btn
-                v-if="props.value && props.value.length > 0"
                 flat
                 dense
                 round
@@ -92,7 +105,23 @@
               >
                 <q-tooltip>View Route Map</q-tooltip>
               </q-btn>
-              <q-icon v-else name="map" size="24px" color="grey-4" />
+              <q-btn
+                flat
+                dense
+                round
+                icon="compare_arrows"
+                class="q-ml-xs"
+                style="background: #c10015; color: white"
+                @click="compareRoute(props.row)"
+              >
+                <q-tooltip>
+                  {{
+                    props.value && props.value.length > 0
+                      ? 'Compare with OSRM'
+                      : 'Generate route from OSRM'
+                  }}
+                </q-tooltip>
+              </q-btn>
             </q-td>
           </template>
 
@@ -372,14 +401,26 @@
 
     <!-- Route Preview Dialog -->
     <q-dialog v-model="showRoutePreviewDialog" maximized>
-      <q-card>
-        <q-card-section class="bg-pine-green text-white row items-center">
+      <q-card class="route-preview-card">
+        <q-btn
+          round
+          dense
+          unelevated
+          icon="close"
+          color="negative"
+          text-color="white"
+          class="route-preview-close"
+          aria-label="Close"
+          v-close-popup
+        >
+          <q-tooltip>Close</q-tooltip>
+        </q-btn>
+        <q-card-section class="text-white row items-center" style="background: #2d6a4f">
           <div class="text-h6">
             <q-icon name="map" class="q-mr-sm" />
             Route Preview - {{ selectedJeepneyForRoute?.jeepName }}
           </div>
           <q-space />
-          <q-btn flat round dense icon="close" v-close-popup />
         </q-card-section>
 
         <q-card-section class="q-pa-lg">
@@ -487,6 +528,13 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+
+    <!-- Route Compare Dialog (stored polyline vs fresh OSRM) -->
+    <RouteCompareDialog
+      v-model="showRouteCompareDialog"
+      :jeepney="selectedJeepneyForCompare"
+      @apply="onApplyOsrmRoute"
+    />
 
     <!-- CSV Import Dialog -->
     <q-dialog v-model="showCsvImportDialog" persistent>
@@ -657,6 +705,7 @@ import { useQuasar } from 'quasar'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import RouteMap from 'src/components/RouteMap.vue'
+import RouteCompareDialog from 'src/components/admin/RouteCompareDialog.vue'
 import defaultJeepneyImage from 'src/assets/jeepney.png'
 
 export default {
@@ -664,6 +713,7 @@ export default {
 
   components: {
     RouteMap,
+    RouteCompareDialog,
   },
 
   setup() {
@@ -679,7 +729,9 @@ export default {
       saving: false,
       showAddDialog: false,
       showRoutePreviewDialog: false,
+      showRouteCompareDialog: false,
       selectedJeepneyForRoute: null,
+      selectedJeepneyForCompare: null,
       editingJeepney: null,
       imageFile: null,
       imagePreview: null,
@@ -958,8 +1010,11 @@ export default {
       // Initialize map centered on Baguio
       this.map = L.map('jeepney-map').setView([16.4023, 120.596], 14)
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20,
       }).addTo(this.map)
 
       // Add click handler to add route points
@@ -1384,6 +1439,55 @@ export default {
     viewRoute(jeepney) {
       this.selectedJeepneyForRoute = jeepney
       this.showRoutePreviewDialog = true
+    },
+
+    /**
+     * Open the OSRM compare dialog for this jeepney's stored polyline.
+     */
+    compareRoute(jeepney) {
+      this.selectedJeepneyForCompare = jeepney
+      this.showRouteCompareDialog = true
+    },
+
+    /**
+     * Persist a fresh OSRM-generated polyline back onto the jeepney doc and
+     * refresh the local table row so the new path shows immediately.
+     */
+    async onApplyOsrmRoute({
+      jeepneyId,
+      jeepneyName,
+      routeCoordinates,
+      routeDistance,
+      routeDuration,
+    }) {
+      if (!jeepneyId || !routeCoordinates?.length) return
+      try {
+        const update = {
+          routeCoordinates,
+          routeDistance: routeDistance ?? null,
+          routeDuration: routeDuration ?? null,
+          updatedAt: new Date(),
+        }
+        await updateDoc(doc(db, 'jeepneys', jeepneyId), update)
+
+        const idx = this.jeepneys.findIndex((j) => j.id === jeepneyId)
+        if (idx >= 0) {
+          this.jeepneys[idx] = { ...this.jeepneys[idx], ...update }
+        }
+
+        this.$q.notify({
+          type: 'positive',
+          message: `Updated route for ${jeepneyName || jeepneyId}`,
+          position: 'top',
+        })
+      } catch (err) {
+        console.error('[JeepneyManagement] Failed to apply OSRM route:', err)
+        this.$q.notify({
+          type: 'negative',
+          message: `Could not save route: ${err.message || err}`,
+          position: 'top',
+        })
+      }
     },
 
     /**
@@ -1831,6 +1935,18 @@ export default {
 <style lang="scss" scoped>
 .text-pine-green {
   color: #2d6a4f;
+}
+
+.route-preview-card {
+  position: relative;
+}
+
+.route-preview-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .image-preview-container {

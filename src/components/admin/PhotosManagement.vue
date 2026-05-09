@@ -666,7 +666,9 @@
               <div class="text-h5">Gallery Management</div>
               <div class="text-caption">Manage multiple images for the gallery section</div>
             </div>
-            <q-btn flat round dense icon="close" v-close-popup />
+            <q-btn flat round dense icon="close" color="white" v-close-popup>
+              <q-tooltip>Close</q-tooltip>
+            </q-btn>
           </div>
         </q-card-section>
 
@@ -789,7 +791,9 @@
               <div class="text-h5">Guide Steps Management</div>
               <div class="text-caption">Manage 3 step images for the guide section</div>
             </div>
-            <q-btn flat round dense icon="close" v-close-popup />
+            <q-btn flat round dense icon="close" color="white" v-close-popup>
+              <q-tooltip>Close</q-tooltip>
+            </q-btn>
           </div>
         </q-card-section>
 

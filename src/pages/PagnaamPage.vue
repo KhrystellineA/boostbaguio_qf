@@ -166,8 +166,8 @@
 
     <!-- JEEPNEY DETAILS DIALOG -->
     <q-dialog v-model="showRouteDialog">
-      <q-card class="route-dialog-card" style="min-width: 1100px">
-        <q-card-section class="row items-center q-pb-none bg-primary text-white">
+      <q-card class="route-dialog-card column no-wrap" style="min-width: 1100px; max-height: 90vh">
+        <q-card-section class="row items-center q-pb-none bg-primary text-white col-auto">
           <div class="text-h6 text-weight-bold">
             <q-icon name="directions_bus" class="q-mr-sm" />
             {{ selectedRoute?.routeName || selectedRoute?.jeepName }}
@@ -176,7 +176,7 @@
           <q-btn v-close-popup flat round dense icon="close" />
         </q-card-section>
 
-        <q-card-section class="q-pt-md">
+        <q-card-section class="q-pt-md scroll col">
           <div class="row q-col-gutter-lg">
             <div class="col-lg-5 col-12">
               <q-card flat bordered class="q-pa-md">
@@ -274,28 +274,68 @@
 
                   <q-separator class="q-my-md" />
 
-                  <div
-                    v-if="
-                      selectedRoute?.touristSpotsServiced &&
-                      selectedRoute.touristSpotsServiced.length > 0
-                    "
-                    class="q-mt-md"
-                  >
-                    <h4 class="text-h6 text-weight-bold text-primary q-mb-md">
-                      Tourist Spots Along the Route
-                    </h4>
-                    <div class="row q-gutter-sm">
-                      <q-badge
-                        v-for="(spot, idx) in selectedRoute.touristSpotsServiced"
-                        :key="idx"
-                        color="primary"
-                        text-color="white"
-                        class="text-body2"
-                      >
-                        <q-icon name="attractions" size="14px" class="q-mr-xs" />
-                        {{ spot }}
-                      </q-badge>
+                  <h4 class="text-h6 text-weight-bold text-primary q-mb-md">Map Legend</h4>
+                  <div class="map-legend q-mb-md">
+                    <div class="legend-item">
+                      <span class="legend-dot legend-dot--start"></span>
+                      <span>Start terminal</span>
                     </div>
+                    <div class="legend-item">
+                      <span class="legend-dot legend-dot--stop"></span>
+                      <span>Tourist spot along the route</span>
+                    </div>
+                    <div class="legend-item">
+                      <span class="legend-dot legend-dot--end"></span>
+                      <span>End terminal</span>
+                    </div>
+                  </div>
+
+                  <q-separator class="q-my-md" />
+
+                  <div
+                    v-if="isResolvingStops && selectedRouteStops.length === 0"
+                    class="row items-center q-mt-md text-grey-7"
+                  >
+                    <q-spinner-dots color="primary" size="20px" class="q-mr-sm" />
+                    <span class="text-caption">Looking up tourist spot locations…</span>
+                  </div>
+
+                  <div v-if="selectedRouteStops.length > 0" class="q-mt-md">
+                    <h4 class="text-h6 text-weight-bold text-primary q-mb-md">
+                      Route Stops ({{ selectedRouteStops.length }})
+                    </h4>
+                    <q-list dense>
+                      <q-item
+                        v-for="(stop, idx) in selectedRouteStops"
+                        :key="idx"
+                        class="q-px-none"
+                      >
+                        <q-item-section avatar>
+                          <q-badge
+                            :color="
+                              idx === 0
+                                ? 'green'
+                                : idx === selectedRouteStops.length - 1
+                                  ? 'red'
+                                  : 'blue'
+                            "
+                            text-color="white"
+                          >
+                            {{ idx + 1 }}
+                          </q-badge>
+                        </q-item-section>
+                        <q-item-section>
+                          <q-item-label class="text-body2">{{ stop.name }}</q-item-label>
+                          <q-item-label caption>
+                            <span v-if="idx === 0">Start terminal</span>
+                            <span v-else-if="idx === selectedRouteStops.length - 1"
+                              >End terminal</span
+                            >
+                            <span v-else>Tourist spot</span>
+                          </q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </q-list>
                   </div>
                 </q-card-section>
 
@@ -316,12 +356,12 @@
               <q-card flat bordered class="map-card" style="height: 550px">
                 <RouteMap
                   :route-coordinates="selectedRoute?.routeCoordinates || selectedRoute?.routePoints"
-                  :waypoints="buildWaypoints(selectedRoute)"
+                  :waypoints="selectedRouteStops"
                   :distance="selectedRoute?.routeDistance"
                   :duration="selectedRoute?.routeDuration"
                   height="550px"
                   :show-controls="true"
-                  :show-waypoints-info="true"
+                  :show-waypoints-info="false"
                   :show-stats="true"
                   :show-empty-state="false"
                   :center="[16.4023, 120.596]"
@@ -396,6 +436,8 @@ import { db } from 'src/boot/firebase'
 import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore'
 import FooterSection from '../components/home/FooterSection.vue'
 import RouteMap from 'src/components/RouteMap.vue'
+import { fetchPlaces, fuzzyMatch } from 'src/composables/useRouteGeneration'
+import { useGeocoding } from 'src/composables/useGeocoding'
 import fallbackImage from '../assets/44.png'
 
 export default defineComponent({
@@ -407,11 +449,16 @@ export default defineComponent({
   setup() {
     const $q = useQuasar()
     const router = useRouter()
+    const { searchLocations } = useGeocoding()
     const searchQuery = ref('')
     const allRoutes = ref([])
     const selectedRoute = ref(null)
     const heroImageUrl = ref(fallbackImage)
     const showRouteDialog = ref(false)
+    const placesCache = ref([])
+    const stopsCoordCache = new Map()
+    const selectedRouteStops = ref([])
+    const isResolvingStops = ref(false)
 
     const faqs = [
       {
@@ -599,6 +646,14 @@ export default defineComponent({
     onMounted(async () => {
       await fetchHeroImage()
       await fetchRoutes()
+      try {
+        placesCache.value = await fetchPlaces()
+      } catch (err) {
+        console.warn(
+          '[PagnaamPage] Could not preload places — geocoding will fall back to OSM.',
+          err
+        )
+      }
     })
 
     // Watch for selected route changes (dialog opens)
@@ -615,50 +670,112 @@ export default defineComponent({
     })
 
     /**
-     * Build waypoints from route data for display on map
+     * Resolve a stop's coordinates by name. Tries the Firestore `places`
+     * collection first (curated, instant), then falls back to OSM Nominatim.
+     * Results are cached per session so the same name isn't geocoded twice.
      */
-    const buildWaypoints = (route) => {
+    const resolveStopCoords = async (name) => {
+      if (!name) return null
+      const key = name.toLowerCase().trim()
+      if (stopsCoordCache.has(key)) return stopsCoordCache.get(key)
+
+      const matched = fuzzyMatch(name, placesCache.value)
+      if (matched && matched.latitude && matched.longitude) {
+        const coords = { latitude: matched.latitude, longitude: matched.longitude }
+        stopsCoordCache.set(key, coords)
+        return coords
+      }
+
+      try {
+        const results = await searchLocations(name, true)
+        if (results && results.length > 0) {
+          const coords = { latitude: results[0].lat, longitude: results[0].lng }
+          stopsCoordCache.set(key, coords)
+          return coords
+        }
+      } catch (err) {
+        console.warn('[PagnaamPage] Geocoding failed for', name, err)
+      }
+
+      stopsCoordCache.set(key, null)
+      return null
+    }
+
+    /**
+     * Build the ordered list of stops for the selected route, geocoding any
+     * tourist spots / terminals that don't have coordinates baked into the
+     * jeepney document.
+     */
+    const buildStopsFromRoute = async (route) => {
       if (!route) return []
 
-      const waypoints = []
+      const stops = []
 
-      // Add terminal start
+      // Start terminal — prefer stored lat/lng, geocode the name otherwise.
+      const startName = route.terminalLocation || route.terminalStart || 'Terminal'
       if (route.terminalLat && route.terminalLng) {
-        waypoints.push({
-          name: route.terminalLocation || route.terminalStart || 'Terminal',
+        stops.push({
+          name: startName,
           latitude: route.terminalLat,
           longitude: route.terminalLng,
         })
+      } else {
+        const coords = await resolveStopCoords(startName)
+        if (coords) stops.push({ name: startName, ...coords })
       }
 
-      // Add tourist spots
-      if (route.touristSpotsServiced && route.touristSpotsServiced.length > 0) {
-        route.touristSpotsServiced.forEach((spot) => {
-          waypoints.push({
-            name: spot,
-            latitude: route.terminalLat || 16.4023,
-            longitude: route.terminalLng || 120.596,
+      // Tourist spots — resolve each one in parallel.
+      const spots = route.touristSpotsServiced || []
+      if (spots.length > 0) {
+        const resolved = await Promise.all(
+          spots.map(async (spot) => {
+            const coords = await resolveStopCoords(spot)
+            return coords ? { name: spot, ...coords } : null
           })
-        })
+        )
+        stops.push(...resolved.filter(Boolean))
       }
 
-      // Add end point
-      if (route.endPoint || route.terminalEnd) {
-        waypoints.push({
-          name: route.endPoint || route.terminalEnd,
-          latitude: route.terminalLat || 16.4023,
-          longitude: route.terminalLng || 120.596,
-        })
+      // End terminal.
+      const endName = route.endPoint || route.terminalEnd
+      if (endName) {
+        const endCoords = await resolveStopCoords(endName)
+        if (endCoords) {
+          stops.push({ name: endName, ...endCoords })
+        } else if (route.terminalLat && route.terminalLng) {
+          stops.push({
+            name: endName,
+            latitude: route.terminalLat,
+            longitude: route.terminalLng,
+          })
+        }
       }
 
-      return waypoints
+      return stops
     }
+
+    watch(
+      selectedRoute,
+      async (newRoute) => {
+        selectedRouteStops.value = []
+        if (!newRoute) return
+        isResolvingStops.value = true
+        try {
+          selectedRouteStops.value = await buildStopsFromRoute(newRoute)
+        } finally {
+          isResolvingStops.value = false
+        }
+      },
+      { immediate: true }
+    )
 
     return {
       searchQuery,
       allRoutes,
       filteredRoutes,
       selectedRoute,
+      selectedRouteStops,
+      isResolvingStops,
       heroImageUrl,
       showRouteDialog,
       faqs,
@@ -667,7 +784,6 @@ export default defineComponent({
       formatOperatingHours,
       selectRoute,
       navigateToTerminal,
-      buildWaypoints,
     }
   },
 })
@@ -978,6 +1094,46 @@ $bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
     overflow: hidden;
     box-shadow: $bento-shadow;
     border: 1px solid $border;
+  }
+}
+
+/* Map marker legend */
+.map-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: rgba(20, 36, 26, 0.04);
+  border: 1px solid $border;
+  border-radius: 10px;
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: $ink;
+  }
+
+  .legend-dot {
+    flex: 0 0 14px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+
+  .legend-dot--start {
+    background: #22c55e;
+  }
+
+  .legend-dot--stop {
+    background: #3b82f6;
+  }
+
+  .legend-dot--end {
+    background: #ef4444;
   }
 }
 

@@ -1,3 +1,14 @@
+/**
+ * Application route table.
+ *
+ * Each route declares its component (lazy-loaded), and `meta` for SEO
+ * (title/description used by useMetaTags) and access control (requiresAuth,
+ * requiresAdmin, requiresGuest, requiresPremium — enforced in router/index.js).
+ *
+ * Top-level user routes nest under MainLayout (navbar + footer chrome). Admin
+ * routes nest under BlankLayout because the admin pages render their own
+ * header/sidebar.
+ */
 const routes = [
   {
     path: '/',

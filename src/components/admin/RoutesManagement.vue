@@ -1,3 +1,8 @@
+<!--
+  Admin module: routes (the `routes` Firestore collection — abstract route
+  definitions, distinct from individual jeepneys). Pairs with
+  RouteFormDialog.vue for the create/edit UI.
+-->
 <template>
   <div class="routes-management">
     <div class="management-header">

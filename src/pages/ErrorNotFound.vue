@@ -1,3 +1,7 @@
+<!--
+  404 page. Routed via the catch-all `/:catchAll(.*)*` entry at the bottom
+  of router/routes.js. Shown whenever the URL doesn't match any route.
+-->
 <template>
   <div class="error-page fullscreen flex flex-center">
     <div class="error-content text-center">

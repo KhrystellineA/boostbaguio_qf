@@ -389,22 +389,6 @@
                         unelevated
                         @click="toggleSavePlace(selectedPlace)"
                       />
-                      <q-btn
-                        label="Share"
-                        color="secondary"
-                        unelevated
-                        icon="share"
-                        class="full-width q-mt-md"
-                        @click="sharePlace"
-                      />
-                      <q-btn
-                        label="Report Issue"
-                        color="negative"
-                        unelevated
-                        icon="report_problem"
-                        class="full-width q-mt-md"
-                        @click="reportIssue(selectedPlace)"
-                      />
                     </q-card-section>
                   </q-card>
                 </div>
@@ -412,43 +396,6 @@
             </q-card-section>
           </q-scroll-area>
         </q-card-section>
-      </q-card>
-    </q-dialog>
-
-    <!-- Report Issue Dialog -->
-    <q-dialog v-model="showReportDialog" persistent>
-      <q-card style="min-width: 500px">
-        <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6 text-primary">Report Issue</div>
-          <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
-        </q-card-section>
-
-        <q-card-section>
-          <div class="text-body2 text-grey-7 q-mb-md">
-            Reporting: <strong>{{ placeToReport?.name }}</strong>
-          </div>
-          <q-input
-            v-model="reportIssueText"
-            outlined
-            type="textarea"
-            label="Describe the issue *"
-            placeholder="Please describe what's wrong with this place (e.g., incorrect information, closed permanently, inappropriate content, etc.)"
-            autogrow
-            :rows="4"
-          />
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="grey" v-close-popup />
-          <q-btn
-            label="Submit Report"
-            color="negative"
-            unelevated
-            @click="submitReport"
-            :disable="!reportIssueText.trim()"
-          />
-        </q-card-actions>
       </q-card>
     </q-dialog>
 
@@ -540,9 +487,6 @@ export default defineComponent({
     const selectedCategory = ref('all')
     const heroImageUrl = ref(fallbackImage)
     const savedPlacesIds = ref(new Set())
-    const showReportDialog = ref(false)
-    const placeToReport = ref(null)
-    const reportIssueText = ref('')
 
     // Carousel state
     const slide = ref(0)
@@ -557,11 +501,6 @@ export default defineComponent({
         question: 'Can I save places for later?',
         answer:
           'Yes! Click the bookmark icon on any place card to save it. You can view all your saved places from your account page.',
-      },
-      {
-        question: 'How do I share a place?',
-        answer:
-          'Click on a place to open details, then click the "Share" button to share the place details with others.',
       },
       {
         question: 'What if a place is closed?',
@@ -782,87 +721,6 @@ export default defineComponent({
       return savedPlacesIds.value.has(place.id)
     }
 
-    const sharePlace = () => {
-      if (!selectedPlace.value) return
-
-      // Show share options dialog
-      $q.dialog({
-        title: 'Share ' + selectedPlace.value.name,
-        message: 'Choose how you want to share this place:',
-        options: {
-          type: 'list',
-          options: [
-            { label: 'Copy Link', icon: 'content_copy', value: 'copy' },
-            { label: 'Facebook', icon: 'facebook', value: 'facebook' },
-            { label: 'Twitter', icon: 'rss_feed', value: 'twitter' },
-            { label: 'Messenger', icon: 'chat', value: 'messenger' },
-          ],
-        },
-        cancel: true,
-        persistent: true,
-      }).onOk(async (data) => {
-        const placeUrl = window.location.href.split('?')[0] + '?place=' + selectedPlace.value.id
-        const placeText = 'Check out ' + selectedPlace.value.name + ' in Baguio City! ' + placeUrl
-
-        if (data === 'copy') {
-          await navigator.clipboard.writeText(placeUrl)
-          $q.notify({
-            message: 'Link copied to clipboard!',
-            color: 'positive',
-            position: 'top',
-            icon: 'check',
-          })
-        } else if (data === 'facebook') {
-          window.open(
-            'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(placeUrl),
-            '_blank',
-            'width=600,height=400'
-          )
-        } else if (data === 'twitter') {
-          window.open(
-            'https://twitter.com/intent/tweet?text=' + encodeURIComponent(placeText),
-            '_blank',
-            'width=600,height=400'
-          )
-        } else if (data === 'messenger') {
-          window.open('fb-messenger://share?link=' + encodeURIComponent(placeUrl), '_blank')
-        }
-      })
-    }
-
-    const reportIssue = (place) => {
-      placeToReport.value = place
-      reportIssueText.value = ''
-      showReportDialog.value = true
-    }
-
-    const submitReport = () => {
-      if (!reportIssueText.value.trim()) {
-        $q.notify({
-          type: 'warning',
-          message: 'Please describe the issue',
-          position: 'top',
-        })
-        return
-      }
-
-      // Here you would typically save the report to Firebase
-      console.log('[MaykanPage] Report submitted:', {
-        placeId: placeToReport.value?.id,
-        placeName: placeToReport.value?.name,
-        issue: reportIssueText.value,
-        timestamp: new Date(),
-      })
-
-      showReportDialog.value = false
-      $q.notify({
-        type: 'positive',
-        message: 'Thank you! Your report has been submitted.',
-        position: 'top',
-        timeout: 3000,
-      })
-    }
-
     const formatOperatingHours = (operatingHours) => {
       if (!operatingHours) return ''
 
@@ -954,16 +812,10 @@ export default defineComponent({
       filterByCategory,
       selectPlace,
       navigateToPlace,
-      sharePlace,
       onSlideChange,
       toggleSavePlace,
       isPlaceSaved,
       userStore,
-      reportIssue,
-      submitReport,
-      showReportDialog,
-      placeToReport,
-      reportIssueText,
     }
   },
 })

@@ -1,3 +1,7 @@
+<!--
+  Auto-scrolling marquee of partner logos on the landing page.
+  Used by: src/pages/IndexPage.vue.
+-->
 <template>
   <section class="partners-banner">
     <div class="marquee-track">

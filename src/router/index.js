@@ -1,3 +1,15 @@
+/**
+ * Vue Router setup + global auth/role guards.
+ *
+ * Routes are declared in ./routes.js. Each route can carry these meta flags:
+ *   - requiresGuest : redirect away when the user is logged in
+ *   - requiresAuth  : redirect to /login when no user
+ *   - requiresAdmin : redirect to /admin/adminlogin when not an admin
+ *   - requiresPremium: redirect to /account when user isn't premium
+ *
+ * Admin status is sourced from src/composables/useAdminClaims.js
+ * (`checkIsAdmin`), which reads the `admins/{uid}` Firestore doc.
+ */
 import { defineRouter } from '#q-app/wrappers'
 import {
   createRouter,

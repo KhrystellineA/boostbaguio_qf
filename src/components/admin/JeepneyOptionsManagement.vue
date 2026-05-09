@@ -1,3 +1,9 @@
+<!--
+  Admin module: jeepney "options" (curated double-ride suggestions and
+  similar). CRUD over a jeepney-options Firestore collection with a Leaflet
+  map picker for the terminal coordinates. Distinct from JeepneyManagement
+  which manages the raw jeepneys.
+-->
 <template>
   <div class="jeepney-options-management">
     <div class="management-header">
@@ -57,9 +63,14 @@
     <!-- Form Dialog -->
     <q-dialog v-model="showDialog" persistent>
       <q-card style="min-width: 800px; max-width: 1000px">
-        <q-card-section class="bg-pine-green text-white">
-          <div class="text-h6">
-            {{ editMode ? 'Edit Jeepney Option' : 'Add New Jeepney Option' }}
+        <q-card-section class="text-white" style="background: #2d6a4f">
+          <div class="row items-center">
+            <div class="text-h6 col">
+              {{ editMode ? 'Edit Jeepney Option' : 'Add New Jeepney Option' }}
+            </div>
+            <q-btn flat round dense icon="close" color="white" @click="closeDialog">
+              <q-tooltip>Close</q-tooltip>
+            </q-btn>
           </div>
         </q-card-section>
 
@@ -813,9 +824,11 @@ export default {
 
       mapPickerInstance = L.map(mapPickerContainer.value).setView([currentLat, currentLng], 15)
 
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19,
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 20,
       }).addTo(mapPickerInstance)
 
       const markerIcon = L.divIcon({

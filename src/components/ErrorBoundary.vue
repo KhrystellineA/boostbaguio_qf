@@ -1,3 +1,9 @@
+<!--
+  Catches uncaught render errors from child components via Vue's
+  errorCaptured hook and shows a friendly fallback UI with a reload action.
+  Use it to wrap any subtree where you'd rather show "something went wrong"
+  than a blank screen. Logs the error via src/utils/errorMonitoring.js.
+-->
 <template>
   <div class="error-boundary">
     <div v-if="hasError" class="error-fallback">

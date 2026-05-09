@@ -1,3 +1,8 @@
+<!--
+  Maximized dialog for editing the current user's display name, avatar, and
+  contact info. Writes to `users/{uid}` in Firestore.
+  Used by: src/pages/AccountPage.vue.
+-->
 <template>
   <q-dialog v-model="dialogVisible" persistent maximized>
     <q-card class="profile-editor-card">

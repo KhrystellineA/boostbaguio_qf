@@ -2,12 +2,15 @@
   <q-layout view="hHh lpR fFf">
     <!-- Admin Header -->
     <AdminHeader
-      :notifications-count="notifications.length"
+      :notifications="notifications"
+      :deciding-id="decidingRequestId"
       :admin-name="adminData.name"
       :admin-email="adminData.email"
       @toggle-drawer="drawer = !drawer"
       @view-profile="viewProfile"
       @logout="logout"
+      @approve-request="onApproveRequest"
+      @reject-request="onRejectRequest"
     />
 
     <!-- Admin Sidebar -->
@@ -43,58 +46,18 @@
             </div>
           </div>
 
-          <!-- Stats Cards -->
+          <!-- Stats Cards (also act as analytics filters) -->
           <AdminStats
             :stats="stats"
+            :active-categories="activeCategories"
             :show-routes="canManageRoutes"
             :show-places="canManagePlaces"
             :show-events="canManageEvents"
+            @toggle-category="toggleAnalyticsCategory"
           />
 
-          <!-- Recent Activity -->
-          <div class="row q-mt-md">
-            <div class="col-12">
-              <q-card class="activity-card">
-                <q-card-section>
-                  <div class="row items-center justify-between q-mb-md">
-                    <div class="activity-card-title">Recent Activity</div>
-                    <q-chip
-                      square
-                      dense
-                      class="activity-card-chip"
-                      icon="history"
-                      :label="`${recentActivities.length} recent`"
-                    />
-                  </div>
-                  <q-list class="activity-list" separator>
-                    <q-item
-                      v-for="activity in recentActivities"
-                      :key="activity.id"
-                      class="activity-item"
-                    >
-                      <q-item-section avatar>
-                        <div class="activity-icon" :class="`activity-icon--${activity.color}`">
-                          <q-icon :name="activity.icon" size="18px" />
-                        </div>
-                      </q-item-section>
-                      <q-item-section>
-                        <q-item-label class="activity-title">{{ activity.title }}</q-item-label>
-                        <q-item-label caption class="activity-time">{{
-                          activity.time
-                        }}</q-item-label>
-                      </q-item-section>
-                    </q-item>
-                    <q-item v-if="recentActivities.length === 0" class="activity-empty">
-                      <q-item-section class="text-center text-grey-6 q-py-lg">
-                        <q-icon name="inbox" size="40px" color="grey-4" />
-                        <div class="q-mt-sm text-body2">No recent activity</div>
-                      </q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-card-section>
-              </q-card>
-            </div>
-          </div>
+          <!-- Analytics, scoped to whichever filter cards are active -->
+          <AnalyticsManagement :categories="activeCategories" />
         </div>
 
         <!-- Management Components -->
@@ -120,8 +83,6 @@
 
         <AdminsManagement v-else-if="activeMenu === 'admins'" />
 
-        <AnalyticsManagement v-else-if="activeMenu === 'analytics'" />
-
         <ActivityLogsManagement v-else-if="activeMenu === 'activity-logs'" />
       </q-page>
     </q-page-container>
@@ -130,7 +91,9 @@
 
 <script>
 import { defineComponent, ref, computed, onMounted } from 'vue'
+import { useQuasar } from 'quasar'
 import { useAdminDashboard } from 'src/composables/useAdminDashboard'
+import { approveFeatureRequest, rejectFeatureRequest } from 'src/composables/useFeatureRequests'
 
 // Import admin components
 import AdminHeader from 'src/components/admin/AdminHeader.vue'
@@ -179,72 +142,61 @@ export default defineComponent({
     const triggerPlaceDialog = ref(false)
     const triggerEventDialog = ref(false)
 
-    // Recent activities
-    const recentActivities = ref([])
+    // Active analytics filter categories. The four AdminStats cards toggle
+    // entries in/out of this array. Defaults to Places; if everything ever
+    // gets deselected it falls back to Places to avoid an empty dashboard.
+    const activeCategories = ref(['places'])
 
-    // Load recent activity
-    const loadRecentActivity = async () => {
+    const toggleAnalyticsCategory = (cat) => {
+      const idx = activeCategories.value.indexOf(cat)
+      if (idx >= 0) activeCategories.value.splice(idx, 1)
+      else activeCategories.value.push(cat)
+      if (activeCategories.value.length === 0) activeCategories.value = ['places']
+    }
+
+    // Feature-request approval (super-admin only). The pending list lives on
+    // `notifications` from useAdminDashboard, fed by a Firestore subscription.
+    const $q = useQuasar()
+    const decidingRequestId = ref('')
+
+    const onApproveRequest = async (req) => {
+      decidingRequestId.value = req.id
       try {
-        const { getRecentActivityLogs } = await import('src/utils/activityLogger')
-        const logs = await getRecentActivityLogs(10)
-
-        recentActivities.value = logs.map((log) => ({
-          id: log.id,
-          title: log.description,
-          time: formatRelativeTime(log.timestamp),
-          icon: getActivityIcon(log.action),
-          color: getActionColor(log.action),
-        }))
-      } catch (error) {
-        console.error('[AdminDashboard] Error loading recent activity:', error)
+        await approveFeatureRequest(req)
+        $q.notify({
+          type: 'positive',
+          message: `Approved · ${req.targetName} is now featured`,
+          position: 'top',
+        })
+      } catch (err) {
+        $q.notify({
+          type: 'negative',
+          message: err.message || 'Could not approve request',
+          position: 'top',
+        })
+      } finally {
+        decidingRequestId.value = ''
       }
     }
 
-    // Format relative time
-    const formatRelativeTime = (timestamp) => {
-      if (!timestamp) return ''
-      const date = timestamp.toDate()
-      const now = new Date()
-      const diffMs = now - date
-      const diffMins = Math.floor(diffMs / 60000)
-      const diffHours = Math.floor(diffMs / 3600000)
-      const diffDays = Math.floor(diffMs / 86400000)
-
-      if (diffMins < 1) return 'Just now'
-      if (diffMins < 60) return `${diffMins}m ago`
-      if (diffHours < 24) return `${diffHours}h ago`
-      if (diffDays < 7) return `${diffDays}d ago`
-      return date.toLocaleDateString()
-    }
-
-    // Get activity icon
-    const getActivityIcon = (action) => {
-      const icons = {
-        create: 'add_circle',
-        update: 'edit',
-        delete: 'delete',
-        bulk_delete: 'delete_sweep',
-        login: 'login',
-        logout: 'logout',
-        export: 'download',
-        import: 'upload_file',
+    const onRejectRequest = async (req) => {
+      decidingRequestId.value = req.id
+      try {
+        await rejectFeatureRequest(req)
+        $q.notify({
+          type: 'info',
+          message: `Rejected request for "${req.targetName}"`,
+          position: 'top',
+        })
+      } catch (err) {
+        $q.notify({
+          type: 'negative',
+          message: err.message || 'Could not reject request',
+          position: 'top',
+        })
+      } finally {
+        decidingRequestId.value = ''
       }
-      return icons[action] || 'info'
-    }
-
-    // Get action color
-    const getActionColor = (action) => {
-      const colors = {
-        create: 'green',
-        update: 'blue',
-        delete: 'red',
-        bulk_delete: 'red',
-        login: 'purple',
-        logout: 'grey',
-        export: 'teal',
-        import: 'orange',
-      }
-      return colors[action] || 'grey'
     }
 
     // Handle dialog opened
@@ -287,7 +239,6 @@ export default defineComponent({
     onMounted(async () => {
       if (!loading.value) {
         await loadStats()
-        await loadRecentActivity()
       }
     })
 
@@ -299,15 +250,20 @@ export default defineComponent({
       stats,
       notifications,
       loading,
-      recentActivities,
+      activeCategories,
       triggerRouteDialog,
       triggerPlaceDialog,
       triggerEventDialog,
+
+      decidingRequestId,
 
       // Methods
       logout,
       viewProfile,
       onDialogOpened,
+      toggleAnalyticsCategory,
+      onApproveRequest,
+      onRejectRequest,
 
       // Computed
       canManageRoutes,
@@ -381,103 +337,6 @@ $app-bg: #f4f5f7;
 .dashboard-subtitle {
   font-size: 14px;
   color: #6c757d;
-}
-
-.activity-card {
-  border-radius: 22px;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-  overflow: hidden;
-
-  :deep(.q-card__section) {
-    padding: 22px 24px;
-  }
-}
-
-.activity-card-title {
-  font-size: 17px;
-  font-weight: 700;
-  color: #1d1d1f;
-}
-
-.activity-card-chip {
-  background: rgba($primary-green, 0.08);
-  color: $primary-green;
-  font-weight: 600;
-  border-radius: 999px;
-
-  :deep(.q-icon) {
-    color: $primary-green;
-  }
-}
-
-.activity-list {
-  :deep(.q-separator) {
-    background: rgba(0, 0, 0, 0.04);
-  }
-}
-
-.activity-item {
-  border-radius: 12px;
-  padding: 12px 8px;
-  transition: background 0.2s ease;
-
-  &:hover {
-    background: #f9fafb;
-  }
-}
-
-.activity-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba($primary-green, 0.1);
-  color: $primary-green;
-
-  &--green {
-    background: rgba(46, 93, 62, 0.12);
-    color: $primary-green;
-  }
-  &--blue {
-    background: rgba(33, 150, 243, 0.12);
-    color: #1976d2;
-  }
-  &--red {
-    background: rgba(244, 67, 54, 0.12);
-    color: #d32f2f;
-  }
-  &--purple {
-    background: rgba(149, 117, 205, 0.15);
-    color: #6a3fb5;
-  }
-  &--grey {
-    background: rgba(0, 0, 0, 0.06);
-    color: #6c757d;
-  }
-  &--teal {
-    background: rgba(0, 150, 136, 0.12);
-    color: #00897b;
-  }
-  &--orange {
-    background: rgba(255, 152, 0, 0.12);
-    color: #e67e00;
-  }
-}
-
-.activity-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1d1d1f;
-}
-
-.activity-time {
-  font-size: 12px;
-  color: #9aa0a6;
-  margin-top: 2px;
 }
 
 @media (max-width: 700px) {

@@ -1,3 +1,8 @@
+<!--
+  Premium-gated offline-mode landing page (route /offline). Lets a logged-in
+  premium user pre-cache routes and places for offline use. Currently a
+  placeholder UI; the cache mechanics live in src/utils/offlineCache.js.
+-->
 <template>
   <q-page class="offline-page flex flex-center">
     <div class="offline-container">

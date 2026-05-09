@@ -1,3 +1,11 @@
+<!--
+  Admin module: manage admin accounts (the `admins` Firestore collection).
+  Super-admin-only. Lists every admin with their role/permissions, lets you
+  create new admin docs, edit role/permissions, or delete. Roles enforced
+  here mirror the helper functions in firestore.rules
+  (isPlacesAdmin / isEventsAdmin / isRoutesAdmin / isSuperAdmin).
+  Mounted from: AdminDashboard when activeMenu === 'admins'.
+-->
 <template>
   <div>
     <div class="row q-mb-md items-center">

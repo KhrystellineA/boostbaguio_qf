@@ -453,78 +453,11 @@
                       />
                     </q-card-section>
                   </q-card>
-
-                  <q-card flat bordered>
-                    <q-card-section>
-                      <h5 class="text-subtitle1 text-weight-bold q-mb-sm">Share Event</h5>
-                      <q-btn
-                        label="Share"
-                        color="secondary"
-                        icon="share"
-                        class="full-width"
-                        unelevated
-                        @click="shareEvent(selectedEvent)"
-                      />
-                    </q-card-section>
-                  </q-card>
-
-                  <q-card flat bordered>
-                    <q-card-section>
-                      <h5 class="text-subtitle1 text-weight-bold q-mb-sm text-negative">
-                        Report Issue
-                      </h5>
-                      <q-btn
-                        label="Report Issue"
-                        color="negative"
-                        icon="report_problem"
-                        class="full-width"
-                        unelevated
-                        @click="reportIssue(selectedEvent)"
-                      />
-                    </q-card-section>
-                  </q-card>
                 </div>
               </div>
             </q-card-section>
           </q-scroll-area>
         </q-card-section>
-      </q-card>
-    </q-dialog>
-
-    <!-- Report Issue Dialog -->
-    <q-dialog v-model="showReportDialog" persistent>
-      <q-card style="min-width: 500px">
-        <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6 text-primary">Report Issue</div>
-          <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
-        </q-card-section>
-
-        <q-card-section>
-          <div class="text-body2 text-grey-7 q-mb-md">
-            Reporting: <strong>{{ eventToReport?.name }}</strong>
-          </div>
-          <q-input
-            v-model="reportIssueText"
-            outlined
-            type="textarea"
-            label="Describe the issue *"
-            placeholder="Please describe what's wrong with this event (e.g., incorrect information, cancelled event, inappropriate content, etc.)"
-            autogrow
-            :rows="4"
-          />
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="grey" v-close-popup />
-          <q-btn
-            label="Submit Report"
-            color="negative"
-            unelevated
-            @click="submitReport"
-            :disable="!reportIssueText.trim()"
-          />
-        </q-card-actions>
       </q-card>
     </q-dialog>
 
@@ -625,9 +558,6 @@ export default defineComponent({
     const selectedEvent = ref(null)
     const heroImageUrl = ref(bakeryImage)
     const selectedDate = ref(null)
-    const showReportDialog = ref(false)
-    const eventToReport = ref(null)
-    const reportIssueText = ref('')
 
     // Calendar state
     const currentDate = ref(new Date()) // Start with current month/year
@@ -862,85 +792,8 @@ export default defineComponent({
       showEventDialog.value = false
     }
 
-    const shareEvent = (event) => {
-      const eventUrl = window.location.href.split('?')[0] + '?event=' + event.id
-      const eventText = 'Check out ' + event.name + ' in Baguio City! ' + eventUrl
-
-      $q.dialog({
-        title: 'Share ' + event.name,
-        message: 'Choose how you want to share this event:',
-        options: {
-          type: 'list',
-          options: [
-            { label: 'Copy Link', icon: 'content_copy', value: 'copy' },
-            { label: 'Facebook', icon: 'facebook', value: 'facebook' },
-            { label: 'Twitter', icon: 'rss_feed', value: 'twitter' },
-            { label: 'Messenger', icon: 'chat', value: 'messenger' },
-          ],
-        },
-        cancel: true,
-        persistent: true,
-      }).onOk(async (data) => {
-        if (data === 'copy') {
-          await navigator.clipboard.writeText(eventUrl)
-          $q.notify({
-            message: 'Event link copied to clipboard!',
-            color: 'positive',
-            position: 'top',
-            icon: 'check',
-          })
-        } else if (data === 'facebook') {
-          window.open(
-            'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(eventUrl),
-            '_blank',
-            'width=600,height=400'
-          )
-        } else if (data === 'twitter') {
-          window.open(
-            'https://twitter.com/intent/tweet?text=' + encodeURIComponent(eventText),
-            '_blank',
-            'width=600,height=400'
-          )
-        } else if (data === 'messenger') {
-          window.open('fb-messenger://share?link=' + encodeURIComponent(eventUrl), '_blank')
-        }
-      })
-    }
-
     const openSaBaguioGroup = () => {
       window.open('https://www.facebook.com/groups/sabaguio/', '_blank', 'noopener,noreferrer')
-    }
-
-    const reportIssue = (event) => {
-      eventToReport.value = event
-      reportIssueText.value = ''
-      showReportDialog.value = true
-    }
-
-    const submitReport = () => {
-      if (!reportIssueText.value.trim()) {
-        $q.notify({
-          type: 'warning',
-          message: 'Please describe the issue',
-          position: 'top',
-        })
-        return
-      }
-
-      console.log('[AramidemPage] Report submitted:', {
-        eventId: eventToReport.value?.id,
-        eventName: eventToReport.value?.name,
-        issue: reportIssueText.value,
-        timestamp: new Date(),
-      })
-
-      showReportDialog.value = false
-      $q.notify({
-        type: 'positive',
-        message: 'Thank you! Your report has been submitted.',
-        position: 'top',
-        timeout: 3000,
-      })
     }
 
     const formatDate = (dateString) => {
@@ -989,19 +842,14 @@ export default defineComponent({
           'Click on any event and use the "Get Directions" button. This will open APANAM navigation to guide you to the event location.',
       },
       {
-        question: 'Can I share events with friends?',
-        answer:
-          'Yes! Click the "Share" button on any event to share via Facebook, Twitter, Messenger, or copy the link.',
-      },
-      {
         question: 'How do I stay updated on events?',
         answer:
           'Check back regularly or follow event organizers. Event information is regularly updated with new festivals, concerts, and cultural activities.',
       },
     ]
 
-    const leftFaqs = computed(() => faqs.slice(0, 3))
-    const rightFaqs = computed(() => faqs.slice(3))
+    const leftFaqs = computed(() => faqs.slice(0, 2))
+    const rightFaqs = computed(() => faqs.slice(2))
 
     const getDay = (dateStr) => {
       if (!dateStr) return '00'
@@ -1057,10 +905,7 @@ export default defineComponent({
       isToday,
       viewEventDetails,
       navigateToEvent,
-      shareEvent,
       openSaBaguioGroup,
-      reportIssue,
-      submitReport,
       formatDate,
       formatDateFull,
       formatTime,
@@ -1069,9 +914,6 @@ export default defineComponent({
       faqs,
       leftFaqs,
       rightFaqs,
-      showReportDialog,
-      eventToReport,
-      reportIssueText,
     }
   },
 })
