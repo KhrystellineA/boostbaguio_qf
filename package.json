@@ -18,6 +18,8 @@
     "lint:fix": "eslint -c ./eslint.config.js \"./src*/**/*.{js,cjs,mjs,vue}\" --fix",
     "format": "prettier --write \"**/*.{js,vue,html,md,json}\" --ignore-path .gitignore",
     "format:check": "prettier --check \"**/*.{js,vue,html,md,json}\" --ignore-path .gitignore",
+    "audit:routes": "node scripts/audit-jeepney-routes.js",
+    "audit:routes:osrm": "node scripts/audit-jeepney-routes.js --osrm",
     "prepare": "husky",
     "postinstall": "quasar prepare"
   },

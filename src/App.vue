@@ -1,3 +1,9 @@
+<!--
+  Root component. The only thing it renders is <router-view>, which Vue
+  Router fills with the layout (MainLayout / BlankLayout) selected by the
+  current route in src/router/routes.js. Auth/role guards live in
+  src/router/index.js + src/boot/router-guards.js.
+-->
 <template>
   <router-view />
 </template>

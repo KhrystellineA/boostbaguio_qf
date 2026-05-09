@@ -1,3 +1,8 @@
+<!--
+  Floating "back to top" button. Appears in the bottom-right corner once
+  the user has scrolled past a threshold; clicking smooth-scrolls to top.
+  Mounted globally from MainLayout.vue.
+-->
 <template>
   <transition name="fade">
     <q-btn

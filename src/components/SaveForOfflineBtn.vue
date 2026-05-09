@@ -1,3 +1,8 @@
+<!--
+  Premium-only "save for offline" button. Caches the current page's data
+  via src/utils/offlineCache.js so it can be loaded without network.
+  Currently a placeholder UI — see AUDIT.md for status.
+-->
 <template>
   <div class="save-for-offline">
     <q-btn

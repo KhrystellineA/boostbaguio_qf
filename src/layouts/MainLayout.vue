@@ -31,10 +31,10 @@
     <!-- Global Contact Dialog -->
     <q-dialog v-model="showContactDialog">
       <q-card style="min-width: 500px; max-width: 600px">
-        <q-card-section class="bg-pine-green text-white row items-center q-py-md">
+        <q-card-section class="text-white row items-center q-py-md" style="background: #2d6a4f">
           <div class="text-h6">Contact Us</div>
           <q-space />
-          <q-btn round dense flat icon="close" v-close-popup>
+          <q-btn round dense flat icon="close" color="white" v-close-popup>
             <q-tooltip>Close</q-tooltip>
           </q-btn>
         </q-card-section>

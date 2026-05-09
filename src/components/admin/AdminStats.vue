@@ -1,12 +1,26 @@
+<!--
+  Four stat cards at the top of the admin dashboard: Routes / Jeepneys,
+  Places, Events, Admins. Each card shows a count and acts as a TOGGLE
+  FILTER for the analytics block below. Clicking a card emits
+  `toggle-category` with its key; the dashboard adds/removes that category
+  from `activeCategories` and passes the array down to AnalyticsManagement.
+  Selected cards get a green border + check icon.
+  Used by: src/pages/admin/AdminDashboard.vue.
+-->
 <template>
   <div class="row q-col-gutter-md q-mb-md">
     <div class="col-12 col-sm-6 col-md-3" v-if="showRoutes">
-      <q-card class="stat-card stat-card--featured">
+      <q-card
+        class="stat-card stat-card--clickable"
+        :class="{ 'stat-card--active': isActive('routes') }"
+        @click="$emit('toggle-category', 'routes')"
+        v-ripple
+      >
         <q-card-section>
           <div class="row items-start justify-between no-wrap">
             <div class="stat-label">Routes / Jeepneys</div>
             <div class="stat-arrow">
-              <q-icon name="north_east" size="16px" />
+              <q-icon :name="isActive('routes') ? 'check' : 'directions_bus'" size="16px" />
             </div>
           </div>
           <div class="stat-value">{{ stats.routes }}</div>
@@ -19,12 +33,17 @@
     </div>
 
     <div class="col-12 col-sm-6 col-md-3" v-if="showPlaces">
-      <q-card class="stat-card">
+      <q-card
+        class="stat-card stat-card--clickable"
+        :class="{ 'stat-card--active': isActive('places') }"
+        @click="$emit('toggle-category', 'places')"
+        v-ripple
+      >
         <q-card-section>
           <div class="row items-start justify-between no-wrap">
             <div class="stat-label">Places</div>
             <div class="stat-arrow stat-arrow--ghost">
-              <q-icon name="north_east" size="16px" />
+              <q-icon :name="isActive('places') ? 'check' : 'place'" size="16px" />
             </div>
           </div>
           <div class="stat-value stat-value--dark">{{ stats.places }}</div>
@@ -37,12 +56,17 @@
     </div>
 
     <div class="col-12 col-sm-6 col-md-3" v-if="showEvents">
-      <q-card class="stat-card">
+      <q-card
+        class="stat-card stat-card--clickable"
+        :class="{ 'stat-card--active': isActive('events') }"
+        @click="$emit('toggle-category', 'events')"
+        v-ripple
+      >
         <q-card-section>
           <div class="row items-start justify-between no-wrap">
             <div class="stat-label">Events</div>
             <div class="stat-arrow stat-arrow--ghost">
-              <q-icon name="north_east" size="16px" />
+              <q-icon :name="isActive('events') ? 'check' : 'event'" size="16px" />
             </div>
           </div>
           <div class="stat-value stat-value--dark">{{ stats.events }}</div>
@@ -55,12 +79,17 @@
     </div>
 
     <div class="col-12 col-sm-6 col-md-3">
-      <q-card class="stat-card">
+      <q-card
+        class="stat-card stat-card--clickable"
+        :class="{ 'stat-card--active': isActive('admins') }"
+        @click="$emit('toggle-category', 'admins')"
+        v-ripple
+      >
         <q-card-section>
           <div class="row items-start justify-between no-wrap">
             <div class="stat-label">Admins</div>
             <div class="stat-arrow stat-arrow--ghost">
-              <q-icon name="north_east" size="16px" />
+              <q-icon :name="isActive('admins') ? 'check' : 'people'" size="16px" />
             </div>
           </div>
           <div class="stat-value stat-value--dark">{{ stats.admins }}</div>
@@ -88,6 +117,10 @@ export default {
         admins: 0,
       }),
     },
+    activeCategories: {
+      type: Array,
+      default: () => ['places'],
+    },
     showRoutes: {
       type: Boolean,
       default: true,
@@ -99,6 +132,14 @@ export default {
     showEvents: {
       type: Boolean,
       default: true,
+    },
+  },
+
+  emits: ['toggle-category'],
+
+  methods: {
+    isActive(cat) {
+      return this.activeCategories.includes(cat)
     },
   },
 }
@@ -116,7 +157,8 @@ $light-green: #9ec98f;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
   transition:
     transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.25s ease;
+    box-shadow 0.25s ease,
+    border-color 0.2s ease;
   overflow: hidden;
 
   :deep(.q-card__section) {
@@ -129,32 +171,18 @@ $light-green: #9ec98f;
   }
 }
 
-.stat-card--featured {
-  background: linear-gradient(135deg, $primary-green 0%, $dark-green 100%);
-  color: #ffffff;
-  border-color: transparent;
-  box-shadow: 0 8px 24px rgba($primary-green, 0.25);
+.stat-card--clickable {
+  cursor: pointer;
+}
 
-  .stat-label {
-    color: rgba(255, 255, 255, 0.85);
-  }
+.stat-card--active {
+  border: 2px solid $primary-green;
+  box-shadow: 0 8px 22px rgba($primary-green, 0.18);
 
-  .stat-value {
+  .stat-arrow,
+  .stat-arrow--ghost {
+    background: $primary-green;
     color: #ffffff;
-  }
-
-  .stat-trend {
-    color: rgba(255, 255, 255, 0.9);
-    background: rgba(255, 255, 255, 0.15);
-  }
-
-  .stat-arrow {
-    background: rgba(255, 255, 255, 0.18);
-    color: #ffffff;
-  }
-
-  &:hover {
-    box-shadow: 0 14px 32px rgba($primary-green, 0.32);
   }
 }
 
@@ -174,16 +202,9 @@ $light-green: #9ec98f;
   justify-content: center;
   background: #f4f5f7;
   color: #4a5057;
-  cursor: pointer;
   transition:
     background 0.2s ease,
     transform 0.2s ease;
-
-  &:hover {
-    background: $primary-green;
-    color: #ffffff;
-    transform: scale(1.05);
-  }
 }
 
 .stat-arrow--ghost {

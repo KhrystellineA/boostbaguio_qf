@@ -1,3 +1,11 @@
+<!--
+  Left navigation drawer for the admin dashboard.
+  Renders one menu entry per top-level admin module (Dashboard, Routes,
+  Places, Events, Photos, Admins, Activity Logs). Each entry emits
+  update:activeMenu with the new key, which the dashboard uses to swap the
+  visible component. Items gate themselves on role/permission via the
+  computed canManageX / canViewX fields.
+-->
 <template>
   <q-drawer
     :model-value="modelValue"
@@ -123,23 +131,6 @@
             </q-item-section>
             <q-item-section>
               <q-item-label>Admins</q-item-label>
-            </q-item-section>
-          </q-item>
-
-          <q-item
-            v-if="canViewAnalytics"
-            clickable
-            v-ripple
-            :active="activeMenu === 'analytics'"
-            @click="$emit('update:activeMenu', 'analytics')"
-            class="nav-item"
-            active-class="nav-item--active"
-          >
-            <q-item-section avatar>
-              <q-icon name="analytics" />
-            </q-item-section>
-            <q-item-section>
-              <q-item-label>Analytics</q-item-label>
             </q-item-section>
           </q-item>
 

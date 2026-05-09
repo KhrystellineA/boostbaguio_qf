@@ -1,3 +1,11 @@
+/**
+ * Offline-mode composable (premium feature placeholder).
+ *
+ * Exposes online/offline state plus a queue of actions deferred while the
+ * user was offline. Pairs with src/utils/offlineCache.js (the actual
+ * caching mechanics) and the OfflinePage / SaveForOfflineBtn components.
+ * Currently not consumed by the user pages — see AUDIT.md.
+ */
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useUserStore } from 'stores/user-store'
 

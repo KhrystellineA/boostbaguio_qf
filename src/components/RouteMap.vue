@@ -335,11 +335,12 @@ export default defineComponent({
 
         console.log('[RouteMap] Map instance created:', map)
 
-        // Add OpenStreetMap tile layer
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        // CartoDB Voyager — colorful basemap without POI icons
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
           attribution:
-            '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-          maxZoom: 19,
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: 'abcd',
+          maxZoom: 20,
         }).addTo(map)
 
         console.log('[RouteMap] Tile layer added')
@@ -445,12 +446,11 @@ export default defineComponent({
         latLngs[latLngs.length - 1]
       )
 
-      // Create dashed polyline for the route
+      // Solid polyline for the route
       routeLayer = L.polyline(latLngs, {
         color: props.lineColor,
         weight: props.lineWeight,
         opacity: props.lineOpacity,
-        dashArray: '10, 10', // Dashed line: 10px dash, 10px gap
         smoothFactor: 1,
       }).addTo(map)
 

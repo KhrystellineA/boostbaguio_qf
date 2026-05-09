@@ -1,3 +1,10 @@
+<!--
+  Admin-only data-repair utility (route /repair-jeepney-spots). Walks every
+  jeepney in Firestore and resolves its `touristSpotsServiced` names against
+  the `places` collection so the in-app fuzzy matcher works reliably.
+  Run-once style page — no sidebar link points to it; reach it by typing the
+  URL while logged in as an admin.
+-->
 <template>
   <q-page class="q-pa-xl">
     <div class="row justify-center">

@@ -1,3 +1,14 @@
+/**
+ * Firebase boot file.
+ *
+ * Initializes the Firebase app, Auth, Firestore (with a 50 MB persistent
+ * local cache so the app keeps working in flaky network conditions), and
+ * Storage from the `VITE_FIREBASE_*` environment variables. The exported
+ * `auth`, `db`, `storage` references are the canonical handles imported
+ * across the codebase (`import { db } from 'src/boot/firebase'`).
+ *
+ * Loaded by Quasar at startup via the `boot` array in quasar.config.js.
+ */
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import {

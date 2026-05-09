@@ -1,3 +1,13 @@
+<!--
+  Admin module: events / festivals / concerts (the `events` Firestore
+  collection).
+  - Searchable table + multi-select bulk delete.
+  - Add/edit dialog with image upload, date pickers, organizer info.
+  - CSV bulk import.
+  - Per-row "Request to feature" button (amber sparkle icon) for non-super
+    admins, mirroring PlacesManagement.
+  Mounted from: AdminDashboard when activeMenu === 'events'.
+-->
 <template>
   <div>
     <div class="row q-mb-md items-center">
@@ -107,6 +117,19 @@
                 @click="editEvent(props.row)"
               >
                 <q-tooltip>Edit</q-tooltip>
+              </q-btn>
+              <q-btn
+                v-if="!isSuperAdmin && !props.row.featured"
+                flat
+                dense
+                round
+                icon="auto_awesome"
+                color="amber-9"
+                class="q-ml-xs"
+                :loading="featureRequestPendingId === props.row.id"
+                @click="requestFeature(props.row)"
+              >
+                <q-tooltip>Request to feature</q-tooltip>
               </q-btn>
               <q-btn
                 flat
@@ -492,6 +515,7 @@ import {
   email,
 } from 'src/utils/validation'
 /* eslint-enable no-unused-vars */
+import { submitFeatureRequest } from 'src/composables/useFeatureRequests'
 
 export default {
   name: 'EventsManagement',
@@ -512,6 +536,7 @@ export default {
       imageFile: null,
       imagePreview: null,
       selectedEvents: [],
+      featureRequestPendingId: '',
       form: {
         title: '',
         location: '',
@@ -593,6 +618,21 @@ export default {
     invalidCount() {
       return this.parsedEvents.filter((e) => !e.valid).length
     },
+    isSuperAdmin() {
+      try {
+        const cached = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+        return cached.role === 'super_admin'
+      } catch {
+        return false
+      }
+    },
+    currentAdmin() {
+      try {
+        return JSON.parse(sessionStorage.getItem('adminData') || '{}')
+      } catch {
+        return {}
+      }
+    },
   },
 
   mounted() {
@@ -600,6 +640,34 @@ export default {
   },
 
   methods: {
+    /** Submit a "please feature this event" request to super-admin notifications. */
+    async requestFeature(event) {
+      if (!event?.id) return
+      this.featureRequestPendingId = event.id
+      try {
+        await submitFeatureRequest({
+          targetType: 'event',
+          targetId: event.id,
+          targetName: event.title || '',
+          requestedByName: this.currentAdmin.name,
+          requestedByRole: this.currentAdmin.role,
+        })
+        this.$q.notify({
+          type: 'positive',
+          message: `Sent! Super admin will review "${event.title}".`,
+          position: 'top',
+        })
+      } catch (err) {
+        this.$q.notify({
+          type: 'negative',
+          message: err.message || 'Could not submit request',
+          position: 'top',
+        })
+      } finally {
+        this.featureRequestPendingId = ''
+      }
+    },
+
     // Validate start date is not in the past
     validateStartDate(dateStr) {
       if (!dateStr) return false

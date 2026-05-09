@@ -1,3 +1,15 @@
+<!--
+  Admin module: tourist spots / restaurants / hotels / etc. (the `places`
+  Firestore collection).
+  - Table with search, multi-select bulk actions, image preview.
+  - Add/edit dialog: form with image upload (Cloudinary), Leaflet location
+    picker, multi-category selector, address geocoding.
+  - CSV bulk import dialog with validation preview.
+  - Per-row "Request to feature" button (amber sparkle icon) for non-super
+    admins — submits a featureRequests doc; super admin approves from the
+    notifications dropdown in AdminHeader.
+  Mounted from: AdminDashboard when activeMenu === 'places'.
+-->
 <template>
   <div role="region" aria-label="Place Management">
     <div class="row q-mb-md items-center">
@@ -135,6 +147,20 @@
                 :aria-label="`Edit ${props.row.name}`"
               >
                 <q-tooltip>Edit</q-tooltip>
+              </q-btn>
+              <q-btn
+                v-if="!isSuperAdmin && !props.row.featured"
+                flat
+                dense
+                round
+                icon="auto_awesome"
+                color="amber-9"
+                class="q-ml-xs"
+                :loading="featureRequestPendingId === props.row.id"
+                @click="requestFeature(props.row)"
+                :aria-label="`Request ${props.row.name} be featured`"
+              >
+                <q-tooltip>Request to feature</q-tooltip>
               </q-btn>
               <q-btn
                 flat
@@ -624,6 +650,7 @@ import VueCropper from 'vue-cropperjs'
 import { getErrorMessage, withRetry, isOnline } from 'src/utils/errorHandler'
 import { logActionFailure } from 'src/utils/errorMonitoring'
 import { announceActionResult } from 'src/utils/accessibility'
+import { submitFeatureRequest } from 'src/composables/useFeatureRequests'
 /* eslint-disable no-unused-vars */
 import {
   required,
@@ -674,6 +701,7 @@ export default {
       locationSearch: '',
       searchingLocation: false,
       selectedPlaces: [],
+      featureRequestPendingId: '',
       form: {
         name: '',
         categories: [],
@@ -754,6 +782,22 @@ export default {
     invalidCount() {
       return this.parsedPlaces.filter((p) => !p.valid).length
     },
+    /** Read the current admin's role from sessionStorage (cached at login). */
+    isSuperAdmin() {
+      try {
+        const cached = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+        return cached.role === 'super_admin'
+      } catch {
+        return false
+      }
+    },
+    currentAdmin() {
+      try {
+        return JSON.parse(sessionStorage.getItem('adminData') || '{}')
+      } catch {
+        return {}
+      }
+    },
   },
 
   mounted() {
@@ -761,6 +805,34 @@ export default {
   },
 
   methods: {
+    /** Submit a "please feature this place" request to super-admin notifications. */
+    async requestFeature(place) {
+      if (!place?.id) return
+      this.featureRequestPendingId = place.id
+      try {
+        await submitFeatureRequest({
+          targetType: 'place',
+          targetId: place.id,
+          targetName: place.name || '',
+          requestedByName: this.currentAdmin.name,
+          requestedByRole: this.currentAdmin.role,
+        })
+        this.$q.notify({
+          type: 'positive',
+          message: `Sent! Super admin will review "${place.name}".`,
+          position: 'top',
+        })
+      } catch (err) {
+        this.$q.notify({
+          type: 'negative',
+          message: err.message || 'Could not submit request',
+          position: 'top',
+        })
+      } finally {
+        this.featureRequestPendingId = ''
+      }
+    },
+
     async loadPlaces() {
       this.loading = true
       try {
@@ -810,9 +882,11 @@ export default {
 
         this.map = L.map('place-map').setView([defaultLat, defaultLng], 15)
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors',
-          maxZoom: 19,
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+          attribution:
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: 'abcd',
+          maxZoom: 20,
         }).addTo(this.map)
 
         // Add marker if coordinates exist

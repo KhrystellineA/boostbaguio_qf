@@ -3,12 +3,13 @@
  * @module useAdminDashboard
  */
 
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
 import { useQuasar } from 'quasar'
 import { auth, db } from 'src/boot/firebase'
 import { signOut } from 'firebase/auth'
 import { collection, getDocs } from 'firebase/firestore'
 import { checkIsAdmin, getAdminRole, getPermissions } from 'src/composables/useAdminClaims'
+import { watchPendingRequests } from 'src/composables/useFeatureRequests'
 
 /**
  * @typedef {Object} AdminData
@@ -33,13 +34,11 @@ import { checkIsAdmin, getAdminRole, getPermissions } from 'src/composables/useA
  * @property {import('vue').Ref<string>} activeMenu - Current active menu
  * @property {import('vue').Ref<AdminData>} adminData - Admin user data
  * @property {import('vue').Ref<DashboardStats>} stats - Dashboard statistics
- * @property {import('vue').Ref<Array>} notifications - Notifications array
+ * @property {import('vue').Ref<Array>} notifications - Pending feature requests (super-admin only)
  * @property {import('vue').Ref<boolean>} loading - Loading state
- * @property {Function} loadAdminData - Load admin data from Firestore
  * @property {Function} loadStats - Load dashboard statistics
  * @property {Function} logout - Sign out admin
  * @property {Function} viewProfile - View admin profile
- * @property {Function} toggleDrawer - Toggle sidebar drawer
  */
 
 /**
@@ -67,6 +66,8 @@ export function useAdminDashboard() {
   })
   const notifications = ref([])
   const loading = ref(true)
+  const isSuperAdmin = computed(() => adminData.value.role === 'super_admin')
+  let unsubscribePendingRequests = null
 
   // Load admin data from Firestore
   const loadAdminData = async () => {
@@ -156,19 +157,28 @@ export function useAdminDashboard() {
     })
   }
 
-  // Toggle drawer
-  const toggleDrawer = () => {
-    drawer.value = !drawer.value
-  }
-
   // Initialize
   onMounted(async () => {
     loading.value = true
     const success = await loadAdminData()
     if (success) {
       await loadStats()
+      // Super admins receive a live feed of pending feature requests so they
+      // can approve / reject from the header notifications dropdown.
+      if (isSuperAdmin.value) {
+        unsubscribePendingRequests = watchPendingRequests((list) => {
+          notifications.value = list
+        })
+      }
     }
     loading.value = false
+  })
+
+  onBeforeUnmount(() => {
+    if (unsubscribePendingRequests) {
+      unsubscribePendingRequests()
+      unsubscribePendingRequests = null
+    }
   })
 
   return {
@@ -181,10 +191,8 @@ export function useAdminDashboard() {
     loading,
 
     // Methods
-    loadAdminData,
     loadStats,
     logout,
     viewProfile,
-    toggleDrawer,
   }
 }

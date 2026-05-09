@@ -71,56 +71,58 @@
           <div class="floating-bento">
             <q-card class="bento-card">
               <q-card-section class="q-pa-md">
-                <!-- Search Bar -->
-                <div class="search-bar-section q-mb-md">
-                  <q-input
-                    v-model="searchQuery"
-                    outlined
-                    dense
-                    placeholder="Search for nearby places..."
-                    class="search-input"
-                    @input="onSearchInput"
-                  >
-                    <template v-slot:prepend>
-                      <q-icon name="search" />
-                    </template>
-                  </q-input>
-                </div>
-
-                <!-- Location Search - Find Places Near a Specific Location -->
+                <!-- FROM Location - mirrors APANAM's FROM input -->
                 <div class="location-search-section q-mb-md">
                   <q-input
                     v-model="customLocationQuery"
                     outlined
                     dense
-                    placeholder="Enter a location in Baguio (e.g., Session Road, SM Baguio)"
+                    placeholder="Enter a location or use GPS"
                     class="location-search-input"
                     @keyup.enter="searchLocation"
+                    @focus="onLocationInputFocus"
                   >
                     <template v-slot:prepend>
-                      <q-icon name="place" />
+                      <q-btn
+                        flat
+                        dense
+                        round
+                        size="sm"
+                        :icon="autoDetect ? 'gps_fixed' : 'gps_not_fixed'"
+                        :color="autoDetect ? 'positive' : 'primary'"
+                        :loading="geoLoading"
+                        @click="enableAutoDetect"
+                      >
+                        <q-tooltip>Detect my location</q-tooltip>
+                      </q-btn>
                     </template>
                     <template v-slot:append>
+                      <q-btn
+                        v-if="customLocationQuery"
+                        flat
+                        dense
+                        round
+                        icon="clear"
+                        color="grey"
+                        size="sm"
+                        @click="clearCustomLocation"
+                      >
+                        <q-tooltip>Clear</q-tooltip>
+                      </q-btn>
                       <q-btn
                         flat
                         dense
                         round
                         icon="search"
-                        @click="searchLocation"
-                        :loading="isSearchingLocation"
+                        color="primary"
                         size="sm"
+                        :loading="isSearchingLocation"
+                        @click="searchLocation"
                       >
                         <q-tooltip>Search location</q-tooltip>
                       </q-btn>
                     </template>
                   </q-input>
-                  <div v-if="customLocationName" class="selected-location-badge">
-                    <q-icon name="location_on" size="14px" color="primary" />
-                    <span>{{ customLocationName }}</span>
-                    <q-btn flat dense round icon="close" size="xs" @click="clearCustomLocation">
-                      <q-tooltip>Clear location</q-tooltip>
-                    </q-btn>
-                  </div>
                 </div>
 
                 <!-- Category Filter - Horizontal Scrollable Chips -->
@@ -132,8 +134,8 @@
                     <q-chip
                       v-for="category in categories"
                       :key="category.value"
-                      :color="selectedCategory === category.value ? 'primary' : 'grey-3'"
-                      :text-color="selectedCategory === category.value ? 'white' : 'grey-8'"
+                      :color="selectedCategories.includes(category.value) ? 'primary' : 'grey-3'"
+                      :text-color="selectedCategories.includes(category.value) ? 'white' : 'grey-8'"
                       clickable
                       dense
                       class="category-chip"
@@ -166,38 +168,20 @@
                   </div>
                 </div>
 
-                <!-- Location Buttons -->
-                <div class="location-controls-section">
-                  <q-btn
-                    v-if="!customLocationName"
-                    label="Use Current Location"
-                    color="primary"
-                    icon="my_location"
-                    class="full-width"
-                    unelevated
-                    @click="getCurrentLocation"
-                    :loading="isLoadingLocation"
+                <!-- Search Bar -->
+                <div class="search-bar-section">
+                  <q-input
+                    v-model="searchQuery"
+                    outlined
+                    dense
+                    placeholder="Search for nearby places..."
+                    class="search-input"
+                    @input="onSearchInput"
                   >
-                    <template v-slot:loading>
-                      <q-spinner-facebook size="sm" />
-                      Detecting...
+                    <template v-slot:prepend>
+                      <q-icon name="search" />
                     </template>
-                  </q-btn>
-                  <q-btn
-                    v-else
-                    label="Use My Location Instead"
-                    color="primary"
-                    icon="my_location"
-                    class="full-width"
-                    unelevated
-                    @click="getCurrentLocation"
-                    :loading="isLoadingLocation"
-                  >
-                    <template v-slot:loading>
-                      <q-spinner-facebook size="sm" />
-                      Detecting...
-                    </template>
-                  </q-btn>
+                  </q-input>
                 </div>
               </q-card-section>
 
@@ -303,10 +287,7 @@
                 </div>
 
                 <!-- Recently Viewed -->
-                <div
-                  v-if="recentlyViewed.length > 0 && !selectedPlace"
-                  class="recently-viewed q-mb-md"
-                >
+                <div v-if="recentlyViewed.length > 0" class="recently-viewed q-mb-md">
                   <div class="row items-center q-mb-xs">
                     <div class="text-caption text-grey-7">Recently Viewed</div>
                     <q-space />
@@ -322,7 +303,7 @@
                       color="primary"
                       text-color="white"
                       size="sm"
-                      @click="selectPlace({ id: item.id, name: item.name })"
+                      @click="selectPlace(places.find((p) => p.id === item.id) || item)"
                     >
                       <q-avatar>
                         <img
@@ -352,11 +333,13 @@
                 </div>
 
                 <q-scroll-area style="height: 300px" v-else>
-                  <div class="places-list">
+                  <q-list class="places-list">
                     <q-item
                       v-for="place in filteredPlaces"
                       :key="place.id"
-                      class="place-list-item cursor-pointer q-mb-sm"
+                      clickable
+                      v-ripple
+                      class="place-list-item q-mb-sm"
                       @click="selectPlace(place)"
                     >
                       <q-item-section avatar>
@@ -389,7 +372,7 @@
                         <q-icon name="chevron_right" color="grey-7" />
                       </q-item-section>
                     </q-item>
-                  </div>
+                  </q-list>
                 </q-scroll-area>
               </q-card-section>
             </q-card>
@@ -398,134 +381,109 @@
       </div>
     </section>
 
-    <!-- INFO SECTION (Section 5) -->
-    <section v-if="selectedPlace" class="info-section">
-      <div class="container">
-        <div class="section-eyebrow text-center">
-          <p class="eyebrow-text">PLACE INFORMATION</p>
-          <h2 class="eyebrow-title">
-            Details for <em>{{ selectedPlace.name }}</em>
-          </h2>
-        </div>
-
-        <div class="row">
-          <div class="col-md-8 col-12 q-pa-lg">
-            <q-card class="info-card">
-              <q-card-section>
-                <div class="row items-center q-mb-lg">
-                  <div class="col">
-                    <div class="text-h4 text-weight-bold text-primary">
-                      {{ selectedPlace.name }}
-                    </div>
-                    <div class="text-subtitle1 q-gutter-xs">
-                      <q-badge
-                        v-for="(cat, idx) in Array.isArray(selectedPlace.categories)
-                          ? selectedPlace.categories
-                          : [selectedPlace.category].filter(Boolean)"
-                        :key="idx"
-                        color="secondary"
-                        class="text-capitalize"
-                      >
-                        {{ getCategoryLabel(cat) }}
-                      </q-badge>
-                    </div>
-                  </div>
-                  <div class="col-auto">
-                    <q-badge color="primary" text-color="white" class="text-bold">
-                      {{ calculateDistance(selectedPlace) }} km away
-                    </q-badge>
-                  </div>
-                </div>
-
-                <div class="info-details">
-                  <div class="info-row">
-                    <q-icon name="location_on" color="primary" size="sm" class="q-mr-sm" />
-                    <span>{{ selectedPlace.address || 'Address not available' }}</span>
-                  </div>
-                  <div class="info-row" v-if="selectedPlace.operatingHours">
-                    <q-icon name="schedule" color="primary" size="sm" class="q-mr-sm" />
-                    <span>{{ formatOperatingHours(selectedPlace.operatingHours) }}</span>
-                  </div>
-                  <div class="info-row" v-if="selectedPlace.phone">
-                    <q-icon name="phone" color="primary" size="sm" class="q-mr-sm" />
-                    <span>{{ selectedPlace.phone }}</span>
-                  </div>
-                </div>
-
-                <div class="q-mt-lg">
-                  <h4 class="text-h6 text-weight-bold text-primary q-mb-md">Description</h4>
-                  <p class="text-body1">
-                    {{ selectedPlace.description || 'No description available.' }}
-                  </p>
-                </div>
-
-                <div class="q-mt-lg">
-                  <q-btn
-                    label="Get Directions via APANAM"
-                    color="primary"
-                    icon="navigation"
-                    class="full-width"
-                    @click="navigateToPlace(selectedPlace)"
-                  />
-                  <q-btn
-                    label="Report Issue"
-                    color="negative"
-                    unelevated
-                    icon="report_problem"
-                    class="full-width q-mt-md"
-                    @click="reportIssue(selectedPlace)"
-                  />
-                </div>
-              </q-card-section>
-            </q-card>
-          </div>
-          <div class="col-md-4 col-12 q-pa-lg">
-            <div class="map-placeholder bg-grey-3 q-pa-xl rounded-borders">
-              <q-icon name="map" size="48px" color="grey-6" />
-              <div class="text-center q-mt-md">Route Visualization</div>
-              <div class="text-center text-caption q-mt-sm">
-                Shows route from your location to this place
+    <!-- PLACE DETAILS MODAL -->
+    <q-dialog v-model="showPlaceDetail" transition-show="fade" transition-hide="fade">
+      <q-card class="place-detail-card" style="width: 90%; max-width: 900px">
+        <q-card-section class="bg-primary text-white">
+          <div class="row items-center">
+            <div class="col">
+              <div class="text-h5 text-weight-bold">{{ selectedPlace?.name }}</div>
+              <div v-if="selectedPlace?.address" class="text-subtitle2">
+                <q-icon name="location_on" size="16px" class="q-mr-xs" />
+                {{ selectedPlace?.address }}
               </div>
             </div>
+            <q-btn icon="close" flat round dense v-close-popup />
           </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Report Issue Dialog -->
-    <q-dialog v-model="showReportDialog" persistent>
-      <q-card style="min-width: 500px">
-        <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6 text-primary">Report Issue</div>
-          <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
         </q-card-section>
 
-        <q-card-section>
-          <div class="text-body2 text-grey-7 q-mb-md">
-            Reporting: <strong>{{ placeToReport?.name }}</strong>
-          </div>
-          <q-input
-            v-model="reportIssueText"
-            outlined
-            type="textarea"
-            label="Describe the issue *"
-            placeholder="Please describe what's wrong with this place (e.g., incorrect information, closed permanently, inappropriate content, etc.)"
-            autogrow
-            :rows="4"
-          />
-        </q-card-section>
+        <q-card-section class="q-pa-none" v-if="selectedPlace">
+          <q-scroll-area style="height: 65vh">
+            <q-img
+              :src="selectedPlace.imageUrl || fallbackImage"
+              spinner-color="primary"
+              class="modal-image"
+            >
+              <template v-slot:error>
+                <div class="absolute-full flex flex-center bg-grey-2">
+                  <img :src="fallbackImage" class="fallback-img" />
+                </div>
+              </template>
+            </q-img>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" color="grey" v-close-popup />
-          <q-btn
-            label="Submit Report"
-            color="negative"
-            unelevated
-            @click="submitReport"
-            :disable="!reportIssueText.trim()"
-          />
-        </q-card-actions>
+            <q-card-section class="q-pa-lg">
+              <div class="row q-col-gutter-lg">
+                <div class="col-12 col-md-8">
+                  <h4 class="text-h6 text-weight-bold text-primary q-mb-md">About this Place</h4>
+                  <p class="text-body1 q-mb-lg">
+                    {{ selectedPlace.description || 'No description available.' }}
+                  </p>
+
+                  <h4 class="text-h6 text-weight-bold text-primary q-mb-md">Place Details</h4>
+                  <q-list bordered separator>
+                    <q-item v-if="selectedPlace.address">
+                      <q-item-section avatar>
+                        <q-icon name="location_on" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="text-weight-bold">Address</q-item-label>
+                        <q-item-label caption>{{ selectedPlace.address }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                    <q-item v-if="selectedPlace.operatingHours">
+                      <q-item-section avatar>
+                        <q-icon name="schedule" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="text-weight-bold">Operating Hours</q-item-label>
+                        <q-item-label caption>{{
+                          formatOperatingHours(selectedPlace.operatingHours)
+                        }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                    <q-item v-if="selectedPlace.phone">
+                      <q-item-section avatar>
+                        <q-icon name="phone" color="primary" />
+                      </q-item-section>
+                      <q-item-section>
+                        <q-item-label class="text-weight-bold">Contact</q-item-label>
+                        <q-item-label caption>{{ selectedPlace.phone }}</q-item-label>
+                      </q-item-section>
+                    </q-item>
+                  </q-list>
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <h4 class="text-h6 text-weight-bold text-primary q-mb-md">Actions</h4>
+
+                  <q-card flat bordered class="q-mb-lg">
+                    <q-card-section>
+                      <p class="text-body2 q-mb-md">
+                        Use our APANAM navigation to get directions to {{ selectedPlace.name }}.
+                      </p>
+                      <q-btn
+                        label="Get Directions"
+                        color="primary"
+                        unelevated
+                        icon="navigation"
+                        class="full-width"
+                        @click="navigateToPlace(selectedPlace)"
+                      />
+                      <q-btn
+                        :label="isPlaceSaved(selectedPlace) ? 'Saved' : 'Save Place'"
+                        :color="isPlaceSaved(selectedPlace) ? 'positive' : 'secondary'"
+                        :icon="isPlaceSaved(selectedPlace) ? 'bookmark' : 'bookmark_border'"
+                        class="full-width q-mt-md"
+                        unelevated
+                        @click="toggleSavePlace(selectedPlace)"
+                      />
+                    </q-card-section>
+                  </q-card>
+                </div>
+              </div>
+            </q-card-section>
+          </q-scroll-area>
+        </q-card-section>
       </q-card>
     </q-dialog>
 
@@ -588,7 +546,20 @@ import { useRouter } from 'vue-router'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { db } from 'src/boot/firebase'
-import { collection, getDocs, query, orderBy, doc, getDoc } from 'firebase/firestore'
+import {
+  collection,
+  getDocs,
+  query,
+  orderBy,
+  doc,
+  getDoc,
+  setDoc,
+  deleteDoc,
+  serverTimestamp,
+} from 'firebase/firestore'
+import { useUserStore } from 'stores/user-store'
+import { useGeocoding } from 'src/composables/useGeocoding'
+import { useGeolocation } from 'src/composables/useGeolocation'
 import FooterSection from '../components/home/FooterSection.vue'
 import fallbackImage from '../assets/30.png'
 
@@ -600,15 +571,19 @@ export default defineComponent({
   setup() {
     const $q = useQuasar()
     const router = useRouter()
+    const userStore = useUserStore()
+    const { reverseGeocode } = useGeocoding()
+    const { getCurrentLocation: getGpsLocation, loading: geoLoading } = useGeolocation()
     const places = ref([])
     const loading = ref(true)
     const searchQuery = ref('')
-    const selectedCategory = ref('all')
+    const selectedCategories = ref(['all'])
     const searchRadius = ref(1) // Default 1km
     const userLocation = ref(null)
     const selectedPlace = ref(null)
+    const showPlaceDetail = ref(false)
+    const savedPlacesIds = ref(new Set())
     const heroImageUrl = ref(fallbackImage)
-    const isLoadingLocation = ref(false)
     const isLoadingPlaces = ref(false)
     const isScrolled = ref(false)
     const mapInstance = ref(null)
@@ -620,6 +595,7 @@ export default defineComponent({
     const customLocationName = ref('')
     const customLocationCoords = ref(null)
     const isSearchingLocation = ref(false)
+    const autoDetect = ref(false)
 
     // Advanced search features
     const searchHistory = ref([])
@@ -629,9 +605,6 @@ export default defineComponent({
     const showAdvancedFilters = ref(false)
     const minRating = ref(0)
     const maxDistance = ref(50) // km
-    const showReportDialog = ref(false)
-    const placeToReport = ref(null)
-    const reportIssueText = ref('')
 
     const categories = [
       { label: 'All', value: 'all', icon: 'apps', color: 'primary' },
@@ -679,21 +652,21 @@ export default defineComponent({
     const filteredPlaces = computed(() => {
       let result = places.value
 
-      // Filter by category - handle both formats (kebab-case and full names)
-      if (selectedCategory.value !== 'all') {
+      // Filter by category - handle both formats (kebab-case and full names).
+      // Multiple categories can be active at once; a place matches if any of its
+      // categories matches any of the selected filters. 'all' disables filtering.
+      if (selectedCategories.value.length > 0 && !selectedCategories.value.includes('all')) {
+        const selectedNormalized = selectedCategories.value.map((c) =>
+          c.toLowerCase().replace(/[-\s]/g, '')
+        )
         result = result.filter((place) => {
           const placeCategories = Array.isArray(place.categories)
             ? place.categories
             : [place.category].filter(Boolean)
 
-          // Check if any category matches (handle both "tourist-spot" and "Tourist Spots")
           return placeCategories.some((cat) => {
-            const catLower = cat.toLowerCase()
-            const selectedLower = selectedCategory.value.toLowerCase()
-            return (
-              catLower === selectedLower ||
-              catLower.replace(/[-\s]/g, '') === selectedLower.replace(/[-\s]/g, '')
-            )
+            const catNormalized = cat.toLowerCase().replace(/[-\s]/g, '')
+            return selectedNormalized.includes(catNormalized)
           })
         })
       }
@@ -879,135 +852,130 @@ export default defineComponent({
       }
     }
 
-    const getCurrentLocation = () => {
-      if (!navigator.geolocation) {
-        $q.notify({
-          message: 'Geolocation is not supported by your browser',
-          color: 'negative',
-          position: 'top',
-        })
-        return
+    // Place / replace the user marker on the Leaflet map
+    const placeUserMarker = (lat, lng, label = 'You are here') => {
+      if (!mapInstance.value) return
+
+      if (userMarker.value) {
+        mapInstance.value.removeLayer(userMarker.value)
       }
 
-      isLoadingLocation.value = true
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          userLocation.value = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            accuracy: position.coords.accuracy,
-          }
-
-          // Update map view and add marker
-          if (mapInstance.value) {
-            // Fly to user's location
-            mapInstance.value.flyTo([position.coords.latitude, position.coords.longitude], 15, {
-              duration: 1.5,
-            })
-
-            // Remove existing marker if any
-            if (userMarker.value) {
-              mapInstance.value.removeLayer(userMarker.value)
+      const userIcon = L.divIcon({
+        className: 'user-location-marker',
+        html: `
+          <div style="
+            position: relative;
+            width: 40px;
+            height: 40px;
+            background: #2196F3;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            animation: pulse 2s infinite;
+          ">
+            <div style="
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              width: 16px;
+              height: 16px;
+              background: white;
+              border-radius: 50%;
+            "></div>
+          </div>
+          <div style="
+            position: absolute;
+            top: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            color: #333;
+          ">${label}</div>
+          <style>
+            @keyframes pulse {
+              0% { transform: scale(1); box-shadow: 0 2px 10px rgba(33, 150, 243, 0.5); }
+              50% { transform: scale(1.1); box-shadow: 0 2px 20px rgba(33, 150, 243, 0.8); }
+              100% { transform: scale(1); box-shadow: 0 2px 10px rgba(33, 150, 243, 0.5); }
             }
+          </style>
+        `,
+        iconSize: [40, 55],
+        iconAnchor: [20, 55],
+      })
 
-            // Add custom "You are here" marker
-            const userIcon = L.divIcon({
-              className: 'user-location-marker',
-              html: `
-                <div style="
-                  position: relative;
-                  width: 40px;
-                  height: 40px;
-                  background: #2196F3;
-                  border: 3px solid white;
-                  border-radius: 50%;
-                  box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-                  animation: pulse 2s infinite;
-                ">
-                  <div style="
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    width: 16px;
-                    height: 16px;
-                    background: white;
-                    border-radius: 50%;
-                  "></div>
-                </div>
-                <div style="
-                  position: absolute;
-                  top: 45px;
-                  left: 50%;
-                  transform: translateX(-50%);
-                  background: white;
-                  padding: 4px 8px;
-                  border-radius: 4px;
-                  font-size: 11px;
-                  font-weight: bold;
-                  white-space: nowrap;
-                  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-                  color: #333;
-                ">You are here</div>
-                <style>
-                  @keyframes pulse {
-                    0% { transform: scale(1); box-shadow: 0 2px 10px rgba(33, 150, 243, 0.5); }
-                    50% { transform: scale(1.1); box-shadow: 0 2px 20px rgba(33, 150, 243, 0.8); }
-                    100% { transform: scale(1); box-shadow: 0 2px 10px rgba(33, 150, 243, 0.5); }
-                  }
-                </style>
-              `,
-              iconSize: [40, 55],
-              iconAnchor: [20, 55],
-            })
+      userMarker.value = L.marker([lat, lng], { icon: userIcon }).addTo(mapInstance.value)
+    }
 
-            userMarker.value = L.marker([position.coords.latitude, position.coords.longitude], {
-              icon: userIcon,
-            })
-              .addTo(mapInstance.value)
-              .bindPopup(
-                `<strong>Your Location</strong><br>Accuracy: ${Math.round(position.coords.accuracy)}m`
-              )
-              .openPopup()
+    // Auto-detect the user's location and prefill the FROM input.
+    // `silent` skips toasts on startup (errors fail quietly).
+    const enableAutoDetect = async ({ silent = false } = {}) => {
+      try {
+        const coords = await getGpsLocation()
+
+        userLocation.value = {
+          latitude: coords.lat,
+          longitude: coords.lng,
+          accuracy: coords.accuracy,
+        }
+        customLocationCoords.value = { lat: coords.lat, lng: coords.lng }
+
+        let label = 'Your Current Location'
+        try {
+          const geo = await reverseGeocode(coords.lat, coords.lng)
+          if (geo && geo.label && geo.label !== 'Unknown location') {
+            label = geo.label
           }
+        } catch (geoErr) {
+          console.warn('[AyanMoPage] Reverse geocode failed:', geoErr)
+        }
 
+        customLocationQuery.value = label
+        customLocationName.value = label
+        autoDetect.value = true
+
+        if (mapInstance.value) {
+          mapInstance.value.flyTo([coords.lat, coords.lng], 15, { duration: 1.5 })
+          placeUserMarker(coords.lat, coords.lng, label)
+          setTimeout(() => addPlaceMarkersToMap(), 300)
+        }
+
+        if (!silent) {
           $q.notify({
             type: 'positive',
             message: 'Location detected successfully!',
-            icon: 'my_location',
+            icon: 'gps_fixed',
             position: 'top',
+            timeout: 2000,
           })
-          isLoadingLocation.value = false
-
-          // Add place markers to map
-          setTimeout(() => {
-            addPlaceMarkersToMap()
-          }, 300)
-        },
-        (error) => {
-          console.error('[AyanMoPage] Geolocation error:', error)
-          let errorMessage = 'Unable to get your location. '
-
-          if (error.code === 1) {
-            errorMessage += 'Please allow location access in your browser settings.'
-          } else if (error.code === 2) {
-            errorMessage += 'Location service is unavailable.'
-          } else if (error.code === 3) {
-            errorMessage += 'Location request timed out.'
-          } else {
-            errorMessage += error.message
-          }
-
+        }
+      } catch (err) {
+        autoDetect.value = false
+        console.warn('[AyanMoPage] Auto-detect failed:', err?.message || err)
+        if (!silent) {
           $q.notify({
             type: 'negative',
-            message: errorMessage,
+            message: err?.message || 'Unable to detect your location',
             icon: 'warning',
             position: 'top',
-            timeout: 5000,
+            timeout: 3000,
           })
-          isLoadingLocation.value = false
         }
-      )
+      }
+    }
+
+    // When the user focuses the input to type, drop the auto-detect badge so
+    // the GPS icon reflects that the value is no longer the detected one.
+    const onLocationInputFocus = () => {
+      if (autoDetect.value) {
+        autoDetect.value = false
+      }
     }
 
     // Search for a custom location using geocoding
@@ -1068,6 +1036,7 @@ export default defineComponent({
 
           customLocationName.value = result.display_name.split(',')[0] // First part of address
           customLocationCoords.value = { lat, lng }
+          autoDetect.value = false
 
           // Update map view
           if (mapInstance.value) {
@@ -1166,6 +1135,7 @@ export default defineComponent({
       customLocationName.value = ''
       customLocationCoords.value = null
       userLocation.value = null
+      autoDetect.value = false
 
       // Remove user marker from map
       if (userMarker.value && mapInstance.value) {
@@ -1180,7 +1150,7 @@ export default defineComponent({
 
       $q.notify({
         type: 'info',
-        message: 'Location cleared. Use current location or search again.',
+        message: 'Location cleared. Type a location to search again.',
         position: 'top',
         timeout: 3000,
       })
@@ -1355,13 +1325,22 @@ export default defineComponent({
             weight: 2,
             opacity: 1,
             fillOpacity: 0.9,
-          }).addTo(mapInstance.value).bindPopup(`
+          })
+            .addTo(mapInstance.value)
+            .bindTooltip(place.name, {
+              direction: 'top',
+              offset: [0, -8],
+              className: 'place-marker-tooltip',
+            })
+            .bindPopup(
+              `
               <div style="min-width: 200px; padding: 4px;">
                 <strong style="font-size: 14px; display: block; margin-bottom: 4px;">${place.name}</strong>
                 <span style="color: #666; font-size: 12px;">${getDistanceText(place)}</span><br/>
                 <span style="color: #999; font-size: 11px;">${category || 'Unknown'}</span>
               </div>
-            `)
+            `
+            )
 
           marker.on('click', () => {
             selectPlace(place)
@@ -1426,7 +1405,22 @@ export default defineComponent({
     }
 
     const filterByCategory = (category) => {
-      selectedCategory.value = category
+      // Toggle multi-select behavior. 'All' acts as a reset and is mutually
+      // exclusive with the other categories.
+      if (category === 'all') {
+        selectedCategories.value = ['all']
+        return
+      }
+
+      const current = selectedCategories.value.filter((c) => c !== 'all')
+      const idx = current.indexOf(category)
+      if (idx >= 0) {
+        current.splice(idx, 1)
+      } else {
+        current.push(category)
+      }
+
+      selectedCategories.value = current.length > 0 ? current : ['all']
     }
 
     const onSearchInput = (val) => {
@@ -1443,48 +1437,108 @@ export default defineComponent({
 
     const selectPlace = (place) => {
       selectedPlace.value = place
+      showPlaceDetail.value = true
       addToRecentlyViewed(place)
-    }
-
-    const reportIssue = (place) => {
-      placeToReport.value = place
-      reportIssueText.value = ''
-      showReportDialog.value = true
-    }
-
-    const submitReport = () => {
-      if (!reportIssueText.value.trim()) {
-        $q.notify({
-          type: 'warning',
-          message: 'Please describe the issue',
-          position: 'top',
-        })
-        return
-      }
-
-      console.log('[AyanMoPage] Report submitted:', {
-        placeId: placeToReport.value?.id,
-        placeName: placeToReport.value?.name,
-        issue: reportIssueText.value,
-        timestamp: new Date(),
-      })
-
-      showReportDialog.value = false
-      $q.notify({
-        type: 'positive',
-        message: 'Thank you! Your report has been submitted.',
-        position: 'top',
-        timeout: 3000,
-      })
     }
 
     const navigateToPlace = (place) => {
       if (!place) return
 
-      // Navigate to APANAM with place as destination
-      router.push(
-        `/apanam?start=${encodeURIComponent('Current Location')}&end=${encodeURIComponent(place.name)}`
-      )
+      // Navigate to APANAM with the place as destination, matching MaykanPage's
+      // query-param contract so APANAM can prefill TO with coordinates.
+      router.push({
+        path: '/apanam',
+        query: {
+          toName: place.name,
+          toLat: place.latitude ?? '',
+          toLng: place.longitude ?? '',
+        },
+      })
+      showPlaceDetail.value = false
+    }
+
+    const toggleSavePlace = async (place) => {
+      if (!userStore.isAuthenticated) {
+        $q.notify({
+          type: 'info',
+          message: 'Please login to save places',
+          position: 'top',
+          actions: [
+            {
+              label: 'Login',
+              color: 'white',
+              handler: () => router.push('/login'),
+            },
+          ],
+        })
+        return
+      }
+
+      const isSaved = savedPlacesIds.value.has(place.id)
+
+      try {
+        const savedPlaceRef = doc(db, 'users', userStore.user.uid, 'savedPlaces', place.id)
+
+        if (isSaved) {
+          await deleteDoc(savedPlaceRef)
+          savedPlacesIds.value.delete(place.id)
+          $q.notify({
+            type: 'info',
+            message: 'Place removed from saved',
+            position: 'top',
+          })
+        } else {
+          await setDoc(savedPlaceRef, {
+            placeId: place.id,
+            name: place.name,
+            categories: Array.isArray(place.categories) ? place.categories : [],
+            description: place.description,
+            address: place.address,
+            operatingHours: place.operatingHours,
+            entranceFee: place.entranceFee,
+            phone: place.phone,
+            imageUrl: place.imageUrl,
+            latitude: place.latitude,
+            longitude: place.longitude,
+            savedAt: serverTimestamp(),
+          })
+          savedPlacesIds.value.add(place.id)
+          $q.notify({
+            type: 'positive',
+            message: 'Place saved successfully!',
+            position: 'top',
+          })
+        }
+      } catch (error) {
+        console.error('[AyanMoPage] Error toggling saved place:', error)
+        $q.notify({
+          type: 'negative',
+          message: 'Failed to save place',
+          position: 'top',
+        })
+      }
+    }
+
+    const loadSavedPlaces = async () => {
+      if (!userStore.isAuthenticated) {
+        savedPlacesIds.value.clear()
+        return
+      }
+
+      try {
+        const savedPlacesRef = collection(db, 'users', userStore.user.uid, 'savedPlaces')
+        const querySnapshot = await getDocs(savedPlacesRef)
+        savedPlacesIds.value.clear()
+        querySnapshot.docs.forEach((d) => {
+          savedPlacesIds.value.add(d.id)
+        })
+      } catch (error) {
+        console.error('[AyanMoPage] Error loading saved places:', error)
+      }
+    }
+
+    const isPlaceSaved = (place) => {
+      return savedPlacesIds.value.has(place.id)
     }
 
     const onScroll = (info) => {
@@ -1495,6 +1549,7 @@ export default defineComponent({
       await fetchHeroImage()
       await fetchPlaces()
       loadSearchHistory()
+      await loadSavedPlaces()
 
       // Initialize map
       if (document.getElementById('map')) {
@@ -1504,9 +1559,13 @@ export default defineComponent({
 
         mapInstance.value = L.map('map').setView([defaultLat, defaultLng], 13)
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        // CartoDB Voyager — colorful basemap without POI icons (shopping,
+        // hospital, school, etc. that are baked into the standard OSM tiles).
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
           attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: 'abcd',
+          maxZoom: 20,
         }).addTo(mapInstance.value)
 
         console.log('[AyanMoPage] Map initialized')
@@ -1519,84 +1578,10 @@ export default defineComponent({
         }, 200)
       }
 
-      // Auto-detect user location on page load (non-intrusive)
-      if (navigator.geolocation && !userLocation.value) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            userLocation.value = {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude,
-              accuracy: position.coords.accuracy,
-            }
-
-            // Add marker to map
-            if (mapInstance.value) {
-              const userIcon = L.divIcon({
-                className: 'user-location-marker',
-                html: `
-                  <div style="
-                    position: relative;
-                    width: 40px;
-                    height: 40px;
-                    background: #2196F3;
-                    border: 3px solid white;
-                    border-radius: 50%;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-                    animation: pulse 2s infinite;
-                  ">
-                    <div style="
-                      position: absolute;
-                      top: 50%;
-                      left: 50%;
-                      transform: translate(-50%, -50%);
-                      width: 16px;
-                      height: 16px;
-                      background: white;
-                      border-radius: 50%;
-                    "></div>
-                  </div>
-                  <div style="
-                    position: absolute;
-                    top: 45px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    background: white;
-                    padding: 4px 8px;
-                    border-radius: 4px;
-                    font-size: 11px;
-                    font-weight: bold;
-                    white-space: nowrap;
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-                    color: #333;
-                  ">You are here</div>
-                  <style>
-                    @keyframes pulse {
-                      0% { transform: scale(1); box-shadow: 0 2px 10px rgba(33, 150, 243, 0.5); }
-                      50% { transform: scale(1.1); box-shadow: 0 2px 20px rgba(33, 150, 243, 0.8); }
-                      100% { transform: scale(1); box-shadow: 0 2px 10px rgba(33, 150, 243, 0.5); }
-                    }
-                  </style>
-                `,
-                iconSize: [40, 55],
-                iconAnchor: [20, 55],
-              })
-
-              userMarker.value = L.marker([position.coords.latitude, position.coords.longitude], {
-                icon: userIcon,
-              }).addTo(mapInstance.value)
-
-              // Add place markers after user location is set
-              setTimeout(() => {
-                addPlaceMarkersToMap()
-              }, 500)
-            }
-
-            console.log('[AyanMoPage] Auto-detected user location')
-          },
-          () => {
-            console.log('[AyanMoPage] Auto-location detection declined or unavailable')
-          }
-        )
+      // Auto-detect the user's location on page load and prefill the FROM input.
+      // Fails silently — the user can still type a location manually.
+      if (!userLocation.value) {
+        await enableAutoDetect({ silent: true })
       }
     })
 
@@ -1611,7 +1596,6 @@ export default defineComponent({
     watch(userLocation, (newLocation) => {
       if (newLocation && mapInstance.value) {
         console.log('[AyanMoPage] User location updated:', newLocation)
-        // Map will be updated by getCurrentLocation when user clicks the button
       }
     })
 
@@ -1648,12 +1632,11 @@ export default defineComponent({
       places,
       loading,
       searchQuery,
-      selectedCategory,
+      selectedCategories,
       searchRadius,
       userLocation,
       selectedPlace,
       heroImageUrl,
-      isLoadingLocation,
       isLoadingPlaces,
       categories,
       radiusOptions,
@@ -1661,7 +1644,6 @@ export default defineComponent({
       leftFaqs,
       rightFaqs,
       filteredPlaces,
-      getCurrentLocation,
       filterByCategory,
       onSearchInput,
       selectPlace,
@@ -1674,11 +1656,11 @@ export default defineComponent({
       getCategoryColor,
       isScrolled,
       onScroll,
-      reportIssue,
-      submitReport,
-      showReportDialog,
-      placeToReport,
-      reportIssueText,
+      showPlaceDetail,
+      toggleSavePlace,
+      isPlaceSaved,
+      userStore,
+      fallbackImage,
       // Advanced search features
       searchHistory,
       recentlyViewed,
@@ -1697,6 +1679,10 @@ export default defineComponent({
       isSearchingLocation,
       searchLocation,
       clearCustomLocation,
+      autoDetect,
+      geoLoading,
+      enableAutoDetect,
+      onLocationInputFocus,
       // Map markers
       addPlaceMarkersToMap,
     }
@@ -2545,6 +2531,25 @@ $bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
 
   .hero-description {
     font-size: 0.9rem;
+  }
+}
+</style>
+
+<!-- Unscoped — Leaflet tooltips render outside the component tree -->
+<style lang="scss">
+.leaflet-tooltip.place-marker-tooltip {
+  background: #14241a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+
+  &::before {
+    border-top-color: #14241a;
   }
 }
 </style>

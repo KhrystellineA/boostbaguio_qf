@@ -1,3 +1,13 @@
+/**
+ * SEO meta-tags composable.
+ *
+ * Watches the active route and rewrites `document.title`, the meta
+ * description, and Open Graph / Twitter card tags from each route's
+ * `meta.title` / `meta.description` (declared in src/router/routes.js).
+ *
+ * Currently NOT mounted anywhere — see AUDIT.md. Wire up in MainLayout.vue
+ * setup with `useMetaTags()` for real SEO benefit.
+ */
 import { watch } from 'vue'
 import { useRoute } from 'vue-router'
 

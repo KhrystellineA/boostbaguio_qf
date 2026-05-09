@@ -80,21 +80,29 @@ pnpm test:coverage
 ```
 BOOST-BAGUIO/
 ├── src/                 # Main source code
-│   ├── boot/            # Boot files (Firebase, Pinia, guards)
+│   ├── boot/            # Quasar boot files (Firebase, Pinia, guards, error handler)
 │   ├── components/      # Reusable Vue components
-│   │   ├── admin/       # Admin dashboard components
-│   │   └── home/        # Homepage section components
-│   ├── composables/     # Vue 3 composable functions
-│   ├── layouts/         # Layout components
-│   ├── pages/           # Page components (routes)
-│   │   └── admin/       # Admin pages
-│   ├── router/          # Vue Router configuration
-│   ├── stores/          # Pinia state stores
-│   └── utils/           # Utility functions
+│   │   ├── admin/       # Admin dashboard components (one file per admin module)
+│   │   └── home/        # Landing-page sections (Hero, About, FAQ, Footer, …)
+│   ├── composables/     # Vue 3 composables (useGeolocation, useGeocoding, …)
+│   ├── layouts/         # MainLayout (public) and BlankLayout (admin)
+│   ├── pages/           # One file per top-level route in router/routes.js
+│   │   └── admin/       # AdminLogin, AdminSignup, AdminDashboard
+│   ├── router/          # Vue Router config + auth/role guards
+│   ├── stores/          # Pinia state (currently just user-store)
+│   ├── utils/           # Framework-free helpers (validation, errorHandler, analytics, …)
+│   ├── css/             # Global styles + Quasar variables
+│   └── test/            # Vitest setup + helpers
+├── scripts/             # Standalone Node scripts (e.g. jeepney route audit)
 ├── public/              # Static assets
-├── src-pwa/             # PWA configuration
+├── src-pwa/             # PWA service worker source
+├── firestore.rules      # Firestore security rules
 └── .github/workflows/   # CI/CD pipeline
 ```
+
+> 📐 **For a full map of "where does the code for X live?" see [`ARCHITECTURE.md`](./ARCHITECTURE.md).** It walks through each of the five named features (APANAM, PAGNAAM, MAYKAN, ARAMIDEM, AYAN MO), the admin dashboard, and the data model.
+
+> 🧹 **Cleanup candidates and orphan files are tracked in [`AUDIT.md`](./AUDIT.md).**
 
 ## Deployment
 

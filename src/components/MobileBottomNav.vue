@@ -1,3 +1,8 @@
+<!--
+  Persistent bottom navigation bar for mobile screens (visible only at small
+  viewport widths). Tabs jump between the five named features (APANAM,
+  PAGNAAM, MAYKAN, ARAMIDEM, AYAN MO). Mounted globally from MainLayout.vue.
+-->
 <template>
   <div
     class="mobile-bottom-nav"

@@ -1,3 +1,10 @@
+<!--
+  One-off data-migration helper. NOT registered in router/routes.js — this
+  was used to backfill the multi-`categories` field on existing places docs
+  after the schema changed from a single `category`. Kept around for
+  reference; safe to delete once you're confident the migration is complete.
+  Listed in AUDIT.md as an orphan.
+-->
 <template>
   <q-page class="q-pa-xl">
     <div class="row justify-center">

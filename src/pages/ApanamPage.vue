@@ -398,7 +398,7 @@
                 <div class="direction-step">
                   <q-avatar
                     size="28px"
-                    color="primary"
+                    color="blue-8"
                     text-color="white"
                     font-size="13px"
                     class="q-mr-sm"
@@ -420,7 +420,7 @@
                 <div class="direction-step">
                   <q-avatar
                     size="28px"
-                    color="orange-8"
+                    color="negative"
                     text-color="white"
                     font-size="13px"
                     class="q-mr-sm"
@@ -468,7 +468,7 @@
                 <div class="direction-step">
                   <q-avatar
                     size="28px"
-                    color="primary"
+                    color="blue-8"
                     text-color="white"
                     font-size="13px"
                     class="q-mr-sm"
@@ -479,7 +479,9 @@
                       >Ride <strong>{{ selectedOption.firstJeepney?.jeepName }}</strong></span
                     >
                     <div class="text-caption text-grey-7">
-                      Get off at {{ selectedOption.transferName || 'the transfer point' }}
+                      Fare: ₱{{ selectedOption.firstJeepney?.fareRegular || 0 }} &nbsp;&bull;&nbsp;
+                      Get off near
+                      {{ selectedOption.secondJeepney?.terminalLocation || 'the transfer point' }}
                     </div>
                   </div>
                 </div>
@@ -495,16 +497,39 @@
                   >
                   <div>
                     <span class="text-weight-medium"
-                      >Transfer to
-                      <strong>{{ selectedOption.secondJeepney?.jeepName }}</strong></span
+                      >Walk to
+                      {{
+                        selectedOption.secondJeepney?.terminalLocation || 'the next terminal'
+                      }}</span
+                    >
+                    <span
+                      v-if="walkingRouteTransfer?.distance"
+                      class="text-caption text-grey-7 q-ml-xs"
+                    >
+                      ({{ formatDistance(walkingRouteTransfer.distance) }}, ~{{
+                        formatDuration(walkingRouteTransfer.duration)
+                      }})
+                    </span>
+                  </div>
+                </div>
+
+                <div class="direction-step">
+                  <q-avatar
+                    size="28px"
+                    color="accent"
+                    text-color="white"
+                    font-size="13px"
+                    class="q-mr-sm"
+                    >4</q-avatar
+                  >
+                  <div>
+                    <span class="text-weight-medium"
+                      >Ride <strong>{{ selectedOption.secondJeepney?.jeepName }}</strong></span
                     >
                     <div class="text-caption text-grey-7">
                       Tell the driver:
                       <em>"Para po sa {{ selectedOption.dropoff?.name || toLocation?.label }}!"</em>
-                      &nbsp;&bull;&nbsp; Combined fare: ₱{{
-                        (selectedOption.firstJeepney?.fareRegular || 0) +
-                        (selectedOption.secondJeepney?.fareRegular || 0)
-                      }}
+                      &nbsp;&bull;&nbsp; Fare: ₱{{ selectedOption.secondJeepney?.fareRegular || 0 }}
                     </div>
                   </div>
                 </div>
@@ -512,11 +537,11 @@
                 <div class="direction-step">
                   <q-avatar
                     size="28px"
-                    color="orange-8"
+                    color="negative"
                     text-color="white"
                     font-size="13px"
                     class="q-mr-sm"
-                    >4</q-avatar
+                    >5</q-avatar
                   >
                   <div>
                     <span class="text-weight-medium"
@@ -1359,6 +1384,21 @@ export default defineComponent({
                 ? calcDistanceGeo(secondDropoff.coords, endCoords)
                 : 0
 
+              // The user's spec: ride-2 is boarded at JEEPNEY-2's TERMINAL, not
+              // mid-route. So we treat it as a fixed anchor and figure out the
+              // ride-1 alight point as the closest point on jeepney-1's
+              // polyline to that terminal. This guarantees the two ride
+              // polylines are visually disjoint, separated by a walking leg.
+              const firstBoardingPoint = first.jeepney.terminalLat
+                ? [first.jeepney.terminalLat, first.jeepney.terminalLng]
+                : null
+              const secondBoardingPoint = second.jeepney.terminalLat
+                ? [second.jeepney.terminalLat, second.jeepney.terminalLng]
+                : bestTransfer.spot.coords
+              const firstDropoffPoint =
+                isNearRoute(secondBoardingPoint, first.routeCoords, Infinity).nearestPoint ||
+                bestTransfer.spot.coords
+
               doubleRides.push({
                 rideType: 'double',
                 priority: 'double',
@@ -1366,6 +1406,10 @@ export default defineComponent({
                 secondJeepney: { ...second.jeepney },
                 firstRouteGeometry: first.routeCoords,
                 secondRouteGeometry: second.routeCoords,
+                firstBoardingPoint,
+                firstDropoffPoint,
+                secondBoardingPoint,
+                boardingPoint: firstBoardingPoint,
                 transferPoint: bestTransfer.spot.coords,
                 transferName: bestTransfer.spot.name,
                 walkToTransfer: bestTransfer.walkDistance,
@@ -1485,9 +1529,11 @@ export default defineComponent({
         }
 
         routeMap.value = L.map('route-map').setView([16.4122, 120.5948], 14)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
           attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+          subdomains: 'abcd',
+          maxZoom: 20,
         }).addTo(routeMap.value)
 
         const allBounds = []
@@ -1527,10 +1573,11 @@ export default defineComponent({
           return polyline.slice(fromIdx, toIdx + 1)
         }
 
-        // 1. Walking start → boarding point (OSRM foot with driving fallback, dashed orange)
+        // 1. Walking start → boarding point. Dashed line matches step 1's
+        // green avatar / start marker (between markers 1 and 2).
         if (walkingRoute.value?.geometry?.length) {
           L.polyline(walkingRoute.value.geometry, {
-            color: '#E65100',
+            color: 'var(--q-positive)',
             weight: 4,
             opacity: 0.85,
             dashArray: '8, 12',
@@ -1538,32 +1585,43 @@ export default defineComponent({
           walkingRoute.value.geometry.forEach((c) => allBounds.push(c))
         } else if (startCoords && boardingCoords && boardingCoords[0]) {
           L.polyline([startCoords, boardingCoords], {
-            color: '#E65100',
+            color: 'var(--q-positive)',
             weight: 4,
             opacity: 0.85,
             dashArray: '8, 12',
           }).addTo(routeMap.value)
         }
 
-        // 2. Jeepney ride — draw only the segment from boarding to drop-off
+        // 2. Jeepney ride 1 — solid line, clipped to the actual ridden segment.
+        // Color matches step 2's avatar / marker 2 (blue) so the ride visually
+        // belongs to the same instruction step.
         const firstRideFullPolyline =
           option.priority === 'single'
             ? toLatLngList(option.routeGeometry)
             : toLatLngList(option.firstRouteGeometry)
         const firstClipEnd =
-          option.priority === 'single' ? option.dropoff?.coords : option.transferPoint
+          option.priority === 'single'
+            ? option.dropoff?.coords
+            : option.firstDropoffPoint || option.transferPoint
         const firstRidePolyline = clipPolyline(firstRideFullPolyline, boardingCoords, firstClipEnd)
         if (firstRidePolyline.length >= 2) {
           L.polyline(firstRidePolyline, {
-            color: '#283593',
+            color: 'var(--q-primary)',
             weight: 5,
             opacity: 0.9,
           }).addTo(routeMap.value)
           firstRidePolyline.forEach((c) => allBounds.push(c))
-        } else if (boardingCoords && boardingCoords[0] && endCoords && endCoords.length === 2) {
-          // Fallback only if no polyline is available at all
+        } else if (
+          option.priority === 'single' &&
+          boardingCoords &&
+          boardingCoords[0] &&
+          endCoords &&
+          endCoords.length === 2
+        ) {
+          // Single-ride fallback only — never collapse a double ride into a
+          // straight line, which would visually merge the two routes.
           L.polyline([boardingCoords, endCoords], {
-            color: '#283593',
+            color: 'var(--q-primary)',
             weight: 5,
             opacity: 0.9,
           }).addTo(routeMap.value)
@@ -1571,41 +1629,52 @@ export default defineComponent({
 
         // Double-ride extras: transfer walk + second jeepney polyline
         if (option.priority === 'double') {
-          const transferPoint = option.transferPoint
-          if (transferPoint) {
+          const firstDropoff = option.firstDropoffPoint || option.transferPoint
+          const secondBoarding = option.secondBoardingPoint || option.transferPoint
+
+          // 2b. Transfer walk: drop-off-1 → boarding-2. Dashed line matches
+          // step 3's yellow avatar / alight-1 marker (between markers 3 and 4).
+          if (firstDropoff && secondBoarding) {
             if (walkingRouteTransfer.value?.geometry?.length) {
               L.polyline(walkingRouteTransfer.value.geometry, {
-                color: '#E65100',
+                color: 'var(--q-warning)',
                 weight: 4,
                 opacity: 0.85,
                 dashArray: '8, 12',
               }).addTo(routeMap.value)
               walkingRouteTransfer.value.geometry.forEach((c) => allBounds.push(c))
             } else {
-              const transferStart =
-                boardingCoords && boardingCoords[0]
-                  ? boardingCoords
-                  : firstRidePolyline[firstRidePolyline.length - 1]
-              if (transferStart) {
-                L.polyline([transferStart, transferPoint], {
-                  color: '#E65100',
-                  weight: 4,
-                  opacity: 0.85,
-                  dashArray: '8, 12',
-                }).addTo(routeMap.value)
-                allBounds.push(transferStart, transferPoint)
-              }
+              L.polyline([firstDropoff, secondBoarding], {
+                color: 'var(--q-warning)',
+                weight: 4,
+                opacity: 0.85,
+                dashArray: '8, 12',
+              }).addTo(routeMap.value)
+              allBounds.push(firstDropoff, secondBoarding)
             }
           }
+
+          // 2c. Jeepney ride 2 — solid line, clipped from boarding-2 to
+          // drop-off-2. Purple matches step 4's avatar / marker 4, making the
+          // two rides visually distinct from each other.
+          //
+          // A small lat/lng shift (~5 m NE at Baguio's latitude) is applied so
+          // that when ride 2 shares roads with ride 1 the two lines render as
+          // parallel siblings instead of being painted on top of each other.
           const secondRideFullPolyline = toLatLngList(option.secondRouteGeometry)
-          const secondRidePolyline = clipPolyline(
+          const secondRidePolylineRaw = clipPolyline(
             secondRideFullPolyline,
-            option.transferPoint,
+            secondBoarding,
             option.dropoff?.coords
           )
+          const SECOND_LINE_OFFSET = 0.00005
+          const secondRidePolyline = secondRidePolylineRaw.map(([lat, lng]) => [
+            lat + SECOND_LINE_OFFSET,
+            lng + SECOND_LINE_OFFSET,
+          ])
           if (secondRidePolyline.length >= 2) {
             L.polyline(secondRidePolyline, {
-              color: '#283593',
+              color: 'var(--q-accent)',
               weight: 5,
               opacity: 0.9,
             }).addTo(routeMap.value)
@@ -1632,11 +1701,12 @@ export default defineComponent({
         }
 
         // Markers
+        // 1) Starting location — positive green (matches step 1: "Walk to …")
         if (startCoords) {
           L.marker(startCoords, {
             icon: L.divIcon({
               className: 'custom-div-icon',
-              html: "<div style='background-color:#4CAF50;width:18px;height:18px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
+              html: "<div style='background-color:var(--q-positive);width:18px;height:18px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
               iconSize: [24, 24],
               iconAnchor: [12, 12],
             }),
@@ -1646,38 +1716,77 @@ export default defineComponent({
           allBounds.push(startCoords)
         }
 
-        if (boardingCoords && boardingCoords[0]) {
-          const boardingLabel = option.boardingLabel || 'Board jeepney here'
-          L.marker(boardingCoords, {
+        // Helper to add a colored circular marker
+        const addMarker = (coord, color, popup) => {
+          if (!coord || coord[0] == null || coord[1] == null) return
+          L.marker(coord, {
             icon: L.divIcon({
               className: 'custom-div-icon',
-              html: "<div style='background-color:#E65100;width:18px;height:18px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
+              html: `<div style='background-color:${color};width:18px;height:18px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>`,
               iconSize: [24, 24],
               iconAnchor: [12, 12],
             }),
           })
             .addTo(routeMap.value)
-            .bindPopup(`<b>Board jeepney</b><br>${boardingLabel}`)
+            .bindPopup(popup)
+          allBounds.push(coord)
         }
 
-        if (option.dropoff?.coords) {
-          L.marker(option.dropoff.coords, {
-            icon: L.divIcon({
-              className: 'custom-div-icon',
-              html: "<div style='background-color:#1565C0;width:18px;height:18px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
-              iconSize: [24, 24],
-              iconAnchor: [12, 12],
-            }),
-          })
-            .addTo(routeMap.value)
-            .bindPopup(`<b>Get off at ${option.dropoff.name}</b>`)
+        // Marker colors mirror the step avatars. The page's scoped SCSS
+        // overrides .bg-primary to dark green, so step avatars use blue-8 /
+        // negative tokens directly to render the same blue and red the markers
+        // use here (--q-primary CSS var still resolves to #1976D2).
+        const COLOR_BLUE = 'var(--q-primary)' // = blue-8 / #1976D2
+        const COLOR_WARNING = 'var(--q-warning)'
+        const COLOR_ACCENT = 'var(--q-accent)'
+        const COLOR_RED = 'var(--q-negative)'
+
+        if (option.priority === 'double') {
+          const terminal1Label = option.firstJeepney?.terminalLocation || 'Terminal 1'
+          const terminal2Label = option.secondJeepney?.terminalLocation || 'Terminal 2'
+          // 2) Board jeepney 1 — blue (matches step 2: "Ride <jeep 1>")
+          addMarker(
+            boardingCoords,
+            COLOR_BLUE,
+            `<b>Board ${option.firstJeepney?.jeepName || 'jeepney 1'}</b><br>${terminal1Label}`
+          )
+          // 3) Alight ride 1 — warning (matches step 3: "Walk to <terminal 2>")
+          addMarker(
+            option.firstDropoffPoint || option.transferPoint,
+            COLOR_WARNING,
+            `<b>Get off ${option.firstJeepney?.jeepName || 'jeepney 1'}</b><br>Walk to ${terminal2Label}`
+          )
+          // 4) Board jeepney 2 — accent (matches step 4: "Ride <jeep 2>")
+          addMarker(
+            option.secondBoardingPoint || option.transferPoint,
+            COLOR_ACCENT,
+            `<b>Board ${option.secondJeepney?.jeepName || 'jeepney 2'}</b><br>${terminal2Label}`
+          )
+          // 5) Drop-off ride 2 — red (matches step 5: "Get off at …")
+          if (option.dropoff?.coords) {
+            addMarker(
+              option.dropoff.coords,
+              COLOR_RED,
+              `<b>Get off ${option.secondJeepney?.jeepName || 'jeepney 2'}</b><br>${option.dropoff.name}`
+            )
+          }
+        } else {
+          // Single ride: 2) Board — blue, 3) Drop-off — red
+          if (boardingCoords && boardingCoords[0]) {
+            const boardingLabel = option.boardingLabel || 'Board jeepney here'
+            addMarker(boardingCoords, COLOR_BLUE, `<b>Board jeepney</b><br>${boardingLabel}`)
+          }
+          if (option.dropoff?.coords) {
+            addMarker(option.dropoff.coords, COLOR_RED, `<b>Get off at ${option.dropoff.name}</b>`)
+          }
         }
 
+        // Final destination — Quasar `negative` red, separate from drop-off
         if (endCoords && endCoords.length === 2) {
           L.marker(endCoords, {
             icon: L.divIcon({
               className: 'custom-div-icon',
-              html: "<div style='background-color:#C62828;width:18px;height:18px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
+              html: "<div style='background-color:var(--q-negative);width:18px;height:18px;border-radius:50%;border:3px solid white;box-shadow:0 2px 5px rgba(0,0,0,0.3);'></div>",
               iconSize: [24, 24],
               iconAnchor: [12, 12],
             }),
@@ -1795,12 +1904,8 @@ export default defineComponent({
     const fetchWalkingTransfer = async (option) => {
       try {
         if (option.priority !== 'double') return
-        const transferStart =
-          option.boardingPoint ||
-          (option.firstJeepney?.terminalLat
-            ? [option.firstJeepney.terminalLat, option.firstJeepney.terminalLng]
-            : null)
-        const transferEnd = option.transferPoint
+        const transferStart = option.firstDropoffPoint || option.transferPoint
+        const transferEnd = option.secondBoardingPoint || option.transferPoint
         if (!transferStart || !transferEnd) return
         if (calcDistanceGeo(transferStart, transferEnd) < 30) return
         const directions = await getWalkingDirections(transferStart, transferEnd)
@@ -2202,11 +2307,48 @@ export default defineComponent({
       isScrolled.value = info.position.top > 50
     }
 
+    const autoDetectFromOnStartup = async () => {
+      if (!navigator.geolocation) return
+      try {
+        const coords = await getCurrentLocation()
+        let locationLabel = '📍 Your Current Location'
+        try {
+          const geoResult = await reverseGeocode(coords.lat, coords.lng)
+          if (geoResult && geoResult.label && geoResult.label !== 'Unknown location') {
+            locationLabel = `📍 ${geoResult.label}`
+          }
+        } catch (geoErr) {
+          console.warn('[ApanamPage] Startup reverse geocode failed:', geoErr)
+        }
+
+        fromLocationText.value = locationLabel
+        fromLocation.value = {
+          label: locationLabel,
+          value: 'current-location',
+          isCurrentLocation: true,
+          coords: [coords.lat, coords.lng],
+          accuracy: coords.accuracy,
+        }
+        fromAutoDetect.value = true
+      } catch (err) {
+        // Fail silently — user can still type a location manually.
+        console.warn('[ApanamPage] Startup geolocation skipped:', err?.message || err)
+      }
+    }
+
     onMounted(async () => {
       await fetchHeroImage()
       await fetchJeepneyOptions()
       await loadLocationOptions()
       loadFavoriteRoutes()
+
+      // Auto-fill FROM with the user's current location on startup, unless a
+      // FROM was already supplied via query params (e.g. from the home page).
+      // When only the destination was passed in (toName without fromName), we
+      // still detect so the route search can run end-to-end automatically.
+      if (!route.query.fromName) {
+        await autoDetectFromOnStartup()
+      }
 
       // Handle query parameters from IndexPage (hero section inputs)
       if (route.query.toName) {

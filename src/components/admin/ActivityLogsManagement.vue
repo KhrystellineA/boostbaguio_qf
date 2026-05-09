@@ -1,3 +1,11 @@
+<!--
+  Admin module: read-only audit trail.
+  Reads the `activity_logs` Firestore collection (writes happen via
+  src/utils/activityLogger.js whenever any admin creates/updates/deletes a
+  resource or signs in/out). Provides search, filter by action type, and
+  pagination.
+  Mounted from: AdminDashboard when activeMenu === 'activity-logs'.
+-->
 <template>
   <div>
     <div class="row q-mb-md items-center">

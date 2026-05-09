@@ -1,3 +1,8 @@
+<!--
+  Slide-down banner that announces when the browser goes offline / online,
+  driven by `navigator.onLine` (with the helpers in src/utils/offline.js).
+  Mounted globally from MainLayout.vue so any page benefits.
+-->
 <template>
   <transition name="slide-down">
     <div

@@ -1,3 +1,7 @@
+<!--
+  Create/edit dialog for an abstract route in the `routes` collection.
+  Used by: src/components/admin/RoutesManagement.vue.
+-->
 <template>
   <q-card class="route-form-dialog">
     <q-card-section class="row items-center q-pb-none">
