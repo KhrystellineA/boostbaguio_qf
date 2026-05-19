@@ -16,47 +16,6 @@
         </p>
       </div>
 
-      <!-- Icon row -->
-      <div class="benefits-row" role="list">
-        <div class="benefit" role="listitem">
-          <div class="benefit-icon">
-            <q-icon name="directions_bus" size="24px" />
-          </div>
-          <h3 class="benefit-title">Jeepney Routes</h3>
-          <p class="benefit-text">
-            Real-time routes and step-by-step navigation for every commute.
-          </p>
-        </div>
-
-        <div class="benefit" role="listitem">
-          <div class="benefit-icon">
-            <q-icon name="place" size="24px" />
-          </div>
-          <h3 class="benefit-title">Local Attractions</h3>
-          <p class="benefit-text">
-            Curated tourist spots, hidden gems, and travel guides at your fingertips.
-          </p>
-        </div>
-
-        <div class="benefit" role="listitem">
-          <div class="benefit-icon">
-            <q-icon name="event" size="24px" />
-          </div>
-          <h3 class="benefit-title">Events</h3>
-          <p class="benefit-text">
-            Stay up-to-date on local festivals and the city's cultural happenings.
-          </p>
-        </div>
-
-        <div class="benefit" role="listitem">
-          <div class="benefit-icon">
-            <q-icon name="eco" size="24px" />
-          </div>
-          <h3 class="benefit-title">Eco-friendly</h3>
-          <p class="benefit-text">We promote sustainable travel for a greener, kinder Baguio.</p>
-        </div>
-      </div>
-
       <!-- Mosaic image row -->
       <div class="about-mosaic">
         <div class="mosaic-large">

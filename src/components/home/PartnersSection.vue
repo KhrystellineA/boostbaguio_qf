@@ -43,7 +43,7 @@ $muted: #5b6b5f;
 $white: #ffffff;
 
 .partners-banner {
-  background: $white;
+  background: $primary-green;
   padding: 18px 0;
   overflow: hidden;
   position: relative;
@@ -75,15 +75,13 @@ $white: #ffffff;
   gap: 8px;
   white-space: nowrap;
   padding: 7px 14px;
-  border-radius: 999px;
-  border: 1px solid rgba($ink, 0.1);
-  color: $ink;
+  color: $white;
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.02em;
 
   .q-icon {
-    color: $primary-green;
+    color: $white;
   }
 
   span {

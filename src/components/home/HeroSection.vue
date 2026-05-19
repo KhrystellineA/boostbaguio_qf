@@ -305,11 +305,16 @@ $white: #ffffff;
     color: $ink;
     font-size: 0.92rem;
     font-weight: 500;
+    padding-top: 0.6rem;
 
     &::placeholder {
       color: $muted;
       opacity: 0.85;
     }
+  }
+
+  :deep(.q-field__append .q-icon) {
+    padding-top: 0.8rem;
   }
 }
 
