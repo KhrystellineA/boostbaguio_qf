@@ -22,19 +22,14 @@
       <div class="image-cards-grid">
         <!-- APANAM -->
         <article class="image-card">
-          <div class="image-card-media">
-            <q-img
-              :src="featureImage || defaultImage"
-              :ratio="4 / 3"
-              alt="P2P Navigation"
-              class="image-card-img"
-            >
-              <template v-slot:loading>
-                <div class="absolute-full flex flex-center">
-                  <q-spinner color="primary" size="30px" />
-                </div>
-              </template>
-            </q-img>
+          <div
+            class="image-card-media image-card-media--mint"
+            role="link"
+            tabindex="0"
+            @click="goTo('/apanam')"
+            @keyup.enter="goTo('/apanam')"
+          >
+            <q-icon name="alt_route" class="card-illust" />
           </div>
           <div class="image-card-body">
             <h3 class="image-card-title">P2P Navigation (Apanam)</h3>
@@ -46,8 +41,14 @@
 
         <!-- PAGNAAM -->
         <article class="image-card">
-          <div class="image-card-media image-card-media--mint">
-            <q-icon name="alt_route" class="card-illust" />
+          <div
+            class="image-card-media image-card-media--mint"
+            role="link"
+            tabindex="0"
+            @click="goTo('/pagnaam')"
+            @keyup.enter="goTo('/pagnaam')"
+          >
+            <q-icon name="directions_bus" class="card-illust" />
           </div>
           <div class="image-card-body">
             <h3 class="image-card-title">City Jeeps (Pagnaam)</h3>
@@ -60,7 +61,13 @@
 
         <!-- MAYKAN -->
         <article class="image-card">
-          <div class="image-card-media image-card-media--sage">
+          <div
+            class="image-card-media image-card-media--mint"
+            role="link"
+            tabindex="0"
+            @click="goTo('/maykan')"
+            @keyup.enter="goTo('/maykan')"
+          >
             <q-icon name="place" class="card-illust" />
           </div>
           <div class="image-card-body">
@@ -78,7 +85,13 @@
       <div class="image-cards-grid image-cards-grid--two">
         <!-- AYAN MO -->
         <article class="image-card">
-          <div class="image-card-media image-card-media--mint">
+          <div
+            class="image-card-media image-card-media--mint"
+            role="link"
+            tabindex="0"
+            @click="goTo('/ayanmo')"
+            @keyup.enter="goTo('/ayanmo')"
+          >
             <q-icon name="near_me" class="card-illust" />
           </div>
           <div class="image-card-body">
@@ -92,7 +105,13 @@
 
         <!-- ARAMIDEM -->
         <article class="image-card">
-          <div class="image-card-media image-card-media--sage">
+          <div
+            class="image-card-media image-card-media--mint"
+            role="link"
+            tabindex="0"
+            @click="goTo('/aramidem')"
+            @keyup.enter="goTo('/aramidem')"
+          >
             <q-icon name="apartment" class="card-illust" />
           </div>
           <div class="image-card-body">
@@ -110,6 +129,7 @@
 
 <script>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { db } from 'src/boot/firebase'
 import { doc, getDoc } from 'firebase/firestore'
 
@@ -120,6 +140,12 @@ export default {
     const featureImage = ref('')
     const defaultImage =
       'https://images.unsplash.com/photo-1583037189850-1921ae7c6c22?w=600&h=800&fit=crop'
+
+    const router = useRouter()
+
+    const goTo = (path) => {
+      router.push(path)
+    }
 
     const loadFeatureImage = async () => {
       try {
@@ -146,6 +172,7 @@ export default {
     return {
       featureImage,
       defaultImage,
+      goTo,
     }
   },
 }
@@ -175,9 +202,13 @@ $white: #ffffff;
 
 // Header
 .section-header {
-  text-align: left;
-  margin-bottom: 2.5rem;
+  text-align: center;
+  margin: 0 auto 2.5rem;
   max-width: 760px;
+}
+
+.section-header .header-row {
+  justify-content: center;
 }
 
 .section-tag {
@@ -260,6 +291,13 @@ $white: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 8px 24px rgba(46, 93, 62, 0.12);
+    transform: translateY(-4px);
+  }
 
   &--mint {
     background: $mint-bg;

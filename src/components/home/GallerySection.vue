@@ -23,7 +23,6 @@
           control-color="primary"
           navigation
           padding
-          arrows
           height="500px"
           class="gallery-carousel"
           role="region"
@@ -49,6 +48,11 @@
                   :alt="`Baguio City gallery image ${imgIndex + 1}`"
                   class="gallery-image"
                   fit="cover"
+                  tabindex="0"
+                  role="button"
+                  @click="openLightbox(image)"
+                  @keyup.enter="openLightbox(image)"
+                  style="cursor: zoom-in"
                 >
                   <template v-slot:loading>
                     <div class="absolute-full flex flex-center">
@@ -78,6 +82,22 @@
             @click="nextSlide"
             aria-label="Go to next slide"
           />
+        </div>
+
+        <!-- Lightbox overlay -->
+        <div v-if="lightboxOpen" class="gallery-lightbox-overlay" @click.self="closeLightbox">
+          <div class="gallery-lightbox-card" role="dialog" aria-modal="true">
+            <img
+              :src="activeImage?.imageUrl"
+              :alt="
+                activeImage ? activeImage.alt || 'Expanded gallery photo' : 'Expanded gallery photo'
+              "
+              class="gallery-lightbox-img"
+            />
+            <div class="gallery-lightbox-actions">
+              <q-btn flat round icon="close" aria-label="Close" @click="closeLightbox" />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -138,6 +158,20 @@ export default {
       }
     }
 
+    // Lightbox state
+    const lightboxOpen = ref(false)
+    const activeImage = ref(null)
+
+    const openLightbox = (image) => {
+      activeImage.value = image || null
+      lightboxOpen.value = true
+    }
+
+    const closeLightbox = () => {
+      lightboxOpen.value = false
+      activeImage.value = null
+    }
+
     const previousSlide = () => {
       if (slide.value > 0) {
         slide.value--
@@ -165,6 +199,10 @@ export default {
       loading,
       previousSlide,
       nextSlide,
+      lightboxOpen,
+      activeImage,
+      openLightbox,
+      closeLightbox,
     }
   },
 }
@@ -397,14 +435,51 @@ $white: #ffffff;
   justify-content: center;
   padding: 4rem 0;
   gap: 1rem;
-
-  p {
-    color: $muted;
-    font-size: 0.95rem;
-  }
 }
 
-// Responsive
+/* Lightbox styles */
+.gallery-lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(20, 36, 26, 0.55);
+}
+
+.gallery-lightbox-card {
+  position: relative;
+  max-width: min(900px, 100%);
+  width: 100%;
+  max-height: calc(90vh - 3rem);
+  padding: 1rem;
+  overflow: hidden;
+  border-radius: 18px;
+  background: $white;
+  box-shadow: 0 24px 60px rgba(20, 36, 26, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.gallery-lightbox-img {
+  max-width: 100%;
+  max-height: calc(90vh - 5rem);
+  width: auto;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  background: $white;
+}
+
+.gallery-lightbox-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 12;
+}
 @media (max-width: 1023px) {
   .gallery-section {
     padding: 4rem 0;

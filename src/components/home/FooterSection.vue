@@ -8,11 +8,11 @@
         <div class="cta-inner">
           <p class="cta-eyebrow">DO YOU NEED OUR HELP?</p>
           <h2 class="cta-title">
-            Contact us for help
+            Let's exchange contact info
             <br class="hide-mobile" />
-            or <em>information</em>
+            and we'll <em>get in touch!</em>
           </h2>
-          <p class="cta-text">We can reach you through the button below.</p>
+          <p class="cta-text">Let us know where to contact you below.</p>
 
           <div class="cta-form">
             <q-input
@@ -50,7 +50,7 @@
             <div class="contact-icon"><q-icon name="phone" size="18px" /></div>
             <div>
               <h3 class="contact-title">Phone</h3>
-              <a href="tel:+639266321140" class="contact-link">+63 926 632 1140</a>
+              <a href="tel:+639266321140" class="contact-link">(+63) coming soon</a>
               <p class="contact-description">Reach us anytime for assistance or inquiries.</p>
             </div>
           </div>
@@ -72,33 +72,8 @@
     <!-- Main Footer -->
     <section class="main-footer">
       <div class="container-footer">
-        <div class="footer-grid">
-          <!-- Brand + Newsletter -->
-          <div class="footer-brand-block">
-            <div class="footer-logo">
-              <img src="../../assets/logo.png" alt="Boost Baguio Logo" class="logo-img" />
-              <span class="brand-name">Boost Baguio</span>
-            </div>
-            <p class="newsletter-text">Join our newsletter for the latest updates and features.</p>
-            <div class="newsletter-form">
-              <q-input
-                v-model="newsletterEmail"
-                outlined
-                dense
-                placeholder="Your email"
-                class="email-input"
-                bg-color="transparent"
-              />
-              <q-btn label="Subscribe" unelevated class="subscribe-btn" @click="handleSubscribe" />
-            </div>
-            <p class="privacy-notice">
-              By subscribing, you agree to our Privacy Policy and consent to receive updates.
-            </p>
-          </div>
-        </div>
-
         <div class="footer-bottom">
-          <p class="copyright">© 2025 Boost Baguio. All rights reserved.</p>
+          <p class="copyright">© 2026 Boost Baguio. All rights reserved.</p>
           <div class="footer-bottom-links">
             <a href="#privacy">Privacy Policy</a>
             <a href="#terms">Terms of Service</a>
@@ -107,9 +82,6 @@
           <div class="footer-social">
             <a href="#" aria-label="Facebook" class="social-icon"
               ><q-icon name="facebook" size="18px"
-            /></a>
-            <a href="#" aria-label="Twitter" class="social-icon"
-              ><q-icon name="public" size="18px"
             /></a>
             <a href="#" aria-label="Instagram" class="social-icon"
               ><q-icon name="photo_camera" size="18px"
@@ -266,6 +238,7 @@ $white: #ffffff;
   :deep(input) {
     color: $white;
     font-size: 0.9rem;
+    padding-top: 1.5rem;
 
     &::placeholder {
       color: rgba($white, 0.6);
@@ -485,7 +458,6 @@ $white: #ffffff;
   align-items: center;
   gap: 1rem;
   padding-top: 1.5rem;
-  border-top: 1px solid $border;
 }
 
 .copyright {

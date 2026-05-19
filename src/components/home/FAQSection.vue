@@ -59,70 +59,110 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { db } from 'src/boot/firebase'
+import { collection, query, orderBy, getDocs } from 'firebase/firestore'
 
 export default {
   name: 'FaqsSection',
   setup() {
-    const leftFaqs = ref([
+    const faqs = ref([])
+    const loading = ref(true)
+
+    const defaultFaqs = [
       {
         question: 'What is Boost Baguio?',
         answer:
           'Boost Baguio is a web app designed to enhance your commuting experience in Baguio City. It provides real-time jeepney navigation, route information, and curated tourist spots. Our goal is to promote sustainable tourism while making travel easier for everyone.',
+        order: 0,
       },
       {
         question: 'How does navigation work?',
         answer:
           'Users can input their start and end points either manually or via GPS. The app then generates step-by-step directions for jeepney routes and terminal information. This feature ensures you never miss a ride!',
+        order: 1,
       },
       {
         question: 'Are routes updated regularly?',
         answer:
           'Yes, our routes are constantly updated based on user feedback and crowdsourced data. We also include "Last Verified" timestamps to ensure accuracy. You can report any inaccuracies directly through the app.',
+        order: 2,
       },
       {
         question: 'What are the fees?',
         answer:
           'Fares for jeepney rides vary depending on the route. The app provides fare information for each route to help you budget your travel. Keep an eye on updates for any changes in fares.',
+        order: 3,
       },
       {
         question: 'Can I find events?',
         answer:
           'Absolutely! Our Events section aggregates local festivals and concerts happening in Baguio. You’ll also find transportation tips for getting to and from these events. Stay connected with the vibrant culture of Baguio!',
+        order: 4,
       },
-    ])
-
-    const rightFaqs = ref([
       {
         question: 'How to use "Near Me"?',
         answer:
           '"Near Me" utilizes your geolocation to suggest nearby attractions and jeepney routes. You can read reviews from the "Sa Baguio" Facebook group for additional insights. It’s a great way to discover hidden gems!',
+        order: 5,
       },
       {
         question: 'Is the app free?',
         answer:
           'Yes, Boost Baguio is completely free to use. We aim to make commuting accessible to everyone in Baguio City. Enjoy all features without any hidden costs!',
+        order: 6,
       },
       {
         question: 'How can I contact support?',
         answer:
           'For support, you can reach out through the Contact section of the app. We’re here to assist you with any questions or concerns. Your feedback helps us improve our service!',
+        order: 7,
       },
       {
         question: 'What if I have suggestions?',
         answer:
           'We welcome your suggestions! You can submit them directly through the app or via our website. Your input is invaluable in helping us enhance the user experience.',
+        order: 8,
       },
       {
         question: 'Is the app safe?',
         answer:
           'Yes, we prioritize user safety and data privacy. The app is designed with secure protocols to protect your information. Travel with peace of mind while using Boost Baguio.',
+        order: 9,
       },
-    ])
+    ]
+
+    const leftFaqs = computed(() => faqs.value.filter((_, index) => index % 2 === 0))
+    const rightFaqs = computed(() => faqs.value.filter((_, index) => index % 2 !== 0))
+
+    const loadFaqs = async () => {
+      loading.value = true
+      try {
+        const faqQuery = query(collection(db, 'faqs'), orderBy('order', 'asc'))
+        const snapshot = await getDocs(faqQuery)
+
+        if (snapshot.empty) {
+          faqs.value = defaultFaqs
+        } else {
+          faqs.value = snapshot.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...docSnap.data(),
+          }))
+        }
+      } catch (error) {
+        console.error('[FaqsSection] Failed to load FAQs:', error)
+        faqs.value = defaultFaqs
+      } finally {
+        loading.value = false
+      }
+    }
+
+    onMounted(loadFaqs)
 
     return {
       leftFaqs,
       rightFaqs,
+      loading,
     }
   },
 }
