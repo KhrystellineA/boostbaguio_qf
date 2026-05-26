@@ -413,7 +413,7 @@
             unelevated
             :label="editingPlace ? 'Update' : 'Create'"
             style="background: #2d6a4f; color: white"
-            @click="savePlace"
+            @click="savePlace()"
             :loading="saving"
           />
         </q-card-actions>
@@ -673,6 +673,13 @@ export default {
   name: 'PlacesManagement',
   components: {
     VueCropper,
+  },
+
+  props: {
+    openDialog: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   setup() {
@@ -1590,6 +1597,11 @@ export default {
       this.resetForm()
     },
 
+    /**
+     * Download CSV template for places import/export
+     * Note: Phone numbers exported are business contact information (public data)
+     * that appears on websites and marketing materials - not sensitive personal data.
+     */
     downloadCsvTemplate() {
       const headers = [
         'name',
@@ -1950,6 +1962,12 @@ export default {
   },
 
   watch: {
+    openDialog(val) {
+      if (val) {
+        this.showAddDialog = true
+        this.$emit('dialog-opened')
+      }
+    },
     showAddDialog(val) {
       if (val) {
         this.initMap()

@@ -29,7 +29,7 @@
 <script>
 import { defineComponent, ref, onMounted } from 'vue'
 import { db } from 'src/boot/firebase'
-import { doc, getDoc } from 'firebase/firestore'
+import { doc, getDoc, collection, getDocs, orderBy, query } from 'firebase/firestore'
 
 // Import sections
 import HeroSection from 'src/components/home/HeroSection.vue'
@@ -58,12 +58,51 @@ export default defineComponent({
   setup() {
     const heroImage = ref('')
 
-    const partners = ref([
-      { id: 1, name: 'Baguio City Tourism', icon: 'business', color: 'primary' },
-      { id: 2, name: 'LTFRB Cordillera', icon: 'directions_bus', color: 'secondary' },
-      { id: 3, name: 'DOT Philippines', icon: 'travel_explore', color: 'accent' },
-      { id: 4, name: 'Baguio Local Gov', icon: 'account_balance', color: 'positive' },
-    ])
+    const partners = ref([])
+
+    const defaultPartners = [
+      {
+        id: 'partner-1',
+        name: 'Baguio City Tourism',
+        icon: 'business',
+        color: 'primary',
+        order: 0,
+      },
+      {
+        id: 'partner-2',
+        name: 'LTFRB Cordillera',
+        icon: 'directions_bus',
+        color: 'secondary',
+        order: 1,
+      },
+      {
+        id: 'partner-3',
+        name: 'DOT Philippines',
+        icon: 'travel_explore',
+        color: 'accent',
+        order: 2,
+      },
+      {
+        id: 'partner-4',
+        name: 'Baguio Local Gov',
+        icon: 'account_balance',
+        color: 'positive',
+        order: 3,
+      },
+    ]
+
+    const loadPartners = async () => {
+      try {
+        const coll = collection(db, 'partners')
+        const q = query(coll, orderBy('order', 'asc'))
+        const snap = await getDocs(q)
+        const loaded = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+        partners.value = loaded.length > 0 ? loaded : defaultPartners
+      } catch (error) {
+        console.error('[IndexPage] Error loading partners:', error)
+        partners.value = defaultPartners
+      }
+    }
 
     const loadHeroImage = async () => {
       try {
@@ -80,6 +119,7 @@ export default defineComponent({
 
     onMounted(() => {
       loadHeroImage()
+      loadPartners()
     })
 
     return {

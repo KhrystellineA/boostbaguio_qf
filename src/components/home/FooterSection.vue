@@ -33,38 +33,63 @@
     <section class="contact-section">
       <div class="container-contact">
         <div class="contact-grid">
-          <div class="contact-item">
-            <div class="contact-icon"><q-icon name="email" size="18px" /></div>
-            <div>
-              <h3 class="contact-title">Email</h3>
-              <a href="mailto:contact@boostbaguio.com" class="contact-link">
-                contact@boostbaguio.com
-              </a>
-              <p class="contact-description">
-                We'd love to hear from you! Share your thoughts or questions.
-              </p>
+          <template v-if="contacts.length > 0">
+            <div class="contact-item" v-for="c in contacts" :key="c.id">
+              <div class="contact-icon"><q-icon :name="c.icon || 'email'" size="18px" /></div>
+              <div>
+                <h3 class="contact-title">{{ c.key }}</h3>
+                <a
+                  v-if="c.key && c.value && c.key.toLowerCase().includes('email')"
+                  :href="`mailto:${c.value}`"
+                  class="contact-link"
+                  >{{ c.value }}</a
+                >
+                <a
+                  v-else-if="c.key && c.value && c.key.toLowerCase().includes('phone')"
+                  :href="`tel:${c.value}`"
+                  class="contact-link"
+                  >{{ c.value }}</a
+                >
+                <a v-else class="contact-link" :href="c.link || '#'">{{ c.value }}</a>
+                <p class="contact-description">{{ c.description || '' }}</p>
+              </div>
             </div>
-          </div>
+          </template>
 
-          <div class="contact-item">
-            <div class="contact-icon"><q-icon name="phone" size="18px" /></div>
-            <div>
-              <h3 class="contact-title">Phone</h3>
-              <a href="tel:+639266321140" class="contact-link">(+63) coming soon</a>
-              <p class="contact-description">Reach us anytime for assistance or inquiries.</p>
+          <template v-else>
+            <div class="contact-item">
+              <div class="contact-icon"><q-icon name="email" size="18px" /></div>
+              <div>
+                <h3 class="contact-title">Email</h3>
+                <a href="mailto:contact@boostbaguio.com" class="contact-link"
+                  >contact@boostbaguio.com</a
+                >
+                <p class="contact-description">
+                  We'd love to hear from you! Share your thoughts or questions.
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div class="contact-item">
-            <div class="contact-icon"><q-icon name="location_on" size="18px" /></div>
-            <div>
-              <h3 class="contact-title">Office</h3>
-              <a href="#" class="contact-link">Baguio City, PH</a>
-              <p class="contact-description">
-                Visit us for support or collaboration opportunities.
-              </p>
+            <div class="contact-item">
+              <div class="contact-icon"><q-icon name="phone" size="18px" /></div>
+              <div>
+                <h3 class="contact-title">Phone</h3>
+                <a href="tel:+639266321140" class="contact-link">(+63) coming soon</a>
+                <p class="contact-description">Reach us anytime for assistance or inquiries.</p>
+              </div>
             </div>
-          </div>
+
+            <div class="contact-item">
+              <div class="contact-icon"><q-icon name="location_on" size="18px" /></div>
+              <div>
+                <h3 class="contact-title">Office</h3>
+                <a href="#" class="contact-link">Baguio City, PH</a>
+                <p class="contact-description">
+                  Visit us for support or collaboration opportunities.
+                </p>
+              </div>
+            </div>
+          </template>
         </div>
       </div>
     </section>
@@ -80,12 +105,34 @@
             <a href="#cookies">Cookies Settings</a>
           </div>
           <div class="footer-social">
-            <a href="#" aria-label="Facebook" class="social-icon"
-              ><q-icon name="facebook" size="18px"
-            /></a>
-            <a href="#" aria-label="Instagram" class="social-icon"
-              ><q-icon name="photo_camera" size="18px"
-            /></a>
+            <template v-if="footerLinks.length > 0">
+              <a
+                v-for="f in footerLinks"
+                :key="f.id"
+                :href="f.url"
+                target="_blank"
+                :aria-label="f.name"
+                class="social-icon"
+              >
+                <q-icon
+                  :name="
+                    f.icon ||
+                    (f.name && f.name.toLowerCase().includes('facebook')
+                      ? 'facebook'
+                      : 'photo_camera')
+                  "
+                  size="18px"
+                />
+              </a>
+            </template>
+            <template v-else>
+              <a href="#" aria-label="Facebook" class="social-icon"
+                ><q-icon name="facebook" size="18px"
+              /></a>
+              <a href="#" aria-label="Instagram" class="social-icon"
+                ><q-icon name="photo_camera" size="18px"
+              /></a>
+            </template>
           </div>
         </div>
       </div>
@@ -94,7 +141,9 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { db } from 'src/boot/firebase'
+import { collection, getDocs, query, orderBy } from 'firebase/firestore'
 
 export default {
   name: 'FooterSection',
@@ -102,6 +151,8 @@ export default {
   setup() {
     const email = ref('')
     const newsletterEmail = ref('')
+    const contacts = ref([])
+    const footerLinks = ref([])
 
     const handleSubscribe = () => {
       if (newsletterEmail.value) {
@@ -116,11 +167,42 @@ export default {
       }
     }
 
+    // Load contacts and footer links from Firestore
+
+    const loadContacts = async () => {
+      try {
+        const coll = collection(db, 'homepage_contacts')
+        const q = query(coll, orderBy('key', 'asc'))
+        const snap = await getDocs(q)
+        contacts.value = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+      } catch (e) {
+        console.error('[FooterSection] loadContacts', e)
+      }
+    }
+
+    const loadFooterLinks = async () => {
+      try {
+        const coll = collection(db, 'footer_links')
+        const q = query(coll, orderBy('name', 'asc'))
+        const snap = await getDocs(q)
+        footerLinks.value = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+      } catch (e) {
+        console.error('[FooterSection] loadFooterLinks', e)
+      }
+    }
+
+    onMounted(() => {
+      loadContacts()
+      loadFooterLinks()
+    })
+
     return {
       email,
       newsletterEmail,
       handleSubscribe,
       openContactDialog,
+      contacts,
+      footerLinks,
     }
   },
 }

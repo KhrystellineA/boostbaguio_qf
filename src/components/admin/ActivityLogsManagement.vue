@@ -711,18 +711,27 @@ export default {
       return date.toLocaleDateString()
     },
 
-    async exportToCSV() {
+    exportToCSV() {
+      // Confirm before exporting activity logs
+      this.$q
+        .dialog({
+          title: 'Export Activity Logs',
+          message:
+            'This export will contain admin names and actions. Ensure you are authorized to access this information. The exported file will be named: activity_logs_' +
+            new Date().toISOString().split('T')[0] +
+            '.csv',
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(() => {
+          this.performExportToCSV()
+        })
+    },
+
+    async performExportToCSV() {
       try {
         const date = new Date().toISOString().split('T')[0]
-        const headers = [
-          'Timestamp',
-          'Admin Name',
-          'Admin Email',
-          'Action',
-          'Resource',
-          'Description',
-          'IP Address',
-        ]
+        const headers = ['Timestamp', 'Admin Name', 'Action', 'Resource', 'Description']
 
         const rows = [headers.join(',')]
 
@@ -730,11 +739,9 @@ export default {
           const row = [
             log.timestamp?.toDate()?.toLocaleString() || '',
             log.admin?.name || '',
-            log.admin?.email || '',
             log.action || '',
             log.resource || '',
             `"${(log.description || '').replace(/"/g, '""')}"`,
-            log.ipAddress || '',
           ]
           rows.push(row.join(','))
         })

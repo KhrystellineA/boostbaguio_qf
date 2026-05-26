@@ -358,21 +358,32 @@
             id="jeepney-map"
             style="height: 300px"
           ></div>
-          <div v-if="form.routeCoordinates && form.routeCoordinates.length > 0" class="q-mb-md">
-            <q-chip
-              v-for="(point, index) in form.routeCoordinates"
-              :key="index"
-              removable
-              @remove="removeRoutePoint(index)"
-              color="primary"
-              text-color="white"
-              size="sm"
+          <div class="q-mb-md">
+            <q-expansion-item
+              v-if="form.routeCoordinates && form.routeCoordinates.length > 0"
+              icon="place"
+              label="Route Points"
+              caption="Click the arrow to view exact coordinates"
+              dense
             >
-              Point {{ index + 1 }}: {{ point.lat.toFixed(4) }}, {{ point.lng.toFixed(4) }}
-            </q-chip>
-            <div class="text-caption text-grey-7">
-              Click on map to add route points. Click chip to remove.
-            </div>
+              <div class="q-mb-sm">
+                <q-chip
+                  v-for="(point, index) in form.routeCoordinates"
+                  :key="index"
+                  removable
+                  @remove="removeRoutePoint(index)"
+                  color="primary"
+                  text-color="white"
+                  size="sm"
+                  class="q-mr-sm q-mb-sm"
+                >
+                  Point {{ index + 1 }}: {{ point.lat.toFixed(4) }}, {{ point.lng.toFixed(4) }}
+                </q-chip>
+              </div>
+              <div class="text-caption text-grey-7 q-pt-xs">
+                Click on map to add route points. Click chip remove icon to remove.
+              </div>
+            </q-expansion-item>
           </div>
 
           <!-- 8. End Point -->
@@ -392,7 +403,7 @@
             unelevated
             :label="editingJeepney ? 'Update' : 'Create'"
             style="background: #2d6a4f; color: white"
-            @click="saveJeepney"
+            @click="saveJeepney()"
             :loading="saving"
           />
         </q-card-actions>
@@ -716,6 +727,13 @@ export default {
     RouteCompareDialog,
   },
 
+  props: {
+    openDialog: {
+      type: Boolean,
+      default: false,
+    },
+  },
+
   setup() {
     const $q = useQuasar()
     return { $q }
@@ -867,6 +885,12 @@ export default {
   },
 
   watch: {
+    openDialog(val) {
+      if (val) {
+        this.showAddDialog = true
+        this.$emit('dialog-opened')
+      }
+    },
     showAddDialog(val) {
       if (val) {
         this.$nextTick(() => {
@@ -1033,6 +1057,13 @@ export default {
       setTimeout(() => {
         if (this.map) {
           this.map.invalidateSize()
+          // After invalidating size, redraw route if points exist. Use a slightly
+          // longer delay to ensure the dialog/container is visible.
+          setTimeout(() => {
+            if (this.form.routeCoordinates && this.form.routeCoordinates.length > 0) {
+              this.updateRouteLine()
+            }
+          }, 250)
         }
       }, 100)
     },
@@ -1058,13 +1089,9 @@ export default {
         opacity: 0.8,
       }).addTo(this.map)
 
-      // Add markers for each point
-      this.form.routeCoordinates.forEach((point, index) => {
-        const marker = L.marker([point.lat, point.lng])
-          .addTo(this.map)
-          .bindPopup(`<b>Route Point ${index + 1}</b><br>Click chip below to remove`)
-        this.routeMarkers.push(marker)
-      })
+      // No markers for each point — only draw the polyline for a cleaner view
+      // routeMarkers remains empty to allow removal logic to run safely
+      this.routeMarkers = []
 
       // Fit map to show all points
       this.map.fitBounds(L.latLngBounds(latlngs))
@@ -1078,23 +1105,8 @@ export default {
     },
 
     editJeepney(jeepney) {
+      // Show dialog immediately with a minimal form to speed up UI response.
       this.editingJeepney = jeepney
-      // Convert routeCoordinates from [lng, lat] format to {lat, lng} format for the form
-      let formRoutePoints = []
-      const routeCoords = jeepney.routeCoordinates || jeepney.routePoints || []
-      if (routeCoords && routeCoords.length > 0) {
-        formRoutePoints = routeCoords.map((coord) => ({
-          lat: Array.isArray(coord) ? coord[1] : coord.lat,
-          lng: Array.isArray(coord) ? coord[0] : coord.lng,
-        }))
-      }
-
-      // Normalize invalid or placeholder image URLs
-      let imageUrl = jeepney.imageUrl || this.DEFAULT_JEEPNEY_IMAGE
-      if (imageUrl.includes('800x600') || imageUrl.includes('placeholder')) {
-        imageUrl = this.DEFAULT_JEEPNEY_IMAGE
-      }
-
       this.form = {
         jeepName: jeepney.jeepName || '',
         terminalLocation: jeepney.terminalLocation || '',
@@ -1104,22 +1116,242 @@ export default {
         fareStudent: jeepney.fareStudent || null,
         fareSenior: jeepney.fareSenior || null,
         farePWD: jeepney.farePWD || null,
-        operatingHours: jeepney.operatingHours || { open: '', close: '' },
-        touristSpotsServiced: jeepney.touristSpotsServiced || [],
-        routeCoordinates: formRoutePoints,
+        operatingHours: { open: '', close: '' },
+        touristSpotsServiced: [],
+        routeCoordinates: [],
         endPoint: jeepney.endPoint || '',
-        imageUrl: imageUrl,
+        imageUrl: jeepney.imageUrl || this.DEFAULT_JEEPNEY_IMAGE,
         imagePublicId: jeepney.imagePublicId || '',
       }
+
+      // Open dialog first so the UI can render quickly
       this.showAddDialog = true
 
-      // Initialize map after dialog is shown
+      // Defer heavier normalization and coordinate conversion so the dialog appears faster.
       this.$nextTick(() => {
-        this.initMap()
-        if (this.form.routeCoordinates && this.form.routeCoordinates.length > 0) {
-          this.updateRouteLine()
-        }
+        setTimeout(() => {
+          // Convert routeCoordinates from [lng, lat] format to {lat, lng} format for the form
+          let formRoutePoints = []
+          const routeCoords = jeepney.routeCoordinates || jeepney.routePoints || []
+          if (routeCoords && routeCoords.length > 0) {
+            formRoutePoints = routeCoords
+              .map((coord) => {
+                if (Array.isArray(coord)) {
+                  const lng = Array.isArray(coord[0]) ? coord[0][0] : coord[0]
+                  const lat = Array.isArray(coord[0]) ? coord[0][1] : coord[1]
+                  return { lat: parseFloat(lat), lng: parseFloat(lng) }
+                }
+                if (coord && coord.lat !== undefined && coord.lng !== undefined) {
+                  return { lat: parseFloat(coord.lat), lng: parseFloat(coord.lng) }
+                }
+                return null
+              })
+              .filter((point) => point !== null)
+          }
+
+          // Normalize operatingHours from database - handle if it's an array or object
+          let operatingHours = { open: '', close: '' }
+          if (jeepney.operatingHours) {
+            if (
+              typeof jeepney.operatingHours === 'object' &&
+              !Array.isArray(jeepney.operatingHours)
+            ) {
+              operatingHours = {
+                open: jeepney.operatingHours.open || '',
+                close: jeepney.operatingHours.close || '',
+              }
+            } else if (typeof jeepney.operatingHours === 'string') {
+              operatingHours = { open: jeepney.operatingHours, close: '' }
+            }
+          }
+
+          // Normalize touristSpotsServiced from database - flatten if needed
+          let touristSpots = []
+          if (Array.isArray(jeepney.touristSpotsServiced)) {
+            touristSpots = jeepney.touristSpotsServiced
+              .map((spot) => (Array.isArray(spot) ? spot[0] || '' : spot))
+              .filter((spot) => typeof spot === 'string' && spot.trim().length > 0)
+          }
+
+          // Apply the heavier fields after dialog is visible
+          this.form.operatingHours = operatingHours
+          this.form.touristSpotsServiced = touristSpots
+          this.form.routeCoordinates = formRoutePoints
+          this.form.imageUrl = jeepney.imageUrl || this.DEFAULT_JEEPNEY_IMAGE
+          this.form.imagePublicId = jeepney.imagePublicId || ''
+
+          // If the map is already initialized (watcher initializes it when dialog opens), redraw route
+          if (this.map && this.form.routeCoordinates && this.form.routeCoordinates.length > 0) {
+            this.updateRouteLine()
+          }
+        }, 50)
       })
+    },
+
+    /**
+     * Validate that data doesn't contain nested arrays
+     * Returns the path to any nested array found
+     */
+    findNestedArrays(obj, path = '') {
+      const issues = []
+
+      if (Array.isArray(obj)) {
+        obj.forEach((item, idx) => {
+          const itemPath = `${path}[${idx}]`
+          if (Array.isArray(item)) {
+            issues.push(`Nested array found at ${itemPath}`)
+          } else if (typeof item === 'object' && item !== null && !(item instanceof Date)) {
+            issues.push(...this.findNestedArrays(item, itemPath))
+          }
+        })
+      } else if (typeof obj === 'object' && obj !== null && !(obj instanceof Date)) {
+        for (const key in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            const value = obj[key]
+            const fieldPath = path ? `${path}.${key}` : key
+            if (Array.isArray(value)) {
+              value.forEach((item, idx) => {
+                const itemPath = `${fieldPath}[${idx}]`
+                if (Array.isArray(item)) {
+                  issues.push(`Nested array found at ${itemPath}`)
+                }
+              })
+            } else if (typeof value === 'object' && value !== null && !(value instanceof Date)) {
+              issues.push(...this.findNestedArrays(value, fieldPath))
+            }
+          }
+        }
+      }
+
+      return issues
+    },
+
+    /**
+     * Deep clean data to remove any nested arrays
+     * Firestore doesn't support arrays within arrays
+     */
+    deepCleanData(obj, fieldName = '', path = '') {
+      const currentPath = path ? `${path}.${fieldName}` : fieldName
+
+      if (Array.isArray(obj)) {
+        // Check if this array contains nested arrays or complex objects
+        const cleaned = obj.map((item, idx) => {
+          if (Array.isArray(item)) {
+            console.warn(
+              `[JeepneyManagement] Found nested array at ${currentPath}[${idx}], flattening`
+            )
+            // If item is an array, try to extract values
+            return item[0] || item
+          }
+          if (typeof item === 'object' && item !== null) {
+            // Only allow primitive types in arrays for Firestore
+            return typeof item === 'string' ? item : String(item)
+          }
+          return item
+        })
+        return cleaned
+      }
+
+      if (typeof obj === 'object' && obj !== null && !(obj instanceof Date)) {
+        const cleaned = {}
+        for (const key in obj) {
+          if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            const value = obj[key]
+            if (Array.isArray(value)) {
+              cleaned[key] = this.deepCleanData(value, key, currentPath)
+            } else if (typeof value === 'object' && value !== null && !(value instanceof Date)) {
+              cleaned[key] = this.deepCleanData(value, key, currentPath)
+            } else {
+              cleaned[key] = value
+            }
+          }
+        }
+        return cleaned
+      }
+
+      return obj
+    },
+
+    /**
+     * Normalize jeepney data to ensure Firestore compatibility
+     */
+    normalizeJeepneyData(data) {
+      console.log('[JeepneyManagement] Before normalization:', JSON.stringify(data, null, 2))
+
+      // First pass: deep clean to remove any nested arrays
+      data = this.deepCleanData(data)
+
+      // Normalize operatingHours - must be object with open/close
+      if (
+        !data.operatingHours ||
+        typeof data.operatingHours !== 'object' ||
+        Array.isArray(data.operatingHours)
+      ) {
+        data.operatingHours = { open: '', close: '' }
+      } else {
+        data.operatingHours = {
+          open: (data.operatingHours.open || '').toString().trim(),
+          close: (data.operatingHours.close || '').toString().trim(),
+        }
+      }
+
+      // Normalize touristSpotsServiced - must be flat array of strings only
+      if (!Array.isArray(data.touristSpotsServiced)) {
+        data.touristSpotsServiced = []
+      } else {
+        data.touristSpotsServiced = data.touristSpotsServiced
+          .filter((spot) => {
+            if (Array.isArray(spot)) return false
+            if (typeof spot === 'string') return spot.trim().length > 0
+            return false
+          })
+          .map((spot) => String(spot).trim())
+      }
+
+      // Normalize routeCoordinates - must be flat array of [lng, lat] pairs
+      if (!Array.isArray(data.routeCoordinates)) {
+        data.routeCoordinates = []
+      } else {
+        data.routeCoordinates = data.routeCoordinates
+          .map((coord, idx) => {
+            if (!coord) return null
+
+            // Handle nested arrays
+            if (Array.isArray(coord)) {
+              if (coord.length === 0) return null
+              // If it's triple nested, flatten it
+              if (Array.isArray(coord[0])) {
+                console.warn(`[JeepneyManagement] Flattening nested coordinate at index ${idx}`)
+                return [parseFloat(coord[0][0]), parseFloat(coord[0][1])]
+              }
+              // Normal [lng, lat]
+              if (coord.length === 2) {
+                return [parseFloat(coord[0]), parseFloat(coord[1])]
+              }
+            }
+
+            // Handle objects {lng, lat}
+            if (typeof coord === 'object' && !Array.isArray(coord)) {
+              if (coord.lng !== undefined && coord.lat !== undefined) {
+                return [parseFloat(coord.lng), parseFloat(coord.lat)]
+              }
+            }
+
+            console.warn(`[JeepneyManagement] Skipping invalid coordinate at index ${idx}:`, coord)
+            return null
+          })
+          .filter((coord) => coord !== null)
+      }
+
+      console.log('[JeepneyManagement] After normalization:', {
+        operatingHours: data.operatingHours,
+        touristSpotsServiced: data.touristSpotsServiced,
+        routeCoordinatesLength: data.routeCoordinates.length,
+        routeCoordinatesExample: data.routeCoordinates[0],
+        allKeys: Object.keys(data),
+      })
+
+      return data
     },
 
     async saveJeepney() {
@@ -1168,7 +1400,7 @@ export default {
           point.lat,
         ])
 
-        const jeepneyData = {
+        let jeepneyData = {
           uniqueId: uniqueId,
           jeepName: this.form.jeepName,
           terminalLocation: this.form.terminalLocation,
@@ -1187,25 +1419,69 @@ export default {
           updatedAt: serverTimestamp(),
         }
 
-        if (this.editingJeepney) {
-          await updateDoc(doc(db, 'jeepneys', this.editingJeepney.id), jeepneyData)
+        // Normalize data before saving to avoid Firestore nested array errors
+        jeepneyData = this.normalizeJeepneyData(jeepneyData)
+
+        // Final validation: check for any remaining nested arrays
+        const nestedArrayIssues = this.findNestedArrays(jeepneyData)
+        if (nestedArrayIssues.length > 0) {
+          console.error(
+            '[JeepneyManagement] VALIDATION FAILED - Found nested arrays:',
+            nestedArrayIssues
+          )
           this.$q.notify({
-            type: 'positive',
-            message: 'Jeepney updated successfully',
+            type: 'negative',
+            message: `Data validation failed: ${nestedArrayIssues[0]}. Please refresh and try again.`,
             position: 'top',
-            icon: 'check_circle',
-            timeout: 2000,
+            timeout: 5000,
           })
+          this.saving = false
+          return
+        }
+
+        if (this.editingJeepney) {
+          try {
+            console.log('[JeepneyManagement] Sending update for jeepney:', this.editingJeepney.id)
+            console.log('[JeepneyManagement] Data to update:', jeepneyData)
+            await updateDoc(doc(db, 'jeepneys', this.editingJeepney.id), jeepneyData)
+            this.$q.notify({
+              type: 'positive',
+              message: 'Jeepney updated successfully',
+              position: 'top',
+              icon: 'check_circle',
+              timeout: 2000,
+            })
+          } catch (error) {
+            console.error('[JeepneyManagement] Detailed error:', {
+              message: error.message,
+              code: error.code,
+              data: jeepneyData,
+              formData: this.form,
+            })
+            throw error
+          }
         } else {
           jeepneyData.createdAt = serverTimestamp()
-          await addDoc(collection(db, 'jeepneys'), jeepneyData)
-          this.$q.notify({
-            type: 'positive',
-            message: 'Jeepney created successfully with ID: ' + uniqueId,
-            position: 'top',
-            icon: 'check_circle',
-            timeout: 3000,
-          })
+          try {
+            console.log('[JeepneyManagement] Sending create for jeepney:', uniqueId)
+            console.log('[JeepneyManagement] Data to create:', jeepneyData)
+            await addDoc(collection(db, 'jeepneys'), jeepneyData)
+            this.$q.notify({
+              type: 'positive',
+              message: 'Jeepney created successfully with ID: ' + uniqueId,
+              position: 'top',
+              icon: 'check_circle',
+              timeout: 3000,
+            })
+          } catch (error) {
+            console.error('[JeepneyManagement] Detailed error:', {
+              message: error.message,
+              code: error.code,
+              data: jeepneyData,
+              formData: this.form,
+            })
+            throw error
+          }
         }
 
         this.showAddDialog = false
@@ -1860,7 +2136,7 @@ export default {
             operatingHours: jeepney.operatingHours,
           })
 
-          const jeepneyData = {
+          let jeepneyData = {
             uniqueId: uniqueId,
             jeepName: jeepney.jeepName,
             terminalLocation: jeepney.terminalLocation,
@@ -1874,7 +2150,7 @@ export default {
               open: jeepney.operatingHours.open || '',
               close: jeepney.operatingHours.close || '',
             },
-            touristSpotsServiced: jeepney.touristSpotsServiced,
+            touristSpotsServiced: jeepney.touristSpotsServiced || [],
             routeCoordinates: [],
             endPoint: jeepney.endPoint,
             isActive: true,
@@ -1882,6 +2158,15 @@ export default {
             imagePublicId: '',
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp(),
+          }
+
+          // Normalize data before saving to avoid Firestore nested array errors
+          jeepneyData = this.normalizeJeepneyData(jeepneyData)
+
+          // Validate before saving
+          const nestedArrayIssues = this.findNestedArrays(jeepneyData)
+          if (nestedArrayIssues.length > 0) {
+            throw new Error(`Validation failed: ${nestedArrayIssues[0]}`)
           }
 
           console.log('[CSV Import] Saving to Firebase:', jeepneyData.operatingHours)

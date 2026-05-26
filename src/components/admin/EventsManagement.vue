@@ -327,7 +327,7 @@
             unelevated
             :label="editingEvent ? 'Update' : 'Create'"
             style="background: #2d6a4f; color: white"
-            @click="saveEvent"
+            @click="saveEvent()"
             :loading="saving"
           />
         </q-card-actions>
@@ -519,6 +519,13 @@ import { submitFeatureRequest } from 'src/composables/useFeatureRequests'
 
 export default {
   name: 'EventsManagement',
+
+  props: {
+    openDialog: {
+      type: Boolean,
+      default: false,
+    },
+  },
 
   setup() {
     const $q = useQuasar()
@@ -1466,6 +1473,12 @@ export default {
   },
 
   watch: {
+    openDialog(val) {
+      if (val) {
+        this.showAddDialog = true
+        this.$emit('dialog-opened')
+      }
+    },
     showAddDialog(val) {
       if (!val) {
         this.resetForm()
