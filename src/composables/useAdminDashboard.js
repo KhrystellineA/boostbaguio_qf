@@ -4,6 +4,7 @@
  */
 
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { auth, db } from 'src/boot/firebase'
 import { signOut } from 'firebase/auth'
@@ -47,6 +48,7 @@ import { watchPendingRequests } from 'src/composables/useFeatureRequests'
  */
 export function useAdminDashboard() {
   const $q = useQuasar()
+  const router = useRouter()
 
   // State
   const drawer = ref(true)
@@ -143,6 +145,9 @@ export function useAdminDashboard() {
         message: 'Signed out successfully',
         position: 'top',
       })
+
+      // Redirect to admin login page
+      await router.push('/admin/adminlogin')
     } catch (error) {
       console.error('[AdminDashboard] Logout error:', error)
     }

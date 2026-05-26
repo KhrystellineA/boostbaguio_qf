@@ -99,21 +99,23 @@
           </q-item>
 
           <q-item
-            v-if="canManagePhotos"
+            v-if="canManageFaqs"
             clickable
             v-ripple
-            :active="activeMenu === 'photos'"
-            @click="$emit('update:activeMenu', 'photos')"
+            :active="activeMenu === 'homepage'"
+            @click="openHomepage"
             class="nav-item"
             active-class="nav-item--active"
           >
             <q-item-section avatar>
-              <q-icon name="photo_library" />
+              <q-icon name="home" />
             </q-item-section>
             <q-item-section>
-              <q-item-label>Page Photos</q-item-label>
+              <q-item-label>Homepage</q-item-label>
             </q-item-section>
           </q-item>
+
+          <!-- Photos menu removed: managed inside Homepage Management tab -->
 
           <div class="section-label">MANAGEMENT</div>
 
@@ -236,6 +238,14 @@ export default {
       )
     },
 
+    canManageFaqs() {
+      return (
+        this.adminData.role === 'super_admin' ||
+        this.adminData.permissions?.includes('super_admin:all') ||
+        false
+      )
+    },
+
     canViewAnalytics() {
       return (
         this.adminData.permissions?.includes('analytics:read') ||
@@ -251,6 +261,18 @@ export default {
       const role = this.adminData.role
       if (!role) return 'Admin'
       return role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+    },
+  },
+  methods: {
+    openHomepage() {
+      this.$emit('update:activeMenu', 'homepage')
+      try {
+        if (this.$q && typeof this.$q.notify === 'function') {
+          this.$q.notify({ type: 'info', message: 'Opened Homepage Management' })
+        }
+      } catch {
+        // ignore notification failures
+      }
     },
   },
 }

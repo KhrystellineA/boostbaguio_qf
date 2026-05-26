@@ -20,7 +20,7 @@
 
     <div class="row q-col-gutter-md q-mb-xl">
       <!-- HOME HERO Card -->
-      <div class="col-12 col-md-6 col-lg-4">
+      <div class="col-12 col-md-6 col-lg-6">
         <q-card class="photo-card home-card">
           <q-card-section
             class="photo-header home-header"
@@ -72,108 +72,8 @@
         </q-card>
       </div>
 
-      <!-- HOME FEATURES Card -->
-      <div class="col-12 col-md-6 col-lg-4">
-        <q-card class="photo-card">
-          <q-card-section
-            class="photo-header"
-            style="background: linear-gradient(135deg, #2d5a47 0%, #1b4332 100%)"
-          >
-            <div class="page-label">HOME - FEATURES</div>
-            <div class="page-description">Features Section Image</div>
-          </q-card-section>
-
-          <q-card-section class="photo-preview">
-            <div class="image-wrapper">
-              <img
-                v-if="pages.homeFeatures.imageUrl"
-                :src="pages.homeFeatures.imageUrl"
-                alt="HOME features"
-                class="preview-image"
-              />
-              <div v-else class="image-placeholder">
-                <q-icon name="stars" size="64px" color="grey-4" />
-                <p class="text-grey-6 q-mt-sm">No image uploaded</p>
-              </div>
-            </div>
-          </q-card-section>
-
-          <q-card-actions class="q-pa-md">
-            <q-btn
-              unelevated
-              style="background: #2d5a47; color: white"
-              label="Change Image"
-              icon="photo_camera"
-              no-caps
-              class="full-width"
-              @click="openUploadDialog('home-features')"
-            />
-          </q-card-actions>
-        </q-card>
-      </div>
-
-      <!-- HOME GUIDE Card -->
-      <div class="col-12 col-md-6 col-lg-4">
-        <q-card class="photo-card">
-          <q-card-section
-            class="photo-header"
-            style="background: linear-gradient(135deg, #2d5a47 0%, #1b4332 100%)"
-          >
-            <div class="page-label">
-              HOME - GUIDE
-              <q-badge
-                v-if="pages.homeGuide.length > 0"
-                :label="`${pages.homeGuide.length}/3`"
-                color="white"
-                text-color="primary"
-                class="q-ml-sm"
-              />
-            </div>
-            <div class="page-description">Guide Steps (3 Images)</div>
-          </q-card-section>
-
-          <q-card-section class="photo-preview">
-            <div v-if="pages.homeGuide.length > 0" class="guide-steps-grid">
-              <div
-                v-for="(image, index) in pages.homeGuide.slice(0, 3)"
-                :key="index"
-                class="step-thumbnail"
-              >
-                <img :src="image.imageUrl" :alt="`Step ${index + 1}`" />
-                <div class="step-number">{{ index + 1 }}</div>
-              </div>
-              <!-- Placeholder for empty steps -->
-              <div
-                v-for="n in 3 - pages.homeGuide.length"
-                :key="`empty-${n}`"
-                class="step-thumbnail empty"
-              >
-                <q-icon name="add_photo_alternate" size="32px" color="grey-4" />
-                <div class="step-number">{{ pages.homeGuide.length + n }}</div>
-              </div>
-            </div>
-            <div v-else class="image-placeholder">
-              <q-icon name="map" size="64px" color="grey-4" />
-              <p class="text-grey-6 q-mt-sm">No step images uploaded</p>
-            </div>
-          </q-card-section>
-
-          <q-card-actions class="q-pa-md">
-            <q-btn
-              unelevated
-              style="background: #2d5a47; color: white"
-              label="Manage Steps"
-              icon="view_carousel"
-              no-caps
-              class="full-width"
-              @click="openGuideDialog()"
-            />
-          </q-card-actions>
-        </q-card>
-      </div>
-
       <!-- HOME ABOUT Card -->
-      <div class="col-12 col-md-6 col-lg-4">
+      <div class="col-12 col-md-6 col-lg-6">
         <q-card class="photo-card">
           <q-card-section
             class="photo-header"
@@ -211,9 +111,11 @@
           </q-card-actions>
         </q-card>
       </div>
+    </div>
 
+    <div class="row q-col-gutter-md q-mb-xl">
       <!-- HOME GALLERY Card -->
-      <div class="col-12 col-md-6 col-lg-4">
+      <div class="col-12 col-md-6 col-lg-12">
         <q-card class="photo-card">
           <q-card-section
             class="photo-header"
@@ -318,43 +220,6 @@
         </q-card>
       </div>
 
-      <!-- MAYKAN Card -->
-      <div class="col-12 col-md-6 col-lg-4">
-        <q-card class="photo-card">
-          <q-card-section class="photo-header">
-            <div class="page-label">MAYKAN</div>
-            <div class="page-description">Places Discovery Page</div>
-          </q-card-section>
-
-          <q-card-section class="photo-preview">
-            <div class="image-wrapper">
-              <img
-                v-if="pages.maykan.imageUrl"
-                :src="pages.maykan.imageUrl"
-                alt="MAYKAN hero"
-                class="preview-image"
-              />
-              <div v-else class="image-placeholder">
-                <q-icon name="image" size="64px" color="grey-4" />
-                <p class="text-grey-6 q-mt-sm">No image uploaded</p>
-              </div>
-            </div>
-          </q-card-section>
-
-          <q-card-actions class="q-pa-md">
-            <q-btn
-              unelevated
-              style="background: #2d6a4f; color: white"
-              label="Change Image"
-              icon="photo_camera"
-              no-caps
-              class="full-width"
-              @click="openUploadDialog('maykan')"
-            />
-          </q-card-actions>
-        </q-card>
-      </div>
-
       <!-- PAGNAAM Hero Card -->
       <div class="col-12 col-md-6 col-lg-4">
         <q-card class="photo-card">
@@ -392,60 +257,20 @@
         </q-card>
       </div>
 
-      <!-- PAGNAAM Features Card -->
-      <div class="col-12 col-md-6 col-lg-4">
-        <q-card class="photo-card">
-          <q-card-section
-            class="photo-header"
-            style="background: linear-gradient(135deg, #4a5f4e 0%, #3a4f3e 100%)"
-          >
-            <div class="page-label">PAGNAAM</div>
-            <div class="page-description">Features Section (Jeepney Image)</div>
-          </q-card-section>
-
-          <q-card-section class="photo-preview">
-            <div class="image-wrapper">
-              <img
-                v-if="pages.pagnaamFeatures.imageUrl"
-                :src="pages.pagnaamFeatures.imageUrl"
-                alt="PAGNAAM features"
-                class="preview-image"
-              />
-              <div v-else class="image-placeholder">
-                <q-icon name="directions_bus" size="64px" color="grey-4" />
-                <p class="text-grey-6 q-mt-sm">No image uploaded</p>
-              </div>
-            </div>
-          </q-card-section>
-
-          <q-card-actions class="q-pa-md">
-            <q-btn
-              unelevated
-              style="background: #4a5f4e; color: white"
-              label="Change Image"
-              icon="add_photo_alternate"
-              no-caps
-              class="full-width"
-              @click="openUploadDialog('pagnaam-features')"
-            />
-          </q-card-actions>
-        </q-card>
-      </div>
-
-      <!-- AYAN MO Hero Card -->
+      <!-- MAYKAN Card -->
       <div class="col-12 col-md-6 col-lg-4">
         <q-card class="photo-card">
           <q-card-section class="photo-header">
-            <div class="page-label">AYAN MO</div>
-            <div class="page-description">Hero Section (Nearby Places)</div>
+            <div class="page-label">MAYKAN</div>
+            <div class="page-description">Places Discovery Page</div>
           </q-card-section>
 
           <q-card-section class="photo-preview">
             <div class="image-wrapper">
               <img
-                v-if="pages.ayanmo.imageUrl"
-                :src="pages.ayanmo.imageUrl"
-                alt="AYAN MO hero"
+                v-if="pages.maykan.imageUrl"
+                :src="pages.maykan.imageUrl"
+                alt="MAYKAN hero"
                 class="preview-image"
               />
               <div v-else class="image-placeholder">
@@ -463,47 +288,7 @@
               icon="photo_camera"
               no-caps
               class="full-width"
-              @click="openUploadDialog('ayanmo')"
-            />
-          </q-card-actions>
-        </q-card>
-      </div>
-
-      <!-- AYAN MO Discovery Card -->
-      <div class="col-12 col-md-6 col-lg-4">
-        <q-card class="photo-card">
-          <q-card-section
-            class="photo-header"
-            style="background: linear-gradient(135deg, #4a5f4e 0%, #3a4f3e 100%)"
-          >
-            <div class="page-label">AYAN MO</div>
-            <div class="page-description">Discovery Section Image</div>
-          </q-card-section>
-
-          <q-card-section class="photo-preview">
-            <div class="image-wrapper">
-              <img
-                v-if="pages.ayanmoDiscovery.imageUrl"
-                :src="pages.ayanmoDiscovery.imageUrl"
-                alt="AYAN MO discovery"
-                class="preview-image"
-              />
-              <div v-else class="image-placeholder">
-                <q-icon name="explore" size="64px" color="grey-4" />
-                <p class="text-grey-6 q-mt-sm">No image uploaded</p>
-              </div>
-            </div>
-          </q-card-section>
-
-          <q-card-actions class="q-pa-md">
-            <q-btn
-              unelevated
-              style="background: #4a5f4e; color: white"
-              label="Change Image"
-              icon="landscape"
-              no-caps
-              class="full-width"
-              @click="openUploadDialog('ayanmo-discovery')"
+              @click="openUploadDialog('maykan')"
             />
           </q-card-actions>
         </q-card>
@@ -541,6 +326,43 @@
               no-caps
               class="full-width"
               @click="openUploadDialog('aramidem')"
+            />
+          </q-card-actions>
+        </q-card>
+      </div>
+
+      <!-- AYAN MO Hero Card -->
+      <div class="col-12 col-md-6 col-lg-4">
+        <q-card class="photo-card">
+          <q-card-section class="photo-header">
+            <div class="page-label">AYAN MO</div>
+            <div class="page-description">Hero Section (Nearby Places)</div>
+          </q-card-section>
+
+          <q-card-section class="photo-preview">
+            <div class="image-wrapper">
+              <img
+                v-if="pages.ayanmo.imageUrl"
+                :src="pages.ayanmo.imageUrl"
+                alt="AYAN MO hero"
+                class="preview-image"
+              />
+              <div v-else class="image-placeholder">
+                <q-icon name="image" size="64px" color="grey-4" />
+                <p class="text-grey-6 q-mt-sm">No image uploaded</p>
+              </div>
+            </div>
+          </q-card-section>
+
+          <q-card-actions class="q-pa-md">
+            <q-btn
+              unelevated
+              style="background: #2d6a4f; color: white"
+              label="Change Image"
+              icon="photo_camera"
+              no-caps
+              class="full-width"
+              @click="openUploadDialog('ayanmo')"
             />
           </q-card-actions>
         </q-card>
@@ -1676,6 +1498,9 @@ export default {
       font-weight: 500
 
 .photo-card
+  display: flex
+  flex-direction: column
+  min-height: 450px
   transition: all 0.3s ease
 
   &:hover
@@ -1724,11 +1549,14 @@ export default {
 
 .photo-preview
   padding: 0
+  min-height: 250px
   height: 250px
+  display: block
 
 .image-wrapper
   width: 100%
   height: 100%
+  position: relative
   position: relative
   background: #f5f5f5
 
@@ -1851,12 +1679,13 @@ export default {
   display: grid
   grid-template-columns: repeat(2, 1fr)
   gap: 4px
+  width: 100%
   height: 100%
 
   .gallery-thumbnail
     position: relative
     width: 100%
-    padding-bottom: 100%
+    height: 100%
     overflow: hidden
     background: #f5f5f5
 
@@ -1879,27 +1708,21 @@ export default {
       align-items: center
       justify-content: center
       color: white
-      font-size: 2rem
       font-weight: bold
+      font-size: 1.2rem
 
 .preview-grid
   display: grid
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr))
-  gap: 16px
-  margin-top: 16px
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))
+  gap: 12px
 
   .preview-item
     position: relative
-    width: 100%
-    padding-bottom: 100%
-    overflow: hidden
+    aspect-ratio: 1
     border-radius: 8px
-    border: 2px solid #e0e0e0
+    overflow: hidden
 
     img
-      position: absolute
-      top: 0
-      left: 0
       width: 100%
       height: 100%
       object-fit: cover
@@ -1908,79 +1731,37 @@ export default {
       position: absolute
       top: 8px
       right: 8px
+      z-index: 10
+      background: rgba(255, 255, 255, 0.9)
+
+      &:hover
+        background: white
 
 .gallery-management-grid
   display: grid
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr))
-  gap: 16px
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr))
+  gap: 20px
 
   .gallery-item-card
     position: relative
-    overflow: hidden
-    border-radius: 8px
-    transition: transform 0.3s ease
-
-    &:hover
-      transform: translateY(-4px)
-
-.guide-steps-grid
-  display: grid
-  grid-template-columns: repeat(3, 1fr)
-  gap: 8px
-
-  .step-thumbnail
-    position: relative
-    width: 100%
-    padding-bottom: 75%
-    overflow: hidden
-    border-radius: 8px
-    background: #e0e0e0
-
-    &.empty
-      display: flex
-      align-items: center
-      justify-content: center
-      border: 2px dashed #ccc
-      background: #f5f5f5
-
-    img
-      position: absolute
-      top: 0
-      left: 0
-      width: 100%
-      height: 100%
-      object-fit: cover
-
-    .step-number
-      position: absolute
-      bottom: 4px
-      right: 4px
-      background: rgba(45, 106, 79, 0.9)
-      color: white
-      width: 24px
-      height: 24px
-      border-radius: 50%
-      display: flex
-      align-items: center
-      justify-content: center
-      font-size: 12px
-      font-weight: bold
+    aspect-ratio: 1
 
 .guide-steps-management
   display: grid
-  grid-template-columns: 1fr
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))
   gap: 20px
 
   .step-card
     border: 2px solid #e0e0e0
-    transition: all 0.3s ease
+    border-radius: 8px
+    overflow: hidden
 
     &.has-image
       border-color: #2d6a4f
 
     .step-header
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)
       padding: 16px
-      background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%)
       display: flex
       align-items: center
       gap: 12px
@@ -1988,45 +1769,46 @@ export default {
 
       .step-title
         font-weight: 600
-        color: #333
+        color: #2d6a4f
 
     .step-content
       padding: 16px
 
     .step-image-preview
       position: relative
-      border-radius: 8px
+      width: 100%
+      border-radius: 6px
       overflow: hidden
 
       .delete-step-btn
         position: absolute
-        top: 12px
-        right: 12px
+        bottom: 8px
+        right: 8px
         z-index: 10
+        background: rgba(255, 255, 255, 0.9)
+
+        &:hover
+          background: white
 
     .step-empty
-      text-align: center
+      display: flex
+      flex-direction: column
+      align-items: center
+      justify-content: center
       padding: 24px
-      background: #f9f9f9
-      border-radius: 8px
-      border: 2px dashed #ccc
+      background: #f5f5f5
+      border-radius: 6px
+      text-align: center
 
       p
-        margin: 12px 0 16px 0
-
-.bg-pine-green
-  background: #2d6a4f !important
+        margin-top: 8px
 
 .tips-section
-  background: #f5f5f5
-  padding: 16px
-  border-radius: 8px
-  border-left: 4px solid #2d6a4f
-
   ul
-    margin: 8px 0 0 0
-    padding-left: 20px
+    list-style-position: inside
+    padding: 0
 
     li
-      margin-bottom: 4px
+      margin-bottom: 8px
+      line-height: 1.5
 </style>

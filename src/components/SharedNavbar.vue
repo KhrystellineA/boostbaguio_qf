@@ -11,10 +11,10 @@
       @keydown.space.prevent="$router.push('/')"
     >
       <div class="logo-bento">
-        <img src="/logo.svg" alt="Boost Baguio Logo" />
+        <img src="/src/assets/boost baguio logo small.svg" alt="Boost Baguio Logo" />
       </div>
       <div class="brand-text">
-        <span class="brand-name">Baguio <span class="text-accent">Boost</span></span>
+        <span class="brand-name">Boost <span class="text-accent">Baguio</span></span>
         <span class="brand-tagline">Navigate with ease</span>
       </div>
     </div>
@@ -32,7 +32,7 @@
         @click="navigateTo('/apanam')"
       >
         <q-icon name="route" size="18px" class="q-mr-xs" aria-hidden="true" />
-        Apanam
+        P2P Navigation
       </q-btn>
       <q-separator vertical class="nav-separator" aria-hidden="true" />
       <q-btn
@@ -44,7 +44,7 @@
         @click="navigateTo('/pagnaam')"
       >
         <q-icon name="directions_bus" size="18px" class="q-mr-xs" aria-hidden="true" />
-        Pagnaam
+        City Jeeps
       </q-btn>
       <q-separator vertical class="nav-separator" aria-hidden="true" />
       <q-btn
@@ -56,7 +56,7 @@
         @click="navigateTo('/maykan')"
       >
         <q-icon name="place" size="18px" class="q-mr-xs" aria-hidden="true" />
-        Maykan
+        Places
       </q-btn>
       <q-separator vertical class="nav-separator" aria-hidden="true" />
       <q-btn
@@ -68,7 +68,7 @@
         @click="navigateTo('/aramidem')"
       >
         <q-icon name="event" size="18px" class="q-mr-xs" aria-hidden="true" />
-        Aramidem
+        Events
       </q-btn>
       <q-separator vertical class="nav-separator" aria-hidden="true" />
       <q-btn
@@ -80,7 +80,7 @@
         @click="navigateTo('/ayanmo')"
       >
         <q-icon name="my_location" size="18px" class="q-mr-xs" aria-hidden="true" />
-        Ayan Mo
+        Near Me
       </q-btn>
     </div>
 
@@ -208,11 +208,11 @@
           @click="$router.push('/')"
         >
           <div class="logo-bento">
-            <img src="/logo.svg" alt="Boost Baguio Logo" />
+            <img src="/src/assets/boost baguio logo small.svg" alt="Boost Baguio Logo" />
           </div>
           <div class="brand-text">
-            <span class="brand-name">Baguio <span class="text-accent">Boost</span></span>
-            <span class="brand-tagline">Navigate with Joy</span>
+            <span class="brand-name">Boost <span class="text-accent">Baguio</span></span>
+            <span class="brand-tagline">Navigate with Ease</span>
           </div>
         </div>
         <q-btn flat round dense icon="close" aria-label="Close menu" @click="toggleMobileMenu" />
@@ -414,7 +414,7 @@ const handleScroll = () => {
 
 const handleLogout = async () => {
   await userStore.logout()
-  router.push('/')
+  router.push('/login')
 }
 
 const isActiveRoute = (path) => {

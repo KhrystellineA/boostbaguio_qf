@@ -79,6 +79,8 @@
           @dialog-opened="onDialogOpened('event')"
         />
 
+        <HomepageManagement v-else-if="activeMenu === 'homepage'" />
+
         <PhotosManagement v-else-if="activeMenu === 'photos'" />
 
         <AdminsManagement v-else-if="activeMenu === 'admins'" />
@@ -103,7 +105,8 @@ import JeepneyManagement from 'src/components/admin/JeepneyManagement.vue'
 import PlacesManagement from 'src/components/admin/PlacesManagement.vue'
 import EventsManagement from 'src/components/admin/EventsManagement.vue'
 import AdminsManagement from 'src/components/admin/AdminsManagement.vue'
-import PhotosManagement from 'src/components/admin/PhotosManagement.vue'
+import PhotosManagement from 'src/components/admin/homepage/PhotosManagement.vue'
+import HomepageManagement from 'src/components/admin/HomepageManagement.vue'
 import AnalyticsManagement from 'src/components/admin/AnalyticsManagement.vue'
 import ActivityLogsManagement from 'src/components/admin/ActivityLogsManagement.vue'
 
@@ -119,6 +122,7 @@ export default defineComponent({
     EventsManagement,
     AdminsManagement,
     PhotosManagement,
+    HomepageManagement,
     AnalyticsManagement,
     ActivityLogsManagement,
   },
