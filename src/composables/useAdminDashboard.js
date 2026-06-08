@@ -26,7 +26,7 @@ import { watchPendingRequests } from 'src/composables/useFeatureRequests'
  * @property {number} routes - Number of routes
  * @property {number} places - Number of places
  * @property {number} events - Number of events
- * @property {number} admins - Number of admins
+ * @property {number} users - Number of users
  */
 
 /**
@@ -64,7 +64,7 @@ export function useAdminDashboard() {
     routes: 0,
     places: 0,
     events: 0,
-    admins: 0,
+    users: 0,
   })
   const notifications = ref([])
   const loading = ref(true)
@@ -115,18 +115,18 @@ export function useAdminDashboard() {
   // Load dashboard statistics
   const loadStats = async () => {
     try {
-      const [routesSnap, placesSnap, eventsSnap, adminsSnap] = await Promise.all([
+      const [routesSnap, placesSnap, eventsSnap, usersSnap] = await Promise.all([
         getDocs(collection(db, 'jeepneys')),
         getDocs(collection(db, 'places')),
         getDocs(collection(db, 'events')),
-        getDocs(collection(db, 'admins')),
+        getDocs(collection(db, 'users')),
       ])
 
       stats.value = {
         routes: routesSnap.size,
         places: placesSnap.size,
         events: eventsSnap.size,
-        admins: adminsSnap.size,
+        users: usersSnap.size,
       }
     } catch (error) {
       console.error('[AdminDashboard] Error loading stats:', error)

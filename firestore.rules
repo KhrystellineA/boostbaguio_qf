@@ -321,6 +321,22 @@ service cloud.firestore {
       allow delete: if isSuperAdmin();
     }
 
+    // ========== PREMIUM REQUESTS COLLECTION ==========
+
+    match /premium_requests/{requestId} {
+      // Users can read their own requests; admins can read all
+      allow read: if isSuperAdmin() || (isAuthenticated() && resource.data.uid == request.auth.uid);
+      
+      // Any authenticated user can submit a premium request for themselves
+      allow create: if isAuthenticated() && request.resource.data.uid == request.auth.uid;
+      
+      // Only super admins can update/approve/reject requests
+      allow update: if isSuperAdmin();
+      
+      // Only super admins can delete requests
+      allow delete: if isSuperAdmin();
+    }
+
     // ========== DEFAULT DENY ==========
     // Deny all other access not explicitly allowed
     match /{document=**} {

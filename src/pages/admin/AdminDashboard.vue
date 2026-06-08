@@ -61,6 +61,8 @@
         </div>
 
         <!-- Management Components -->
+        <PremiumManagement v-if="activeMenu === 'premium'" />
+
         <JeepneyManagement
           v-else-if="activeMenu === 'routes'"
           :open-dialog="triggerRouteDialog"
@@ -101,6 +103,7 @@ import { approveFeatureRequest, rejectFeatureRequest } from 'src/composables/use
 import AdminHeader from 'src/components/admin/AdminHeader.vue'
 import AdminSidebar from 'src/components/admin/AdminSidebar.vue'
 import AdminStats from 'src/components/admin/AdminStats.vue'
+import PremiumManagement from 'src/components/admin/PremiumManagement.vue'
 import JeepneyManagement from 'src/components/admin/JeepneyManagement.vue'
 import PlacesManagement from 'src/components/admin/PlacesManagement.vue'
 import EventsManagement from 'src/components/admin/EventsManagement.vue'
@@ -117,6 +120,7 @@ export default defineComponent({
     AdminHeader,
     AdminSidebar,
     AdminStats,
+    PremiumManagement,
     JeepneyManagement,
     PlacesManagement,
     EventsManagement,

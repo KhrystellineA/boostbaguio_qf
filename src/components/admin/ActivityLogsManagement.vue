@@ -109,7 +109,7 @@
                 </div>
               </div>
               <div class="col text-right">
-                <div class="stat-value">{{ stats.byResource.admins }}</div>
+                <div class="stat-value">{{ stats.byResource.users }}</div>
                 <div class="stat-label">Admin Actions</div>
               </div>
             </div>
@@ -418,7 +418,7 @@ export default {
         'export',
         'import',
       ],
-      resourceOptions: ['places', 'events', 'jeepneys', 'routes', 'admins', 'photos', 'users'],
+      resourceOptions: ['places', 'events', 'jeepneys', 'routes', 'users', 'photos'],
       columns: [
         {
           name: 'timestamp',
@@ -468,7 +468,7 @@ export default {
           places: 0,
           events: 0,
           jeepneys: 0,
-          admins: 0,
+          users: 0,
         },
       },
     }
@@ -578,7 +578,7 @@ export default {
         places: 0,
         events: 0,
         jeepneys: 0,
-        admins: 0,
+        users: 0,
       }
 
       this.logs.forEach((log) => {
@@ -654,9 +654,8 @@ export default {
         events: 'orange',
         jeepneys: 'blue',
         routes: 'indigo',
-        admins: 'purple',
+        users: 'purple',
         photos: 'pink',
-        users: 'teal',
       }
       return colors[resource] || 'grey'
     },
@@ -667,7 +666,6 @@ export default {
         events: 'event',
         jeepneys: 'directions_bus',
         routes: 'route',
-        admins: 'admin_panel_settings',
         photos: 'photo_library',
         users: 'people',
       }
