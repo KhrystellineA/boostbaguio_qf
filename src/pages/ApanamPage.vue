@@ -846,7 +846,7 @@ export default defineComponent({
 
       const places = await loadPlacesOnce()
       const resolved = jeepney.resolvedWaypoints || []
-      
+
       const terminal = {
         name: 'Terminal',
         latitude: jeepney.terminalLat,
@@ -857,7 +857,7 @@ export default defineComponent({
 
       for (const spotName of jeepney.touristSpotsServiced || []) {
         // 1. Try resolvedWaypoints (manual corrections)
-        const prev = resolved.find(r => r.name === spotName)
+        const prev = resolved.find((r) => r.name === spotName)
         if (prev && prev.lat) {
           intermediates.push({ name: spotName, latitude: prev.lat, longitude: prev.lng })
           continue
@@ -879,7 +879,7 @@ export default defineComponent({
       // endPoint is often a road/street name — try resolved, then places, then Nominatim
       let endPointWaypoint = null
       if (jeepney.endPoint) {
-        const prev = resolved.find(r => r.name === jeepney.endPoint)
+        const prev = resolved.find((r) => r.name === jeepney.endPoint)
         if (prev && prev.lat) {
           endPointWaypoint = { name: jeepney.endPoint, latitude: prev.lat, longitude: prev.lng }
         }
@@ -989,7 +989,7 @@ export default defineComponent({
 
       for (const name of spots) {
         // Try resolvedWaypoints first
-        const prev = resolved.find(r => r.name === name)
+        const prev = resolved.find((r) => r.name === name)
         if (prev && prev.lat) {
           candidates.push({ name: name, coords: [prev.lat, prev.lng] })
           continue
@@ -1002,9 +1002,9 @@ export default defineComponent({
       }
 
       if (jeepney.endPoint) {
-        const prev = resolved.find(r => r.name === jeepney.endPoint)
+        const prev = resolved.find((r) => r.name === jeepney.endPoint)
         if (prev && prev.lat) {
-           candidates.push({ name: jeepney.endPoint, coords: [prev.lat, prev.lng] })
+          candidates.push({ name: jeepney.endPoint, coords: [prev.lat, prev.lng] })
         } else {
           const endPlace = fuzzyMatch(jeepney.endPoint, places)
           if (endPlace) {
