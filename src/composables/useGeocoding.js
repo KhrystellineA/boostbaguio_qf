@@ -79,8 +79,8 @@ export function useGeocoding() {
           address.state,
           address.municipality,
         ]
-        const isBaguioAddress = addrFields.some((f) =>
-          typeof f === 'string' && f.toLowerCase().includes('baguio')
+        const isBaguioAddress = addrFields.some(
+          (f) => typeof f === 'string' && f.toLowerCase().includes('baguio')
         )
 
         return baguioOnly ? inBaguio || isBaguioAddress : true

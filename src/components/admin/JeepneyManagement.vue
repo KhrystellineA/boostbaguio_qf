@@ -237,22 +237,47 @@
                 </q-btn>
               </template>
               <template #append>
-                <q-btn flat dense icon="clear" color="grey" size="sm" v-if="form.terminalLocation" @click="clearTerminalLocation" />
-                <q-btn flat dense icon="search" color="primary" size="sm" @click="searchTerminalLocation">
+                <q-btn
+                  flat
+                  dense
+                  icon="clear"
+                  color="grey"
+                  size="sm"
+                  v-if="form.terminalLocation"
+                  @click="clearTerminalLocation"
+                />
+                <q-btn
+                  flat
+                  dense
+                  icon="search"
+                  color="primary"
+                  size="sm"
+                  @click="searchTerminalLocation"
+                >
                   <q-tooltip>Search Baguio locations</q-tooltip>
                 </q-btn>
               </template>
             </q-input>
 
-            <q-menu v-if="terminalResults && terminalResults.length > 0" v-model="showTerminalMenu" :anchor="'bottom left'" :self="'top left'" :fit="true">
+            <q-menu
+              v-if="terminalResults && terminalResults.length > 0"
+              v-model="showTerminalMenu"
+              :anchor="'bottom left'"
+              :self="'top left'"
+              :fit="true"
+            >
               <q-list style="min-width: 300px">
-                <q-item v-for="(res, idx) in terminalResults" :key="idx" clickable @click="selectTerminal(res)">
+                <q-item
+                  v-for="(res, idx) in terminalResults"
+                  :key="idx"
+                  clickable
+                  @click="selectTerminal(res)"
+                >
                   <q-item-section>
                     <q-item-label>{{ res.label }}</q-item-label>
                     <q-item-label caption class="text-grey-6">{{ res.fullAddress }}</q-item-label>
                   </q-item-section>
                 </q-item>
-                
               </q-list>
             </q-menu>
           </div>
@@ -432,22 +457,51 @@
               @keyup.enter="searchEndPointLocation"
             >
               <template #append>
-                <q-btn flat dense icon="clear" color="grey" size="sm" v-if="form.endPoint" @click="form.endPoint = ''; showEndPointMenu = false; endPointResults = []" />
-                <q-btn flat dense icon="search" color="primary" size="sm" @click="searchEndPointLocation">
+                <q-btn
+                  flat
+                  dense
+                  icon="clear"
+                  color="grey"
+                  size="sm"
+                  v-if="form.endPoint"
+                  @click="
+                    form.endPoint = '';
+                    showEndPointMenu = false;
+                    endPointResults = [];
+                  "
+                />
+                <q-btn
+                  flat
+                  dense
+                  icon="search"
+                  color="primary"
+                  size="sm"
+                  @click="searchEndPointLocation"
+                >
                   <q-tooltip>Search Baguio locations</q-tooltip>
                 </q-btn>
               </template>
             </q-input>
 
-            <q-menu v-if="endPointResults && endPointResults.length > 0" v-model="showEndPointMenu" :anchor="'bottom left'" :self="'top left'" :fit="true">
+            <q-menu
+              v-if="endPointResults && endPointResults.length > 0"
+              v-model="showEndPointMenu"
+              :anchor="'bottom left'"
+              :self="'top left'"
+              :fit="true"
+            >
               <q-list style="min-width: 300px">
-                <q-item v-for="(res, idx) in endPointResults" :key="idx" clickable @click="selectEndPoint(res)">
+                <q-item
+                  v-for="(res, idx) in endPointResults"
+                  :key="idx"
+                  clickable
+                  @click="selectEndPoint(res)"
+                >
                   <q-item-section>
                     <q-item-label>{{ res.label }}</q-item-label>
                     <q-item-label caption class="text-grey-6">{{ res.fullAddress }}</q-item-label>
                   </q-item-section>
                 </q-item>
-                
               </q-list>
             </q-menu>
           </div>
@@ -792,8 +846,6 @@ export default {
     },
   },
 
-  
-
   data() {
     return {
       jeepneys: [],
@@ -977,7 +1029,7 @@ export default {
     },
     showAddDialog(val) {
       if (val) {
-          this.$nextTick(() => {
+        this.$nextTick(() => {
           this.initMap()
         })
       }
@@ -988,12 +1040,12 @@ export default {
     async loadPlaces() {
       try {
         const querySnapshot = await getDocs(collection(db, 'places'))
-        this.allPlaces = querySnapshot.docs.map(doc => ({
+        this.allPlaces = querySnapshot.docs.map((doc) => ({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         }))
         // Default options are all place names
-        this.touristSpotsOptions = this.allPlaces.map(p => p.name).sort()
+        this.touristSpotsOptions = this.allPlaces.map((p) => p.name).sort()
       } catch (error) {
         console.error('[Jeepneys] Error loading places:', error)
       }
@@ -1002,7 +1054,7 @@ export default {
     filterTouristSpots(val, update) {
       if (val === '') {
         update(() => {
-          this.touristSpotsOptions = this.allPlaces.map(p => p.name).sort()
+          this.touristSpotsOptions = this.allPlaces.map((p) => p.name).sort()
         })
         return
       }
@@ -1010,8 +1062,8 @@ export default {
       update(() => {
         const needle = val.toLowerCase()
         this.touristSpotsOptions = this.allPlaces
-          .map(p => p.name)
-          .filter(v => v.toLowerCase().indexOf(needle) > -1)
+          .map((p) => p.name)
+          .filter((v) => v.toLowerCase().indexOf(needle) > -1)
           .sort()
       })
     },
@@ -1533,17 +1585,21 @@ export default {
 
       if (Array.isArray(obj)) {
         // Flatten nested arrays but safely traverse objects inside arrays
-        const cleaned = obj.map((item, idx) => {
-          if (Array.isArray(item)) {
-            console.warn(`[JeepneyManagement] Found nested array at ${currentPath}[${idx}], taking first element or keeping as is if empty`)
-            return item.length > 0 ? item[0] : null
-          }
-          if (typeof item === 'object' && item !== null) {
-            // It's an object inside an array (e.g. {lat, lng}). Clean it recursively.
-            return this.deepCleanData(item, String(idx), currentPath)
-          }
-          return item
-        }).filter(item => item !== null)
+        const cleaned = obj
+          .map((item, idx) => {
+            if (Array.isArray(item)) {
+              console.warn(
+                `[JeepneyManagement] Found nested array at ${currentPath}[${idx}], taking first element or keeping as is if empty`
+              )
+              return item.length > 0 ? item[0] : null
+            }
+            if (typeof item === 'object' && item !== null) {
+              // It's an object inside an array (e.g. {lat, lng}). Clean it recursively.
+              return this.deepCleanData(item, String(idx), currentPath)
+            }
+            return item
+          })
+          .filter((item) => item !== null)
         return cleaned
       }
 
@@ -2083,7 +2139,11 @@ export default {
       } catch (err) {
         console.error('[JeepneyManagement] Failed to apply OSRM route:', err)
         // Improved error message for permission issues
-        const isPermError = err && (err.code === 'permission-denied' || (err.message && err.message.toLowerCase().includes('missing or insufficient permissions')))
+        const isPermError =
+          err &&
+          (err.code === 'permission-denied' ||
+            (err.message &&
+              err.message.toLowerCase().includes('missing or insufficient permissions')))
         if (isPermError) {
           const uid = auth && auth.currentUser ? auth.currentUser.uid : 'UNKNOWN'
           this.$q.notify({
@@ -2107,7 +2167,6 @@ export default {
     /**
      * Build waypoints from jeepney data for display
      */
-    
 
     /**
      * Format distance for display
@@ -2482,7 +2541,7 @@ export default {
               success: true,
               message: `Generating route for ${jeepney.jeepName}...`,
             })
-            
+
             const terminal = {
               name: 'Terminal',
               latitude: jeepney.terminalLat,
@@ -2493,7 +2552,11 @@ export default {
             for (const spotName of jeepney.touristSpotsServiced || []) {
               const place = fuzzyMatch(spotName, places)
               if (place && place.latitude && place.longitude) {
-                intermediates.push({ name: place.name, latitude: place.latitude, longitude: place.longitude })
+                intermediates.push({
+                  name: place.name,
+                  latitude: place.latitude,
+                  longitude: place.longitude,
+                })
               }
             }
 
@@ -2501,12 +2564,20 @@ export default {
             if (jeepney.endPoint) {
               const endPlace = fuzzyMatch(jeepney.endPoint, places)
               if (endPlace && endPlace.latitude && endPlace.longitude) {
-                endPointWaypoint = { name: endPlace.name, latitude: endPlace.latitude, longitude: endPlace.longitude }
+                endPointWaypoint = {
+                  name: endPlace.name,
+                  latitude: endPlace.latitude,
+                  longitude: endPlace.longitude,
+                }
               } else {
                 try {
                   const geoResults = await searchLocations(jeepney.endPoint + ', Baguio', true)
                   if (geoResults && geoResults.length > 0) {
-                    endPointWaypoint = { name: jeepney.endPoint, latitude: geoResults[0].lat, longitude: geoResults[0].lng }
+                    endPointWaypoint = {
+                      name: jeepney.endPoint,
+                      latitude: geoResults[0].lat,
+                      longitude: geoResults[0].lng,
+                    }
                   }
                 } catch {
                   // Fallback without endpoint
@@ -2520,20 +2591,23 @@ export default {
             if (waypoints.length >= 2) {
               try {
                 // Rate limit respect (OSRM public server allows ~1 request/sec)
-                await new Promise(resolve => setTimeout(resolve, 1100))
-                
+                await new Promise((resolve) => setTimeout(resolve, 1100))
+
                 const result = await callOSRM(waypoints)
                 if (result && result.coordinates) {
-                   jeepneyData.routeCoordinates = result.coordinates.map(([lng, lat]) => ({ lng, lat }))
-                   jeepneyData.routeDistance = result.distance
-                   jeepneyData.routeDuration = result.duration
-                   
-                   // Save resolved waypoints so they persist as corrected
-                   jeepneyData.resolvedWaypoints = waypoints.map(w => ({
-                      name: w.name,
-                      lat: w.latitude,
-                      lng: w.longitude
-                   }))
+                  jeepneyData.routeCoordinates = result.coordinates.map(([lng, lat]) => ({
+                    lng,
+                    lat,
+                  }))
+                  jeepneyData.routeDistance = result.distance
+                  jeepneyData.routeDuration = result.duration
+
+                  // Save resolved waypoints so they persist as corrected
+                  jeepneyData.resolvedWaypoints = waypoints.map((w) => ({
+                    name: w.name,
+                    lat: w.latitude,
+                    lng: w.longitude,
+                  }))
                 }
               } catch (osrmError) {
                 console.warn(`[CSV Import] OSRM failed for ${jeepney.jeepName}:`, osrmError)

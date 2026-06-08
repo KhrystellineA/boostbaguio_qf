@@ -149,8 +149,13 @@
                 </q-list>
 
                 <div v-if="hasUnresolvedWaypoints" class="q-mt-md">
-                  <q-banner dense class="bg-warning text-white rounded-borders" style="font-size: 11px">
-                    <q-icon name="warning" /> Some waypoints are missing locations. OSRM will skip them.
+                  <q-banner
+                    dense
+                    class="bg-warning text-white rounded-borders"
+                    style="font-size: 11px"
+                  >
+                    <q-icon name="warning" /> Some waypoints are missing locations. OSRM will skip
+                    them.
                   </q-banner>
                 </div>
               </div>
@@ -217,7 +222,7 @@ export default defineComponent({
     })
 
     const hasUnresolvedWaypoints = computed(() => {
-      return waypoints.value.some(w => !w.latitude)
+      return waypoints.value.some((w) => !w.latitude)
     })
 
     const applyOsrm = async () => {
@@ -234,11 +239,11 @@ export default defineComponent({
           routeCoordinates,
           routeDistance: lastOsrmRoute.distance,
           routeDuration: lastOsrmRoute.duration,
-          waypoints: waypoints.value.map(w => ({
-             name: w.name,
-             lat: w.latitude,
-             lng: w.longitude
-          }))
+          waypoints: waypoints.value.map((w) => ({
+            name: w.name,
+            lat: w.latitude,
+            lng: w.longitude,
+          })),
         })
         emit('update:modelValue', false)
       } finally {
@@ -256,9 +261,9 @@ export default defineComponent({
       const idx = settingWaypointIndex.value
       waypoints.value[idx].latitude = e.latlng.lat
       waypoints.value[idx].longitude = e.latlng.lng
-      
+
       settingWaypointIndex.value = null
-      
+
       // Re-trigger OSRM and redraw
       await updateOsrmAndMap()
     }
@@ -299,7 +304,10 @@ export default defineComponent({
 
     const parseLatLngString = (text) => {
       if (!text || typeof text !== 'string') return null
-      const parts = text.split(',').map(p => p.trim()).filter(Boolean)
+      const parts = text
+        .split(',')
+        .map((p) => p.trim())
+        .filter(Boolean)
       if (parts.length !== 2) return null
       const lat = Number(parts[0])
       const lng = Number(parts[1])
@@ -312,22 +320,26 @@ export default defineComponent({
 
     const buildWaypoints = async (jeep) => {
       const out = []
-      
+
       // Start with terminal
       out.push({
         name: jeep.terminalLocation || 'Terminal',
         latitude: jeep.terminalLat || null,
         longitude: jeep.terminalLng || null,
       })
-      
+
       const places = await fetchPlaces().catch(() => [])
       const resolved = jeep.resolvedWaypoints || []
 
       for (const spotName of jeep.touristSpotsServiced || []) {
         // 1. Try to find in resolvedWaypoints first (manual overrides)
-        const previouslyResolved = resolved.find(r => r.name === spotName)
+        const previouslyResolved = resolved.find((r) => r.name === spotName)
         if (previouslyResolved && previouslyResolved.lat) {
-          out.push({ name: spotName, latitude: previouslyResolved.lat, longitude: previouslyResolved.lng })
+          out.push({
+            name: spotName,
+            latitude: previouslyResolved.lat,
+            longitude: previouslyResolved.lng,
+          })
           continue
         }
 
@@ -339,14 +351,18 @@ export default defineComponent({
           out.push({ name: spotName, latitude: null, longitude: null })
         }
       }
-      
+
       if (jeep.endPoint) {
         let addedEndPoint = false
 
         // 1. Try resolvedWaypoints for end point
-        const previouslyResolved = resolved.find(r => r.name === jeep.endPoint)
+        const previouslyResolved = resolved.find((r) => r.name === jeep.endPoint)
         if (previouslyResolved && previouslyResolved.lat) {
-          out.push({ name: jeep.endPoint, latitude: previouslyResolved.lat, longitude: previouslyResolved.lng })
+          out.push({
+            name: jeep.endPoint,
+            latitude: previouslyResolved.lat,
+            longitude: previouslyResolved.lng,
+          })
           addedEndPoint = true
         }
 
@@ -391,7 +407,7 @@ export default defineComponent({
             console.warn('[RouteCompareDialog] End point geocoding fallback failed:', err)
           }
         }
-        
+
         if (!addedEndPoint) {
           out.push({ name: jeep.endPoint, latitude: null, longitude: null })
         }
@@ -400,9 +416,9 @@ export default defineComponent({
     }
 
     const fetchOsrm = async (wps) => {
-      const resolved = wps.filter(w => w.latitude && w.longitude)
+      const resolved = wps.filter((w) => w.latitude && w.longitude)
       if (resolved.length < 2) return null
-      
+
       const coords = resolved.map((w) => `${w.longitude},${w.latitude}`).join(';')
       const url = `https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson&steps=false`
       const res = await fetch(url)
@@ -416,17 +432,17 @@ export default defineComponent({
       if (!map) return
       loading.value = true
       error.value = null
-      
+
       if (osrmLayer) map.removeLayer(osrmLayer)
-      waypointMarkers.forEach(m => map.removeLayer(m))
+      waypointMarkers.forEach((m) => map.removeLayer(m))
       waypointMarkers = []
 
       const allBounds = []
       const stored = toLatLng(props.jeepney.routeCoordinates || props.jeepney.routePoints)
       if (stored.length >= 2) {
-         if (storedLayer) map.removeLayer(storedLayer)
-         storedLayer = L.polyline(stored, { color: '#1976D2', weight: 5, opacity: 0.9 }).addTo(map)
-         stored.forEach((c) => allBounds.push(c))
+        if (storedLayer) map.removeLayer(storedLayer)
+        storedLayer = L.polyline(stored, { color: '#1976D2', weight: 5, opacity: 0.9 }).addTo(map)
+        stored.forEach((c) => allBounds.push(c))
       }
 
       try {
@@ -448,15 +464,20 @@ export default defineComponent({
             const drift = (storedLengthM.value - osrmLengthM.value) / osrmLengthM.value
             const pct = Math.round(drift * 100)
             driftDisplay.value = `${pct >= 0 ? '+' : ''}${pct}% (${formatKm(Math.abs(storedLengthM.value - osrmLengthM.value))} difference)`
-            driftClass.value = Math.abs(pct) >= 25 ? 'text-negative text-weight-bold' : Math.abs(pct) >= 10 ? 'text-warning' : 'text-positive'
+            driftClass.value =
+              Math.abs(pct) >= 25
+                ? 'text-negative text-weight-bold'
+                : Math.abs(pct) >= 10
+                  ? 'text-warning'
+                  : 'text-positive'
           }
         } else {
           lastOsrmRoute = null
           canApply.value = false
           osrmLengthM.value = 0
           driftDisplay.value = '—'
-          if (waypoints.value.filter(w => w.latitude).length < 2) {
-             error.value = 'Not enough resolvable waypoints for an OSRM comparison.'
+          if (waypoints.value.filter((w) => w.latitude).length < 2) {
+            error.value = 'Not enough resolvable waypoints for an OSRM comparison.'
           }
         }
 
@@ -502,7 +523,8 @@ export default defineComponent({
 
       map = L.map(mapEl.value, { zoomControl: true })
       L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
         maxZoom: 20,
       }).addTo(map)
@@ -523,11 +545,14 @@ export default defineComponent({
       }
     }
 
-    watch(() => [props.modelValue, props.jeepney?.id], async ([open]) => {
-      if (!open) return
-      await nextTick()
-      drawAll()
-    })
+    watch(
+      () => [props.modelValue, props.jeepney?.id],
+      async ([open]) => {
+        if (!open) return
+        await nextTick()
+        drawAll()
+      }
+    )
 
     return {
       mapEl,
@@ -587,7 +612,7 @@ export default defineComponent({
 .waypoint-item {
   border-radius: 4px;
   transition: background 0.2s;
-  
+
   &:hover {
     background: rgba(0, 0, 0, 0.03);
   }
