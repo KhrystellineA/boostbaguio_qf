@@ -100,13 +100,13 @@ BOOST-BAGUIO/
 └── .github/workflows/   # CI/CD pipeline
 ```
 
-> 📐 **For a full map of "where does the code for X live?" see [`ARCHITECTURE.md`](./ARCHITECTURE.md).** It walks through each of the five named features (APANAM, PAGNAAM, MAYKAN, ARAMIDEM, AYAN MO), the admin dashboard, and the data model.
+> **For a full map of "where does the code for X live?" see [`ARCHITECTURE.md`](./ARCHITECTURE.md).** It walks through each of the five named features (APANAM, PAGNAAM, MAYKAN, ARAMIDEM, AYAN MO), the admin dashboard, and the data model.
 
-> 🧹 **Cleanup candidates and orphan files are tracked in [`AUDIT.md`](./AUDIT.md).**
+> **Cleanup candidates and orphan files are tracked in [`AUDIT.md`](./AUDIT.md).**
 
 ## Deployment
 
-### Vercel (Recommended)
+### Vercel
 
 The project is configured for automatic deployment on push to `main` branch via GitHub Actions.
 

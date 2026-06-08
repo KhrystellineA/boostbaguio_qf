@@ -845,6 +845,8 @@ export default defineComponent({
       }
 
       const places = await loadPlacesOnce()
+      const resolved = jeepney.resolvedWaypoints || []
+      
       const terminal = {
         name: 'Terminal',
         latitude: jeepney.terminalLat,
@@ -854,6 +856,14 @@ export default defineComponent({
       const unmatched = []
 
       for (const spotName of jeepney.touristSpotsServiced || []) {
+        // 1. Try resolvedWaypoints (manual corrections)
+        const prev = resolved.find(r => r.name === spotName)
+        if (prev && prev.lat) {
+          intermediates.push({ name: spotName, latitude: prev.lat, longitude: prev.lng })
+          continue
+        }
+
+        // 2. Fall back to fuzzyMatch
         const place = fuzzyMatch(spotName, places)
         if (place) {
           intermediates.push({
@@ -866,17 +876,26 @@ export default defineComponent({
         }
       }
 
-      // endPoint is often a road/street name — try places first, then Nominatim
+      // endPoint is often a road/street name — try resolved, then places, then Nominatim
       let endPointWaypoint = null
       if (jeepney.endPoint) {
-        const endPlace = fuzzyMatch(jeepney.endPoint, places)
-        if (endPlace) {
-          endPointWaypoint = {
-            name: endPlace.name,
-            latitude: endPlace.latitude,
-            longitude: endPlace.longitude,
+        const prev = resolved.find(r => r.name === jeepney.endPoint)
+        if (prev && prev.lat) {
+          endPointWaypoint = { name: jeepney.endPoint, latitude: prev.lat, longitude: prev.lng }
+        }
+
+        if (!endPointWaypoint) {
+          const endPlace = fuzzyMatch(jeepney.endPoint, places)
+          if (endPlace) {
+            endPointWaypoint = {
+              name: endPlace.name,
+              latitude: endPlace.latitude,
+              longitude: endPlace.longitude,
+            }
           }
-        } else {
+        }
+
+        if (!endPointWaypoint) {
           try {
             const geoResults = await searchLocations(jeepney.endPoint + ', Baguio', true)
             if (geoResults && geoResults.length > 0) {
@@ -966,19 +985,34 @@ export default defineComponent({
     const findNearestDropoff = (jeepney, places, destCoords, nearestRoutePoint = null) => {
       const candidates = []
       const spots = jeepney.touristSpotsServiced || []
+      const resolved = jeepney.resolvedWaypoints || []
+
       for (const name of spots) {
+        // Try resolvedWaypoints first
+        const prev = resolved.find(r => r.name === name)
+        if (prev && prev.lat) {
+          candidates.push({ name: name, coords: [prev.lat, prev.lng] })
+          continue
+        }
+
         const place = fuzzyMatch(name, places)
         if (place) {
           candidates.push({ name: place.name, coords: [place.latitude, place.longitude] })
         }
       }
+
       if (jeepney.endPoint) {
-        const endPlace = fuzzyMatch(jeepney.endPoint, places)
-        if (endPlace) {
-          candidates.push({
-            name: endPlace.name,
-            coords: [endPlace.latitude, endPlace.longitude],
-          })
+        const prev = resolved.find(r => r.name === jeepney.endPoint)
+        if (prev && prev.lat) {
+           candidates.push({ name: jeepney.endPoint, coords: [prev.lat, prev.lng] })
+        } else {
+          const endPlace = fuzzyMatch(jeepney.endPoint, places)
+          if (endPlace) {
+            candidates.push({
+              name: endPlace.name,
+              coords: [endPlace.latitude, endPlace.longitude],
+            })
+          }
         }
       }
       if (jeepney.terminalLat && jeepney.terminalLng) {

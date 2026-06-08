@@ -1,6 +1,6 @@
 # Boost Baguio — Complete Setup & Operations Manual
 
-A start-to-finish guide for getting **Boost Baguio** running, deployed, and operated. Copy this whole document into a PDF if you need a printable reference.
+A start-to-finish guide for getting **Boost Baguio** running, deployed, and operated.
 
 This manual covers:
 
@@ -43,7 +43,7 @@ npm install -g pnpm
 npm install -g firebase-tools
 ```
 
-### Accounts you'll need (all free tier is enough for development)
+### Accounts you'll need
 
 | Service                     | Why                                 | URL                                        |
 | --------------------------- | ----------------------------------- | ------------------------------------------ |
@@ -52,8 +52,6 @@ npm install -g firebase-tools
 | **Cloudinary**              | Image uploads & transformations     | https://cloudinary.com/users/register/free |
 | **Vercel**                  | Production hosting                  | https://vercel.com/signup                  |
 
-You can use a single Google account to sign into both GitHub (via GitHub auth) and Firebase.
-
 ---
 
 ## 2. Clone the repository and install dependencies
@@ -61,8 +59,8 @@ You can use a single Google account to sign into both GitHub (via GitHub auth) a
 ### 2.1 Clone
 
 ```bash
-git clone https://github.com/<YOUR_GITHUB_USERNAME>/<YOUR_REPO>.git
-cd <YOUR_REPO>
+git clone https://github.comKhrystellineA/boostbaguio_qf.git
+cd boostbaguio_qf
 ```
 
 If you're forking from the original repo, fork it first on GitHub, then clone your fork.
@@ -75,7 +73,7 @@ pnpm install
 
 This installs Vue, Quasar, Firebase SDK, Leaflet, Chart.js, and all dev dependencies. It takes 1–3 minutes the first time.
 
-> ⚠️ If you don't have pnpm, you can substitute `npm install` everywhere — there's a `pnpm-lock.yaml` but Vercel and the project will work with npm too.
+> If you don't have pnpm, you can substitute `npm install` everywhere — there's a `pnpm-lock.yaml` but Vercel and the project will work with npm too.
 
 ---
 
@@ -92,7 +90,7 @@ This installs Vue, Quasar, Firebase SDK, Leaflet, Chart.js, and all dev dependen
 
 1. In your new Firebase project's **Project Overview**, click the **`</>`** (web app) icon.
 2. Give the app a nickname (e.g. `boost-baguio-web`).
-3. Tick **Also set up Firebase Hosting** if you want the option — not required since we use Vercel.
+3. Tick **Also set up Firebase Hosting** if you want the option
 4. Click **Register app**.
 5. Firebase shows a **firebaseConfig** snippet that looks like this:
 
@@ -140,7 +138,7 @@ firebase deploy --only firestore:rules,firestore:indexes
 
 If `firebase use --add` doesn't see your project, run `firebase projects:list` first to confirm you're logged in to the right Google account.
 
-> ⚠️ **Important:** Without deploying these rules, the app will appear to work but every Firestore write will fail with "Missing or insufficient permissions."
+> **Important:** Without deploying these rules, the app will appear to work but every Firestore write will fail with "Missing or insufficient permissions."
 
 ### 3.6 Enable Storage (optional)
 
@@ -198,7 +196,7 @@ VITE_CLOUDINARY_UPLOAD_PRESET=BoostBaguio
 VITE_ADMIN_EMAIL=you@example.com
 ```
 
-> 🔒 **Never commit `.env` to git.** It's already in `.gitignore`.
+> **Never commit `.env` to git.** It's already in `.gitignore`.
 
 ### Optional: a separate `.env.local`
 
@@ -212,7 +210,7 @@ For per-developer overrides (e.g. pointing at a different Firebase project), cre
 pnpm dev
 ```
 
-Quasar starts the Vite dev server. The app opens at:
+Quasar starts the Vite dev server.
 
 ```
 http://localhost:9200
@@ -262,7 +260,7 @@ From the dashboard:
    - **super_admin** — full access (only super-admin can create another super-admin)
 4. Each new admin can log in at **/admin/adminlogin** with the password you give them.
 
-> ⚠️ Once you've created your first super-admin, **change `VITE_ADMIN_EMAIL` to a unique value or keep it locked down** — it's the bootstrap escape hatch. Anyone who can both sign up at `/admin/signup` and match this email becomes super-admin.
+> Once you've created your first super-admin, **change `VITE_ADMIN_EMAIL` to a unique value or keep it locked down** — it's the bootstrap escape hatch. Anyone who can both sign up at `/admin/signup` and match this email becomes super-admin.
 
 ---
 

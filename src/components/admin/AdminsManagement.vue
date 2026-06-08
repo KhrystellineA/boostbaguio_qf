@@ -186,7 +186,15 @@
 
 <script>
 import { db, auth } from 'src/boot/firebase'
-import { collection, getDocs, updateDoc, deleteDoc, doc, setDoc } from 'firebase/firestore'
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  doc,
+  setDoc,
+  serverTimestamp,
+} from 'firebase/firestore'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { useQuasar } from 'quasar'
 /* eslint-disable no-unused-vars */
@@ -321,6 +329,7 @@ export default {
             role: this.form.role,
             isActive: this.form.isActive,
             permissions: this.getDefaultPermissions(this.form.role),
+            updatedAt: serverTimestamp(),
           }
 
           await updateDoc(doc(db, 'admins', this.editingAdmin.uid), adminData)
@@ -343,7 +352,8 @@ export default {
             role: this.form.role,
             isActive: this.form.isActive,
             permissions: this.getDefaultPermissions(this.form.role),
-            createdAt: new Date().toISOString(),
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
             createdBy: this.currentAdminUid,
           }
 
@@ -382,6 +392,7 @@ export default {
       try {
         await updateDoc(doc(db, 'admins', admin.uid), {
           isActive: !admin.isActive,
+          updatedAt: serverTimestamp(),
         })
 
         this.$q.notify({
@@ -476,10 +487,10 @@ export default {
         name: '',
         email: '',
         password: '',
-        role: 'route_manager',
+        role: 'routes_admin',
         isActive: true,
       }
-      this.editingEvent = null
+      this.editingAdmin = null
     },
   },
 

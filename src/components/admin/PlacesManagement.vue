@@ -395,8 +395,9 @@
             </div>
           </div>
 
-          <!-- Featured Toggle -->
+          <!-- Featured Toggle (Super Admin Only) -->
           <q-toggle
+            v-if="isSuperAdmin"
             v-model="form.featured"
             label="Featured Place (show on homepage)"
             class="q-mb-md"
