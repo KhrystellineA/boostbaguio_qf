@@ -123,6 +123,23 @@
             v-if="canManageAdmins"
             clickable
             v-ripple
+            :active="activeMenu === 'premium'"
+            @click="$emit('update:activeMenu', 'premium')"
+            class="nav-item"
+            active-class="nav-item--active"
+          >
+            <q-item-section avatar>
+              <q-icon name="workspace_premium" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Premium Requests</q-item-label>
+            </q-item-section>
+          </q-item>
+
+          <q-item
+            v-if="canManageAdmins"
+            clickable
+            v-ripple
             :active="activeMenu === 'admins'"
             @click="$emit('update:activeMenu', 'admins')"
             class="nav-item"

@@ -383,6 +383,126 @@
       </q-card>
     </template>
     <!-- /showPlacesAnalytics -->
+
+    <!-- Users-based analytics -->
+    <template v-if="showUsersAnalytics">
+      <div class="row q-col-gutter-md q-mb-md">
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card class="stat-card">
+            <q-card-section>
+              <div class="row items-center">
+                <div class="col">
+                  <div class="stat-icon bg-purple-1">
+                    <q-icon name="people" size="md" color="purple" />
+                  </div>
+                </div>
+                <div class="col text-right">
+                  <div class="stat-value">{{ userStats.total }}</div>
+                  <div class="stat-label">Total Users</div>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card class="stat-card">
+            <q-card-section>
+              <div class="row items-center">
+                <div class="col">
+                  <div class="stat-icon bg-amber-1">
+                    <q-icon name="workspace_premium" size="md" color="amber-9" />
+                  </div>
+                </div>
+                <div class="col text-right">
+                  <div class="stat-value">{{ userStats.premium }}</div>
+                  <div class="stat-label">Premium Users</div>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card class="stat-card">
+            <q-card-section>
+              <div class="row items-center">
+                <div class="col">
+                  <div class="stat-icon bg-grey-3">
+                    <q-icon name="person_outline" size="md" color="grey-8" />
+                  </div>
+                </div>
+                <div class="col text-right">
+                  <div class="stat-value">{{ userStats.free }}</div>
+                  <div class="stat-label">Free Users</div>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-3">
+          <q-card class="stat-card">
+            <q-card-section>
+              <div class="row items-center">
+                <div class="col">
+                  <div class="stat-icon bg-blue-1">
+                    <q-icon name="admin_panel_settings" size="md" color="blue" />
+                  </div>
+                </div>
+                <div class="col text-right">
+                  <div class="stat-value">{{ userStats.admins }}</div>
+                  <div class="stat-label">Admins</div>
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+
+      <!-- Premium vs Free Breakdown Chart placeholder -->
+      <q-card class="q-mb-md">
+        <q-card-section>
+          <div class="text-h6 text-primary q-mb-sm">
+            <q-icon name="pie_chart" class="q-mr-xs" />
+            User Distribution
+          </div>
+          <div class="row items-center q-pa-md">
+            <div class="col-12 col-md-6 text-center">
+              <div class="text-h1 text-weight-bold text-amber-9">
+                {{
+                  userStats.total > 0 ? Math.round((userStats.premium / userStats.total) * 100) : 0
+                }}%
+              </div>
+              <div class="text-h6 text-grey-7">Conversion to Premium</div>
+            </div>
+            <div class="col-12 col-md-6">
+              <q-list separator>
+                <q-item>
+                  <q-item-section avatar>
+                    <q-icon name="workspace_premium" color="amber-9" />
+                  </q-item-section>
+                  <q-item-section>Premium Accounts</q-item-section>
+                  <q-item-section side class="text-weight-bold">{{
+                    userStats.premium
+                  }}</q-item-section>
+                </q-item>
+                <q-item>
+                  <q-item-section avatar>
+                    <q-icon name="person_outline" color="grey-7" />
+                  </q-item-section>
+                  <q-item-section>Free Accounts</q-item-section>
+                  <q-item-section side class="text-weight-bold">{{
+                    userStats.free
+                  }}</q-item-section>
+                </q-item>
+              </q-list>
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </template>
+    <!-- /showUsersAnalytics -->
   </div>
 </template>
 
@@ -432,6 +552,13 @@ export default {
         todaySearches: 0,
         todaySaves: 0,
         todayVisits: 0,
+      },
+      userStats: {
+        total: 0,
+        premium: 0,
+        free: 0,
+        admins: 0,
+        newThisWeek: 0,
       },
       realTimeTraffic: [],
       popularByVisits: [],
@@ -495,6 +622,7 @@ export default {
           this.loadPopularPlaces(),
           this.loadPeakHours(),
           this.loadPopularTimes(),
+          this.loadUserData(),
         ])
         this.$q.notify({
           type: 'positive',
@@ -511,6 +639,53 @@ export default {
         })
       } finally {
         this.loading = false
+      }
+    },
+
+    async loadUserData() {
+      try {
+        const [usersSnap, adminsSnap] = await Promise.all([
+          getDocs(collection(db, 'users')),
+          getDocs(collection(db, 'admins')),
+        ])
+
+        const adminUids = new Set()
+        adminsSnap.forEach((doc) => adminUids.add(doc.id))
+
+        let total = 0
+        let premium = 0
+        let free = 0
+        let newThisWeek = 0
+
+        const now = new Date()
+        const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+        usersSnap.forEach((doc) => {
+          total++
+          const data = doc.data()
+
+          if (adminUids.has(doc.id)) {
+            // Count as admin, do not count as free or premium
+          } else if (data.isPremium) {
+            premium++
+          } else {
+            free++
+          }
+
+          // Check if user is new this week
+          let createdAt = data.createdAt
+          if (createdAt) {
+            // Convert timestamp to Date object if needed
+            const createdDate = createdAt.toDate ? createdAt.toDate() : new Date(createdAt)
+            if (createdDate > oneWeekAgo) {
+              newThisWeek++
+            }
+          }
+        })
+
+        this.userStats = { total, premium, free, admins: adminUids.size, newThisWeek }
+      } catch (error) {
+        console.error('[Analytics] Error loading user stats:', error)
       }
     },
 
@@ -887,7 +1062,7 @@ export default {
         routes: { label: 'Routes / Jeepneys', icon: 'directions_bus' },
         places: { label: 'Places', icon: 'place' },
         events: { label: 'Events', icon: 'event' },
-        admins: { label: 'Admins', icon: 'people' },
+        users: { label: 'Users', icon: 'people' },
       }
     },
     activeCategoriesLabel() {
@@ -897,8 +1072,11 @@ export default {
     showPlacesAnalytics() {
       return (this.categories || []).includes('places')
     },
+    showUsersAnalytics() {
+      return (this.categories || []).includes('users')
+    },
     untrackedCategories() {
-      const order = ['routes', 'events', 'admins']
+      const order = ['routes', 'events']
       return order.filter((c) => (this.categories || []).includes(c))
     },
 

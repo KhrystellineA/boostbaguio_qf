@@ -81,18 +81,18 @@
     <div class="col-12 col-sm-6 col-md-3">
       <q-card
         class="stat-card stat-card--clickable"
-        :class="{ 'stat-card--active': isActive('admins') }"
-        @click="$emit('toggle-category', 'admins')"
+        :class="{ 'stat-card--active': isActive('users') }"
+        @click="$emit('toggle-category', 'users')"
         v-ripple
       >
         <q-card-section>
           <div class="row items-start justify-between no-wrap">
-            <div class="stat-label">Admins</div>
+            <div class="stat-label">Users</div>
             <div class="stat-arrow stat-arrow--ghost">
-              <q-icon :name="isActive('admins') ? 'check' : 'people'" size="16px" />
+              <q-icon :name="isActive('users') ? 'check' : 'people'" size="16px" />
             </div>
           </div>
-          <div class="stat-value stat-value--dark">{{ stats.admins }}</div>
+          <div class="stat-value stat-value--dark">{{ stats.users }}</div>
           <div class="stat-trend stat-trend--purple">
             <q-icon name="people" size="14px" class="q-mr-xs" />
             <span>Total members</span>
@@ -114,7 +114,7 @@ export default {
         routes: 0,
         places: 0,
         events: 0,
-        admins: 0,
+        users: 0,
       }),
     },
     activeCategories: {

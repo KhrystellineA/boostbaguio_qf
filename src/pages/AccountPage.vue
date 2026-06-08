@@ -240,6 +240,7 @@
 
             <div class="row justify-center q-mt-lg">
               <q-btn
+                v-if="!hasPendingRequest"
                 color="white"
                 text-color="primary"
                 label="Upgrade Now"
@@ -249,6 +250,12 @@
                 unelevated
                 @click="showUpgradeDialog = true"
               />
+              <q-banner v-else class="bg-amber-1 text-amber-9 rounded-borders" inline-actions>
+                <template v-slot:avatar>
+                  <q-icon name="pending_actions" color="amber" />
+                </template>
+                Your premium upgrade request is currently pending approval.
+              </q-banner>
             </div>
           </q-card-section>
         </q-card>
@@ -332,7 +339,7 @@
 
         <q-card-section class="q-pt-none">
           <q-list separator>
-            <q-item clickable v-ripple @click="activatePremium(1)" class="plan-item">
+            <q-item clickable v-ripple @click="selectPlan(1)" class="plan-item">
               <q-item-section>
                 <q-item-label class="text-h6">1 Month</q-item-label>
                 <q-item-label caption>Perfect for a short trip</q-item-label>
@@ -342,7 +349,7 @@
               </q-item-section>
             </q-item>
 
-            <q-item clickable v-ripple @click="activatePremium(6)" class="plan-item bg-amber-1">
+            <q-item clickable v-ripple @click="selectPlan(6)" class="plan-item bg-amber-1">
               <q-item-section>
                 <q-item-label class="text-h6">6 Months</q-item-label>
                 <q-item-label caption>Save 15% - Most Popular</q-item-label>
@@ -355,7 +362,7 @@
             <q-item
               clickable
               v-ripple
-              @click="activatePremium(12)"
+              @click="selectPlan(12)"
               class="plan-item bg-positive text-white"
             >
               <q-item-section>
@@ -372,6 +379,64 @@
         <q-card-actions align="right">
           <q-btn flat label="Cancel" color="primary" v-close-popup />
         </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Payment Upload Dialog -->
+    <q-dialog v-model="showPaymentDialog" persistent>
+      <q-card style="min-width: 350px; max-width: 500px">
+        <q-card-section class="row items-center bg-primary text-white">
+          <div class="text-h6">Submit Proof of Payment</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section>
+          <div class="q-mb-md bg-grey-2 q-pa-md rounded-borders">
+            <p class="text-weight-bold q-mb-xs">Payment Methods:</p>
+            <p class="q-mb-xs"><strong>GCash:</strong> 0917-123-4567 (Boost Baguio)</p>
+            <p class="q-mb-none"><strong>Maya:</strong> 0917-123-4567 (Boost Baguio)</p>
+          </div>
+
+          <div class="q-mb-md text-body2">
+            Please transfer <strong>{{ selectedPlanAmount }}</strong> for the
+            {{ selectedPlan }} month plan, then upload your receipt below.
+          </div>
+
+          <q-form @submit.prevent="submitPremiumRequest">
+            <q-input
+              v-model="paymentForm.referenceNumber"
+              outlined
+              label="Reference / Transaction Number *"
+              class="q-mb-md"
+              :rules="[(val) => !!val || 'Reference number is required']"
+            />
+
+            <q-file
+              v-model="paymentForm.receiptImage"
+              outlined
+              label="Upload Receipt Screenshot *"
+              accept="image/*"
+              class="q-mb-md"
+              :rules="[(val) => !!val || 'Receipt image is required']"
+            >
+              <template v-slot:prepend>
+                <q-icon name="attach_file" />
+              </template>
+            </q-file>
+
+            <q-card-actions align="right" class="q-px-none q-pt-md">
+              <q-btn flat label="Cancel" color="grey-7" v-close-popup />
+              <q-btn
+                unelevated
+                type="submit"
+                label="Submit Request"
+                color="primary"
+                :loading="submittingPayment"
+              />
+            </q-card-actions>
+          </q-form>
+        </q-card-section>
       </q-card>
     </q-dialog>
 
@@ -876,7 +941,17 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from 'stores/user-store'
 import { useQuasar } from 'quasar'
 import { db, auth } from 'src/boot/firebase'
-import { collection, getDocs, deleteDoc, doc, query, orderBy } from 'firebase/firestore'
+import {
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  addDoc,
+  where,
+  serverTimestamp,
+} from 'firebase/firestore'
 import ProfileEditor from 'src/components/ProfileEditor.vue'
 
 const router = useRouter()
@@ -884,6 +959,22 @@ const userStore = useUserStore()
 const $q = useQuasar()
 
 const showUpgradeDialog = ref(false)
+const showPaymentDialog = ref(false)
+const selectedPlan = ref(1)
+const hasPendingRequest = ref(false)
+const submittingPayment = ref(false)
+const paymentForm = ref({
+  referenceNumber: '',
+  receiptImage: null,
+})
+
+const selectedPlanAmount = computed(() => {
+  if (selectedPlan.value === 1) return '₱99'
+  if (selectedPlan.value === 6) return '₱499'
+  if (selectedPlan.value === 12) return '₱899'
+  return ''
+})
+
 const showSavedItems = ref(false)
 const showProfileEditor = ref(false)
 const savedItemsTab = ref('all')
@@ -920,7 +1011,25 @@ onMounted(() => {
 
   getCacheSize()
   loadSavedItems()
+  checkPendingRequest()
 })
+
+const checkPendingRequest = async () => {
+  const userId = auth.currentUser?.uid || userStore.userId || userStore.user?.uid || userStore.id
+  if (!userId) return
+
+  try {
+    const q = query(
+      collection(db, 'premium_requests'),
+      where('uid', '==', userId),
+      where('status', '==', 'pending')
+    )
+    const snap = await getDocs(q)
+    hasPendingRequest.value = !snap.empty
+  } catch (err) {
+    console.error('[Account] Error checking pending requests', err)
+  }
+}
 
 const updateOnlineStatus = () => {
   isOnline.value = navigator.onLine
@@ -1189,9 +1298,60 @@ const handleLogout = async () => {
   })
 }
 
-const activatePremium = async (months) => {
-  await userStore.activatePremium(months)
+const selectPlan = (months) => {
+  selectedPlan.value = months
   showUpgradeDialog.value = false
+  showPaymentDialog.value = true
+}
+
+const submitPremiumRequest = async () => {
+  const userId = auth.currentUser?.uid || userStore.userId || userStore.user?.uid || userStore.id
+  if (!userId) {
+    $q.notify({ type: 'negative', message: 'You must be logged in' })
+    return
+  }
+
+  submittingPayment.value = true
+  try {
+    let receiptUrl = ''
+    if (paymentForm.value.receiptImage) {
+      const {
+        getStorage,
+        ref: storageRef,
+        uploadBytes,
+        getDownloadURL,
+      } = await import('firebase/storage')
+      const storage = getStorage()
+      const timestamp = Date.now()
+      const fileName = `${userId}_premium_receipt_${timestamp}`
+      const imageRef = storageRef(storage, `premium-receipts/${fileName}`)
+
+      await uploadBytes(imageRef, paymentForm.value.receiptImage)
+      receiptUrl = await getDownloadURL(imageRef)
+    }
+
+    await addDoc(collection(db, 'premium_requests'), {
+      uid: userId,
+      email: userStore.userEmail,
+      name: userStore.userName,
+      planMonths: selectedPlan.value,
+      referenceNumber: paymentForm.value.referenceNumber,
+      receiptUrl: receiptUrl,
+      status: 'pending',
+      createdAt: serverTimestamp(),
+    })
+
+    $q.notify({ type: 'positive', message: 'Premium request submitted for approval!' })
+    showPaymentDialog.value = false
+    hasPendingRequest.value = true
+    paymentForm.value.referenceNumber = ''
+    paymentForm.value.receiptImage = null
+  } catch (err) {
+    console.error('[Account] Error submitting premium request', err)
+    $q.notify({ type: 'negative', message: 'Failed to submit request: ' + err.message })
+  } finally {
+    submittingPayment.value = false
+  }
 }
 
 const toggleOfflineMode = async (value) => {
