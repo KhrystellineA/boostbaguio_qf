@@ -464,11 +464,7 @@
                   color="grey"
                   size="sm"
                   v-if="form.endPoint"
-                  @click="
-                    form.endPoint = '';
-                    showEndPointMenu = false;
-                    endPointResults = [];
-                  "
+                  @click="clearEndPoint"
                 />
                 <q-btn
                   flat
@@ -1037,6 +1033,12 @@ export default {
   },
 
   methods: {
+    clearEndPoint() {
+      this.form.endPoint = ''
+      this.showEndPointMenu = false
+      this.endPointResults = []
+    },
+
     async loadPlaces() {
       try {
         const querySnapshot = await getDocs(collection(db, 'places'))
