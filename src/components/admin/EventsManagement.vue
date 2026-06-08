@@ -309,8 +309,9 @@
             class="q-mb-md"
           />
 
-          <!-- Featured Toggle -->
+          <!-- Featured Toggle (Super Admin Only) -->
           <q-toggle
+            v-if="isSuperAdmin"
             v-model="form.featured"
             label="Featured Event (show on homepage)"
             class="q-mb-md"

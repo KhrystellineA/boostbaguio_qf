@@ -14,7 +14,7 @@ import { useFirestore } from './useFirebase'
 
 /**
  * Fuzzy match a target name against an array of places
- * Uses case-insensitive partial matching
+ * Uses case-insensitive partial matching and Levenshtein distance similarity
  *
  * @param {string} targetName - The name to match (e.g., "BenCab Museum")
  * @param {Array} places - Array of place documents from Firestore
@@ -27,11 +27,11 @@ export function fuzzyMatch(targetName, places) {
 
   const target = targetName.toLowerCase().trim()
 
-  // First try exact match (case-insensitive)
+  // 1. First try exact match (case-insensitive)
   const exactMatch = places.find((place) => place.name.toLowerCase().trim() === target)
   if (exactMatch) return exactMatch
 
-  // Then try partial match (target contains place name or vice versa)
+  // 2. Then try partial match (target contains place name or vice versa)
   const partialMatch = places.find((place) => {
     const name = place.name.toLowerCase().trim()
     return name.includes(target) || target.includes(name)
@@ -39,7 +39,7 @@ export function fuzzyMatch(targetName, places) {
 
   if (partialMatch) return partialMatch
 
-  // Try matching with common word variations
+  // 3. Try matching with common word variations and normalization
   const normalizedTarget = target.replace(/\s+/g, ' ').replace(/[^a-z0-9\s]/g, '')
 
   const normalizedMatch = places.find((place) => {
@@ -50,7 +50,64 @@ export function fuzzyMatch(targetName, places) {
     return normalizedName.includes(normalizedTarget) || normalizedTarget.includes(normalizedName)
   })
 
-  return normalizedMatch || null
+  if (normalizedMatch) return normalizedMatch
+
+  // 4. Fallback to Levenshtein distance similarity
+  let bestMatch = null
+  let maxSimilarity = 0
+  const SIMILARITY_THRESHOLD = 0.8 // 80% similarity
+
+  for (const place of places) {
+    const name = place.name.toLowerCase().trim()
+    const sim = calculateSimilarity(target, name)
+    if (sim > maxSimilarity && sim >= SIMILARITY_THRESHOLD) {
+      maxSimilarity = sim
+      bestMatch = place
+    }
+  }
+
+  return bestMatch
+}
+
+/**
+ * Calculate similarity between two strings using Levenshtein distance
+ * @param {string} s1
+ * @param {string} s2
+ * @returns {number} - Similarity between 0 and 1
+ */
+function calculateSimilarity(s1, s2) {
+  const longer = s1.length < s2.length ? s2 : s1
+  const shorter = s1.length < s2.length ? s1 : s2
+  const longerLength = longer.length
+  if (longerLength === 0) return 1.0
+
+  return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength)
+}
+
+/**
+ * Calculate Levenshtein edit distance between two strings
+ */
+function editDistance(s1, s2) {
+  const costs = []
+  for (let i = 0; i <= s1.length; i++) {
+    let lastValue = i
+    for (let j = 0; j <= s2.length; j++) {
+      if (i === 0) {
+        costs[j] = j
+      } else {
+        if (j > 0) {
+          let newValue = costs[j - 1]
+          if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+            newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1
+          }
+          costs[j - 1] = lastValue
+          lastValue = newValue
+        }
+      }
+    }
+    if (i > 0) costs[s2.length] = lastValue
+  }
+  return costs[s2.length]
 }
 
 /**
@@ -58,6 +115,21 @@ export function fuzzyMatch(targetName, places) {
  *
  * @returns {Promise<Array>} - Array of place objects with id, name, latitude, longitude, category
  */
+const parseLatLngString = (text) => {
+  if (!text || typeof text !== 'string') return null
+  const parts = text
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean)
+  if (parts.length !== 2) return null
+  const lat = Number(parts[0])
+  const lng = Number(parts[1])
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    return { latitude: lat, longitude: lng }
+  }
+  return null
+}
+
 export async function fetchPlaces() {
   const { db } = useFirestore()
 
@@ -172,7 +244,14 @@ export async function callOSRM(waypoints) {
  * @returns {Promise<Object>} - Route generation result with coordinates and metadata
  */
 export async function generateRoute(jeepneyData) {
-  const { terminalLat, terminalLng, endPoint, touristSpotsServiced = [] } = jeepneyData
+  const {
+    terminalLat,
+    terminalLng,
+    endPoint,
+    endPointLat,
+    endPointLng,
+    touristSpotsServiced = [],
+  } = jeepneyData
 
   // Validate required fields
   if (!terminalLat || !terminalLng) {
@@ -227,13 +306,34 @@ export async function generateRoute(jeepneyData) {
     console.warn('[RouteGeneration] Could not match these tourist spots:', unmatchedSpots)
   }
 
-  // Add end point (fuzzy-matched)
-  const endPointMatched = fuzzyMatch(endPoint, places)
+  // Add end point (fuzzy-matched or explicit coordinates)
+  let endPointMatched = null
+
+  if (endPointLat != null && endPointLng != null) {
+    endPointMatched = {
+      name: endPoint,
+      latitude: endPointLat,
+      longitude: endPointLng,
+    }
+  } else {
+    endPointMatched = fuzzyMatch(endPoint, places)
+
+    if (!endPointMatched) {
+      const parsed = parseLatLngString(endPoint)
+      if (parsed) {
+        endPointMatched = {
+          name: endPoint,
+          latitude: parsed.latitude,
+          longitude: parsed.longitude,
+        }
+      }
+    }
+  }
 
   if (!endPointMatched) {
     throw new Error(
       `Could not find coordinates for end point "${endPoint}". ` +
-        `Please add this location to the "places" collection.`
+        `Please add this location to the "places" collection or use coordinates in the form of "lat,lng".`
     )
   }
 

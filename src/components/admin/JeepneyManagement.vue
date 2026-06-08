@@ -212,19 +212,50 @@
           />
 
           <!-- 2. Terminal Location -->
-          <q-input
-            v-model="form.terminalLocation"
-            outlined
-            label="Terminal Location *"
-            class="q-mb-md"
-            :rules="[(val) => !!val || 'Terminal location is required']"
-          >
-            <template #append>
-              <q-btn flat dense icon="my_location" color="primary" @click="useCurrentLocation">
-                <q-tooltip>Use Current Location</q-tooltip>
-              </q-btn>
-            </template>
-          </q-input>
+          <div class="q-mb-md">
+            <q-input
+              ref="terminalInput"
+              v-model="form.terminalLocation"
+              outlined
+              label="Terminal Location *"
+              class="q-mb-xs"
+              :rules="[(val) => !!val || 'Terminal location is required']"
+              @input="onTerminalInput"
+              @keyup.enter="searchTerminalLocation"
+              @focus="disableTerminalAutoDetect"
+            >
+              <template #prepend>
+                <q-btn
+                  flat
+                  dense
+                  round
+                  :icon="terminalAutoDetect ? 'gps_fixed' : 'gps_not_fixed'"
+                  :color="terminalAutoDetect ? 'positive' : 'primary'"
+                  @click="useCurrentLocation"
+                >
+                  <q-tooltip>Detect current location</q-tooltip>
+                </q-btn>
+              </template>
+              <template #append>
+                <q-btn flat dense icon="clear" color="grey" size="sm" v-if="form.terminalLocation" @click="clearTerminalLocation" />
+                <q-btn flat dense icon="search" color="primary" size="sm" @click="searchTerminalLocation">
+                  <q-tooltip>Search Baguio locations</q-tooltip>
+                </q-btn>
+              </template>
+            </q-input>
+
+            <q-menu v-if="terminalResults && terminalResults.length > 0" v-model="showTerminalMenu" :anchor="'bottom left'" :self="'top left'" :fit="true">
+              <q-list style="min-width: 300px">
+                <q-item v-for="(res, idx) in terminalResults" :key="idx" clickable @click="selectTerminal(res)">
+                  <q-item-section>
+                    <q-item-label>{{ res.label }}</q-item-label>
+                    <q-item-label caption class="text-grey-6">{{ res.fullAddress }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+                
+              </q-list>
+            </q-menu>
+          </div>
 
           <!-- 3. Terminal Coordinates -->
           <div class="row q-col-gutter-md q-mb-md">
@@ -335,6 +366,7 @@
             use-chips
             use-input
             input-debounce="300"
+            @filter="filterTouristSpots"
             hint="Check multiple spots that this jeepney services"
             class="q-mb-md"
           >
@@ -387,14 +419,38 @@
           </div>
 
           <!-- 8. End Point -->
-          <q-input
-            v-model="form.endPoint"
-            outlined
-            label="End Point *"
-            class="q-mb-md"
-            :rules="[(val) => !!val || 'End point is required']"
-            hint="Final destination of this route"
-          />
+          <div class="q-mb-md">
+            <q-input
+              ref="endPointInput"
+              v-model="form.endPoint"
+              outlined
+              label="End Point *"
+              class="q-mb-xs"
+              :rules="[(val) => !!val || 'End point is required']"
+              hint="Final destination of this route"
+              @input="onEndPointInput"
+              @keyup.enter="searchEndPointLocation"
+            >
+              <template #append>
+                <q-btn flat dense icon="clear" color="grey" size="sm" v-if="form.endPoint" @click="form.endPoint = ''; showEndPointMenu = false; endPointResults = []" />
+                <q-btn flat dense icon="search" color="primary" size="sm" @click="searchEndPointLocation">
+                  <q-tooltip>Search Baguio locations</q-tooltip>
+                </q-btn>
+              </template>
+            </q-input>
+
+            <q-menu v-if="endPointResults && endPointResults.length > 0" v-model="showEndPointMenu" :anchor="'bottom left'" :self="'top left'" :fit="true">
+              <q-list style="min-width: 300px">
+                <q-item v-for="(res, idx) in endPointResults" :key="idx" clickable @click="selectEndPoint(res)">
+                  <q-item-section>
+                    <q-item-label>{{ res.label }}</q-item-label>
+                    <q-item-label caption class="text-grey-6">{{ res.fullAddress }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+                
+              </q-list>
+            </q-menu>
+          </div>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -702,7 +758,7 @@
 </template>
 
 <script>
-import { db } from 'src/boot/firebase'
+import { db, auth } from 'src/boot/firebase'
 import {
   collection,
   getDocs,
@@ -712,7 +768,9 @@ import {
   doc,
   serverTimestamp,
 } from 'firebase/firestore'
-import { useQuasar } from 'quasar'
+import { useGeocoding } from 'src/composables/useGeocoding'
+import { useGeolocation } from 'src/composables/useGeolocation'
+import { fetchPlaces, fuzzyMatch, callOSRM } from 'src/composables/useRouteGeneration'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import RouteMap from 'src/components/RouteMap.vue'
@@ -734,10 +792,7 @@ export default {
     },
   },
 
-  setup() {
-    const $q = useQuasar()
-    return { $q }
-  },
+  
 
   data() {
     return {
@@ -758,6 +813,7 @@ export default {
       routeLine: null,
       routeMarkers: [],
       DEFAULT_JEEPNEY_IMAGE: defaultJeepneyImage,
+      terminalAutoDetect: false,
       form: {
         jeepName: '',
         terminalLocation: '',
@@ -777,26 +833,8 @@ export default {
         imageUrl: '',
         imagePublicId: '',
       },
-      touristSpotsOptions: [
-        'Burnham Park',
-        'Session Road',
-        'Baguio Cathedral',
-        'SM City Baguio',
-        'Mines View Park',
-        'The Mansion',
-        'Wright Park',
-        'Camp John Hay',
-        'Tam-awan Village',
-        'BenCab Museum',
-        'Baguio Botanical Garden',
-        'Strawberry Farm',
-        'Baguio City Market',
-        'Our Lady of Lourdes Grotto',
-        'PMA (Philippine Military Academy)',
-        'Teachers Camp',
-        'Baguio Convention Center',
-        'Mirador House',
-      ],
+      touristSpotsOptions: [],
+      allPlaces: [], // Store all places for search and select
       columns: [
         { name: 'image', label: 'Image', field: 'imageUrl', align: 'center' },
         {
@@ -843,6 +881,13 @@ export default {
         { name: 'valid', label: 'Status', field: 'valid', align: 'center' },
         { name: 'error', label: 'Error', field: 'error', align: 'left' },
       ],
+      // Autocomplete/search results for terminals and endpoints
+      terminalResults: [],
+      endPointResults: [],
+      showTerminalMenu: false,
+      showEndPointMenu: false,
+      terminalSearchTimer: null,
+      endPointSearchTimer: null,
     }
   },
 
@@ -878,10 +923,49 @@ export default {
     invalidCount() {
       return this.parsedJeepneys.filter((j) => !j.valid).length
     },
+
+    routeWaypoints() {
+      if (!this.selectedJeepneyForRoute) return []
+
+      const waypoints = []
+      const data = this.selectedJeepneyForRoute
+
+      // Add terminal
+      if (data.terminalLat && data.terminalLng) {
+        waypoints.push({
+          name: 'Terminal',
+          latitude: data.terminalLat,
+          longitude: data.terminalLng,
+        })
+      }
+
+      // Add tourist spots (without coordinates since we don't have them)
+      if (data.touristSpotsServiced && data.touristSpotsServiced.length > 0) {
+        data.touristSpotsServiced.forEach((spot) => {
+          waypoints.push({
+            name: spot,
+            latitude: data.terminalLat || 16.4023,
+            longitude: data.terminalLng || 120.596,
+          })
+        })
+      }
+
+      // Add end point
+      if (data.endPoint) {
+        waypoints.push({
+          name: data.endPoint,
+          latitude: data.terminalLat || 16.4023,
+          longitude: data.terminalLng || 120.596,
+        })
+      }
+
+      return waypoints
+    },
   },
 
   mounted() {
     this.loadJeepneys()
+    this.loadPlaces()
   },
 
   watch: {
@@ -893,7 +977,7 @@ export default {
     },
     showAddDialog(val) {
       if (val) {
-        this.$nextTick(() => {
+          this.$nextTick(() => {
           this.initMap()
         })
       }
@@ -901,6 +985,37 @@ export default {
   },
 
   methods: {
+    async loadPlaces() {
+      try {
+        const querySnapshot = await getDocs(collection(db, 'places'))
+        this.allPlaces = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }))
+        // Default options are all place names
+        this.touristSpotsOptions = this.allPlaces.map(p => p.name).sort()
+      } catch (error) {
+        console.error('[Jeepneys] Error loading places:', error)
+      }
+    },
+
+    filterTouristSpots(val, update) {
+      if (val === '') {
+        update(() => {
+          this.touristSpotsOptions = this.allPlaces.map(p => p.name).sort()
+        })
+        return
+      }
+
+      update(() => {
+        const needle = val.toLowerCase()
+        this.touristSpotsOptions = this.allPlaces
+          .map(p => p.name)
+          .filter(v => v.toLowerCase().indexOf(needle) > -1)
+          .sort()
+      })
+    },
+
     async loadJeepneys() {
       this.loading = true
       try {
@@ -990,34 +1105,217 @@ export default {
     },
 
     useCurrentLocation() {
-      if (navigator.geolocation) {
-        this.$q.loading.show({ message: 'Getting your location...' })
+      const { getCurrentLocation } = useGeolocation()
+      const { reverseGeocode } = useGeocoding()
 
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            this.form.terminalLat = position.coords.latitude
-            this.form.terminalLng = position.coords.longitude
+      this.terminalAutoDetect = true
+      this.$q.loading.show({ message: 'Detecting your current location...' })
 
-            this.$q.notify({
-              type: 'positive',
-              message: 'Location acquired!',
-              position: 'top',
-            })
-          },
-          (error) => {
-            this.$q.notify({
-              type: 'negative',
-              message: 'Unable to get location: ' + error.message,
-              position: 'top',
-            })
+      getCurrentLocation()
+        .then(async (coords) => {
+          this.form.terminalLat = coords.lat
+          this.form.terminalLng = coords.lng
+
+          try {
+            const place = await reverseGeocode(coords.lat, coords.lng)
+            this.form.terminalLocation = place?.label || 'Current location'
+          } catch (err) {
+            console.warn('[Jeepneys] Reverse geocode failed:', err)
+            this.form.terminalLocation = 'Current location'
           }
-        )
-      } else {
+        })
+        .catch((error) => {
+          console.warn('[Jeepneys] Location detection failed:', error)
+          this.terminalAutoDetect = false
+          this.$q.notify({
+            type: 'negative',
+            message: 'Unable to get location: ' + (error.message || 'Please try again'),
+            position: 'top',
+          })
+        })
+        .finally(() => {
+          try {
+            this.$q.loading.hide()
+          } catch (e) {
+            console.warn('[Jeepneys] Could not hide loading:', e)
+          }
+        })
+    },
+
+    disableTerminalAutoDetect() {
+      if (this.terminalAutoDetect) {
+        this.terminalAutoDetect = false
+      }
+    },
+
+    clearTerminalLocation() {
+      this.terminalAutoDetect = false
+      this.form.terminalLocation = ''
+      this.form.terminalLat = null
+      this.form.terminalLng = null
+      this.terminalResults = []
+      this.showTerminalMenu = false
+    },
+
+    async searchTerminalLocation() {
+      if (!this.form.terminalLocation || !this.form.terminalLocation.trim()) {
         this.$q.notify({
-          type: 'negative',
-          message: 'Geolocation is not supported by this browser',
+          type: 'warning',
+          message: 'Please enter a terminal location',
           position: 'top',
         })
+        return
+      }
+
+      const query = this.form.terminalLocation.trim()
+      try {
+        const { searchLocations } = useGeocoding()
+        const results = await searchLocations(query, true)
+        if (results && results.length > 0) {
+          const bestMatch = results[0]
+          this.selectTerminal(bestMatch)
+          this.$q.notify({
+            type: 'positive',
+            message: `Terminal set to ${bestMatch.label}`,
+            position: 'top',
+            timeout: 2000,
+          })
+        } else {
+          this.$q.notify({
+            type: 'info',
+            message: 'No Baguio match found. Using typed location.',
+            position: 'top',
+          })
+        }
+      } catch (err) {
+        console.warn('[Jeepneys] Terminal search failed:', err)
+        this.$q.notify({
+          type: 'negative',
+          message: 'Unable to search location. Please try again.',
+          position: 'top',
+        })
+      }
+    },
+
+    // Autocomplete: handle input and search for terminal location
+    onTerminalInput(val) {
+      this.disableTerminalAutoDetect()
+      clearTimeout(this.terminalSearchTimer)
+      if (!val || val.trim().length < 3) {
+        this.terminalResults = []
+        this.showTerminalMenu = false
+        return
+      }
+      this.terminalSearchTimer = setTimeout(() => this.searchTerminalLocations(val), 300)
+    },
+
+    async searchTerminalLocations(query) {
+      const { searchLocations } = useGeocoding()
+      try {
+        const results = await searchLocations(query, true)
+        this.terminalResults = results || []
+        // Only open the menu when there are results to show.
+        if (this.terminalResults && this.terminalResults.length > 0) {
+          this.showTerminalMenu = true
+        } else {
+          this.showTerminalMenu = false
+          this.$q.notify({ type: 'info', message: 'No Baguio matches found', position: 'top' })
+        }
+      } catch (err) {
+        console.warn('[Jeepneys] Terminal search failed:', err)
+        this.terminalResults = []
+        this.showTerminalMenu = false
+      }
+    },
+
+    selectTerminal(res) {
+      if (!res) return
+      this.form.terminalLocation = res.label || res.fullAddress || ''
+      this.form.terminalLat = res.lat || null
+      this.form.terminalLng = res.lng || null
+      this.showTerminalMenu = false
+      this.terminalResults = []
+      if (this.map && this.form.terminalLat && this.form.terminalLng) {
+        this.map.setView([this.form.terminalLat, this.form.terminalLng], 15)
+      }
+    },
+
+    async searchEndPointLocation() {
+      if (!this.form.endPoint || !this.form.endPoint.trim()) {
+        this.$q.notify({
+          type: 'warning',
+          message: 'Please enter an end point',
+          position: 'top',
+        })
+        return
+      }
+
+      const query = this.form.endPoint.trim()
+      try {
+        const { searchLocations } = useGeocoding()
+        const results = await searchLocations(query, true)
+        if (results && results.length > 0) {
+          const bestMatch = results[0]
+          this.selectEndPoint(bestMatch)
+          this.$q.notify({
+            type: 'positive',
+            message: `End point set to ${bestMatch.label}`,
+            position: 'top',
+            timeout: 2000,
+          })
+        } else {
+          this.$q.notify({
+            type: 'info',
+            message: 'No Baguio match found. Using typed end point.',
+            position: 'top',
+          })
+        }
+      } catch (err) {
+        console.warn('[Jeepneys] End point search failed:', err)
+        this.$q.notify({
+          type: 'negative',
+          message: 'Unable to search end point. Please try again.',
+          position: 'top',
+        })
+      }
+    },
+
+    onEndPointInput(val) {
+      clearTimeout(this.endPointSearchTimer)
+      if (!val || val.trim().length < 3) {
+        this.endPointResults = []
+        this.showEndPointMenu = false
+        return
+      }
+      this.endPointSearchTimer = setTimeout(() => this.searchEndPointLocations(val), 300)
+    },
+
+    async searchEndPointLocations(query) {
+      const { searchLocations } = useGeocoding()
+      try {
+        const results = await searchLocations(query, true)
+        this.endPointResults = results || []
+        // Only open the menu when there are results to show.
+        if (this.endPointResults && this.endPointResults.length > 0) {
+          this.showEndPointMenu = true
+        } else {
+          this.showEndPointMenu = false
+          this.$q.notify({ type: 'info', message: 'No Baguio matches found', position: 'top' })
+        }
+      } catch (err) {
+        console.warn('[Jeepneys] End point search failed:', err)
+        this.endPointResults = []
+        this.showEndPointMenu = false
+      }
+    },
+
+    selectEndPoint(res) {
+      if (!res) return
+      this.form.endPoint = res.label || res.fullAddress || ''
+      this.showEndPointMenu = false
+      this.endPointResults = []
+      if (this.map && res.lat && res.lng) {
+        this.map.setView([res.lat, res.lng], 15)
       }
     },
 
@@ -1234,21 +1532,18 @@ export default {
       const currentPath = path ? `${path}.${fieldName}` : fieldName
 
       if (Array.isArray(obj)) {
-        // Check if this array contains nested arrays or complex objects
+        // Flatten nested arrays but safely traverse objects inside arrays
         const cleaned = obj.map((item, idx) => {
           if (Array.isArray(item)) {
-            console.warn(
-              `[JeepneyManagement] Found nested array at ${currentPath}[${idx}], flattening`
-            )
-            // If item is an array, try to extract values
-            return item[0] || item
+            console.warn(`[JeepneyManagement] Found nested array at ${currentPath}[${idx}], taking first element or keeping as is if empty`)
+            return item.length > 0 ? item[0] : null
           }
           if (typeof item === 'object' && item !== null) {
-            // Only allow primitive types in arrays for Firestore
-            return typeof item === 'string' ? item : String(item)
+            // It's an object inside an array (e.g. {lat, lng}). Clean it recursively.
+            return this.deepCleanData(item, String(idx), currentPath)
           }
           return item
-        })
+        }).filter(item => item !== null)
         return cleaned
       }
 
@@ -1308,7 +1603,8 @@ export default {
           .map((spot) => String(spot).trim())
       }
 
-      // Normalize routeCoordinates - must be flat array of [lng, lat] pairs
+      // Normalize routeCoordinates - MUST be a flat array of {lng, lat} objects!
+      // Firestore REJECTS nested arrays like [[lng, lat]]
       if (!Array.isArray(data.routeCoordinates)) {
         data.routeCoordinates = []
       } else {
@@ -1316,24 +1612,18 @@ export default {
           .map((coord, idx) => {
             if (!coord) return null
 
-            // Handle nested arrays
+            // Handle if it somehow stayed a nested array [lng, lat]
             if (Array.isArray(coord)) {
-              if (coord.length === 0) return null
-              // If it's triple nested, flatten it
-              if (Array.isArray(coord[0])) {
-                console.warn(`[JeepneyManagement] Flattening nested coordinate at index ${idx}`)
-                return [parseFloat(coord[0][0]), parseFloat(coord[0][1])]
+              if (coord.length >= 2) {
+                return { lng: parseFloat(coord[0]), lat: parseFloat(coord[1]) }
               }
-              // Normal [lng, lat]
-              if (coord.length === 2) {
-                return [parseFloat(coord[0]), parseFloat(coord[1])]
-              }
+              return null
             }
 
             // Handle objects {lng, lat}
             if (typeof coord === 'object' && !Array.isArray(coord)) {
               if (coord.lng !== undefined && coord.lat !== undefined) {
-                return [parseFloat(coord.lng), parseFloat(coord.lat)]
+                return { lng: parseFloat(coord.lng), lat: parseFloat(coord.lat) }
               }
             }
 
@@ -1566,9 +1856,18 @@ export default {
             }
 
             this.selectedJeepneys = []
-            this.loadJeepneys()
+            await this.loadJeepneys()
 
-            loadingDialog.hide()
+            try {
+              if (loadingDialog && loadingDialog.hide) loadingDialog.hide()
+            } catch {
+              console.warn('[Jeepneys] loadingDialog.hide() failed')
+            }
+            try {
+              this.$q.loading.hide()
+            } catch {
+              /* ignore */
+            }
 
             if (successCount > 0) {
               this.$q.notify({
@@ -1642,9 +1941,18 @@ export default {
             }
 
             this.selectedJeepneys = []
-            this.loadJeepneys()
+            await this.loadJeepneys()
 
-            loadingDialog.hide()
+            try {
+              if (loadingDialog && loadingDialog.hide) loadingDialog.hide()
+            } catch {
+              console.warn('[Jeepneys] loadingDialog.hide() failed')
+            }
+            try {
+              this.$q.loading.hide()
+            } catch {
+              /* ignore */
+            }
 
             if (successCount > 0) {
               this.$q.notify({
@@ -1735,15 +2043,31 @@ export default {
       routeCoordinates,
       routeDistance,
       routeDuration,
+      waypoints,
     }) {
       if (!jeepneyId || !routeCoordinates?.length) return
       try {
+        console.debug(
+          '[JeepneyManagement] onApplyOsrmRoute currentUser:',
+          auth.currentUser && auth.currentUser.uid
+        )
         const update = {
           routeCoordinates,
           routeDistance: routeDistance ?? null,
           routeDuration: routeDuration ?? null,
-          updatedAt: new Date(),
+          updatedAt: serverTimestamp(),
         }
+
+        // If waypoints were provided (possibly with manual corrections), save them
+        if (waypoints && waypoints.length > 0) {
+          update.resolvedWaypoints = waypoints
+          // Also update terminal coords if it's the first waypoint
+          if (waypoints[0].name.toLowerCase().includes('terminal')) {
+            update.terminalLat = waypoints[0].lat
+            update.terminalLng = waypoints[0].lng
+          }
+        }
+
         await updateDoc(doc(db, 'jeepneys', jeepneyId), update)
 
         const idx = this.jeepneys.findIndex((j) => j.id === jeepneyId)
@@ -1758,54 +2082,32 @@ export default {
         })
       } catch (err) {
         console.error('[JeepneyManagement] Failed to apply OSRM route:', err)
-        this.$q.notify({
-          type: 'negative',
-          message: `Could not save route: ${err.message || err}`,
-          position: 'top',
-        })
+        // Improved error message for permission issues
+        const isPermError = err && (err.code === 'permission-denied' || (err.message && err.message.toLowerCase().includes('missing or insufficient permissions')))
+        if (isPermError) {
+          const uid = auth && auth.currentUser ? auth.currentUser.uid : 'UNKNOWN'
+          this.$q.notify({
+            type: 'negative',
+            message:
+              `Could not save route: missing permissions. Your UID: ${uid}. ` +
+              'Grant `routes_admin` (or `routes:write`) to this UID in Firestore `admins/{uid}` to allow saving routes.',
+            position: 'top',
+            timeout: 10000,
+          })
+        } else {
+          this.$q.notify({
+            type: 'negative',
+            message: `Could not save route: ${err.message || err}`,
+            position: 'top',
+          })
+        }
       }
     },
 
     /**
      * Build waypoints from jeepney data for display
      */
-    get routeWaypoints() {
-      if (!this.selectedJeepneyForRoute) return []
-
-      const waypoints = []
-      const data = this.selectedJeepneyForRoute
-
-      // Add terminal
-      if (data.terminalLat && data.terminalLng) {
-        waypoints.push({
-          name: 'Terminal',
-          latitude: data.terminalLat,
-          longitude: data.terminalLng,
-        })
-      }
-
-      // Add tourist spots (without coordinates since we don't have them)
-      if (data.touristSpotsServiced && data.touristSpotsServiced.length > 0) {
-        data.touristSpotsServiced.forEach((spot) => {
-          waypoints.push({
-            name: spot,
-            latitude: data.terminalLat || 16.4023,
-            longitude: data.terminalLng || 120.596,
-          })
-        })
-      }
-
-      // Add end point
-      if (data.endPoint) {
-        waypoints.push({
-          name: data.endPoint,
-          latitude: data.terminalLat || 16.4023,
-          longitude: data.terminalLng || 120.596,
-        })
-      }
-
-      return waypoints
-    },
+    
 
     /**
      * Format distance for display
@@ -2055,6 +2357,16 @@ export default {
       const operatingHoursOpen = getValue('operating_hours_open')
       const operatingHoursClose = getValue('operating_hours_close')
 
+      // Normalize time strings to `HH:mm` (zero-pad single-digit hours)
+      const normalizeTime = (t) => {
+        if (!t) return ''
+        const m = t.trim().match(/^(\d{1,2}):(\d{1,2})(?::(\d{1,3}))?$/)
+        if (!m) return ''
+        const hh = m[1].padStart(2, '0')
+        const mm = m[2].padStart(2, '0')
+        return `${hh}:${mm}`
+      }
+
       console.log(
         '[CSV] Operating Hours - Open:',
         operatingHoursOpen,
@@ -2074,8 +2386,8 @@ export default {
         farePWD: parseFloat(getValue('fare_pwd')) || null,
         endPoint: getValue('end_point'),
         operatingHours: {
-          open: operatingHoursOpen,
-          close: operatingHoursClose,
+          open: normalizeTime(operatingHoursOpen),
+          close: normalizeTime(operatingHoursClose),
         },
         touristSpotsServiced: [],
         valid: true,
@@ -2125,6 +2437,10 @@ export default {
       const validJeepneys = this.parsedJeepneys.filter((j) => j.valid)
       const total = validJeepneys.length
 
+      // Pre-load places for fuzzy matching
+      const places = await fetchPlaces().catch(() => [])
+      const { searchLocations } = useGeocoding()
+
       for (let i = 0; i < validJeepneys.length; i++) {
         const jeepney = validJeepneys[i]
 
@@ -2160,6 +2476,75 @@ export default {
             updatedAt: serverTimestamp(),
           }
 
+          // Generate Route Logic
+          if (jeepney.terminalLat && jeepney.terminalLng) {
+            this.importLogs.push({
+              success: true,
+              message: `Generating route for ${jeepney.jeepName}...`,
+            })
+            
+            const terminal = {
+              name: 'Terminal',
+              latitude: jeepney.terminalLat,
+              longitude: jeepney.terminalLng,
+            }
+            const intermediates = []
+
+            for (const spotName of jeepney.touristSpotsServiced || []) {
+              const place = fuzzyMatch(spotName, places)
+              if (place && place.latitude && place.longitude) {
+                intermediates.push({ name: place.name, latitude: place.latitude, longitude: place.longitude })
+              }
+            }
+
+            let endPointWaypoint = null
+            if (jeepney.endPoint) {
+              const endPlace = fuzzyMatch(jeepney.endPoint, places)
+              if (endPlace && endPlace.latitude && endPlace.longitude) {
+                endPointWaypoint = { name: endPlace.name, latitude: endPlace.latitude, longitude: endPlace.longitude }
+              } else {
+                try {
+                  const geoResults = await searchLocations(jeepney.endPoint + ', Baguio', true)
+                  if (geoResults && geoResults.length > 0) {
+                    endPointWaypoint = { name: jeepney.endPoint, latitude: geoResults[0].lat, longitude: geoResults[0].lng }
+                  }
+                } catch {
+                  // Fallback without endpoint
+                }
+              }
+            }
+
+            const waypoints = [terminal, ...intermediates]
+            if (endPointWaypoint) waypoints.push(endPointWaypoint)
+
+            if (waypoints.length >= 2) {
+              try {
+                // Rate limit respect (OSRM public server allows ~1 request/sec)
+                await new Promise(resolve => setTimeout(resolve, 1100))
+                
+                const result = await callOSRM(waypoints)
+                if (result && result.coordinates) {
+                   jeepneyData.routeCoordinates = result.coordinates.map(([lng, lat]) => ({ lng, lat }))
+                   jeepneyData.routeDistance = result.distance
+                   jeepneyData.routeDuration = result.duration
+                   
+                   // Save resolved waypoints so they persist as corrected
+                   jeepneyData.resolvedWaypoints = waypoints.map(w => ({
+                      name: w.name,
+                      lat: w.latitude,
+                      lng: w.longitude
+                   }))
+                }
+              } catch (osrmError) {
+                console.warn(`[CSV Import] OSRM failed for ${jeepney.jeepName}:`, osrmError)
+                this.importLogs.push({
+                  success: false,
+                  message: `OSRM failed for ${jeepney.jeepName}, route saved without polyline.`,
+                })
+              }
+            }
+          }
+
           // Normalize data before saving to avoid Firestore nested array errors
           jeepneyData = this.normalizeJeepneyData(jeepneyData)
 
@@ -2175,7 +2560,7 @@ export default {
 
           this.importLogs.push({
             success: true,
-            message: `Imported: ${jeepney.jeepName}`,
+            message: `Imported successfully: ${jeepney.jeepName}`,
           })
 
           this.importedCount++
@@ -2194,7 +2579,7 @@ export default {
 
       this.$q.notify({
         type: 'positive',
-        message: `Import completed: ${this.importedCount}/${total} jeepneys added`,
+        message: `Import completed: ${this.importedCount}/${total} jeepneys added with generated routes`,
         position: 'top',
         timeout: 5000,
       })

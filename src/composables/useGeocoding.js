@@ -57,29 +57,47 @@ export function useGeocoding() {
       const data = await response.json()
 
       // Filter results to Baguio City area
-      let filteredResults = data.filter((place) => {
+      // Prefer places within the bounding box or with address fields referencing Baguio
+      const filteredResults = data.filter((place) => {
         const lat = parseFloat(place.lat)
         const lon = parseFloat(place.lon)
 
-        // Check if within Baguio bounds
         const inBaguio =
           lat >= BAGUIO_BOUNDS.south &&
           lat <= BAGUIO_BOUNDS.north &&
           lon >= BAGUIO_BOUNDS.west &&
           lon <= BAGUIO_BOUNDS.east
 
-        // Also check address components for Baguio
-        const isBaguioAddress =
-          place.address?.city === 'Baguio City' ||
-          place.address?.town === 'Baguio City' ||
-          place.address?.state?.includes('Baguio') ||
-          place.address?.county === 'Baguio City'
+        // Broaden address checks to common Nominatim fields
+        const address = place.address || {}
+        const addrFields = [
+          address.city,
+          address.town,
+          address.village,
+          address.suburb,
+          address.county,
+          address.state,
+          address.municipality,
+        ]
+        const isBaguioAddress = addrFields.some((f) =>
+          typeof f === 'string' && f.toLowerCase().includes('baguio')
+        )
 
         return baguioOnly ? inBaguio || isBaguioAddress : true
       })
 
+      // If filtering removed everything but Nominatim returned items, fall back to looser match
+      let finalResults = filteredResults
+      if (baguioOnly && finalResults.length === 0 && data.length > 0) {
+        // Prefer items that mention 'Baguio' in the display name, otherwise return top results
+        const mentionBaguio = data.filter((p) =>
+          (p.display_name || '').toLowerCase().includes('baguio')
+        )
+        finalResults = mentionBaguio.length > 0 ? mentionBaguio : data.slice(0, 10)
+      }
+
       // Format results
-      results.value = filteredResults.map((place) => ({
+      results.value = finalResults.map((place) => ({
         lat: parseFloat(place.lat),
         lng: parseFloat(place.lon),
         label: place.display_name.split(',')[0], // First part of address
