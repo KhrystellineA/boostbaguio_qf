@@ -400,7 +400,7 @@
 import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { useQuasar } from 'quasar'
 import { db } from 'src/boot/firebase'
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore'
+import { collection, getDocs, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/firestore'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
@@ -757,7 +757,11 @@ export default {
         persistent: true,
       }).onOk(async () => {
         try {
-          await deleteDoc(doc(db, 'jeepneyOptions', option.id))
+          await updateDoc(doc(db, 'jeepneyOptions', option.id), {
+            isDeleted: true,
+            deletedAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          })
 
           $q.notify({
             type: 'positive',

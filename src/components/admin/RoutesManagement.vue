@@ -125,7 +125,7 @@
 <script>
 import { defineComponent, ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore'
+import { collection, getDocs, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/firestore'
 import { db } from 'src/boot/firebase'
 import RouteFormDialog from './RouteFormDialog.vue'
 
@@ -212,10 +212,12 @@ export default defineComponent({
       loading.value = true
       try {
         const querySnapshot = await getDocs(collection(db, 'routes'))
-        routes.value = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }))
+        routes.value = querySnapshot.docs
+          .filter((doc) => !doc.data().isDeleted)
+          .map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }))
         detectConflicts()
       } catch (error) {
         console.error('[RoutesManagement] Error loading routes:', error)
@@ -297,8 +299,12 @@ export default defineComponent({
         persistent: true,
       }).onOk(async () => {
         try {
-          await deleteDoc(doc(db, 'routes', route.id))
-          $q.notify({
+          await updateDoc(doc(db, 'routes', route.id), {
+            isDeleted: true,
+            deletedAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
+          })
+          this.$q.notify({
             type: 'positive',
             message: 'Route deleted successfully',
             position: 'top',

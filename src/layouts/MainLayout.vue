@@ -117,7 +117,8 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useQuasar } from 'quasar'
 import SharedNavbar from '../components/SharedNavbar.vue'
-import { useMetaTags, useStructuredData } from 'src/composables/useMetaTags'
+import { useMetaTags } from 'src/composables/useMetaTags'
+import { useStructuredData } from 'src/composables/useStructuredData'
 
 export default {
   name: 'MainLayout',
@@ -140,13 +141,14 @@ export default {
 
     // Initialize SEO and Meta Tags
     const { initRouteWatcher } = useMetaTags()
-    const { updateStructuredData, getOrganizationData, getWebApplicationData } = useStructuredData()
+    const { injectStructuredData, getOrganizationData, getWebApplicationData, getWebSiteData } =
+      useStructuredData()
 
     // Start watching route changes for dynamic meta tags
     initRouteWatcher()
 
     // Inject foundational JSON-LD structured data
-    updateStructuredData([getOrganizationData(), getWebApplicationData()])
+    injectStructuredData([getOrganizationData(), getWebApplicationData(), getWebSiteData()])
 
     const handleScroll = () => {
       showScrollTop.value = window.scrollY > 300

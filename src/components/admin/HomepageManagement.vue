@@ -390,7 +390,9 @@ export default {
       try {
         const q = query(faqCollection, orderBy('order', 'asc'))
         const snap = await getDocs(q)
-        faqs.value = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+        faqs.value = snap.docs
+          .filter((d) => !d.data().isDeleted)
+          .map((d) => ({ id: d.id, ...d.data() }))
       } catch (e) {
         console.error('[HomepageManagement] loadFaqs', e)
         $q.notify({ type: 'negative', message: 'Failed to load FAQs' })
@@ -416,7 +418,9 @@ export default {
       try {
         const q = query(contactsCollection, orderBy('key', 'asc'))
         const snap = await getDocs(q)
-        contacts.value = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+        contacts.value = snap.docs
+          .filter((d) => !d.data().isDeleted)
+          .map((d) => ({ id: d.id, ...d.data() }))
       } catch (e) {
         console.error('[HomepageManagement] loadContacts', e)
         $q.notify({ type: 'negative', message: 'Failed to load contacts' })
@@ -442,7 +446,9 @@ export default {
       try {
         const q = query(partnersCollection, orderBy('order', 'asc'))
         const snap = await getDocs(q)
-        partners.value = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+        partners.value = snap.docs
+          .filter((d) => !d.data().isDeleted)
+          .map((d) => ({ id: d.id, ...d.data() }))
       } catch (e) {
         console.error('[HomepageManagement] loadPartners', e)
         $q.notify({ type: 'negative', message: 'Failed to load partners' })
@@ -467,7 +473,9 @@ export default {
       try {
         const q = query(footerCollection, orderBy('name', 'asc'))
         const snap = await getDocs(q)
-        footerLinks.value = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+        footerLinks.value = snap.docs
+          .filter((d) => !d.data().isDeleted)
+          .map((d) => ({ id: d.id, ...d.data() }))
       } catch (e) {
         console.error('[HomepageManagement] loadFooter', e)
         $q.notify({ type: 'negative', message: 'Failed to load footer links' })

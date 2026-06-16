@@ -1504,7 +1504,11 @@ export default {
           this.loading = true
           try {
             const deletePromises = this.filteredPlaces.map((place) =>
-              deleteDoc(doc(db, 'places', place.id))
+              updateDoc(doc(db, 'places', place.id), {
+                isDeleted: true,
+                deletedAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+              })
             )
             await Promise.all(deletePromises)
 
