@@ -6,6 +6,7 @@
 import { ref } from 'vue'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from 'src/boot/firebase'
+import { calculateDistance } from 'src/utils/geo'
 
 // Distance thresholds (in meters)
 const NEAR_TERMINAL_THRESHOLD = 500 // 500m from terminal
@@ -28,19 +29,21 @@ export function useJeepneyRouteMatching() {
       const jeepneysQuery = query(collection(db, 'jeepneys'), where('isActive', '==', true))
       const snapshot = await getDocs(jeepneysQuery)
 
-      jeepneys.value = snapshot.docs.map((doc) => {
-        const data = doc.data()
-        // routeCoordinates may be stored as [{lng,lat},...] objects (new shape)
-        // or [[lng,lat],...] nested arrays (legacy). Normalize to nested.
-        const raw = data.routeCoordinates
-        if (Array.isArray(raw) && raw.length > 0) {
-          const first = raw[0]
-          if (first && typeof first === 'object' && !Array.isArray(first) && 'lng' in first) {
-            data.routeCoordinates = raw.map((p) => [p.lng, p.lat])
+      jeepneys.value = snapshot.docs
+        .filter((doc) => !doc.data().isDeleted)
+        .map((doc) => {
+          const data = doc.data()
+          // routeCoordinates may be stored as [{lng,lat},...] objects (new shape)
+          // or [[lng,lat],...] nested arrays (legacy). Normalize to nested.
+          const raw = data.routeCoordinates
+          if (Array.isArray(raw) && raw.length > 0) {
+            const first = raw[0]
+            if (first && typeof first === 'object' && !Array.isArray(first) && 'lng' in first) {
+              data.routeCoordinates = raw.map((p) => [p.lng, p.lat])
+            }
           }
-        }
-        return { id: doc.id, ...data }
-      })
+          return { id: doc.id, ...data }
+        })
 
       loading.value = false
       return jeepneys.value
@@ -50,27 +53,6 @@ export function useJeepneyRouteMatching() {
       loading.value = false
       return []
     }
-  }
-
-  /**
-   * Calculate distance between two coordinates using Haversine formula
-   * @param {[number, number]} coord1 - [lat, lng]
-   * @param {[number, number]} coord2 - [lat, lng]
-   * @returns {number} Distance in meters
-   */
-  const calculateDistance = (coord1, coord2) => {
-    const R = 6371e3 // Earth's radius in meters
-    const φ1 = (coord1[0] * Math.PI) / 180
-    const φ2 = (coord2[0] * Math.PI) / 180
-    const Δφ = ((coord2[0] - coord1[0]) * Math.PI) / 180
-    const Δλ = ((coord2[1] - coord1[1]) * Math.PI) / 180
-
-    const a =
-      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-
-    return R * c
   }
 
   /**

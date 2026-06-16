@@ -4,6 +4,7 @@
  */
 
 import { ref } from 'vue'
+import { calculateDistance } from 'src/utils/geo'
 
 export function useWalkingDirections() {
   const loading = ref(false)
@@ -18,14 +19,38 @@ export function useWalkingDirections() {
    */
   const fetchOsrmRoute = async (profile, start, end) => {
     // OSRM expects [lng, lat] format
-    const url = `https://router.project-osrm.org/route/v1/${profile}/${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&geometries=geojson&steps=true`
+    const coordString = `${start[1]},${start[0]};${end[1]},${end[0]}`
+    const cacheKey = `osrm_walk_${profile}_${coordString}`
+
+    // 1. Check Local Browser Cache First
+    try {
+      const cached = localStorage.getItem(cacheKey)
+      if (cached) {
+        console.log(`[WalkingDirections] Returning ${profile} route from local cache`)
+        return JSON.parse(cached)
+      }
+    } catch (e) {
+      console.warn('[WalkingDirections] Failed to read from localStorage:', e)
+    }
+
+    const url = `https://router.project-osrm.org/route/v1/${profile}/${coordString}?overview=full&geometries=geojson&steps=true`
     const response = await fetch(url)
     if (!response.ok) throw new Error(`OSRM ${profile} HTTP ${response.status}`)
     const data = await response.json()
     if (data.code !== 'Ok' || !data.routes || data.routes.length === 0) {
       throw new Error(`OSRM ${profile} returned no route (${data.code})`)
     }
-    return data.routes[0]
+
+    const result = data.routes[0]
+
+    // 2. Save successful result to Local Browser Cache
+    try {
+      localStorage.setItem(cacheKey, JSON.stringify(result))
+    } catch (e) {
+      console.warn('[WalkingDirections] Failed to write to localStorage (cache full?):', e)
+    }
+
+    return result
   }
 
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
@@ -192,27 +217,6 @@ export function useWalkingDirections() {
     return route.value
   }
 
-  /**
-   * Calculate distance between two coordinates
-   */
-  const calculateDistance = (coord1, coord2) => {
-    const R = 6371e3 // meters
-    const φ1 = (coord1[0] * Math.PI) / 180
-    const φ2 = (coord2[0] * Math.PI) / 180
-    const Δφ = ((coord2[0] - coord1[0]) * Math.PI) / 180
-    const Δλ = ((coord2[1] - coord1[1]) * Math.PI) / 180
-
-    const a =
-      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-
-    return R * c
-  }
-
-  /**
-   * Format distance for display
-   */
   const formatDistance = (meters) => {
     if (meters >= 1000) {
       return `${(meters / 1000).toFixed(1)} km`

@@ -1905,7 +1905,11 @@ export default {
 
             for (const jeepney of this.selectedJeepneys) {
               try {
-                await deleteDoc(doc(db, 'jeepneys', jeepney.id))
+                await updateDoc(doc(db, 'jeepneys', jeepney.id), {
+                  isDeleted: true,
+                  deletedAt: serverTimestamp(),
+                  updatedAt: serverTimestamp(),
+                })
                 successCount++
               } catch (error) {
                 console.error('[Jeepneys] Error deleting:', jeepney.jeepName, error)

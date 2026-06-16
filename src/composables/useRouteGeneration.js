@@ -9,7 +9,8 @@
  * const coordinates = await generateRoute(terminalLat, terminalLng, endPoint, touristSpots)
  */
 
-import { collection, getDocs } from 'firebase/firestore'
+import { collection, getDocs, doc, setDoc, getDoc } from 'firebase/firestore'
+import { db } from 'src/boot/firebase'
 import { useFirestore } from './useFirebase'
 
 /**
@@ -40,14 +41,40 @@ export function fuzzyMatch(targetName, places) {
   if (partialMatch) return partialMatch
 
   // 3. Try matching with common word variations and normalization
-  const normalizedTarget = target.replace(/\s+/g, ' ').replace(/[^a-z0-9\s]/g, '')
+  const normalize = (s) =>
+    s
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+
+  const normalizedTarget = normalize(target)
 
   const normalizedMatch = places.find((place) => {
-    const normalizedName = place.name
-      .toLowerCase()
-      .replace(/\s+/g, ' ')
-      .replace(/[^a-z0-9\s]/g, '')
-    return normalizedName.includes(normalizedTarget) || normalizedTarget.includes(normalizedName)
+    const normalizedName = normalize(place.name)
+
+    // Quick substring check first
+    if (normalizedName.includes(normalizedTarget) || normalizedTarget.includes(normalizedName)) {
+      return true
+    }
+
+    // Split into words and check if all target words are in the place name
+    const targetWords = normalizedTarget.split(' ').filter(Boolean)
+    const nameWords = normalizedName.split(' ').filter(Boolean)
+
+    // Only apply the "all words match" logic if the target has more than 1 word,
+    // to prevent generic words like "Park" from falsely matching the first park.
+    // Or if they have the same number of words.
+    if (targetWords.length > 1 || targetWords.length === nameWords.length) {
+      const allWordsMatch = targetWords.every((word) =>
+        nameWords.some(
+          (nameWord) => nameWord === word || (word.length > 3 && nameWord.includes(word))
+        )
+      )
+      if (allWordsMatch) return true
+    }
+
+    return false
   })
 
   if (normalizedMatch) return normalizedMatch
@@ -137,10 +164,12 @@ export async function fetchPlaces() {
     const placesRef = collection(db, 'places')
     const querySnapshot = await getDocs(placesRef)
 
-    const places = querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }))
+    const places = querySnapshot.docs
+      .filter((doc) => !doc.data().isDeleted)
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
 
     console.log('[RouteGeneration] Fetched', places.length, 'places from Firestore')
     return places
@@ -175,7 +204,72 @@ export function buildOSRMUrl(waypoints) {
 }
 
 /**
- * Call OSRM API to generate route
+ * Call OpenRouteService API as a fallback when OSRM fails or is rate-limited
+ *
+ * @param {Array} waypoints - Array of {latitude, longitude} objects
+ * @returns {Promise<Object>} - Object formatted exactly like OSRM response
+ */
+async function callOpenRouteService(waypoints) {
+  const apiKey = import.meta.env.VITE_ORS_API_KEY
+  if (!apiKey) {
+    throw new Error('OpenRouteService API key not configured')
+  }
+
+  // ORS expects [[lon, lat], [lon, lat]] format for POST requests
+  const coordinates = waypoints.map((wp) => [wp.longitude, wp.latitude])
+
+  console.log('[RouteGeneration] Falling back to OpenRouteService API')
+
+  const response = await fetch(
+    'https://api.openrouteservice.org/v2/directions/driving-car/geojson',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8',
+        Accept: 'application/json, application/geo+json; charset=utf-8',
+        Authorization: apiKey,
+      },
+      body: JSON.stringify({
+        coordinates: coordinates,
+        instructions: false, // We don't need turn-by-turn steps
+      }),
+    }
+  )
+
+  if (!response.ok) {
+    throw new Error(`ORS API error: ${response.status} ${response.statusText}`)
+  }
+
+  const data = await response.json()
+
+  if (!data.features || data.features.length === 0) {
+    throw new Error('No routes found by ORS')
+  }
+
+  const feature = data.features[0]
+
+  // ORS returns GeoJSON with coordinates in [longitude, latitude] order
+  // This is the exact same format we need and that OSRM returns
+  const routeCoordinates = feature.geometry.coordinates
+  const properties = feature.properties
+
+  // ORS summary provides distance and duration
+  const distance = properties.segments.reduce((acc, seg) => acc + seg.distance, 0)
+  const duration = properties.segments.reduce((acc, seg) => acc + seg.duration, 0)
+
+  console.log('[RouteGeneration] ORS fallback route generated successfully')
+
+  return {
+    coordinates: routeCoordinates,
+    distance: distance,
+    duration: duration,
+    waypoints: waypoints.length,
+    provider: 'ors',
+  }
+}
+
+/**
+ * Call OSRM API to generate route (with Caching and ORS Fallback)
  *
  * @param {Array} waypoints - Array of {latitude, longitude} objects
  * @returns {Promise<Object>} - Object with coordinates array and metadata
@@ -183,13 +277,81 @@ export function buildOSRMUrl(waypoints) {
 export async function callOSRM(waypoints) {
   const url = buildOSRMUrl(waypoints)
 
+  // Create a unique cache key based on the coordinate string
+  const coordsStr = waypoints.map((wp) => `${wp.longitude},${wp.latitude}`).join(';')
+  const cacheKey = `osrm_route_${coordsStr}`
+
+  // 1. Check Local Browser Cache First
+  try {
+    const cachedRoute = localStorage.getItem(cacheKey)
+    if (cachedRoute) {
+      console.log('[RouteGeneration] Returning route from local cache (0 API calls)')
+      return JSON.parse(cachedRoute)
+    }
+  } catch (e) {
+    console.warn('[RouteGeneration] Failed to read from localStorage:', e)
+  }
+
+  // Safe hash for Firestore document ID (slashes/special chars aren't allowed)
+  const docId = cacheKey.replace(/[.,;]/g, '_')
+
+  // 2. Check Global Firestore Cache
+  try {
+    const cacheDocRef = doc(db, 'route_cache', docId)
+    const cacheDocSnap = await getDoc(cacheDocRef)
+
+    if (cacheDocSnap.exists()) {
+      console.log(
+        '[RouteGeneration] Returning route from Firestore global cache (0 OSRM API calls)'
+      )
+      const cachedData = cacheDocSnap.data()
+
+      // Save back to local browser cache for next time
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify(cachedData))
+      } catch (err) {
+        // ignore
+        console.debug('Failed to sync Firestore to local cache:', err)
+      }
+
+      return cachedData
+    }
+  } catch (e) {
+    console.warn('[RouteGeneration] Failed to read from Firestore cache:', e)
+  }
+
   console.log('[RouteGeneration] Calling OSRM API with', waypoints.length, 'waypoints')
   console.log('[RouteGeneration] OSRM URL:', url)
 
   try {
-    const response = await fetch(url)
+    let response = await fetch(url)
 
     if (!response.ok) {
+      if (response.status === 429) {
+        console.warn('[RouteGeneration] OSRM rate limited (429). Triggering ORS fallback.')
+        try {
+          const orsResult = await callOpenRouteService(waypoints)
+
+          orsResult.createdAt = new Date().toISOString()
+
+          // Save successful ORS result to caches
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify(orsResult))
+          } catch (err) {
+            console.debug(err)
+          }
+          try {
+            await setDoc(doc(db, 'route_cache', docId), orsResult)
+          } catch (err) {
+            console.debug(err)
+          }
+
+          return orsResult
+        } catch (orsError) {
+          console.error('[RouteGeneration] ORS Fallback also failed:', orsError)
+          throw new Error(`OSRM rate limited and ORS fallback failed: ${orsError.message}`)
+        }
+      }
       throw new Error(`OSRM API error: ${response.status} ${response.statusText}`)
     }
 
@@ -215,12 +377,31 @@ export async function callOSRM(waypoints) {
     console.log('[RouteGeneration] Total duration:', route.duration, 'seconds')
     console.log('[RouteGeneration] Number of coordinate points:', coordinates.length)
 
-    return {
+    const result = {
       coordinates, // Array of [lng, lat] pairs - ready to save to Firestore
       distance: route.distance,
       duration: route.duration,
       waypoints: waypoints.length,
+      createdAt: new Date().toISOString(),
     }
+
+    // 3. Save successful result to Local Browser Cache
+    try {
+      localStorage.setItem(cacheKey, JSON.stringify(result))
+    } catch (e) {
+      console.warn('[RouteGeneration] Failed to write to localStorage (cache full?):', e)
+    }
+
+    // 4. Save successful result to Global Firestore Cache
+    try {
+      const cacheDocRef = doc(db, 'route_cache', docId)
+      await setDoc(cacheDocRef, result)
+      console.log('[RouteGeneration] Route saved to global Firestore cache')
+    } catch (e) {
+      console.warn('[RouteGeneration] Failed to write to Firestore cache:', e)
+    }
+
+    return result
   } catch (error) {
     console.error('[RouteGeneration] OSRM API error:', error)
     throw error

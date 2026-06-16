@@ -1672,9 +1672,6 @@ export default {
       .section-description
         font-size: 0.8rem
 
-.bg-pine-green
-  background: #2d6a4f !important
-
 .gallery-grid
   display: grid
   grid-template-columns: repeat(2, 1fr)

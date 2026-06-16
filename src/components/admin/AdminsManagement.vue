@@ -186,15 +186,7 @@
 
 <script>
 import { db, auth } from 'src/boot/firebase'
-import {
-  collection,
-  getDocs,
-  updateDoc,
-  deleteDoc,
-  doc,
-  setDoc,
-  serverTimestamp,
-} from 'firebase/firestore'
+import { collection, getDocs, updateDoc, doc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { useQuasar } from 'quasar'
 /* eslint-disable no-unused-vars */
@@ -416,13 +408,17 @@ export default {
       this.$q
         .dialog({
           title: 'Confirm Delete',
-          message: `Are you sure you want to delete admin "${admin.name}"? This action cannot be undone.`,
+          message: `Are you sure you want to delete admin "${admin.name}"?`,
           cancel: true,
           persistent: true,
         })
         .onOk(async () => {
           try {
-            await deleteDoc(doc(db, 'admins', admin.uid))
+            await updateDoc(doc(db, 'admins', admin.uid), {
+              isDeleted: true,
+              deletedAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            })
             this.$q.notify({
               type: 'positive',
               message: 'Admin deleted successfully',

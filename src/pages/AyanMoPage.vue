@@ -559,6 +559,7 @@ import {
 } from 'firebase/firestore'
 import { useUserStore } from 'stores/user-store'
 import { useGeocoding } from 'src/composables/useGeocoding'
+import { calculateDistance as calculateDistanceGeo } from 'src/utils/geo'
 import { useGeolocation } from 'src/composables/useGeolocation'
 import FooterSection from '../components/home/FooterSection.vue'
 import fallbackImage from '../assets/30.png'
@@ -1160,41 +1161,24 @@ export default defineComponent({
       const coords = getPlaceCoords(place)
       if (!userLocation.value || !coords) return 'N/A'
 
-      const lat1 = userLocation.value.latitude
-      const lon1 = userLocation.value.longitude
-      const lat2 = coords[0]
-      const lon2 = coords[1]
+      const distMeters = calculateDistanceGeo(
+        [userLocation.value.latitude, userLocation.value.longitude],
+        [coords[0], coords[1]]
+      )
 
-      // Haversine formula for distance calculation
-      const R = 6371 // Earth's radius in km
-      const dLat = deg2rad(lat2 - lat1)
-      const dLon = deg2rad(lon2 - lon1)
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-      const distance = R * c
-
-      return distance.toFixed(2)
+      return (distMeters / 1000).toFixed(2)
     }
 
     const calculateDistanceRaw = (place) => {
       const coords = getPlaceCoords(place)
       if (!userLocation.value || !coords) return Infinity
 
-      const lat1 = userLocation.value.latitude
-      const lon1 = userLocation.value.longitude
-      const lat2 = coords[0]
-      const lon2 = coords[1]
+      const distMeters = calculateDistanceGeo(
+        [userLocation.value.latitude, userLocation.value.longitude],
+        [coords[0], coords[1]]
+      )
 
-      const R = 6371
-      const dLat = deg2rad(lat2 - lat1)
-      const dLon = deg2rad(lon2 - lon1)
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
-      return R * c
+      return distMeters / 1000 // Convert meters to km for existing logic
     }
 
     const getDistanceText = (place) => {
@@ -1208,10 +1192,6 @@ export default defineComponent({
       }
       // 1km or more, show in km
       return `${distanceKm.toFixed(1)}km away`
-    }
-
-    const deg2rad = (deg) => {
-      return deg * (Math.PI / 180)
     }
 
     const truncateText = (text, maxLength) => {
