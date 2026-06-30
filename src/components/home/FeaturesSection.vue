@@ -83,26 +83,6 @@
 
       <!-- Bottom row -->
       <div class="image-cards-grid image-cards-grid--two">
-        <!-- AYAN MO -->
-        <article class="image-card">
-          <div
-            class="image-card-media image-card-media--mint"
-            role="link"
-            tabindex="0"
-            @click="goTo('/ayanmo')"
-            @keyup.enter="goTo('/ayanmo')"
-          >
-            <q-icon name="near_me" class="card-illust" />
-          </div>
-          <div class="image-card-body">
-            <h3 class="image-card-title">Nearby Places (Ayan Mo)</h3>
-            <p class="image-card-text">
-              Discover what's around you! Find nearby tourist spots, restaurants, and attractions
-              based on your current location with real-time distance and travel information.
-            </p>
-          </div>
-        </article>
-
         <!-- ARAMIDEM -->
         <article class="image-card">
           <div
@@ -119,6 +99,26 @@
             <p class="image-card-text">
               Stay updated on local festivals and concerts, complete with post-event transportation
               tips.
+            </p>
+          </div>
+        </article>
+
+        <!-- AYAN MO -->
+        <article class="image-card">
+          <div
+            class="image-card-media image-card-media--mint"
+            role="link"
+            tabindex="0"
+            @click="goTo('/ayanmo')"
+            @keyup.enter="goTo('/ayanmo')"
+          >
+            <q-icon name="near_me" class="card-illust" />
+          </div>
+          <div class="image-card-body">
+            <h3 class="image-card-title">Nearby Places (Ayan Mo)</h3>
+            <p class="image-card-text">
+              Discover what's around you! Find nearby tourist spots, restaurants, and attractions
+              based on your current location with real-time distance and travel information.
             </p>
           </div>
         </article>

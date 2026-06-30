@@ -64,6 +64,23 @@
 
     <q-card>
       <q-card-section>
+        <q-btn-group outline class="q-mb-md bg-white">
+          <q-btn
+            :color="viewMode === 'active' ? 'primary' : 'white'"
+            :text-color="viewMode === 'active' ? 'white' : 'primary'"
+            label="Active"
+            @click="viewMode = 'active'"
+            no-caps
+          />
+          <q-btn
+            :color="viewMode === 'deleted' ? 'negative' : 'white'"
+            :text-color="viewMode === 'deleted' ? 'white' : 'negative'"
+            label="Recently Deleted"
+            @click="viewMode = 'deleted'"
+            no-caps
+          />
+        </q-btn-group>
+
         <q-input v-model="search" outlined placeholder="Search events..." dense class="q-mb-md">
           <template #prepend>
             <q-icon name="search" />
@@ -108,39 +125,64 @@
 
           <template #body-cell-actions="props">
             <q-td :props="props">
-              <q-btn
-                flat
-                dense
-                round
-                icon="edit"
-                style="background: #2d6a4f; color: white"
-                @click="editEvent(props.row)"
-              >
-                <q-tooltip>Edit</q-tooltip>
-              </q-btn>
-              <q-btn
-                v-if="!isSuperAdmin && !props.row.featured"
-                flat
-                dense
-                round
-                icon="auto_awesome"
-                color="amber-9"
-                class="q-ml-xs"
-                :loading="featureRequestPendingId === props.row.id"
-                @click="requestFeature(props.row)"
-              >
-                <q-tooltip>Request to feature</q-tooltip>
-              </q-btn>
-              <q-btn
-                flat
-                dense
-                round
-                icon="delete"
-                color="negative"
-                @click="confirmDelete(props.row)"
-              >
-                <q-tooltip>Delete</q-tooltip>
-              </q-btn>
+              <template v-if="viewMode === 'active'">
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="edit"
+                  style="background: #2d6a4f; color: white"
+                  @click="editEvent(props.row)"
+                >
+                  <q-tooltip>Edit</q-tooltip>
+                </q-btn>
+                <q-btn
+                  v-if="!isSuperAdmin && !props.row.featured"
+                  flat
+                  dense
+                  round
+                  icon="auto_awesome"
+                  color="amber-9"
+                  class="q-ml-xs"
+                  :loading="featureRequestPendingId === props.row.id"
+                  @click="requestFeature(props.row)"
+                >
+                  <q-tooltip>Request to feature</q-tooltip>
+                </q-btn>
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="delete"
+                  color="negative"
+                  @click="confirmDelete(props.row)"
+                >
+                  <q-tooltip>Delete</q-tooltip>
+                </q-btn>
+              </template>
+              <template v-else>
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="restore"
+                  color="positive"
+                  @click="restoreEvent(props.row)"
+                >
+                  <q-tooltip>Restore</q-tooltip>
+                </q-btn>
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="delete_forever"
+                  color="negative"
+                  @click="confirmPermanentDelete(props.row)"
+                  class="q-ml-xs"
+                >
+                  <q-tooltip>Permanently Delete</q-tooltip>
+                </q-btn>
+              </template>
             </q-td>
           </template>
         </q-table>
@@ -545,6 +587,7 @@ export default {
       imagePreview: null,
       selectedEvents: [],
       featureRequestPendingId: '',
+      viewMode: 'active',
       form: {
         title: '',
         location: '',
@@ -610,10 +653,14 @@ export default {
     },
 
     filteredEvents() {
-      if (!this.search) return this.events
+      const baseEvents = this.events.filter((e) =>
+        this.viewMode === 'active' ? !e.isDeleted : e.isDeleted
+      )
+
+      if (!this.search) return baseEvents
 
       const searchLower = this.search.toLowerCase()
-      return this.events.filter(
+      return baseEvents.filter(
         (event) =>
           event.title?.toLowerCase().includes(searchLower) ||
           event.location?.toLowerCase().includes(searchLower) ||
@@ -972,44 +1019,87 @@ export default {
       }
     },
 
-    confirmDelete(event) {
+    async confirmDelete(event) {
       this.$q
         .dialog({
           title: 'Confirm Delete',
-          message: `Are you sure you want to delete "${event.title}"?`,
+          message: `Are you sure you want to delete "${event.title}"? It will be moved to Recently Deleted.`,
           cancel: true,
           persistent: true,
         })
         .onOk(async () => {
           try {
-            const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
-            const adminUid = sessionStorage.getItem('adminUid')
-            const { logDelete } = await import('src/utils/activityLogger')
-
-            if (event.imagePublicId) {
-              await this.deleteImage(event.imagePublicId)
-            }
-
-            await deleteDoc(doc(db, 'events', event.id))
-
-            // Log activity
-            await logDelete({ uid: adminUid, ...adminData }, 'events', event.title, event.id)
-
+            await updateDoc(doc(db, 'events', event.id), {
+              isDeleted: true,
+              deletedAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            })
             this.$q.notify({
               type: 'positive',
-              message: 'Event deleted successfully',
+              message: 'Event moved to Recently Deleted',
               position: 'top',
               icon: 'delete',
-              timeout: 2000,
             })
             this.loadEvents()
           } catch (error) {
             console.error('[Events] Error deleting:', error)
             this.$q.notify({
               type: 'negative',
-              message: 'Failed to delete event: ' + error.message,
+              message: 'Failed to delete event',
               position: 'top',
-              timeout: 5000,
+            })
+          }
+        })
+    },
+
+    async restoreEvent(event) {
+      try {
+        await updateDoc(doc(db, 'events', event.id), {
+          isDeleted: false,
+          updatedAt: serverTimestamp(),
+        })
+        this.$q.notify({
+          type: 'positive',
+          message: `Restored "${event.title}"`,
+          position: 'top',
+        })
+        this.loadEvents()
+      } catch (error) {
+        console.error('[Events] Error restoring:', error)
+        this.$q.notify({
+          type: 'negative',
+          message: 'Failed to restore event',
+          position: 'top',
+        })
+      }
+    },
+
+    async confirmPermanentDelete(event) {
+      this.$q
+        .dialog({
+          title: 'Confirm Permanent Delete',
+          message: `Are you sure you want to permanently delete "${event.title}"? This cannot be undone.`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          try {
+            if (event.imagePublicId) {
+              await this.deleteImage(event.imagePublicId)
+            }
+            await deleteDoc(doc(db, 'events', event.id))
+            this.$q.notify({
+              type: 'positive',
+              message: 'Event permanently deleted',
+              position: 'top',
+            })
+            this.loadEvents()
+          } catch (error) {
+            console.error('[Events] Error permanently deleting:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: 'Failed to permanently delete',
+              position: 'top',
             })
           }
         })
@@ -1027,8 +1117,8 @@ export default {
 
       this.$q
         .dialog({
-          title: 'Confirm Bulk Delete',
-          message: `Are you sure you want to delete ${this.selectedEvents.length} event(s)? This action cannot be undone.`,
+          title: 'Confirm Bulk Action',
+          message: `Are you sure you want to ${this.viewMode === 'deleted' ? 'permanently delete' : 'delete'} ${this.selectedEvents.length} event(s)?`,
           cancel: true,
           persistent: true,
         })
@@ -1039,9 +1129,17 @@ export default {
             const adminUid = sessionStorage.getItem('adminUid')
             const { logBulkDelete } = await import('src/utils/activityLogger')
 
-            const deletePromises = this.selectedEvents.map((event) =>
-              deleteDoc(doc(db, 'events', event.id))
-            )
+            const deletePromises = this.selectedEvents.map((event) => {
+              if (this.viewMode === 'deleted') {
+                return deleteDoc(doc(db, 'events', event.id))
+              } else {
+                return updateDoc(doc(db, 'events', event.id), {
+                  isDeleted: true,
+                  deletedAt: serverTimestamp(),
+                  updatedAt: serverTimestamp(),
+                })
+              }
+            })
             await Promise.all(deletePromises)
 
             // Log activity

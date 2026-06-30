@@ -7,8 +7,25 @@
           Manage homepage content: FAQs, Contacts, Photos, Partners, Footer links.
         </p>
       </div>
-      <div class="col-auto">
+      <div class="col-auto q-gutter-sm">
+        <q-btn-group outline class="bg-white">
+          <q-btn
+            :color="viewMode === 'active' ? 'primary' : 'white'"
+            :text-color="viewMode === 'active' ? 'white' : 'primary'"
+            label="Active"
+            @click="viewMode = 'active'"
+            no-caps
+          />
+          <q-btn
+            :color="viewMode === 'deleted' ? 'negative' : 'white'"
+            :text-color="viewMode === 'deleted' ? 'white' : 'negative'"
+            label="Recently Deleted"
+            @click="viewMode = 'deleted'"
+            no-caps
+          />
+        </q-btn-group>
         <q-btn
+          v-if="viewMode === 'active'"
           unelevated
           color="primary"
           icon="add"
@@ -63,25 +80,43 @@
 
               <template #body-cell-actions="props">
                 <q-td :props="props">
-                  <div class="row items-center q-gutter-sm">
-                    <q-btn
-                      flat
-                      dense
-                      round
-                      icon="edit"
-                      color="primary"
-                      @click="editFaq(props.row)"
-                      :aria-label="`Edit FAQ: ${props.row.question}`"
-                    />
-                    <q-btn
-                      flat
-                      dense
-                      round
-                      icon="delete"
-                      color="negative"
-                      @click="confirmDelete(props.row)"
-                      :aria-label="`Delete FAQ: ${props.row.question}`"
-                    />
+                  <div class="row items-center q-gutter-sm justify-end">
+                    <template v-if="viewMode === 'active'">
+                      <q-btn
+                        flat
+                        dense
+                        round
+                        icon="edit"
+                        color="primary"
+                        @click="editFaq(props.row)"
+                      />
+                      <q-btn
+                        flat
+                        dense
+                        round
+                        icon="delete"
+                        color="negative"
+                        @click="confirmDelete(props.row)"
+                      />
+                    </template>
+                    <template v-else>
+                      <q-btn
+                        flat
+                        dense
+                        round
+                        icon="restore"
+                        color="positive"
+                        @click="restoreFaq(props.row)"
+                      />
+                      <q-btn
+                        flat
+                        dense
+                        round
+                        icon="delete_forever"
+                        color="negative"
+                        @click="confirmPermanentDeleteFaq(props.row)"
+                      />
+                    </template>
                   </div>
                 </q-td>
               </template>
@@ -116,23 +151,43 @@
                 <q-td :props="props">{{ props.value }}</q-td>
               </template>
               <template #body-cell-actions="props">
-                <q-td :props="props">
-                  <q-btn
-                    flat
-                    dense
-                    round
-                    icon="edit"
-                    color="primary"
-                    @click="editContact(props.row)"
-                  />
-                  <q-btn
-                    flat
-                    dense
-                    round
-                    icon="delete"
-                    color="negative"
-                    @click="confirmDeleteContact(props.row)"
-                  />
+                <q-td :props="props" align="right">
+                  <template v-if="viewMode === 'active'">
+                    <q-btn
+                      flat
+                      dense
+                      round
+                      icon="edit"
+                      color="primary"
+                      @click="editContact(props.row)"
+                    />
+                    <q-btn
+                      flat
+                      dense
+                      round
+                      icon="delete"
+                      color="negative"
+                      @click="confirmDeleteContact(props.row)"
+                    />
+                  </template>
+                  <template v-else>
+                    <q-btn
+                      flat
+                      dense
+                      round
+                      icon="restore"
+                      color="positive"
+                      @click="restoreContact(props.row)"
+                    />
+                    <q-btn
+                      flat
+                      dense
+                      round
+                      icon="delete_forever"
+                      color="negative"
+                      @click="confirmPermanentDeleteContact(props.row)"
+                    />
+                  </template>
                 </q-td>
               </template>
             </q-table>
@@ -168,23 +223,43 @@
                 ><q-td :props="props">{{ props.value }}</q-td></template
               >
               <template #body-cell-actions="props">
-                <q-td :props="props">
-                  <q-btn
-                    flat
-                    dense
-                    round
-                    icon="edit"
-                    color="primary"
-                    @click="editPartner(props.row)"
-                  />
-                  <q-btn
-                    flat
-                    dense
-                    round
-                    icon="delete"
-                    color="negative"
-                    @click="confirmDeletePartner(props.row)"
-                  />
+                <q-td :props="props" align="right">
+                  <template v-if="viewMode === 'active'">
+                    <q-btn
+                      flat
+                      dense
+                      round
+                      icon="edit"
+                      color="primary"
+                      @click="editPartner(props.row)"
+                    />
+                    <q-btn
+                      flat
+                      dense
+                      round
+                      icon="delete"
+                      color="negative"
+                      @click="confirmDeletePartner(props.row)"
+                    />
+                  </template>
+                  <template v-else>
+                    <q-btn
+                      flat
+                      dense
+                      round
+                      icon="restore"
+                      color="positive"
+                      @click="restorePartner(props.row)"
+                    />
+                    <q-btn
+                      flat
+                      dense
+                      round
+                      icon="delete_forever"
+                      color="negative"
+                      @click="confirmPermanentDeletePartner(props.row)"
+                    />
+                  </template>
                 </q-td>
               </template>
             </q-table>
@@ -218,23 +293,43 @@
                 ></template
               >
               <template #body-cell-actions="props">
-                <q-td :props="props">
-                  <q-btn
-                    flat
-                    dense
-                    round
-                    icon="edit"
-                    color="primary"
-                    @click="editFooterLink(props.row)"
-                  />
-                  <q-btn
-                    flat
-                    dense
-                    round
-                    icon="delete"
-                    color="negative"
-                    @click="confirmDeleteFooter(props.row)"
-                  />
+                <q-td :props="props" align="right">
+                  <template v-if="viewMode === 'active'">
+                    <q-btn
+                      flat
+                      dense
+                      round
+                      icon="edit"
+                      color="primary"
+                      @click="editFooterLink(props.row)"
+                    />
+                    <q-btn
+                      flat
+                      dense
+                      round
+                      icon="delete"
+                      color="negative"
+                      @click="confirmDeleteFooter(props.row)"
+                    />
+                  </template>
+                  <template v-else>
+                    <q-btn
+                      flat
+                      dense
+                      round
+                      icon="restore"
+                      color="positive"
+                      @click="restoreFooterLink(props.row)"
+                    />
+                    <q-btn
+                      flat
+                      dense
+                      round
+                      icon="delete_forever"
+                      color="negative"
+                      @click="confirmPermanentDeleteFooter(props.row)"
+                    />
+                  </template>
                 </q-td>
               </template>
             </q-table>
@@ -305,7 +400,29 @@
 
           <div v-else-if="activeTab === 'partners'">
             <q-input v-model="form.name" outlined label="Name" dense class="q-mb-md" />
-            <q-input v-model="form.icon" outlined label="Icon name" dense class="q-mb-md" />
+            <q-file
+              v-model="partnerIconFile"
+              outlined
+              dense
+              label="Upload Icon Image"
+              class="q-mb-md"
+              accept="image/*"
+              clearable
+              :loading="isUploadingIcon"
+            >
+              <template v-slot:prepend>
+                <q-icon name="attach_file" />
+              </template>
+            </q-file>
+            <div v-if="form.icon && !partnerIconFile" class="q-mb-md">
+              <div class="text-caption q-mb-xs">Current Icon:</div>
+              <q-img
+                :src="form.icon"
+                style="height: 50px; max-width: 50px; object-fit: contain"
+                v-if="form.icon.startsWith('http')"
+              />
+              <q-icon :name="form.icon" size="32px" v-else />
+            </div>
             <q-input v-model="form.link" outlined label="Link (optional)" dense class="q-mb-md" />
             <q-input v-model.number="form.order" outlined label="Order" dense type="number" />
           </div>
@@ -337,6 +454,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { db } from 'src/boot/firebase'
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import {
   collection,
   query,
@@ -346,6 +464,7 @@ import {
   updateDoc,
   deleteDoc,
   doc,
+  serverTimestamp,
 } from 'firebase/firestore'
 import PhotosManagement from 'src/components/admin/homepage/PhotosManagement.vue'
 
@@ -358,6 +477,10 @@ export default {
 
     // Tabs
     const activeTab = ref('faqs')
+    const viewMode = ref('active')
+
+    const partnerIconFile = ref(null)
+    const isUploadingIcon = ref(false)
 
     // Generic dialog
     const showDialog = ref(false)
@@ -388,11 +511,76 @@ export default {
     const loadFaqs = async () => {
       loadingFaqs.value = true
       try {
-        const q = query(faqCollection, orderBy('order', 'asc'))
-        const snap = await getDocs(q)
-        faqs.value = snap.docs
-          .filter((d) => !d.data().isDeleted)
-          .map((d) => ({ id: d.id, ...d.data() }))
+        let snap = await getDocs(query(faqCollection, orderBy('order', 'asc')))
+        if (snap.empty) {
+          const defaultFaqs = [
+            {
+              question: 'What is Boost Baguio?',
+              answer:
+                'Boost Baguio is a web app designed to enhance your commuting experience in Baguio City. It provides real-time jeepney navigation, route information, and curated tourist spots. Our goal is to promote sustainable tourism while making travel easier for everyone.',
+              order: 0,
+            },
+            {
+              question: 'How does navigation work?',
+              answer:
+                'Users can input their start and end points either manually or via GPS. The app then generates step-by-step directions for jeepney routes and terminal information. This feature ensures you never miss a ride!',
+              order: 1,
+            },
+            {
+              question: 'Are routes updated regularly?',
+              answer:
+                'Yes, our routes are constantly updated based on user feedback and crowdsourced data. We also include "Last Verified" timestamps to ensure accuracy. You can report any inaccuracies directly through the app.',
+              order: 2,
+            },
+            {
+              question: 'What are the fees?',
+              answer:
+                'Fares for jeepney rides vary depending on the route. The app provides fare information for each route to help you budget your travel. Keep an eye on updates for any changes in fares.',
+              order: 3,
+            },
+            {
+              question: 'Can I find events?',
+              answer:
+                'Absolutely! Our Events section aggregates local festivals and concerts happening in Baguio. You’ll also find transportation tips for getting to and from these events. Stay connected with the vibrant culture of Baguio!',
+              order: 4,
+            },
+            {
+              question: 'How to use "Near Me"?',
+              answer:
+                '"Near Me" utilizes your geolocation to suggest nearby attractions and jeepney routes. You can read reviews from the "Sa Baguio" Facebook group for additional insights. It’s a great way to discover hidden gems!',
+              order: 5,
+            },
+            {
+              question: 'Is the app free?',
+              answer:
+                'Yes, Boost Baguio is completely free to use. We aim to make commuting accessible to everyone in Baguio City. Enjoy all features without any hidden costs!',
+              order: 6,
+            },
+            {
+              question: 'How can I contact support?',
+              answer:
+                'For support, you can reach out through the Contact section of the app. We’re here to assist you with any questions or concerns. Your feedback helps us improve our service!',
+              order: 7,
+            },
+            {
+              question: 'What if I have suggestions?',
+              answer:
+                'We welcome your suggestions! You can submit them directly through the app or via our website. Your input is invaluable in helping us enhance the user experience.',
+              order: 8,
+            },
+            {
+              question: 'Is the app safe?',
+              answer:
+                'Yes, we prioritize user safety and data privacy. The app is designed with secure protocols to protect your information. Travel with peace of mind while using Boost Baguio.',
+              order: 9,
+            },
+          ]
+          for (const item of defaultFaqs) {
+            await addDoc(faqCollection, item)
+          }
+          snap = await getDocs(query(faqCollection, orderBy('order', 'asc')))
+        }
+        faqs.value = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
       } catch (e) {
         console.error('[HomepageManagement] loadFaqs', e)
         $q.notify({ type: 'negative', message: 'Failed to load FAQs' })
@@ -416,11 +604,34 @@ export default {
     const loadContacts = async () => {
       loadingContacts.value = true
       try {
-        const q = query(contactsCollection, orderBy('key', 'asc'))
-        const snap = await getDocs(q)
-        contacts.value = snap.docs
-          .filter((d) => !d.data().isDeleted)
-          .map((d) => ({ id: d.id, ...d.data() }))
+        let snap = await getDocs(collection(db, 'homepage_contacts'))
+        if (snap.empty) {
+          const defaultContacts = [
+            {
+              key: 'Email',
+              value: 'contact@boostbaguio.com',
+              description: "We'd love to hear from you! Share your thoughts or questions.",
+              icon: 'email',
+            },
+            {
+              key: 'Phone',
+              value: '(+63) coming soon',
+              description: 'Reach us anytime for assistance or inquiries.',
+              icon: 'phone',
+            },
+            {
+              key: 'Office',
+              value: 'Baguio City, PH',
+              description: 'Visit us for support or collaboration opportunities.',
+              icon: 'location_on',
+            },
+          ]
+          for (const item of defaultContacts) {
+            await addDoc(collection(db, 'homepage_contacts'), item)
+          }
+          snap = await getDocs(collection(db, 'homepage_contacts'))
+        }
+        contacts.value = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
       } catch (e) {
         console.error('[HomepageManagement] loadContacts', e)
         $q.notify({ type: 'negative', message: 'Failed to load contacts' })
@@ -444,11 +655,20 @@ export default {
     const loadPartners = async () => {
       loadingPartners.value = true
       try {
-        const q = query(partnersCollection, orderBy('order', 'asc'))
-        const snap = await getDocs(q)
-        partners.value = snap.docs
-          .filter((d) => !d.data().isDeleted)
-          .map((d) => ({ id: d.id, ...d.data() }))
+        let snap = await getDocs(query(collection(db, 'partners'), orderBy('order', 'asc')))
+        if (snap.empty) {
+          const defaultPartners = [
+            { name: 'Baguio City Tourism', icon: 'business', color: 'primary', order: 0 },
+            { name: 'LTFRB Cordillera', icon: 'directions_bus', color: 'secondary', order: 1 },
+            { name: 'DOT Philippines', icon: 'travel_explore', color: 'accent', order: 2 },
+            { name: 'Baguio Local Gov', icon: 'account_balance', color: 'positive', order: 3 },
+          ]
+          for (const item of defaultPartners) {
+            await addDoc(collection(db, 'partners'), item)
+          }
+          snap = await getDocs(query(collection(db, 'partners'), orderBy('order', 'asc')))
+        }
+        partners.value = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
       } catch (e) {
         console.error('[HomepageManagement] loadPartners', e)
         $q.notify({ type: 'negative', message: 'Failed to load partners' })
@@ -471,11 +691,18 @@ export default {
     const loadFooter = async () => {
       loadingFooter.value = true
       try {
-        const q = query(footerCollection, orderBy('name', 'asc'))
-        const snap = await getDocs(q)
-        footerLinks.value = snap.docs
-          .filter((d) => !d.data().isDeleted)
-          .map((d) => ({ id: d.id, ...d.data() }))
+        let snap = await getDocs(collection(db, 'footer_links'))
+        if (snap.empty) {
+          const defaultFooterLinks = [
+            { name: 'Facebook', url: 'https://facebook.com', icon: 'facebook' },
+            { name: 'Instagram', url: 'https://instagram.com', icon: 'photo_camera' },
+          ]
+          for (const item of defaultFooterLinks) {
+            await addDoc(collection(db, 'footer_links'), item)
+          }
+          snap = await getDocs(collection(db, 'footer_links'))
+        }
+        footerLinks.value = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
       } catch (e) {
         console.error('[HomepageManagement] loadFooter', e)
         $q.notify({ type: 'negative', message: 'Failed to load footer links' })
@@ -491,34 +718,42 @@ export default {
 
     // Filters
     const filteredFaqs = computed(() => {
-      const term = search.value.trim().toLowerCase()
-      if (!term) return faqs.value
-      return faqs.value.filter(
-        (f) =>
-          (f.question || '').toLowerCase().includes(term) ||
-          (f.answer || '').toLowerCase().includes(term)
+      let f = faqs.value.filter((d) => (viewMode.value === 'active' ? !d.isDeleted : d.isDeleted))
+      if (!search.value) return f
+      const s = search.value.toLowerCase()
+      return f.filter(
+        (i) => i.question?.toLowerCase().includes(s) || i.answer?.toLowerCase().includes(s)
       )
     })
 
     const filteredContacts = computed(() => {
+      let c = contacts.value.filter((d) =>
+        viewMode.value === 'active' ? !d.isDeleted : d.isDeleted
+      )
       const t = contactSearch.value.trim().toLowerCase()
-      if (!t) return contacts.value
-      return contacts.value.filter(
-        (c) => (c.key || '').toLowerCase().includes(t) || (c.value || '').toLowerCase().includes(t)
+      if (!t) return c
+      return c.filter(
+        (i) => (i.key || '').toLowerCase().includes(t) || (i.value || '').toLowerCase().includes(t)
       )
     })
 
     const filteredPartners = computed(() => {
-      const t = partnerSearch.value.trim().toLowerCase()
-      if (!t) return partners.value
-      return partners.value.filter((p) => (p.name || '').toLowerCase().includes(t))
+      let p = partners.value.filter((d) =>
+        viewMode.value === 'active' ? !d.isDeleted : d.isDeleted
+      )
+      if (!partnerSearch.value) return p
+      const s = partnerSearch.value.toLowerCase()
+      return p.filter((i) => i.name?.toLowerCase().includes(s))
     })
 
     const filteredFooterLinks = computed(() => {
+      let f = footerLinks.value.filter((d) =>
+        viewMode.value === 'active' ? !d.isDeleted : d.isDeleted
+      )
       const t = footerSearch.value.trim().toLowerCase()
-      if (!t) return footerLinks.value
-      return footerLinks.value.filter(
-        (f) => (f.name || '').toLowerCase().includes(t) || (f.url || '').toLowerCase().includes(t)
+      if (!t) return f
+      return f.filter(
+        (i) => (i.name || '').toLowerCase().includes(t) || (i.url || '').toLowerCase().includes(t)
       )
     })
 
@@ -526,6 +761,7 @@ export default {
     const resetForm = () => {
       editingItem.value = null
       form.value = {}
+      partnerIconFile.value = null
       questionError.value = ''
       answerError.value = ''
     }
@@ -556,6 +792,7 @@ export default {
     const editPartner = (p) => {
       activeTab.value = 'partners'
       editingItem.value = p
+      partnerIconFile.value = null
       form.value = {
         name: p.name || '',
         icon: p.icon || '',
@@ -621,6 +858,24 @@ export default {
           }
           await loadContacts()
         } else if (activeTab.value === 'partners') {
+          if (partnerIconFile.value) {
+            isUploadingIcon.value = true
+            try {
+              const storage = getStorage()
+              const iconRef = storageRef(
+                storage,
+                `partners/${Date.now()}_${partnerIconFile.value.name}`
+              )
+              await uploadBytes(iconRef, partnerIconFile.value)
+              form.value.icon = await getDownloadURL(iconRef)
+            } catch (err) {
+              console.error('Error uploading partner icon:', err)
+              $q.notify({ type: 'negative', message: 'Failed to upload icon' })
+            } finally {
+              isUploadingIcon.value = false
+            }
+          }
+
           if (editingItem.value) {
             await updateDoc(doc(db, 'partners', editingItem.value.id), {
               name: form.value.name,
@@ -666,78 +921,123 @@ export default {
     // Delete handlers
     const confirmDelete = (faq) => {
       $q.dialog({
-        title: 'Delete FAQ',
-        message: `Delete "${faq.question}"? This cannot be undone.`,
+        title: 'Confirm',
+        message: 'Are you sure you want to delete this FAQ?',
         cancel: true,
-        persistent: true,
-      }).onOk(() => deleteFaq(faq))
-    }
-    const deleteFaq = async (faq) => {
-      try {
-        await deleteDoc(doc(db, 'faqs', faq.id))
+      }).onOk(async () => {
+        await updateDoc(doc(db, 'faqs', faq.id), { isDeleted: true, deletedAt: serverTimestamp() })
         $q.notify({ type: 'positive', message: 'FAQ deleted' })
-        await loadFaqs()
-      } catch (e) {
-        console.error(e)
-        $q.notify({ type: 'negative', message: 'Failed to delete FAQ' })
-      }
+        loadFaqs()
+      })
+    }
+    const restoreFaq = async (faq) => {
+      await updateDoc(doc(db, 'faqs', faq.id), { isDeleted: false })
+      $q.notify({ type: 'positive', message: 'FAQ restored' })
+      loadFaqs()
+    }
+    const confirmPermanentDeleteFaq = (faq) => {
+      $q.dialog({
+        title: 'Permanent Delete',
+        message: 'Are you sure you want to permanently delete this FAQ?',
+        cancel: true,
+      }).onOk(async () => {
+        await deleteDoc(doc(db, 'faqs', faq.id))
+        $q.notify({ type: 'positive', message: 'FAQ permanently deleted' })
+        loadFaqs()
+      })
     }
 
     const confirmDeleteContact = (c) => {
       $q.dialog({
-        title: 'Delete Contact',
-        message: `Delete "${c.key}"?`,
+        title: 'Confirm',
+        message: 'Delete this contact?',
         cancel: true,
-        persistent: true,
-      }).onOk(() => deleteContact(c))
-    }
-    const deleteContact = async (c) => {
-      try {
-        await deleteDoc(doc(db, 'homepage_contacts', c.id))
+      }).onOk(async () => {
+        await updateDoc(doc(db, 'homepage_contacts', c.id), {
+          isDeleted: true,
+          deletedAt: serverTimestamp(),
+        })
         $q.notify({ type: 'positive', message: 'Contact deleted' })
-        await loadContacts()
-      } catch (e) {
-        console.error(e)
-        $q.notify({ type: 'negative', message: 'Failed to delete contact' })
-      }
+        loadContacts()
+      })
+    }
+    const restoreContact = async (c) => {
+      await updateDoc(doc(db, 'homepage_contacts', c.id), { isDeleted: false })
+      $q.notify({ type: 'positive', message: 'Contact restored' })
+      loadContacts()
+    }
+    const confirmPermanentDeleteContact = (c) => {
+      $q.dialog({
+        title: 'Permanent Delete',
+        message: 'Permanently delete this contact?',
+        cancel: true,
+      }).onOk(async () => {
+        await deleteDoc(doc(db, 'homepage_contacts', c.id))
+        $q.notify({ type: 'positive', message: 'Contact permanently deleted' })
+        loadContacts()
+      })
     }
 
     const confirmDeletePartner = (p) => {
       $q.dialog({
-        title: 'Delete Partner',
-        message: `Delete "${p.name}"?`,
+        title: 'Confirm',
+        message: 'Delete this partner?',
         cancel: true,
-        persistent: true,
-      }).onOk(() => deletePartner(p))
-    }
-    const deletePartner = async (p) => {
-      try {
-        await deleteDoc(doc(db, 'partners', p.id))
+      }).onOk(async () => {
+        await updateDoc(doc(db, 'partners', p.id), {
+          isDeleted: true,
+          deletedAt: serverTimestamp(),
+        })
         $q.notify({ type: 'positive', message: 'Partner deleted' })
-        await loadPartners()
-      } catch (e) {
-        console.error(e)
-        $q.notify({ type: 'negative', message: 'Failed to delete partner' })
-      }
+        loadPartners()
+      })
+    }
+    const restorePartner = async (p) => {
+      await updateDoc(doc(db, 'partners', p.id), { isDeleted: false })
+      $q.notify({ type: 'positive', message: 'Partner restored' })
+      loadPartners()
+    }
+    const confirmPermanentDeletePartner = (p) => {
+      $q.dialog({
+        title: 'Permanent Delete',
+        message: 'Permanently delete this partner?',
+        cancel: true,
+      }).onOk(async () => {
+        await deleteDoc(doc(db, 'partners', p.id))
+        $q.notify({ type: 'positive', message: 'Partner permanently deleted' })
+        loadPartners()
+      })
     }
 
     const confirmDeleteFooter = (f) => {
       $q.dialog({
-        title: 'Delete Footer Link',
-        message: `Delete "${f.name}"?`,
+        title: 'Confirm',
+        message: 'Delete this footer link?',
         cancel: true,
-        persistent: true,
-      }).onOk(() => deleteFooter(f))
+      }).onOk(async () => {
+        await updateDoc(doc(db, 'footer_links', f.id), {
+          isDeleted: true,
+          deletedAt: serverTimestamp(),
+        })
+        $q.notify({ type: 'positive', message: 'Link deleted' })
+        loadFooter()
+      })
     }
-    const deleteFooter = async (f) => {
-      try {
+    const restoreFooterLink = async (f) => {
+      await updateDoc(doc(db, 'footer_links', f.id), { isDeleted: false })
+      $q.notify({ type: 'positive', message: 'Link restored' })
+      loadFooter()
+    }
+    const confirmPermanentDeleteFooter = (f) => {
+      $q.dialog({
+        title: 'Permanent Delete',
+        message: 'Permanently delete this footer link?',
+        cancel: true,
+      }).onOk(async () => {
         await deleteDoc(doc(db, 'footer_links', f.id))
-        $q.notify({ type: 'positive', message: 'Footer link deleted' })
-        await loadFooter()
-      } catch (e) {
-        console.error(e)
-        $q.notify({ type: 'negative', message: 'Failed to delete footer link' })
-      }
+        $q.notify({ type: 'positive', message: 'Link permanently deleted' })
+        loadFooter()
+      })
     }
 
     onMounted(() => {
@@ -768,6 +1068,8 @@ export default {
       loadingPartners,
       partnerSearch,
       partnerColumns,
+      partnerIconFile,
+      isUploadingIcon,
       filteredPartners,
       // footer
       footerLinks,
@@ -780,6 +1082,7 @@ export default {
       form,
       questionError,
       answerError,
+      viewMode,
 
       openAddDialog,
       editFaq,
@@ -789,9 +1092,17 @@ export default {
       closeDialog,
       saveItem,
       confirmDelete,
+      restoreFaq,
+      confirmPermanentDeleteFaq,
       confirmDeleteContact,
+      restoreContact,
+      confirmPermanentDeleteContact,
       confirmDeletePartner,
+      restorePartner,
+      confirmPermanentDeletePartner,
       confirmDeleteFooter,
+      restoreFooterLink,
+      confirmPermanentDeleteFooter,
       truncate: (t, n) => (t ? (t.length > n ? `${t.slice(0, n)}…` : t) : ''),
     }
   },

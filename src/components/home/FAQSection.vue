@@ -22,8 +22,6 @@
             :key="index"
             :label="faq.question"
             class="faq-item"
-            expand-icon="add"
-            expanded-icon="remove"
             header-class="faq-header"
             :aria-label="`Question: ${faq.question}`"
           >
@@ -41,8 +39,6 @@
             :key="index"
             :label="faq.question"
             class="faq-item"
-            expand-icon="add"
-            expanded-icon="remove"
             header-class="faq-header"
             :aria-label="`Question: ${faq.question}`"
           >
