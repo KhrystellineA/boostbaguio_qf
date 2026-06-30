@@ -79,6 +79,23 @@
           Loading places...
         </div>
 
+        <q-btn-group outline class="q-mb-md bg-white">
+          <q-btn
+            :color="viewMode === 'active' ? 'primary' : 'white'"
+            :text-color="viewMode === 'active' ? 'white' : 'primary'"
+            label="Active"
+            @click="viewMode = 'active'"
+            no-caps
+          />
+          <q-btn
+            :color="viewMode === 'deleted' ? 'negative' : 'white'"
+            :text-color="viewMode === 'deleted' ? 'white' : 'negative'"
+            label="Recently Deleted"
+            @click="viewMode = 'deleted'"
+            no-caps
+          />
+        </q-btn-group>
+
         <q-input
           v-model="search"
           outlined
@@ -137,42 +154,70 @@
 
           <template #body-cell-actions="props">
             <q-td :props="props">
-              <q-btn
-                flat
-                dense
-                round
-                icon="edit"
-                style="background: #2d6a4f; color: white"
-                @click="editPlace(props.row)"
-                :aria-label="`Edit ${props.row.name}`"
-              >
-                <q-tooltip>Edit</q-tooltip>
-              </q-btn>
-              <q-btn
-                v-if="!isSuperAdmin && !props.row.featured"
-                flat
-                dense
-                round
-                icon="auto_awesome"
-                color="amber-9"
-                class="q-ml-xs"
-                :loading="featureRequestPendingId === props.row.id"
-                @click="requestFeature(props.row)"
-                :aria-label="`Request ${props.row.name} be featured`"
-              >
-                <q-tooltip>Request to feature</q-tooltip>
-              </q-btn>
-              <q-btn
-                flat
-                dense
-                round
-                icon="delete"
-                color="negative"
-                @click="confirmDelete(props.row)"
-                :aria-label="`Delete ${props.row.name}`"
-              >
-                <q-tooltip>Delete</q-tooltip>
-              </q-btn>
+              <template v-if="viewMode === 'active'">
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="edit"
+                  style="background: #2d6a4f; color: white"
+                  @click="editPlace(props.row)"
+                  :aria-label="`Edit ${props.row.name}`"
+                >
+                  <q-tooltip>Edit</q-tooltip>
+                </q-btn>
+                <q-btn
+                  v-if="!isSuperAdmin && !props.row.featured"
+                  flat
+                  dense
+                  round
+                  icon="auto_awesome"
+                  color="amber-9"
+                  class="q-ml-xs"
+                  :loading="featureRequestPendingId === props.row.id"
+                  @click="requestFeature(props.row)"
+                  :aria-label="`Request ${props.row.name} be featured`"
+                >
+                  <q-tooltip>Request to feature</q-tooltip>
+                </q-btn>
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="delete"
+                  color="negative"
+                  @click="confirmDelete(props.row)"
+                  class="q-ml-xs"
+                  :aria-label="`Delete ${props.row.name}`"
+                >
+                  <q-tooltip>Delete</q-tooltip>
+                </q-btn>
+              </template>
+              <template v-else>
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="restore"
+                  color="positive"
+                  @click="restorePlace(props.row)"
+                  :aria-label="`Restore ${props.row.name}`"
+                >
+                  <q-tooltip>Restore</q-tooltip>
+                </q-btn>
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="delete_forever"
+                  color="negative"
+                  @click="confirmPermanentDelete(props.row)"
+                  class="q-ml-xs"
+                  :aria-label="`Permanently Delete ${props.row.name}`"
+                >
+                  <q-tooltip>Permanently Delete</q-tooltip>
+                </q-btn>
+              </template>
             </q-td>
           </template>
         </q-table>
@@ -638,6 +683,8 @@ import { db } from 'src/boot/firebase'
 import {
   collection,
   getDocs,
+  query,
+  orderBy,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -710,6 +757,7 @@ export default {
       searchingLocation: false,
       selectedPlaces: [],
       featureRequestPendingId: '',
+      viewMode: 'active',
       form: {
         name: '',
         categories: [],
@@ -773,10 +821,14 @@ export default {
 
   computed: {
     filteredPlaces() {
-      if (!this.search) return this.places
+      const basePlaces = this.places.filter((p) =>
+        this.viewMode === 'active' ? !p.isDeleted : p.isDeleted
+      )
+
+      if (!this.search) return basePlaces
 
       const searchLower = this.search.toLowerCase()
-      return this.places.filter(
+      return basePlaces.filter(
         (place) =>
           place.name?.toLowerCase().includes(searchLower) ||
           place.category?.toLowerCase().includes(searchLower) ||
@@ -849,7 +901,7 @@ export default {
           throw new Error('You appear to be offline. Please check your internet connection.')
         }
 
-        const querySnapshot = await getDocs(collection(db, 'places'))
+        const querySnapshot = await getDocs(query(collection(db, 'places'), orderBy('name', 'asc')))
         this.places = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -936,6 +988,24 @@ export default {
       this.form.latitude = lat
       this.form.longitude = lng
       this.addMarker(lat, lng)
+
+      if (!this.form.address || this.form.address.trim() === '') {
+        this.reverseGeocode(lat, lng)
+      }
+    },
+
+    async reverseGeocode(lat, lng) {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
+        )
+        const data = await response.json()
+        if (data && data.display_name) {
+          this.form.address = data.display_name
+        }
+      } catch (error) {
+        console.error('[Places] Error reverse geocoding:', error)
+      }
     },
 
     async searchLocation() {
@@ -1361,13 +1431,12 @@ export default {
       this.$q
         .dialog({
           title: 'Confirm Delete',
-          message: `Are you sure you want to delete "${place.name}"?`,
+          message: `Are you sure you want to delete "${place.name}"? It will be moved to Recently Deleted.`,
           cancel: true,
           persistent: true,
         })
         .onOk(async () => {
           try {
-            // Check online status
             if (!isOnline()) {
               throw new Error('You appear to be offline. Please check your internet connection.')
             }
@@ -1376,35 +1445,83 @@ export default {
             const adminUid = sessionStorage.getItem('adminUid')
             const { logDelete } = await import('src/utils/activityLogger')
 
-            if (place.imagePath) {
-              await this.deleteImage(place.imagePath)
-            }
+            // Soft delete
+            await updateDoc(doc(db, 'places', place.id), {
+              isDeleted: true,
+              deletedAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            })
 
-            await deleteDoc(doc(db, 'places', place.id))
-
-            // Log activity
             await logDelete({ uid: adminUid, ...adminData }, 'places', place.name, place.id)
 
             this.$q.notify({
               type: 'positive',
-              message: 'Place deleted successfully',
+              message: 'Place moved to Recently Deleted',
               position: 'top',
               icon: 'delete',
             })
             this.loadPlaces()
-
-            // Announce to screen readers
-            announceActionResult('Place deleted', true, place.name)
           } catch (error) {
             console.error('[Places] Error deleting:', error)
-            logActionFailure('delete_place', error, { placeId: place.id, placeName: place.name })
-
             const message = getErrorMessage(error, 'Failed to delete place. Please try again.')
             this.$q.notify({
               type: 'negative',
               message: message,
               position: 'top',
               timeout: 5000,
+            })
+          }
+        })
+    },
+
+    async restorePlace(place) {
+      try {
+        await updateDoc(doc(db, 'places', place.id), {
+          isDeleted: false,
+          updatedAt: serverTimestamp(),
+        })
+        this.$q.notify({
+          type: 'positive',
+          message: `Restored "${place.name}"`,
+          position: 'top',
+        })
+        this.loadPlaces()
+      } catch (error) {
+        console.error('[Places] Error restoring:', error)
+        this.$q.notify({
+          type: 'negative',
+          message: 'Failed to restore place',
+          position: 'top',
+        })
+      }
+    },
+
+    async confirmPermanentDelete(place) {
+      this.$q
+        .dialog({
+          title: 'Confirm Permanent Delete',
+          message: `Are you sure you want to permanently delete "${place.name}"? This cannot be undone.`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          try {
+            if (place.imagePath) {
+              await this.deleteImage(place.imagePath)
+            }
+            await deleteDoc(doc(db, 'places', place.id))
+            this.$q.notify({
+              type: 'positive',
+              message: 'Place permanently deleted',
+              position: 'top',
+            })
+            this.loadPlaces()
+          } catch (error) {
+            console.error('[Places] Error permanently deleting:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: 'Failed to permanently delete',
+              position: 'top',
             })
           }
         })
@@ -1439,9 +1556,17 @@ export default {
             const adminUid = sessionStorage.getItem('adminUid')
             const { logBulkDelete } = await import('src/utils/activityLogger')
 
-            const deletePromises = this.selectedPlaces.map((place) =>
-              deleteDoc(doc(db, 'places', place.id))
-            )
+            const deletePromises = this.selectedPlaces.map((place) => {
+              if (this.viewMode === 'deleted') {
+                return deleteDoc(doc(db, 'places', place.id))
+              } else {
+                return updateDoc(doc(db, 'places', place.id), {
+                  isDeleted: true,
+                  deletedAt: serverTimestamp(),
+                  updatedAt: serverTimestamp(),
+                })
+              }
+            })
             await Promise.all(deletePromises)
 
             // Log activity

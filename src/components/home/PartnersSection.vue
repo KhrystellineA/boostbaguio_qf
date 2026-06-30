@@ -7,15 +7,30 @@
     <div class="marquee-track">
       <div class="marquee-content">
         <div v-for="partner in partners" :key="'a-' + partner.id" class="partner-chip">
-          <q-icon :name="partner.icon" size="16px" />
+          <img
+            v-if="partner.icon && partner.icon.startsWith('http')"
+            :src="partner.icon"
+            style="height: 16px; width: 16px; object-fit: contain"
+          />
+          <q-icon v-else :name="partner.icon" size="16px" />
           <span>{{ partner.name }}</span>
         </div>
         <div v-for="partner in partners" :key="'b-' + partner.id" class="partner-chip">
-          <q-icon :name="partner.icon" size="16px" />
+          <img
+            v-if="partner.icon && partner.icon.startsWith('http')"
+            :src="partner.icon"
+            style="height: 16px; width: 16px; object-fit: contain"
+          />
+          <q-icon v-else :name="partner.icon" size="16px" />
           <span>{{ partner.name }}</span>
         </div>
         <div v-for="partner in partners" :key="'c-' + partner.id" class="partner-chip">
-          <q-icon :name="partner.icon" size="16px" />
+          <img
+            v-if="partner.icon && partner.icon.startsWith('http')"
+            :src="partner.icon"
+            style="height: 16px; width: 16px; object-fit: contain"
+          />
+          <q-icon v-else :name="partner.icon" size="16px" />
           <span>{{ partner.name }}</span>
         </div>
       </div>

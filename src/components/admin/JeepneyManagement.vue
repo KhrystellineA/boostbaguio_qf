@@ -66,6 +66,22 @@
 
     <q-card>
       <q-card-section>
+        <q-btn-group outline class="q-mb-md bg-white">
+          <q-btn
+            :color="viewMode === 'active' ? 'primary' : 'white'"
+            :text-color="viewMode === 'active' ? 'white' : 'primary'"
+            label="Active"
+            @click="viewMode = 'active'"
+            no-caps
+          />
+          <q-btn
+            :color="viewMode === 'deleted' ? 'negative' : 'white'"
+            :text-color="viewMode === 'deleted' ? 'white' : 'negative'"
+            label="Recently Deleted"
+            @click="viewMode = 'deleted'"
+            no-caps
+          />
+        </q-btn-group>
         <q-input v-model="search" outlined placeholder="Search jeepneys..." dense class="q-mb-md">
           <template #prepend>
             <q-icon name="search" />
@@ -127,26 +143,52 @@
 
           <template #body-cell-actions="props">
             <q-td :props="props">
-              <q-btn
-                flat
-                dense
-                round
-                icon="edit"
-                style="background: #2d6a4f; color: white"
-                @click="editJeepney(props.row)"
-              >
-                <q-tooltip>Edit</q-tooltip>
-              </q-btn>
-              <q-btn
-                flat
-                dense
-                round
-                icon="delete"
-                color="negative"
-                @click="confirmDelete(props.row)"
-              >
-                <q-tooltip>Delete</q-tooltip>
-              </q-btn>
+              <template v-if="viewMode === 'active'">
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="edit"
+                  style="background: #2d6a4f; color: white"
+                  @click="editJeepney(props.row)"
+                >
+                  <q-tooltip>Edit</q-tooltip>
+                </q-btn>
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="delete"
+                  color="negative"
+                  @click="confirmDelete(props.row)"
+                  class="q-ml-xs"
+                >
+                  <q-tooltip>Delete</q-tooltip>
+                </q-btn>
+              </template>
+              <template v-else>
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="restore"
+                  color="positive"
+                  @click="restoreJeepney(props.row)"
+                >
+                  <q-tooltip>Restore</q-tooltip>
+                </q-btn>
+                <q-btn
+                  flat
+                  dense
+                  round
+                  icon="delete_forever"
+                  color="negative"
+                  @click="confirmPermanentDelete(props.row)"
+                  class="q-ml-xs"
+                >
+                  <q-tooltip>Permanently Delete</q-tooltip>
+                </q-btn>
+              </template>
             </q-td>
           </template>
         </q-table>
@@ -408,7 +450,18 @@
           </q-select>
 
           <!-- 7. Route Taken on Map -->
-          <div class="text-subtitle2 q-mb-sm">Route Taken (Pin on Map)</div>
+          <div class="row items-center justify-between q-mb-sm">
+            <div class="text-subtitle2">Route Taken (Pin on Map)</div>
+            <q-btn
+              v-if="form.routeCoordinates && form.routeCoordinates.length > 0"
+              outline
+              color="negative"
+              size="sm"
+              icon="clear_all"
+              label="Clear Route"
+              @click="clearRoute"
+            />
+          </div>
           <div
             class="map-container q-mb-md"
             ref="mapContainer"
@@ -812,6 +865,8 @@ import { db, auth } from 'src/boot/firebase'
 import {
   collection,
   getDocs,
+  query,
+  orderBy,
   addDoc,
   updateDoc,
   deleteDoc,
@@ -821,6 +876,7 @@ import {
 import { useGeocoding } from 'src/composables/useGeocoding'
 import { useGeolocation } from 'src/composables/useGeolocation'
 import { fetchPlaces, fuzzyMatch, callOSRM } from 'src/composables/useRouteGeneration'
+import { getErrorMessage, isOnline } from 'src/utils/errorHandler'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import RouteMap from 'src/components/RouteMap.vue'
@@ -846,6 +902,7 @@ export default {
     return {
       jeepneys: [],
       search: '',
+      viewMode: 'active',
       loading: false,
       saving: false,
       showAddDialog: false,
@@ -941,27 +998,19 @@ export default {
 
   computed: {
     filteredJeepneys() {
-      let result = this.jeepneys
+      const baseJeepneys = this.jeepneys.filter((j) =>
+        this.viewMode === 'active' ? !j.isDeleted : j.isDeleted
+      )
 
-      // Filter by search query
-      if (this.search) {
-        const searchLower = this.search.toLowerCase()
-        result = result.filter(
-          (jeepney) =>
-            jeepney.jeepName?.toLowerCase().includes(searchLower) ||
-            jeepney.terminalLocation?.toLowerCase().includes(searchLower) ||
-            jeepney.endPoint?.toLowerCase().includes(searchLower)
-        )
-      }
+      if (!this.search) return baseJeepneys
 
-      // Sort alphabetically by jeepney name
-      result.sort((a, b) => {
-        const nameA = (a.jeepName || '').toLowerCase()
-        const nameB = (b.jeepName || '').toLowerCase()
-        return nameA.localeCompare(nameB)
-      })
-
-      return result
+      const searchLower = this.search.toLowerCase()
+      return baseJeepneys.filter(
+        (jeepney) =>
+          jeepney.jeepName?.toLowerCase().includes(searchLower) ||
+          jeepney.terminalLocation?.toLowerCase().includes(searchLower) ||
+          jeepney.endPoint?.toLowerCase().includes(searchLower)
+      )
     },
 
     validCount() {
@@ -1073,7 +1122,9 @@ export default {
     async loadJeepneys() {
       this.loading = true
       try {
-        const querySnapshot = await getDocs(collection(db, 'jeepneys'))
+        const querySnapshot = await getDocs(
+          query(collection(db, 'jeepneys'), orderBy('jeepName', 'asc'))
+        )
         this.jeepneys = querySnapshot.docs.map((doc) => {
           const data = doc.data()
           // Normalize invalid or placeholder image URLs
@@ -1398,11 +1449,17 @@ export default {
         if (!this.form.routeCoordinates) {
           this.form.routeCoordinates = []
         }
-        this.form.routeCoordinates.push({
+        const newPoint = {
           lat: e.latlng.lat,
           lng: e.latlng.lng,
-        })
-        this.updateRouteLine()
+        }
+        // If we have at least a start and end point, insert the new point just before the end point
+        if (this.form.routeCoordinates.length >= 2) {
+          this.form.routeCoordinates.splice(this.form.routeCoordinates.length - 1, 0, newPoint)
+        } else {
+          this.form.routeCoordinates.push(newPoint)
+        }
+        this.updateRouteLine(false)
       })
 
       // Invalidate size after map is fully loaded
@@ -1413,14 +1470,14 @@ export default {
           // longer delay to ensure the dialog/container is visible.
           setTimeout(() => {
             if (this.form.routeCoordinates && this.form.routeCoordinates.length > 0) {
-              this.updateRouteLine()
+              this.updateRouteLine(true)
             }
           }, 250)
         }
       }, 100)
     },
 
-    updateRouteLine() {
+    updateRouteLine(fit = false) {
       if (!this.map || !this.form.routeCoordinates || this.form.routeCoordinates.length === 0)
         return
 
@@ -1439,20 +1496,45 @@ export default {
         color: 'red',
         weight: 4,
         opacity: 0.8,
+        interactive: false,
       }).addTo(this.map)
 
-      // No markers for each point — only draw the polyline for a cleaner view
-      // routeMarkers remains empty to allow removal logic to run safely
-      this.routeMarkers = []
+      // Add markers for each point so they are visible
+      this.form.routeCoordinates.forEach((point, index) => {
+        const marker = L.circleMarker([point.lat, point.lng], {
+          radius: 5,
+          fillColor: '#ffffff',
+          color: '#d32f2f',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 1,
+        }).addTo(this.map)
+        marker.bindTooltip(`Point ${index + 1}`)
+        this.routeMarkers.push(marker)
+      })
 
-      // Fit map to show all points
-      this.map.fitBounds(L.latLngBounds(latlngs))
+      // Fit map to show all points only if requested (e.g., initial load)
+      if (fit) {
+        this.map.fitBounds(L.latLngBounds(latlngs))
+      }
     },
 
     removeRoutePoint(index) {
       if (this.form.routeCoordinates) {
         this.form.routeCoordinates.splice(index, 1)
-        this.updateRouteLine()
+        this.updateRouteLine(false)
+      }
+    },
+
+    clearRoute() {
+      if (this.form.routeCoordinates && this.form.routeCoordinates.length >= 2) {
+        const start = this.form.routeCoordinates[0]
+        const end = this.form.routeCoordinates[this.form.routeCoordinates.length - 1]
+        this.form.routeCoordinates = [start, end]
+        this.updateRouteLine(false)
+      } else if (this.form.routeCoordinates) {
+        this.form.routeCoordinates = []
+        this.updateRouteLine(false)
       }
     },
 
@@ -1534,7 +1616,7 @@ export default {
 
           // If the map is already initialized (watcher initializes it when dialog opens), redraw route
           if (this.map && this.form.routeCoordinates && this.form.routeCoordinates.length > 0) {
-            this.updateRouteLine()
+            this.updateRouteLine(true)
           }
         }, 50)
       })
@@ -1848,32 +1930,106 @@ export default {
       }
     },
 
-    confirmDelete(jeepney) {
+    async confirmDelete(jeepney) {
       this.$q
         .dialog({
           title: 'Confirm Delete',
-          message: `Are you sure you want to delete "${jeepney.jeepName}"?`,
+          message: `Are you sure you want to delete "${jeepney.jeepName}"? It will be moved to Recently Deleted.`,
           cancel: true,
           persistent: true,
         })
         .onOk(async () => {
           try {
-            await deleteDoc(doc(db, 'jeepneys', jeepney.id))
+            if (!isOnline()) {
+              throw new Error('You appear to be offline. Please check your internet connection.')
+            }
+
+            const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+            const adminUid = sessionStorage.getItem('adminUid')
+            const { logDelete } = await import('src/utils/activityLogger')
+
+            // Soft delete
+            await updateDoc(doc(db, 'jeepneys', jeepney.id), {
+              isDeleted: true,
+              deletedAt: serverTimestamp(),
+              updatedAt: serverTimestamp(),
+            })
+
+            await logDelete(
+              { uid: adminUid, ...adminData },
+              'jeepneys',
+              jeepney.jeepName,
+              jeepney.id
+            )
+
             this.$q.notify({
               type: 'positive',
-              message: 'Jeepney deleted successfully',
+              message: 'Jeepney moved to Recently Deleted',
               position: 'top',
               icon: 'delete',
-              timeout: 2000,
             })
             this.loadJeepneys()
           } catch (error) {
             console.error('[Jeepneys] Error deleting:', error)
+            const message = getErrorMessage(error, 'Failed to delete jeepney. Please try again.')
             this.$q.notify({
               type: 'negative',
-              message: 'Failed to delete jeepney: ' + error.message,
+              message: message,
               position: 'top',
               timeout: 5000,
+            })
+          }
+        })
+    },
+
+    async restoreJeepney(jeepney) {
+      try {
+        await updateDoc(doc(db, 'jeepneys', jeepney.id), {
+          isDeleted: false,
+          updatedAt: serverTimestamp(),
+        })
+        this.$q.notify({
+          type: 'positive',
+          message: `Restored "${jeepney.jeepName}"`,
+          position: 'top',
+        })
+        this.loadJeepneys()
+      } catch (error) {
+        console.error('[Jeepneys] Error restoring:', error)
+        this.$q.notify({
+          type: 'negative',
+          message: 'Failed to restore jeepney',
+          position: 'top',
+        })
+      }
+    },
+
+    async confirmPermanentDelete(jeepney) {
+      this.$q
+        .dialog({
+          title: 'Confirm Permanent Delete',
+          message: `Are you sure you want to permanently delete "${jeepney.jeepName}"? This cannot be undone.`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          try {
+            if (jeepney.imagePublicId) {
+              await this.deleteImage(jeepney.imagePublicId)
+            }
+            await deleteDoc(doc(db, 'jeepneys', jeepney.id))
+            this.$q.notify({
+              type: 'positive',
+              message: 'Jeepney permanently deleted',
+              position: 'top',
+            })
+            this.loadJeepneys()
+          } catch (error) {
+            console.error('[Jeepneys] Error permanently deleting:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: 'Failed to permanently delete',
+              position: 'top',
             })
           }
         })
@@ -1884,38 +2040,34 @@ export default {
 
       this.$q
         .dialog({
-          title: 'Confirm Bulk Delete',
-          message: `Are you sure you want to delete ${this.selectedJeepneys.length} selected jeepney(s)? This action cannot be undone.`,
+          title: 'Confirm Bulk Action',
+          message: `Are you sure you want to ${this.viewMode === 'deleted' ? 'permanently delete' : 'delete'} ${this.selectedJeepneys.length} selected jeepney(s)?`,
           cancel: true,
           persistent: true,
           ok: {
-            label: 'Delete All',
+            label: this.viewMode === 'deleted' ? 'Permanently Delete' : 'Delete',
             color: 'negative',
             push: true,
           },
         })
         .onOk(async () => {
           const loadingDialog = this.$q.loading.show({
-            message: `Deleting ${this.selectedJeepneys.length} jeepney(s)...`,
+            message: `Processing ${this.selectedJeepneys.length} jeepney(s)...`,
           })
 
           try {
-            let successCount = 0
-            let failCount = 0
-
-            for (const jeepney of this.selectedJeepneys) {
-              try {
-                await updateDoc(doc(db, 'jeepneys', jeepney.id), {
+            const deletePromises = this.selectedJeepneys.map((jeepney) => {
+              if (this.viewMode === 'deleted') {
+                return deleteDoc(doc(db, 'jeepneys', jeepney.id))
+              } else {
+                return updateDoc(doc(db, 'jeepneys', jeepney.id), {
                   isDeleted: true,
                   deletedAt: serverTimestamp(),
                   updatedAt: serverTimestamp(),
                 })
-                successCount++
-              } catch (error) {
-                console.error('[Jeepneys] Error deleting:', jeepney.jeepName, error)
-                failCount++
               }
-            }
+            })
+            await Promise.all(deletePromises)
 
             this.selectedJeepneys = []
             await this.loadJeepneys()
@@ -1931,23 +2083,12 @@ export default {
               /* ignore */
             }
 
-            if (successCount > 0) {
-              this.$q.notify({
-                type: 'positive',
-                message: `Successfully deleted ${successCount} jeepney(s)`,
-                position: 'top',
-                timeout: 3000,
-              })
-            }
-
-            if (failCount > 0) {
-              this.$q.notify({
-                type: 'warning',
-                message: `Failed to delete ${failCount} jeepney(s)`,
-                position: 'top',
-                timeout: 5000,
-              })
-            }
+            this.$q.notify({
+              type: 'positive',
+              message: `Successfully processed jeepney(s)`,
+              position: 'top',
+              timeout: 3000,
+            })
           } catch (error) {
             console.error('[Jeepneys] Bulk delete error:', error)
             loadingDialog.hide()

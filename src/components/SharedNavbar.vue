@@ -500,26 +500,19 @@ $brown: #6b5344;
   }
 
   .logo-bento {
-    width: 44px;
-    height: 44px;
-    background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
-    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(46, 93, 62, 0.2);
     transition: all 0.3s ease;
 
     img {
-      height: 24px;
-      width: 24px;
+      height: 36px;
+      width: 36px;
       object-fit: contain;
-      filter: brightness(0) invert(1);
     }
 
     &:hover {
       transform: scale(1.05) rotate(-5deg);
-      box-shadow: 0 6px 16px rgba(46, 93, 62, 0.3);
     }
   }
 

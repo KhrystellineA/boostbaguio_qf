@@ -20,9 +20,6 @@
 
     <!-- Footer Section -->
     <FooterSection />
-
-    <!-- Back to Top Button -->
-    <BackToTopBtn />
   </q-page>
 </template>
 
@@ -39,8 +36,6 @@ import GallerySection from 'src/components/home/GallerySection.vue'
 import PartnersSection from 'src/components/home/PartnersSection.vue'
 import FAQSection from 'src/components/home/FAQSection.vue'
 import FooterSection from 'src/components/home/FooterSection.vue'
-import BackToTopBtn from 'src/components/BackToTopBtn.vue'
-
 export default defineComponent({
   name: 'IndexPage',
 
@@ -52,7 +47,6 @@ export default defineComponent({
     PartnersSection,
     FAQSection,
     FooterSection,
-    BackToTopBtn,
   },
 
   setup() {
