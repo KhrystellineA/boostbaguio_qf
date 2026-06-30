@@ -337,6 +337,28 @@ service cloud.firestore {
       allow delete: if isSuperAdmin();
     }
 
+    // ========== HOMEPAGE MANAGEMENT COLLECTIONS ==========
+
+    match /faqs/{document} {
+      allow read: if true;
+      allow create, update, delete: if isAuthenticated() && isAdmin();
+    }
+
+    match /homepage_contacts/{document} {
+      allow read: if true;
+      allow create, update, delete: if isAuthenticated() && isAdmin();
+    }
+
+    match /partners/{document} {
+      allow read: if true;
+      allow create, update, delete: if isAuthenticated() && isAdmin();
+    }
+
+    match /footer_links/{document} {
+      allow read: if true;
+      allow create, update, delete: if isAuthenticated() && isAdmin();
+    }
+
     // ========== DEFAULT DENY ==========
     // Deny all other access not explicitly allowed
     match /{document=**} {
