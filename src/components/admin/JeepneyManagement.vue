@@ -1066,6 +1066,12 @@ export default {
   },
 
   watch: {
+    'form.terminalLat'(newLat) {
+      this.updateStartingPinpoint(newLat, this.form.terminalLng)
+    },
+    'form.terminalLng'(newLng) {
+      this.updateStartingPinpoint(this.form.terminalLat, newLng)
+    },
     openDialog(val) {
       if (val) {
         this.showAddDialog = true
@@ -1082,6 +1088,25 @@ export default {
   },
 
   methods: {
+    updateStartingPinpoint(lat, lng) {
+      if (lat === null || lat === undefined || lng === null || lng === undefined || !this.map)
+        return
+
+      if (!this.form.routeCoordinates) {
+        this.form.routeCoordinates = []
+      }
+
+      const newPoint = { lat: parseFloat(lat), lng: parseFloat(lng) }
+
+      if (this.form.routeCoordinates.length > 0) {
+        this.form.routeCoordinates[0] = newPoint
+      } else {
+        this.form.routeCoordinates.push(newPoint)
+      }
+
+      this.updateRouteLine(false)
+    },
+
     clearEndPoint() {
       this.form.endPoint = ''
       this.showEndPointMenu = false
@@ -1824,11 +1849,11 @@ export default {
           imageData = await this.uploadImage()
         }
 
-        // Convert routeCoordinates from {lat, lng} format to [lng, lat] format for Firestore
-        const routeCoordinatesForStorage = (this.form.routeCoordinates || []).map((point) => [
-          point.lng,
-          point.lat,
-        ])
+        // Store routeCoordinates as an array of {lat, lng} objects to avoid Firestore nested array errors
+        const routeCoordinatesForStorage = (this.form.routeCoordinates || []).map((point) => ({
+          lat: parseFloat(point.lat),
+          lng: parseFloat(point.lng),
+        }))
 
         let jeepneyData = {
           uniqueId: uniqueId,
