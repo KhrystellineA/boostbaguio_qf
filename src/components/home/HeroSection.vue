@@ -313,8 +313,8 @@ $white: #ffffff;
     }
   }
 
-  :deep(.q-field__append .q-icon) {
-    padding-top: 0.8rem;
+  :deep(.q-field__append) {
+    padding-top: 0.6rem;
   }
 }
 
@@ -359,8 +359,9 @@ $white: #ffffff;
 
   .hero-spot-search {
     border-radius: 22px;
-    padding: 8px;
-    flex-wrap: wrap;
+    padding: 12px;
+    flex-direction: column;
+    gap: 12px;
   }
 
   .spot-search-icon {
@@ -373,13 +374,15 @@ $white: #ffffff;
 
     :deep(.q-field__control) {
       padding: 0 0.85rem;
+      min-height: 48px;
     }
   }
 
   .spot-search-cta {
     width: 100%;
     justify-content: center;
-    padding: 10px 14px;
+    padding: 12px 14px;
+    min-height: 48px;
   }
 }
 </style>

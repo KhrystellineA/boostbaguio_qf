@@ -64,18 +64,9 @@
             </q-img>
             <q-card-section>
               <div class="text-h5 text-weight-bold text-primary q-mb-sm">{{ event.name }}</div>
-              <div class="row items-center q-mb-sm">
+              <div class="row items-center no-wrap q-mb-sm">
                 <q-icon name="event" color="primary" size="sm" class="q-mr-sm" />
-                <span>
-                  {{ formatDate(event.startDate) }}
-                  <span
-                    v-if="
-                      event.endDate && formatDate(event.endDate) !== formatDate(event.startDate)
-                    "
-                  >
-                    - {{ formatDate(event.endDate) }}
-                  </span>
-                </span>
+                <span>{{ formatDateRange(event.startDate, event.endDate) }}</span>
               </div>
               <div class="row items-center">
                 <q-icon name="schedule" color="secondary" size="sm" class="q-mr-sm" />
@@ -206,18 +197,10 @@
                       <q-card-section class="col-8">
                         <div class="text-h6 text-weight-bold text-primary">{{ event.name }}</div>
                         <div class="text-caption text-grey-7 q-mb-xs">{{ event.location }}</div>
-                        <div class="row items-center q-mb-xs">
+                        <div class="row items-center no-wrap q-mb-xs">
                           <q-icon name="event" color="primary" size="xs" class="q-mr-sm" />
                           <span class="text-caption">
-                            {{ formatDate(event.startDate) }}
-                            <span
-                              v-if="
-                                event.endDate &&
-                                formatDate(event.endDate) !== formatDate(event.startDate)
-                              "
-                            >
-                              - {{ formatDate(event.endDate) }}
-                            </span>
+                            {{ formatDateRange(event.startDate, event.endDate) }}
                           </span>
                         </div>
                         <div class="row items-center q-mb-xs">
@@ -280,31 +263,31 @@
             <q-card-section>
               <div class="row items-center justify-between q-mb-sm">
                 <div class="text-h6 text-weight-bold text-primary">{{ event.name }}</div>
-                <q-badge v-if="event.featured" color="amber" text-color="white">
+                <q-badge
+                  v-if="event.featured"
+                  color="amber"
+                  text-color="white"
+                  class="hide-on-mobile"
+                >
                   <q-icon name="star" size="xs" />
                 </q-badge>
               </div>
-              <div class="text-caption text-grey-7 q-mb-sm">{{ event.description }}</div>
-              <div class="row items-center q-mb-xs">
+              <div class="text-caption text-grey-7 q-mb-sm hide-on-mobile">
+                {{ event.description }}
+              </div>
+              <div class="row items-center no-wrap q-mb-xs">
                 <q-icon name="event" color="primary" size="xs" class="q-mr-sm" />
                 <span class="text-caption">
-                  {{ formatDate(event.startDate) }}
-                  <span
-                    v-if="
-                      event.endDate && formatDate(event.endDate) !== formatDate(event.startDate)
-                    "
-                  >
-                    - {{ formatDate(event.endDate) }}
-                  </span>
+                  {{ formatDateRange(event.startDate, event.endDate) }}
                 </span>
               </div>
-              <div class="row items-center q-mb-xs">
+              <div class="row items-center q-mb-xs hide-on-mobile">
                 <q-icon name="schedule" color="secondary" size="xs" class="q-mr-sm" />
                 <span class="text-caption"
                   >{{ formatTime(event.startDate) }} - {{ formatTime(event.endDate) }}</span
                 >
               </div>
-              <div class="row items-center">
+              <div class="row items-center hide-on-mobile">
                 <q-icon name="location_on" color="grey-7" size="xs" class="q-mr-sm" />
                 <span class="text-caption text-grey-7">{{ event.location }}</span>
               </div>
@@ -322,15 +305,7 @@
             <div class="col">
               <div class="text-h5 text-weight-bold">{{ selectedEvent?.name }}</div>
               <div class="text-subtitle2">
-                {{ formatDate(selectedEvent?.startDate) }}
-                <span
-                  v-if="
-                    selectedEvent?.endDate &&
-                    formatDate(selectedEvent?.endDate) !== formatDate(selectedEvent?.startDate)
-                  "
-                >
-                  - {{ formatDate(selectedEvent?.endDate) }}
-                </span>
+                {{ formatDateRange(selectedEvent?.startDate, selectedEvent?.endDate) }}
               </div>
             </div>
             <q-btn icon="close" flat round dense v-close-popup />
@@ -363,16 +338,9 @@
                       <q-item-section>
                         <q-item-label class="text-weight-bold">Date</q-item-label>
                         <q-item-label caption>
-                          <span>{{ formatDate(selectedEvent.startDate) }}</span>
-                          <span
-                            v-if="
-                              selectedEvent.endDate &&
-                              formatDate(selectedEvent.endDate) !==
-                                formatDate(selectedEvent.startDate)
-                            "
-                          >
-                            to {{ formatDate(selectedEvent.endDate) }}
-                          </span>
+                          <span>{{
+                            formatDateRange(selectedEvent.startDate, selectedEvent.endDate)
+                          }}</span>
                         </q-item-label>
                       </q-item-section>
                     </q-item>
@@ -786,9 +754,17 @@ export default defineComponent({
     }
 
     const navigateToEvent = (location) => {
-      router.push(
-        `/apanam?start=${encodeURIComponent('Current Location')}&end=${encodeURIComponent(location)}`
-      )
+      let parsedLocation = location
+      if (location) {
+        parsedLocation = location.split(/,|&|\band\b|\bto\b|->|=>|→/i)[0].trim()
+      }
+
+      router.push({
+        path: '/apanam',
+        query: {
+          toName: parsedLocation,
+        },
+      })
       showEventDialog.value = false
     }
 
@@ -796,24 +772,55 @@ export default defineComponent({
       window.open('https://www.facebook.com/groups/sabaguio/', '_blank', 'noopener,noreferrer')
     }
 
+    const formatDateRange = (start, end) => {
+      if (!start) return ''
+      const s = new Date(start)
+      const optionsDay = { weekday: 'long' }
+      const startDay = s.toLocaleDateString('en-US', optionsDay)
+
+      if (!end || new Date(end).toDateString() === s.toDateString()) {
+        const datePart = s.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        })
+        return `${datePart} (${startDay})`
+      }
+
+      const e = new Date(end)
+      const endDay = e.toLocaleDateString('en-US', optionsDay)
+      const startMonth = s.toLocaleDateString('en-US', { month: 'long' })
+      const endMonth = e.toLocaleDateString('en-US', { month: 'long' })
+      const startYear = s.getFullYear()
+      const endYear = e.getFullYear()
+
+      if (startYear !== endYear) {
+        const sPart = s.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        })
+        const ePart = e.toLocaleDateString('en-US', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+        })
+        return `${sPart}-${ePart} (${startDay}-${endDay})`
+      }
+
+      if (startMonth === endMonth) {
+        return `${startMonth} ${s.getDate()}-${e.getDate()}, ${startYear} (${startDay}-${endDay})`
+      } else {
+        return `${startMonth} ${s.getDate()}-${endMonth} ${e.getDate()}, ${startYear} (${startDay}-${endDay})`
+      }
+    }
+
     const formatDate = (dateString) => {
-      if (!dateString) return ''
-      const date = new Date(dateString)
-      return date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
+      return formatDateRange(dateString, null)
     }
 
     const formatDateFull = (date) => {
-      return date.toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
+      return formatDateRange(date, null)
     }
 
     const formatTime = (dateString) => {
@@ -908,6 +915,7 @@ export default defineComponent({
       openSaBaguioGroup,
       formatDate,
       formatDateFull,
+      formatDateRange,
       formatTime,
       getDay,
       getMonth,
@@ -1106,12 +1114,30 @@ $bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
 }
 
 .featured-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  display: flex;
+  overflow-x: auto;
   gap: 1.5rem;
+  padding-bottom: 1rem;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.featured-grid::-webkit-scrollbar {
+  height: 8px;
+}
+
+.featured-grid::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.featured-grid::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
 }
 
 .featured-card {
+  flex: 0 0 240px;
+  scroll-snap-align: start;
   background: $white;
   border-radius: $bento-radius;
   border: 1px solid $border;
@@ -1613,10 +1639,37 @@ $bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
     justify-content: center;
   }
 
-  .featured-grid,
+  .ribbon-text {
+    flex: none;
+    width: 100%;
+  }
+
   .events-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .event-image {
+    height: 110px;
+  }
+
+  .event-card :deep(.text-h6) {
+    font-size: 0.95rem !important;
+    line-height: 1.2;
+    margin-bottom: 4px;
+  }
+
+  .event-card :deep(.text-caption) {
+    font-size: 0.75rem;
+    line-height: 1.2;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .featured-card {
+    flex: 0 0 65vw;
   }
 
   .calendar-card,

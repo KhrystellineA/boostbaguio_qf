@@ -91,16 +91,26 @@ $transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1)
   display: grid
   grid-template-columns: repeat(2, 1fr)
   gap: $bento-gap
+  @media (max-width: 768px)
+    grid-template-columns: 1fr
 
 .bento-grid-3
   display: grid
   grid-template-columns: repeat(3, 1fr)
   gap: $bento-gap
+  @media (max-width: 768px)
+    grid-template-columns: 1fr
+  @media (min-width: 769px) and (max-width: 1024px)
+    grid-template-columns: repeat(2, 1fr)
 
 .bento-grid-4
   display: grid
   grid-template-columns: repeat(4, 1fr)
   gap: $bento-gap
+  @media (max-width: 768px)
+    grid-template-columns: 1fr
+  @media (min-width: 769px) and (max-width: 1024px)
+    grid-template-columns: repeat(2, 1fr)
 
 // Bento Card
 .bento-card
@@ -208,10 +218,16 @@ $transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1)
 .section-py
   padding-top: 80px
   padding-bottom: 80px
+  @media (max-width: 768px)
+    padding-top: 40px
+    padding-bottom: 40px
 
 .section-py-lg
   padding-top: 100px
   padding-bottom: 100px
+  @media (max-width: 768px)
+    padding-top: 60px
+    padding-bottom: 60px
 
 // Container
 .container-custom

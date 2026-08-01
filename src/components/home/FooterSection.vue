@@ -590,7 +590,7 @@ $white: #ffffff;
 // Responsive
 @media (max-width: 1023px) {
   .contact-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .footer-grid {
@@ -611,6 +611,31 @@ $white: #ffffff;
   .contact-cta-card {
     padding: 3rem 1.25rem;
     border-radius: 18px;
+  }
+
+  .contact-grid {
+    gap: 0.5rem;
+  }
+
+  .contact-item {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0.75rem 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .contact-title {
+    font-size: 0.7rem;
+  }
+
+  .contact-link {
+    font-size: 0.8rem;
+    word-break: break-word;
+  }
+
+  .contact-description {
+    display: none; /* Hide descriptions to save space if 3 cols */
   }
 
   .cta-form {

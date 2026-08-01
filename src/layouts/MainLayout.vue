@@ -18,7 +18,7 @@
     </q-page-container>
 
     <!-- Scroll to Top Button -->
-    <q-page-sticky position="bottom-right" :offset="[18, 18]">
+    <q-page-sticky position="bottom-right" :offset="[18, 18]" style="z-index: 9999">
       <q-btn
         fab
         icon="keyboard_arrow_up"
@@ -231,6 +231,16 @@ export default {
 // Global styles
 * {
   scroll-behavior: smooth;
+}
+
+html,
+body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+.q-layout {
+  overflow-x: hidden;
 }
 
 // Ensure q-header and q-toolbar use solid white background

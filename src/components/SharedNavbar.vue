@@ -87,20 +87,13 @@
     <q-space />
 
     <!-- Auth Buttons -->
-    <div class="auth-buttons desktop-only" role="navigation" aria-label="Account actions">
+    <div class="auth-buttons gt-sm" role="navigation" aria-label="Account actions">
       <template v-if="userStore.isAuthenticated">
-        <q-btn-dropdown
-          flat
-          class="profile-dropdown"
-          no-caps
-          :label="userInitials"
-          aria-label="Open user menu"
-        >
+        <q-btn-dropdown flat class="profile-dropdown" no-caps aria-label="Open user menu">
           <template #label>
             <div class="profile-label">
               <div class="avatar-bento" aria-hidden="true">{{ userInitials }}</div>
               <span class="user-name">{{ userStore.userName }}</span>
-              <q-icon name="keyboard_arrow_down" size="16px" aria-hidden="true" />
             </div>
           </template>
           <q-list class="profile-menu" role="menu" aria-label="User account menu">
@@ -189,6 +182,7 @@
       flat
       dense
       round
+      color="primary"
       icon="menu"
       class="mobile-menu-btn"
       aria-label="Open mobile menu"
@@ -197,8 +191,13 @@
   </div>
 
   <!-- Mobile Drawer Menu -->
-  <q-dialog v-model="showMobileMenu" persistent aria-label="Mobile navigation menu">
-    <q-card class="mobile-menu-card">
+  <q-dialog
+    v-model="showMobileMenu"
+    position="bottom"
+    full-width
+    aria-label="Mobile navigation menu"
+  >
+    <q-card class="mobile-menu-card" style="max-height: 85vh; overflow-y: auto">
       <q-card-section class="mobile-menu-header">
         <div
           class="logo-section"
@@ -496,7 +495,9 @@ $brown: #6b5344;
   transition: transform 0.3s ease;
 
   &:hover {
-    transform: translateX(4px);
+    @media (hover: hover) {
+      transform: translateX(4px);
+    }
   }
 
   .logo-bento {
@@ -512,7 +513,9 @@ $brown: #6b5344;
     }
 
     &:hover {
-      transform: scale(1.05) rotate(-5deg);
+      @media (hover: hover) {
+        transform: scale(1.05) rotate(-5deg);
+      }
     }
   }
 
@@ -760,10 +763,6 @@ $brown: #6b5344;
     display: none;
   }
 
-  .desktop-only {
-    display: none;
-  }
-
   .mobile-menu-btn {
     display: flex;
   }
@@ -778,12 +777,13 @@ $brown: #6b5344;
 @media (max-width: 768px) {
   .logo-section {
     .brand-text {
-      display: none;
+      transform: scale(0.85);
+      transform-origin: left center;
     }
 
     .logo-bento {
-      width: 40px;
-      height: 40px;
+      width: 36px;
+      height: 36px;
     }
   }
 
@@ -795,7 +795,6 @@ $brown: #6b5344;
 // Mobile Menu Card Styles
 .mobile-menu-card {
   width: 100%;
-  max-width: 400px;
   border-radius: 20px 20px 0 0;
   overflow: hidden;
 
@@ -804,43 +803,23 @@ $brown: #6b5344;
     justify-content: space-between;
     align-items: center;
     padding: 20px 24px;
-    background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+    background: $white;
+    border-bottom: 1px solid rgba(46, 93, 62, 0.08);
 
     .logo-section {
       .logo-bento {
         width: 40px;
         height: 40px;
-        background: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(10px);
-
-        img {
-          filter: brightness(0) invert(1);
-        }
       }
+    }
 
-      .brand-text {
-        display: flex;
-
-        .brand-name {
-          color: white;
-
-          .text-accent {
-            color: $accent;
-            -webkit-text-fill-color: $accent;
-          }
-        }
-
-        .brand-tagline {
-          color: rgba(255, 255, 255, 0.8);
-        }
-      }
+    .q-btn {
+      color: $text-muted;
     }
   }
 
   .mobile-nav-section {
     padding: 16px 8px;
-    max-height: 50vh;
-    overflow-y: auto;
 
     .mobile-nav-item {
       border-radius: 12px;
@@ -853,19 +832,22 @@ $brown: #6b5344;
       }
 
       &.active {
-        background: linear-gradient(135deg, $primary 0%, $primary-light 100%);
+        background: rgba(46, 93, 62, 0.08);
 
         .mobile-nav-label {
-          color: white;
+          color: $primary;
+          font-weight: 700;
         }
 
         .mobile-icon-bento {
-          background: rgba(255, 255, 255, 0.2);
+          background: $primary;
           color: white;
+          box-shadow: 0 4px 12px rgba(46, 93, 62, 0.2);
         }
 
-        q-item-label[caption] {
-          color: rgba(255, 255, 255, 0.8);
+        .q-item__label--caption {
+          color: $primary-light;
+          font-weight: 500;
         }
       }
 

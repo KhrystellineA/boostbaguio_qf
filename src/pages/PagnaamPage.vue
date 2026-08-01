@@ -42,7 +42,6 @@
             v-model="searchQuery"
             outlined
             placeholder="Search by jeepney name, terminal, destination, or tourist spot..."
-            dense
             class="search-input"
           >
             <template v-slot:prepend>
@@ -85,13 +84,13 @@
                 <q-icon name="location_on" size="14px" class="q-mr-xs" color="primary" />
                 Terminal: {{ route.terminalLocation }}
               </div>
-              <div class="text-subtitle2 text-grey-7 q-mt-xs">
+              <div class="text-subtitle2 text-grey-7 q-mt-xs hide-on-mobile">
                 <q-icon name="flag" size="14px" class="q-mr-xs" color="secondary" />
                 Destination: {{ route.endPoint }}
               </div>
 
               <!-- Fare Matrix -->
-              <div class="fare-matrix q-mt-md">
+              <div class="fare-matrix q-mt-md hide-on-mobile">
                 <div class="text-caption text-grey-7 q-mb-xs">Fare Matrix:</div>
                 <div class="row q-col-gutter-xs">
                   <div class="col-6">
@@ -122,7 +121,7 @@
               </div>
 
               <!-- Operating Hours -->
-              <div class="row items-center q-mt-md">
+              <div class="row items-center q-mt-md hide-on-mobile">
                 <q-icon name="schedule" color="primary" size="xs" class="q-mr-sm" />
                 <span class="text-caption">
                   <span v-if="route.operatingHours?.open && route.operatingHours?.close">
@@ -135,7 +134,7 @@
               <!-- Tourist Spots Serviced -->
               <div
                 v-if="route.touristSpotsServiced && route.touristSpotsServiced.length > 0"
-                class="q-mt-md"
+                class="q-mt-md hide-on-mobile"
               >
                 <div class="text-caption text-grey-7 q-mb-xs">Tourist Spots:</div>
                 <div class="row q-gutter-xs">
@@ -166,14 +165,30 @@
 
     <!-- JEEPNEY DETAILS DIALOG -->
     <q-dialog v-model="showRouteDialog">
-      <q-card class="route-dialog-card column no-wrap" style="min-width: 1100px; max-height: 90vh">
-        <q-card-section class="row items-center q-pb-none bg-primary text-white col-auto">
-          <div class="text-h6 text-weight-bold">
+      <q-card
+        class="route-dialog-card column no-wrap"
+        style="width: 1000px; max-width: 95vw; max-height: 90vh"
+      >
+        <q-card-section
+          class="bg-primary text-white col-auto relative-position"
+          style="padding: 16px"
+        >
+          <div
+            class="text-h6 text-weight-bold row items-center justify-center no-wrap full-width"
+            style="transform: translateX(-12px)"
+          >
             <q-icon name="directions_bus" class="q-mr-sm" />
-            {{ selectedRoute?.routeName || selectedRoute?.jeepName }}
+            <span>{{ selectedRoute?.routeName || selectedRoute?.jeepName }}</span>
           </div>
-          <q-space />
-          <q-btn v-close-popup flat round dense icon="close" />
+          <q-btn
+            v-close-popup
+            flat
+            round
+            dense
+            icon="close"
+            class="absolute-right q-mr-sm"
+            style="top: 50%; transform: translateY(-50%); z-index: 2"
+          />
         </q-card-section>
 
         <q-card-section class="q-pt-md scroll col">
@@ -340,13 +355,6 @@
                 </q-card-section>
 
                 <q-card-actions align="center" class="q-mt-lg">
-                  <q-btn
-                    label="Navigate to Terminal"
-                    color="primary"
-                    icon="navigation"
-                    @click="navigateToTerminal"
-                    class="q-mr-sm"
-                  />
                   <q-btn flat label="Close" color="grey" v-close-popup />
                 </q-card-actions>
               </q-card>
@@ -431,7 +439,7 @@
 <script>
 import { defineComponent, ref, computed, onMounted, watch } from 'vue'
 import { useQuasar } from 'quasar'
-import { useRouter } from 'vue-router'
+
 import { db } from 'src/boot/firebase'
 import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore'
 import FooterSection from '../components/home/FooterSection.vue'
@@ -448,7 +456,7 @@ export default defineComponent({
   },
   setup() {
     const $q = useQuasar()
-    const router = useRouter()
+
     const { searchLocations } = useGeocoding()
     const searchQuery = ref('')
     const allRoutes = ref([])
@@ -634,15 +642,6 @@ export default defineComponent({
       console.log('[PagnaamPage] Dialog show state:', showRouteDialog.value)
     }
 
-    const navigateToTerminal = () => {
-      if (selectedRoute.value) {
-        // Navigate to APANAM with terminal as destination
-        router.push(
-          `/apanam?start=${encodeURIComponent('Current Location')}&end=${encodeURIComponent(selectedRoute.value.terminalStart)}`
-        )
-      }
-    }
-
     onMounted(async () => {
       await fetchHeroImage()
       await fetchRoutes()
@@ -783,7 +782,6 @@ export default defineComponent({
       rightFaqs,
       formatOperatingHours,
       selectRoute,
-      navigateToTerminal,
     }
   },
 })
@@ -999,6 +997,9 @@ $bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
   :deep(.q-field__control) {
     border-radius: 999px;
     padding: 0 1rem;
+    height: 52px;
+    display: flex;
+    align-items: center;
 
     &:before,
     &:after {
@@ -1012,6 +1013,11 @@ $bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
 
   :deep(.q-field__native) {
     color: $ink;
+    padding-top: 0;
+    padding-bottom: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
   }
 }
 
@@ -1296,12 +1302,28 @@ $bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
   }
 
   .routes-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
   }
 
-  .row {
-    flex-direction: column;
+  .route-card :deep(.q-card__section) {
+    padding: 0.75rem;
+  }
+
+  .route-card :deep(.text-h6) {
+    font-size: 0.95rem !important;
+  }
+
+  .route-card :deep(.text-subtitle2) {
+    font-size: 0.75rem;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .route-card :deep(.q-img) {
+    height: 110px;
   }
 
   .col-md-6,

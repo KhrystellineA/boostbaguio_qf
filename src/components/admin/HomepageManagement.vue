@@ -1,13 +1,13 @@
 <template>
   <div role="region" aria-label="Homepage Management">
-    <div class="row q-mb-md items-center">
-      <div class="col">
+    <div class="row q-mb-md items-center q-col-gutter-y-sm">
+      <div class="col-12 col-sm">
         <h4 class="q-my-none text-pine-green">Homepage Management</h4>
         <p class="text-grey-7 q-mb-none">
           Manage homepage content: FAQs, Contacts, Photos, Partners, Footer links.
         </p>
       </div>
-      <div class="col-auto q-gutter-sm">
+      <div class="col-12 col-sm-auto q-gutter-sm">
         <q-btn-group outline class="bg-white">
           <q-btn
             :color="viewMode === 'active' ? 'primary' : 'white'"
