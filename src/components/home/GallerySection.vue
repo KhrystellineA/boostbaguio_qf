@@ -12,76 +12,106 @@
         <p class="gallery-description">Explore the beauty of Baguio City and its culture.</p>
       </div>
 
-      <!-- Carousel with mosaic slides -->
-      <div v-if="galleryImages.length > 0" class="carousel-wrapper">
-        <q-carousel
-          v-model="slide"
-          transition-prev="slide-right"
-          transition-next="slide-left"
-          swipeable
-          animated
-          control-color="primary"
-          navigation
-          padding
-          height="500px"
-          class="gallery-carousel"
-          role="region"
-          aria-label="Photo gallery carousel"
-          aria-live="polite"
-        >
-          <q-carousel-slide
-            v-for="(images, index) in imageGroups"
-            :key="index"
-            :name="index"
-            class="carousel-slide"
-            :aria-label="`Gallery slide ${index + 1} of ${imageGroups.length}`"
+      <!-- Galleries Wrapper -->
+      <template v-if="galleryImages.length > 0">
+        <!-- Desktop Carousel with mosaic slides -->
+        <div class="carousel-wrapper hide-mobile">
+          <q-carousel
+            v-model="slide"
+            transition-prev="slide-right"
+            transition-next="slide-left"
+            swipeable
+            animated
+            control-color="primary"
+            navigation
+            padding
+            height="500px"
+            class="gallery-carousel"
+            role="region"
+            aria-label="Photo gallery carousel"
+            aria-live="polite"
           >
-            <div class="mosaic-grid" :data-count="images.length" role="list">
-              <div
-                v-for="(image, imgIndex) in images"
-                :key="imgIndex"
-                :class="['mosaic-cell', `mosaic-cell--${imgIndex}`]"
-                role="listitem"
-              >
-                <q-img
-                  :src="image.imageUrl"
-                  :alt="`Baguio City gallery image ${imgIndex + 1}`"
-                  class="gallery-image"
-                  fit="cover"
-                  tabindex="0"
-                  role="button"
-                  @click="openLightbox(image)"
-                  @keyup.enter="openLightbox(image)"
-                  style="cursor: zoom-in"
+            <q-carousel-slide
+              v-for="(images, index) in imageGroups"
+              :key="index"
+              :name="index"
+              class="carousel-slide"
+              :aria-label="`Gallery slide ${index + 1} of ${imageGroups.length}`"
+            >
+              <div class="mosaic-grid" :data-count="images.length" role="list">
+                <div
+                  v-for="(image, imgIndex) in images"
+                  :key="imgIndex"
+                  :class="['mosaic-cell', `mosaic-cell--${imgIndex}`]"
+                  role="listitem"
                 >
-                  <template v-slot:loading>
-                    <div class="absolute-full flex flex-center">
-                      <q-spinner color="primary" size="30px" aria-label="Loading gallery image" />
-                    </div>
-                  </template>
-                </q-img>
+                  <q-img
+                    :src="image.imageUrl"
+                    :alt="`Baguio City gallery image ${imgIndex + 1}`"
+                    class="gallery-image"
+                    fit="cover"
+                    tabindex="0"
+                    role="button"
+                    @click="openLightbox(image)"
+                    @keyup.enter="openLightbox(image)"
+                    style="cursor: zoom-in"
+                  >
+                    <template v-slot:loading>
+                      <div class="absolute-full flex flex-center">
+                        <q-spinner color="primary" size="30px" aria-label="Loading gallery image" />
+                      </div>
+                    </template>
+                  </q-img>
+                </div>
               </div>
-            </div>
-          </q-carousel-slide>
-        </q-carousel>
+            </q-carousel-slide>
+          </q-carousel>
 
-        <div class="nav-arrows" aria-label="Gallery navigation">
-          <q-btn
-            flat
-            round
-            icon="chevron_left"
-            class="nav-btn nav-prev"
-            @click="previousSlide"
-            aria-label="Go to previous slide"
-          />
-          <q-btn
-            flat
-            round
-            icon="chevron_right"
-            class="nav-btn nav-next"
-            @click="nextSlide"
-            aria-label="Go to next slide"
-          />
+          <div class="nav-arrows" aria-label="Gallery navigation">
+            <q-btn
+              flat
+              round
+              icon="chevron_left"
+              class="nav-btn nav-prev"
+              @click="previousSlide"
+              aria-label="Go to previous slide"
+            />
+            <q-btn
+              flat
+              round
+              icon="chevron_right"
+              class="nav-btn nav-next"
+              @click="nextSlide"
+              aria-label="Go to next slide"
+            />
+          </div>
+        </div>
+
+        <!-- Mobile Horizontal Scroll (1 image at a time) -->
+        <div class="mobile-gallery-scroller hide-desktop">
+          <div
+            v-for="(image, imgIndex) in galleryImages"
+            :key="`mob-${imgIndex}`"
+            class="mobile-gallery-item"
+          >
+            <q-img
+              :src="image.imageUrl"
+              :alt="`Baguio City gallery image ${imgIndex + 1}`"
+              class="gallery-image"
+              fit="cover"
+              tabindex="0"
+              role="button"
+              @click="openLightbox(image)"
+              @keyup.enter="openLightbox(image)"
+              style="cursor: zoom-in"
+            >
+              <template v-slot:loading>
+                <div class="absolute-full flex flex-center">
+                  <q-spinner color="primary" size="30px" aria-label="Loading gallery image" />
+                </div>
+              </template>
+            </q-img>
+          </div>
         </div>
 
         <!-- Lightbox overlay -->
@@ -99,7 +129,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </template>
 
       <!-- Loading State -->
       <div v-else-if="loading" class="loading-state" role="status" aria-live="polite">
@@ -224,6 +254,12 @@ $white: #ffffff;
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
+}
+
+@media (min-width: 600px) {
+  .hide-desktop {
+    display: none !important;
+  }
 }
 
 // Header
@@ -559,6 +595,28 @@ $white: #ffffff;
 
   .nav-next {
     transform: translateX(15%);
+  }
+
+  .mobile-gallery-scroller {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 1rem;
+    padding: 0 0 1rem 0;
+    scrollbar-width: none; /* Firefox */
+
+    &::-webkit-scrollbar {
+      display: none; /* Chrome/Safari/Opera */
+    }
+  }
+
+  .mobile-gallery-item {
+    flex: 0 0 100%;
+    scroll-snap-align: center;
+    border-radius: 18px;
+    overflow: hidden;
+    height: 350px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 }
 </style>

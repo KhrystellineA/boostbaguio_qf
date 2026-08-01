@@ -12,8 +12,8 @@
 -->
 <template>
   <div role="region" aria-label="Place Management">
-    <div class="row q-mb-md items-center">
-      <div class="col">
+    <div class="row q-mb-md items-center q-col-gutter-y-sm">
+      <div class="col-12 col-sm">
         <h4 class="q-my-none text-pine-green">Place Management</h4>
         <p class="text-grey-7 q-mb-none" id="places-description">Manage places and destinations</p>
       </div>

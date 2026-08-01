@@ -10,12 +10,12 @@
 -->
 <template>
   <div>
-    <div class="row q-mb-md items-center">
-      <div class="col">
+    <div class="row q-mb-md items-center q-col-gutter-y-sm">
+      <div class="col-12 col-sm">
         <h4 class="q-my-none text-pine-green">Event Management</h4>
         <p class="text-grey-7 q-mb-none">Manage events and activities</p>
       </div>
-      <div class="col-auto q-gutter-sm">
+      <div class="col-12 col-sm-auto q-gutter-sm">
         <q-btn
           v-if="selectedEvents.length > 0"
           color="negative"

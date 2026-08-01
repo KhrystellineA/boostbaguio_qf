@@ -8,8 +8,8 @@
 -->
 <template>
   <div>
-    <div class="row q-mb-md items-center">
-      <div class="col">
+    <div class="row q-mb-md items-center q-col-gutter-y-sm">
+      <div class="col-12 col-sm">
         <h4 class="q-my-none text-pine-green">Admin Management</h4>
         <p class="text-grey-7 q-mb-none">Manage admin users and permissions</p>
       </div>

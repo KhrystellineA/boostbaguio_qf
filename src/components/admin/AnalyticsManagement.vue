@@ -13,14 +13,14 @@
 -->
 <template>
   <div>
-    <div class="row q-mb-md items-center" v-if="!hideHeader">
-      <div class="col">
+    <div class="row q-mb-md items-center q-col-gutter-y-sm" v-if="!hideHeader">
+      <div class="col-12 col-sm">
         <h4 class="q-my-none text-pine-green">Analytics</h4>
         <p class="text-grey-7 q-mb-none">
           Showing data for: <strong>{{ activeCategoriesLabel }}</strong>
         </p>
       </div>
-      <div class="col-auto q-gutter-sm">
+      <div class="col-12 col-sm-auto q-gutter-sm">
         <q-btn
           unelevated
           color="primary"

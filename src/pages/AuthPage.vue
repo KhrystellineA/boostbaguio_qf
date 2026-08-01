@@ -795,7 +795,7 @@ $border-color: #e0e0e0;
 .features-section {
   margin-top: 1rem;
 
-  .features-bento {
+  .feature-bento {
     display: flex;
     justify-content: center;
     gap: 1rem;

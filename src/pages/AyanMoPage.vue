@@ -30,7 +30,7 @@
 
     <!-- AYAN MO SECTION (Section 3) -->
     <section class="ayan-mo-section">
-      <div class="container">
+      <div class="container mobile-full-width">
         <div class="section-eyebrow text-center">
           <p class="eyebrow-text">DISCOVER NEARBY</p>
           <h2 class="eyebrow-title">Find places <em>near you</em></h2>
@@ -67,8 +67,185 @@
             </div>
           </div>
 
-          <!-- Floating Bento Box - Right Side -->
-          <div class="floating-bento">
+          <!-- Mobile UI Overlay (Mobile Only) -->
+          <div class="mobile-ui-overlay hide-on-desktop">
+            <!-- Top Search Bar (Floating) -->
+            <div class="mobile-top-search">
+              <div class="custom-search-pill shadow-3 bg-white row items-center no-wrap q-px-md">
+                <q-icon name="menu" size="20px" class="q-mr-sm text-grey-8 cursor-pointer" />
+                <input
+                  type="text"
+                  v-model="searchQuery"
+                  class="custom-search-input col"
+                  placeholder="Search places..."
+                  @input="onSearchInput($event.target.value)"
+                />
+                <q-icon name="search" size="20px" class="text-primary cursor-pointer" />
+              </div>
+            </div>
+
+            <!-- Bottom Sheet -->
+            <div class="mobile-bottom-sheet">
+              <!-- Location Input -->
+              <div class="q-px-md q-pt-md">
+                <div
+                  class="custom-location-pill bg-grey-2 row items-center no-wrap q-px-md q-mb-sm"
+                >
+                  <q-icon
+                    :name="autoDetect ? 'my_location' : 'location_searching'"
+                    size="18px"
+                    class="q-mr-sm cursor-pointer"
+                    :class="autoDetect ? 'text-positive' : 'text-grey-7'"
+                    @click="enableAutoDetect"
+                  />
+                  <input
+                    type="text"
+                    v-model="customLocationQuery"
+                    class="custom-search-input col"
+                    placeholder="Your location"
+                    @keyup.enter="searchLocation"
+                    @focus="onLocationInputFocus"
+                  />
+                  <q-icon
+                    v-if="customLocationQuery"
+                    name="close"
+                    size="16px"
+                    class="text-grey cursor-pointer q-mr-sm"
+                    @click="clearCustomLocation"
+                  />
+                  <q-icon
+                    name="search"
+                    size="18px"
+                    class="text-primary cursor-pointer"
+                    @click="searchLocation"
+                  />
+                </div>
+              </div>
+
+              <!-- Filter By Category -->
+              <div class="q-px-md">
+                <div
+                  class="text-caption text-weight-bold text-primary q-mb-xs"
+                  style="letter-spacing: 0.05em; font-size: 0.7rem"
+                >
+                  FILTER BY CATEGORY
+                </div>
+                <div class="mobile-category-scroll hide-scrollbar q-mb-sm">
+                  <q-chip
+                    v-for="category in categories"
+                    :key="category.value"
+                    :color="selectedCategories.includes(category.value) ? 'primary' : 'grey-2'"
+                    :text-color="selectedCategories.includes(category.value) ? 'white' : 'grey-8'"
+                    clickable
+                    dense
+                    class="mobile-category-chip"
+                    @click="filterByCategory(category.value)"
+                  >
+                    <q-icon
+                      v-if="category.icon"
+                      :name="category.icon"
+                      size="12px"
+                      class="q-mr-xs"
+                    />
+                    {{ category.label }}
+                  </q-chip>
+                </div>
+              </div>
+
+              <!-- Results Status -->
+              <div
+                class="q-px-md q-pt-sm q-pb-xs"
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: flex-start;
+                  gap: 8px;
+                  width: 100%;
+                "
+              >
+                <span
+                  class="text-subtitle1 text-weight-bold text-ink"
+                  style="margin: 0; line-height: 1"
+                  >Nearby Places</span
+                >
+                <span
+                  class="bg-primary"
+                  style="
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    padding: 4px 10px;
+                    border-radius: 999px;
+                    font-size: 0.7rem;
+                    font-weight: bold;
+                    line-height: 1;
+                  "
+                >
+                  {{ filteredPlaces.length }} found
+                </span>
+              </div>
+
+              <!-- Places List (Scrollable) -->
+              <div class="mobile-places-scroll hide-scrollbar q-px-md q-pb-md">
+                <div v-if="isLoadingPlaces" class="text-center q-py-sm">
+                  <q-spinner-dots color="primary" size="2em" />
+                </div>
+                <div v-else-if="filteredPlaces.length === 0" class="text-center text-grey q-py-sm">
+                  <q-icon name="place" size="24px" class="q-mb-xs" />
+                  <div class="text-caption">No places found nearby.</div>
+                </div>
+                <div v-else class="places-grid">
+                  <div v-for="place in filteredPlaces" :key="place.id">
+                    <q-card
+                      class="mobile-place-card shadow-1 cursor-pointer"
+                      @click="selectPlace(place)"
+                      v-ripple
+                    >
+                      <q-img
+                        :src="place.imageUrl || fallbackImage"
+                        style="height: 90px"
+                        @error="$event.target.src = fallbackImage"
+                      >
+                        <template v-slot:error>
+                          <div class="absolute-full flex flex-center bg-grey-2">
+                            <q-icon name="image" color="grey-4" size="32px" />
+                          </div>
+                        </template>
+                      </q-img>
+                      <q-card-section
+                        class="q-pa-sm"
+                        style="
+                          flex: 1;
+                          display: flex;
+                          flex-direction: column;
+                          justify-content: center;
+                          overflow: hidden;
+                        "
+                      >
+                        <div
+                          class="text-weight-bold ellipsis"
+                          style="font-size: 0.8rem; line-height: 1.2; width: 100%"
+                        >
+                          {{ place.name }}
+                        </div>
+                        <div
+                          class="text-caption text-grey-7 ellipsis q-mt-xs"
+                          style="font-size: 0.7rem; width: 100%"
+                        >
+                          <q-icon name="place" size="12px" class="q-mr-xs" />
+                          {{ getDistanceText(place) }}
+                        </div>
+                      </q-card-section>
+                    </q-card>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floating Bento Box - Right Side (Desktop Only) -->
+          <div class="floating-bento hide-on-mobile">
             <q-card class="bento-card">
               <q-card-section class="q-pa-md">
                 <!-- FROM Location - mirrors APANAM's FROM input -->
@@ -384,21 +561,17 @@
     <!-- PLACE DETAILS MODAL -->
     <q-dialog v-model="showPlaceDetail" transition-show="fade" transition-hide="fade">
       <q-card class="place-detail-card" style="width: 90%; max-width: 900px">
-        <q-card-section class="bg-primary text-white">
-          <div class="row items-center">
-            <div class="col">
-              <div class="text-h5 text-weight-bold">{{ selectedPlace?.name }}</div>
-              <div v-if="selectedPlace?.address" class="text-subtitle2">
-                <q-icon name="location_on" size="16px" class="q-mr-xs" />
-                {{ selectedPlace?.address }}
-              </div>
-            </div>
-            <q-btn icon="close" flat round dense v-close-popup />
+        <q-card-section class="bg-primary text-white relative-position" style="padding-right: 48px">
+          <div class="text-h5 text-weight-bold">{{ selectedPlace?.name }}</div>
+          <div v-if="selectedPlace?.address" class="text-subtitle2 q-mt-xs">
+            <q-icon name="location_on" size="16px" class="q-mr-xs" />
+            {{ selectedPlace?.address }}
           </div>
+          <q-btn icon="close" flat round dense v-close-popup class="absolute-top-right q-ma-sm" />
         </q-card-section>
 
         <q-card-section class="q-pa-none" v-if="selectedPlace">
-          <q-scroll-area style="height: 65vh">
+          <q-scroll-area style="height: 60vh">
             <q-img
               :src="selectedPlace.imageUrl || fallbackImage"
               spinner-color="primary"
@@ -535,7 +708,9 @@
     </section>
 
     <!-- FOOTER SECTION (Section 7) -->
-    <FooterSection />
+    <div>
+      <FooterSection />
+    </div>
   </q-page>
 </template>
 
@@ -2511,6 +2686,149 @@ $bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
 
   .hero-description {
     font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hide-on-mobile {
+    display: none !important;
+  }
+
+  .ayan-mo-section {
+    padding: 1rem 0 !important;
+  }
+
+  .mobile-full-width {
+    padding: 0 16px !important;
+  }
+
+  .map-wrapper {
+    height: 88vh !important;
+    border-radius: 24px !important;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Mobile UI Overlays */
+  .mobile-ui-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none; /* Let clicks pass through to map */
+    z-index: 1000;
+  }
+
+  .mobile-top-search {
+    position: absolute;
+    top: 12px;
+    left: 60px; /* Space for zoom controls */
+    right: 16px;
+    pointer-events: auto;
+  }
+
+  .custom-search-pill {
+    height: 42px;
+    border-radius: 999px;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+  }
+  .custom-location-pill {
+    height: 40px;
+    border-radius: 999px;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+  }
+  .custom-search-input {
+    border: none !important;
+    outline: none !important;
+    background: transparent !important;
+    height: 100% !important;
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    text-align: left !important;
+    font-size: 0.95rem;
+    color: #333;
+    padding: 0 !important;
+    margin: 0 8px !important;
+  }
+
+  .mobile-bottom-sheet {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 24px 24px 0 0;
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    max-height: 58vh;
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.08);
+  }
+
+  .mobile-category-scroll {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 4px;
+    gap: 8px;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .mobile-category-chip {
+    flex-shrink: 0;
+    border-radius: 999px !important;
+    padding: 0px 8px !important;
+    font-size: 0.7rem !important;
+    font-weight: 600;
+    height: 24px !important;
+    min-height: 24px !important;
+  }
+
+  .mobile-places-scroll {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    min-height: 150px;
+    height: 250px; /* Fallback */
+  }
+
+  .places-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .mobile-place-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+  }
+  .mobile-place-card:active {
+    transform: scale(0.98);
+  }
+}
+
+@media (min-width: 769px) {
+  .hide-on-desktop {
+    display: none !important;
   }
 }
 </style>

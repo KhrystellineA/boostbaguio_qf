@@ -1997,11 +1997,70 @@ export default defineComponent({
       // Handle query parameters from IndexPage (hero section inputs)
       if (route.query.toName) {
         const toLabel = route.query.toName
-        const toCoords = [parseFloat(route.query.toLat), parseFloat(route.query.toLng)]
-        toLocation.value = {
-          label: toLabel,
-          value: 'custom-from-query',
-          coords: toCoords,
+        const hasToCoords =
+          route.query.toLat &&
+          route.query.toLng &&
+          !Number.isNaN(parseFloat(route.query.toLat)) &&
+          !Number.isNaN(parseFloat(route.query.toLng))
+
+        if (hasToCoords) {
+          const toCoords = [parseFloat(route.query.toLat), parseFloat(route.query.toLng)]
+          toLocation.value = {
+            label: toLabel,
+            value: 'custom-from-query',
+            coords: toCoords,
+          }
+        } else {
+          // No coords provided, try matching locally in DB first
+          const placeHit = matchQueryToPlace(toLabel)
+          if (placeHit) {
+            toLocation.value = {
+              label: placeHit.name,
+              value: `place-${placeHit.id}`,
+              coords: [placeHit.latitude, placeHit.longitude],
+              placeId: placeHit.id,
+              isGeocoded: false,
+              isCurrentLocation: false,
+            }
+            selectedToLocation.value = toLocation.value
+          } else {
+            // Second fallback: try geocoding the string if DB match fails
+            searchLocations(toLabel, true)
+              .then((geoResults) => {
+                if (geoResults && geoResults.length > 0) {
+                  const geo = geoResults[0]
+                  toLocation.value = {
+                    label: geo.label,
+                    value: `geocoded-${geo.osmId || Date.now()}`,
+                    coords: [geo.lat, geo.lng],
+                    isGeocoded: true,
+                    fullAddress: geo.fullAddress,
+                  }
+                  selectedToLocation.value = toLocation.value
+                } else {
+                  // Ultimate fallback: Just text, no coords
+                  customToLocation.value = toLabel
+                  toLocation.value = {
+                    label: toLabel,
+                    value: `geocoded-${Date.now()}`,
+                    coords: null,
+                    isGeocoded: true,
+                  }
+                  selectedToLocation.value = toLocation.value
+                }
+              })
+              .catch((err) => {
+                console.error('[ApanamPage] Geocoding fallback failed:', err)
+                customToLocation.value = toLabel
+                toLocation.value = {
+                  label: toLabel,
+                  value: `geocoded-${Date.now()}`,
+                  coords: null,
+                  isGeocoded: true,
+                }
+                selectedToLocation.value = toLocation.value
+              })
+          }
         }
 
         if (route.query.fromName) {
@@ -2028,12 +2087,13 @@ export default defineComponent({
         }
 
         // Scroll to the navigation form right away so the user sees their TO input
-        nextTick(() => {
+        // Using setTimeout to wait for vue-router's default scroll restoration to finish
+        setTimeout(() => {
           const navSection = document.querySelector('.navigation-section')
           if (navSection) {
             navSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
           }
-        })
+        }, 500)
 
         // Auto-trigger route search once data is ready
         setTimeout(() => {

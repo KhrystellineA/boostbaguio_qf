@@ -18,110 +18,114 @@
         </p>
       </div>
 
-      <!-- Top image card row -->
-      <div class="image-cards-grid">
-        <!-- APANAM -->
-        <article class="image-card">
-          <div
-            class="image-card-media image-card-media--mint"
-            role="link"
-            tabindex="0"
-            @click="goTo('/apanam')"
-            @keyup.enter="goTo('/apanam')"
-          >
-            <q-icon name="alt_route" class="card-illust" />
-          </div>
-          <div class="image-card-body">
-            <h3 class="image-card-title">P2P Navigation (Apanam)</h3>
-            <p class="image-card-text">
-              Get step-by-step directions for jeepney routes tailored to your start and end points.
-            </p>
-          </div>
-        </article>
+      <!-- Features Grid Wrapper -->
+      <div class="features-grid-wrapper">
+        <!-- Top image card row -->
+        <div class="image-cards-grid">
+          <!-- APANAM -->
+          <article class="image-card">
+            <div
+              class="image-card-media image-card-media--mint"
+              role="link"
+              tabindex="0"
+              @click="goTo('/apanam')"
+              @keyup.enter="goTo('/apanam')"
+            >
+              <q-icon name="alt_route" class="card-illust" />
+            </div>
+            <div class="image-card-body">
+              <h3 class="image-card-title">P2P Navigation (Apanam)</h3>
+              <p class="image-card-text">
+                Get step-by-step directions for jeepney routes tailored to your start and end
+                points.
+              </p>
+            </div>
+          </article>
 
-        <!-- PAGNAAM -->
-        <article class="image-card">
-          <div
-            class="image-card-media image-card-media--mint"
-            role="link"
-            tabindex="0"
-            @click="goTo('/pagnaam')"
-            @keyup.enter="goTo('/pagnaam')"
-          >
-            <q-icon name="directions_bus" class="card-illust" />
-          </div>
-          <div class="image-card-body">
-            <h3 class="image-card-title">City Jeeps (Pagnaam)</h3>
-            <p class="image-card-text">
-              Access an interactive map with routes, schedules, fares, and real-time updates from
-              fellow commuters. Navigate Baguio's jeepney system with confidence and ease.
-            </p>
-          </div>
-        </article>
+          <!-- PAGNAAM -->
+          <article class="image-card">
+            <div
+              class="image-card-media image-card-media--mint"
+              role="link"
+              tabindex="0"
+              @click="goTo('/pagnaam')"
+              @keyup.enter="goTo('/pagnaam')"
+            >
+              <q-icon name="directions_bus" class="card-illust" />
+            </div>
+            <div class="image-card-body">
+              <h3 class="image-card-title">City Jeeps (Pagnaam)</h3>
+              <p class="image-card-text">
+                Access an interactive map with routes, schedules, fares, and real-time updates from
+                fellow commuters. Navigate Baguio's jeepney system with confidence and ease.
+              </p>
+            </div>
+          </article>
 
-        <!-- MAYKAN -->
-        <article class="image-card">
-          <div
-            class="image-card-media image-card-media--mint"
-            role="link"
-            tabindex="0"
-            @click="goTo('/maykan')"
-            @keyup.enter="goTo('/maykan')"
-          >
-            <q-icon name="place" class="card-illust" />
-          </div>
-          <div class="image-card-body">
-            <h3 class="image-card-title">Places (Maykan)</h3>
-            <p class="image-card-text">
-              Explore Baguio's top destinations! From hidden gems to popular tourist spots, Maykan
-              helps you discover and learn about the city's best attractions with detailed
-              information and travel guides.
-            </p>
-          </div>
-        </article>
-      </div>
+          <!-- MAYKAN -->
+          <article class="image-card">
+            <div
+              class="image-card-media image-card-media--mint"
+              role="link"
+              tabindex="0"
+              @click="goTo('/maykan')"
+              @keyup.enter="goTo('/maykan')"
+            >
+              <q-icon name="place" class="card-illust" />
+            </div>
+            <div class="image-card-body">
+              <h3 class="image-card-title">Places (Maykan)</h3>
+              <p class="image-card-text">
+                Explore Baguio's top destinations! From hidden gems to popular tourist spots, Maykan
+                helps you discover and learn about the city's best attractions with detailed
+                information and travel guides.
+              </p>
+            </div>
+          </article>
+        </div>
 
-      <!-- Bottom row -->
-      <div class="image-cards-grid image-cards-grid--two">
-        <!-- ARAMIDEM -->
-        <article class="image-card">
-          <div
-            class="image-card-media image-card-media--mint"
-            role="link"
-            tabindex="0"
-            @click="goTo('/aramidem')"
-            @keyup.enter="goTo('/aramidem')"
-          >
-            <q-icon name="apartment" class="card-illust" />
-          </div>
-          <div class="image-card-body">
-            <h3 class="image-card-title">Events (Aramidem)</h3>
-            <p class="image-card-text">
-              Stay updated on local festivals and concerts, complete with post-event transportation
-              tips.
-            </p>
-          </div>
-        </article>
+        <!-- Bottom row -->
+        <div class="image-cards-grid image-cards-grid--two">
+          <!-- ARAMIDEM -->
+          <article class="image-card">
+            <div
+              class="image-card-media image-card-media--mint"
+              role="link"
+              tabindex="0"
+              @click="goTo('/aramidem')"
+              @keyup.enter="goTo('/aramidem')"
+            >
+              <q-icon name="apartment" class="card-illust" />
+            </div>
+            <div class="image-card-body">
+              <h3 class="image-card-title">Events (Aramidem)</h3>
+              <p class="image-card-text">
+                Stay updated on local festivals and concerts, complete with post-event
+                transportation tips.
+              </p>
+            </div>
+          </article>
 
-        <!-- AYAN MO -->
-        <article class="image-card">
-          <div
-            class="image-card-media image-card-media--mint"
-            role="link"
-            tabindex="0"
-            @click="goTo('/ayanmo')"
-            @keyup.enter="goTo('/ayanmo')"
-          >
-            <q-icon name="near_me" class="card-illust" />
-          </div>
-          <div class="image-card-body">
-            <h3 class="image-card-title">Nearby Places (Ayan Mo)</h3>
-            <p class="image-card-text">
-              Discover what's around you! Find nearby tourist spots, restaurants, and attractions
-              based on your current location with real-time distance and travel information.
-            </p>
-          </div>
-        </article>
+          <!-- AYAN MO -->
+          <article class="image-card">
+            <div
+              class="image-card-media image-card-media--mint"
+              role="link"
+              tabindex="0"
+              @click="goTo('/ayanmo')"
+              @keyup.enter="goTo('/ayanmo')"
+            >
+              <q-icon name="near_me" class="card-illust" />
+            </div>
+            <div class="image-card-body">
+              <h3 class="image-card-title">Nearby Places (Ayan Mo)</h3>
+              <p class="image-card-text">
+                Discover what's around you! Find nearby tourist spots, restaurants, and attractions
+                based on your current location with real-time distance and travel information.
+              </p>
+            </div>
+          </article>
+        </div>
       </div>
     </div>
   </section>
@@ -368,13 +372,29 @@ $white: #ffffff;
     display: none;
   }
 
-  .image-cards-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+  .features-grid-wrapper {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
 
-    &--two {
-      grid-template-columns: 1fr;
-    }
+  .image-cards-grid {
+    display: contents;
+  }
+
+  .image-cards-grid--two {
+    display: contents;
+  }
+
+  /* Center the 5th card */
+  .image-cards-grid--two article:last-child {
+    grid-column: 1 / -1;
+    width: calc(50% - 0.625rem);
+    justify-self: center;
+  }
+
+  .image-card-title {
+    font-size: 1.15rem;
   }
 
   .card-illust {

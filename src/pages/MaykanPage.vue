@@ -44,7 +44,7 @@
             transition-next="slide-left"
             swipeable
             animated
-            control-color="primary"
+            control-color="white"
             height="450px"
             class="rounded-borders shadow-2"
             arrows
@@ -98,29 +98,6 @@
                 </div>
               </div>
             </q-carousel-slide>
-
-            <template v-slot:control>
-              <div class="custom-controls">
-                <q-carousel-control position="bottom-right" :offset="[10, 10]" class="q-gutter-xs">
-                  <q-btn
-                    round
-                    dense
-                    flat
-                    color="white"
-                    icon="arrow_left"
-                    @click="slide = slide > 0 ? slide - 1 : topTouristPlaces.length - 1"
-                  />
-                  <q-btn
-                    round
-                    dense
-                    flat
-                    color="white"
-                    icon="arrow_right"
-                    @click="slide = slide < topTouristPlaces.length - 1 ? slide + 1 : 0"
-                  />
-                </q-carousel-control>
-              </div>
-            </template>
           </q-carousel>
         </div>
 
@@ -234,24 +211,10 @@
                   <img :src="fallbackImage" class="fallback-img" />
                 </div>
               </template>
-
-              <!-- Save Button Overlay -->
-              <div class="save-btn-overlay">
-                <q-btn
-                  round
-                  dense
-                  flat
-                  :icon="isPlaceSaved(place) ? 'bookmark' : 'bookmark_border'"
-                  :color="isPlaceSaved(place) ? 'positive' : 'white'"
-                  size="md"
-                  @click.stop="toggleSavePlace(place)"
-                  class="save-place-btn"
-                />
-              </div>
             </q-img>
 
             <!-- Category Badge -->
-            <div class="category-badge">
+            <div class="category-badge hide-on-mobile">
               <q-badge
                 v-for="(cat, idx) in Array.isArray(place.categories)
                   ? place.categories
@@ -275,12 +238,12 @@
                 </div>
               </div>
 
-              <p class="text-body2 q-mt-md text-grey-8">
+              <p class="text-body2 q-mt-md text-grey-8 hide-on-mobile">
                 {{ truncateText(place.description, 80) }}
               </p>
             </q-card-section>
 
-            <q-card-actions align="right">
+            <q-card-actions align="right" class="hide-on-mobile">
               <q-btn flat color="primary" @click.stop="selectPlace(place)" icon="visibility">
                 Details
               </q-btn>
@@ -296,17 +259,13 @@
     <!-- PLACE DETAILS MODAL (Section 6) -->
     <q-dialog v-model="showPlaceDetail" transition-show="fade" transition-hide="fade">
       <q-card class="place-detail-card" style="width: 90%; max-width: 900px">
-        <q-card-section class="bg-primary text-white">
-          <div class="row items-center">
-            <div class="col">
-              <div class="text-h5 text-weight-bold">{{ selectedPlace?.name }}</div>
-              <div v-if="selectedPlace?.address" class="text-subtitle2">
-                <q-icon name="location_on" size="16px" class="q-mr-xs" />
-                {{ selectedPlace?.address }}
-              </div>
-            </div>
-            <q-btn icon="close" flat round dense v-close-popup />
+        <q-card-section class="bg-primary text-white relative-position" style="padding-right: 48px">
+          <div class="text-h5 text-weight-bold">{{ selectedPlace?.name }}</div>
+          <div v-if="selectedPlace?.address" class="text-subtitle2 q-mt-xs">
+            <q-icon name="location_on" size="16px" class="q-mr-xs" />
+            {{ selectedPlace?.address }}
           </div>
+          <q-btn icon="close" flat round dense v-close-popup class="absolute-top-right q-ma-sm" />
         </q-card-section>
 
         <q-card-section class="q-pa-none" v-if="selectedPlace">
@@ -1254,6 +1213,9 @@ $bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
 }
 
 .fallback-img {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -1513,13 +1475,38 @@ $bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
     justify-content: center;
   }
 
+  .ribbon-text {
+    flex: none;
+    width: 100%;
+  }
+
   .places-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
   }
 
   .place-image {
-    height: 200px;
+    height: 110px;
+  }
+
+  .place-card :deep(.text-h6) {
+    font-size: 0.95rem !important;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .place-card :deep(.text-subtitle2) {
+    font-size: 0.75rem;
+    line-height: 1.2;
+  }
+
+  .save-btn-overlay {
+    top: 8px;
+    right: 8px;
+  }
+
+  .hide-on-mobile {
+    display: none !important;
   }
 
   /* Touch-friendly buttons */
@@ -1557,10 +1544,6 @@ $bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
 
   .modal-image {
     height: 240px;
-  }
-
-  .row {
-    flex-direction: column;
   }
 
   .col-md-6,
