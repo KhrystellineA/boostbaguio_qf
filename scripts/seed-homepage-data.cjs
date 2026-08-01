@@ -14,7 +14,9 @@ const admin = require('firebase-admin')
 const force = process.argv.includes('--force')
 
 if (!process.env.GOOGLE_APPLICATION_CREDENTIALS && !process.env.FIREBASE_CONFIG) {
-  console.warn('WARNING: GOOGLE_APPLICATION_CREDENTIALS not set. The script will try application default credentials.')
+  console.warn(
+    'WARNING: GOOGLE_APPLICATION_CREDENTIALS not set. The script will try application default credentials.'
+  )
 }
 
 admin.initializeApp({
@@ -49,9 +51,24 @@ const defaultFaqs = [
 ]
 
 const defaultContacts = [
-  { key: 'Email', value: 'contact@boostbaguio.com', description: "We'd love to hear from you!", icon: 'email' },
-  { key: 'Phone', value: '+639266321140', description: 'Reach us anytime for assistance or inquiries.', icon: 'phone' },
-  { key: 'Office', value: 'Baguio City, PH', description: 'Visit us for support or collaboration opportunities.', icon: 'location_on' },
+  {
+    key: 'Email',
+    value: 'contact@boostbaguio.com',
+    description: "We'd love to hear from you!",
+    icon: 'email',
+  },
+  {
+    key: 'Phone',
+    value: '+639266321140',
+    description: 'Reach us anytime for assistance or inquiries.',
+    icon: 'phone',
+  },
+  {
+    key: 'Office',
+    value: 'Baguio City, PH',
+    description: 'Visit us for support or collaboration opportunities.',
+    icon: 'location_on',
+  },
 ]
 
 const defaultPartners = [

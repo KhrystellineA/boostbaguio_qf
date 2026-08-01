@@ -146,6 +146,32 @@ export async function logBulkDelete(admin, resource, count, entityIds = []) {
 }
 
 /**
+ * Log resource restoration
+ */
+export async function logRestore(admin, resource, entityName, entityId = null) {
+  return logActivity({
+    admin,
+    action: 'restore',
+    resource,
+    description: `Restored ${resource.slice(0, -1)}: ${entityName}`,
+    entityId,
+  })
+}
+
+/**
+ * Log bulk restoration
+ */
+export async function logBulkRestore(admin, resource, count, entityIds = []) {
+  return logActivity({
+    admin,
+    action: 'bulk_restore',
+    resource,
+    description: `Bulk restored ${count} ${resource} items`,
+    metadata: { count, entityIds },
+  })
+}
+
+/**
  * Log export action
  */
 export async function logExport(admin, resource, format = 'csv', metadata = null) {
@@ -228,6 +254,8 @@ export default {
   logUpdate,
   logDelete,
   logBulkDelete,
+  logRestore,
+  logBulkRestore,
   logExport,
   logImport,
   getRecentActivityLogs,

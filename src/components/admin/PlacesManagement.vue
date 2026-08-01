@@ -23,25 +23,48 @@
         aria-label="Place actions"
         aria-describedby="places-description"
       >
-        <q-btn
-          v-if="selectedPlaces.length > 0"
-          color="negative"
-          :label="`Delete Selected (${selectedPlaces.length})`"
-          icon="delete"
-          no-caps
-          @click="bulkDelete"
-          aria-label="Delete selected places"
-        />
-        <q-btn
-          v-if="filteredPlaces.length > 0"
-          color="negative"
-          outline
-          :label="`Delete All (${filteredPlaces.length})`"
-          icon="delete_sweep"
-          no-caps
-          @click="deleteAllPlaces"
-          aria-label="Delete all places"
-        />
+        <template v-if="viewMode === 'active'">
+          <q-btn
+            v-if="selectedPlaces.length > 0"
+            color="negative"
+            :label="`Delete Selected (${selectedPlaces.length})`"
+            icon="delete"
+            no-caps
+            @click="bulkDelete"
+            aria-label="Delete selected places"
+          />
+          <q-btn
+            v-if="filteredPlaces.length > 0"
+            color="negative"
+            outline
+            :label="`Delete All (${filteredPlaces.length})`"
+            icon="delete_sweep"
+            no-caps
+            @click="deleteAllPlaces"
+            aria-label="Delete all places"
+          />
+        </template>
+        <template v-if="viewMode === 'deleted'">
+          <q-btn
+            v-if="selectedPlaces.length > 0"
+            color="positive"
+            :label="`Restore Selected (${selectedPlaces.length})`"
+            icon="restore"
+            no-caps
+            @click="bulkRestore"
+            aria-label="Restore selected places"
+          />
+          <q-btn
+            v-if="filteredPlaces.length > 0"
+            color="positive"
+            outline
+            :label="`Restore All (${filteredPlaces.length})`"
+            icon="restore_page"
+            no-caps
+            @click="restoreAllPlaces"
+            aria-label="Restore all places"
+          />
+        </template>
         <q-btn
           outline
           style="border-color: #2d6a4f; color: #2d6a4f"
@@ -1650,7 +1673,128 @@ export default {
             console.error('[Places] Error deleting all:', error)
             this.$q.notify({
               type: 'negative',
-              message: 'Failed to delete places',
+              message: getErrorMessage(error, 'Failed to delete places.'),
+              position: 'top',
+            })
+          } finally {
+            this.loading = false
+          }
+        })
+    },
+
+    async bulkRestore() {
+      if (this.selectedPlaces.length === 0) {
+        this.$q.notify({
+          type: 'warning',
+          message: 'Please select places to restore',
+          position: 'top',
+        })
+        return
+      }
+
+      this.$q
+        .dialog({
+          title: 'Confirm Bulk Restore',
+          message: `Are you sure you want to restore ${this.selectedPlaces.length} place(s)?`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          this.loading = true
+          try {
+            if (!isOnline())
+              throw new Error('You appear to be offline. Please check your internet connection.')
+
+            const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+            const adminUid = sessionStorage.getItem('adminUid')
+            const { logBulkRestore } = await import('src/utils/activityLogger')
+
+            const restorePromises = this.selectedPlaces.map((place) =>
+              updateDoc(doc(db, 'places', place.id), {
+                isDeleted: false,
+                updatedAt: serverTimestamp(),
+              })
+            )
+            await Promise.all(restorePromises)
+
+            await logBulkRestore(
+              { uid: adminUid, ...adminData },
+              'places',
+              this.selectedPlaces.length,
+              this.selectedPlaces.map((p) => p.id)
+            )
+
+            this.$q.notify({
+              type: 'positive',
+              message: `${this.selectedPlaces.length} place(s) restored successfully`,
+              position: 'top',
+              icon: 'restore',
+            })
+
+            this.selectedPlaces = []
+            this.loadPlaces()
+          } catch (error) {
+            console.error('[Places] Error bulk restoring:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: getErrorMessage(error, 'Failed to restore places.'),
+              position: 'top',
+            })
+          } finally {
+            this.loading = false
+          }
+        })
+    },
+
+    async restoreAllPlaces() {
+      if (this.filteredPlaces.length === 0) return
+
+      this.$q
+        .dialog({
+          title: 'Confirm Restore All',
+          message: `Are you sure you want to restore ALL ${this.filteredPlaces.length} place(s)?`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          this.loading = true
+          try {
+            if (!isOnline())
+              throw new Error('You appear to be offline. Please check your internet connection.')
+
+            const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+            const adminUid = sessionStorage.getItem('adminUid')
+            const { logBulkRestore } = await import('src/utils/activityLogger')
+
+            const restorePromises = this.filteredPlaces.map((place) =>
+              updateDoc(doc(db, 'places', place.id), {
+                isDeleted: false,
+                updatedAt: serverTimestamp(),
+              })
+            )
+            await Promise.all(restorePromises)
+
+            await logBulkRestore(
+              { uid: adminUid, ...adminData },
+              'places',
+              this.filteredPlaces.length,
+              this.filteredPlaces.map((p) => p.id)
+            )
+
+            this.$q.notify({
+              type: 'positive',
+              message: `${this.filteredPlaces.length} place(s) restored successfully`,
+              position: 'top',
+              icon: 'restore',
+            })
+
+            this.selectedPlaces = []
+            this.loadPlaces()
+          } catch (error) {
+            console.error('[Places] Error restoring all:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: getErrorMessage(error, 'Failed to restore places.'),
               position: 'top',
             })
           } finally {

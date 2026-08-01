@@ -16,23 +16,44 @@
         <p class="text-grey-7 q-mb-none">Manage events and activities</p>
       </div>
       <div class="col-12 col-sm-auto q-gutter-sm">
-        <q-btn
-          v-if="selectedEvents.length > 0"
-          color="negative"
-          :label="`Delete Selected (${selectedEvents.length})`"
-          icon="delete"
-          no-caps
-          @click="bulkDelete"
-        />
-        <q-btn
-          v-if="filteredEvents.length > 0"
-          color="negative"
-          outline
-          :label="`Delete All (${filteredEvents.length})`"
-          icon="delete_sweep"
-          no-caps
-          @click="deleteAllEvents"
-        />
+        <template v-if="viewMode === 'active'">
+          <q-btn
+            v-if="selectedEvents.length > 0"
+            color="negative"
+            :label="`Delete Selected (${selectedEvents.length})`"
+            icon="delete"
+            no-caps
+            @click="bulkDelete"
+          />
+          <q-btn
+            v-if="filteredEvents.length > 0"
+            color="negative"
+            outline
+            :label="`Delete All (${filteredEvents.length})`"
+            icon="delete_sweep"
+            no-caps
+            @click="deleteAllEvents"
+          />
+        </template>
+        <template v-if="viewMode === 'deleted'">
+          <q-btn
+            v-if="selectedEvents.length > 0"
+            color="positive"
+            :label="`Restore Selected (${selectedEvents.length})`"
+            icon="restore"
+            no-caps
+            @click="bulkRestore"
+          />
+          <q-btn
+            v-if="filteredEvents.length > 0"
+            color="positive"
+            outline
+            :label="`Restore All (${filteredEvents.length})`"
+            icon="restore_page"
+            no-caps
+            @click="restoreAllEvents"
+          />
+        </template>
         <q-btn
           outline
           style="border-color: #2d6a4f; color: #2d6a4f"
@@ -559,6 +580,7 @@ import {
 } from 'src/utils/validation'
 /* eslint-enable no-unused-vars */
 import { submitFeatureRequest } from 'src/composables/useFeatureRequests'
+import { isOnline } from 'src/utils/errorHandler'
 
 export default {
   name: 'EventsManagement',
@@ -1215,6 +1237,127 @@ export default {
             this.$q.notify({
               type: 'negative',
               message: 'Failed to delete events',
+              position: 'top',
+            })
+          } finally {
+            this.loading = false
+          }
+        })
+    },
+
+    async bulkRestore() {
+      if (this.selectedEvents.length === 0) {
+        this.$q.notify({
+          type: 'warning',
+          message: 'Please select events to restore',
+          position: 'top',
+        })
+        return
+      }
+
+      this.$q
+        .dialog({
+          title: 'Confirm Bulk Restore',
+          message: `Are you sure you want to restore ${this.selectedEvents.length} event(s)?`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          this.loading = true
+          try {
+            if (!isOnline())
+              throw new Error('You appear to be offline. Please check your internet connection.')
+
+            const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+            const adminUid = sessionStorage.getItem('adminUid')
+            const { logBulkRestore } = await import('src/utils/activityLogger')
+
+            const restorePromises = this.selectedEvents.map((event) =>
+              updateDoc(doc(db, 'events', event.id), {
+                isDeleted: false,
+                updatedAt: serverTimestamp(),
+              })
+            )
+            await Promise.all(restorePromises)
+
+            await logBulkRestore(
+              { uid: adminUid, ...adminData },
+              'events',
+              this.selectedEvents.length,
+              this.selectedEvents.map((e) => e.id)
+            )
+
+            this.$q.notify({
+              type: 'positive',
+              message: `${this.selectedEvents.length} event(s) restored successfully`,
+              position: 'top',
+              icon: 'restore',
+            })
+
+            this.selectedEvents = []
+            this.loadEvents()
+          } catch (error) {
+            console.error('[Events] Error bulk restoring:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: 'Failed to restore events.',
+              position: 'top',
+            })
+          } finally {
+            this.loading = false
+          }
+        })
+    },
+
+    async restoreAllEvents() {
+      if (this.filteredEvents.length === 0) return
+
+      this.$q
+        .dialog({
+          title: 'Confirm Restore All',
+          message: `Are you sure you want to restore ALL ${this.filteredEvents.length} event(s)?`,
+          cancel: true,
+          persistent: true,
+        })
+        .onOk(async () => {
+          this.loading = true
+          try {
+            if (!isOnline())
+              throw new Error('You appear to be offline. Please check your internet connection.')
+
+            const adminData = JSON.parse(sessionStorage.getItem('adminData') || '{}')
+            const adminUid = sessionStorage.getItem('adminUid')
+            const { logBulkRestore } = await import('src/utils/activityLogger')
+
+            const restorePromises = this.filteredEvents.map((event) =>
+              updateDoc(doc(db, 'events', event.id), {
+                isDeleted: false,
+                updatedAt: serverTimestamp(),
+              })
+            )
+            await Promise.all(restorePromises)
+
+            await logBulkRestore(
+              { uid: adminUid, ...adminData },
+              'events',
+              this.filteredEvents.length,
+              this.filteredEvents.map((e) => e.id)
+            )
+
+            this.$q.notify({
+              type: 'positive',
+              message: `${this.filteredEvents.length} event(s) restored successfully`,
+              position: 'top',
+              icon: 'restore',
+            })
+
+            this.selectedEvents = []
+            this.loadEvents()
+          } catch (error) {
+            console.error('[Events] Error restoring all:', error)
+            this.$q.notify({
+              type: 'negative',
+              message: 'Failed to restore events.',
               position: 'top',
             })
           } finally {

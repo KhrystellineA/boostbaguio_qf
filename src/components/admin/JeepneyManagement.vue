@@ -20,23 +20,44 @@
         <p class="text-grey-7 q-mb-none">Manage jeepney routes and information</p>
       </div>
       <div class="col-12 col-sm-auto q-gutter-sm">
-        <q-btn
-          v-if="selectedJeepneys.length > 0"
-          color="negative"
-          :label="`Delete Selected (${selectedJeepneys.length})`"
-          icon="delete"
-          no-caps
-          @click="bulkDelete"
-        />
-        <q-btn
-          v-if="filteredJeepneys.length > 0"
-          color="negative"
-          outline
-          :label="`Delete All (${filteredJeepneys.length})`"
-          icon="delete_sweep"
-          no-caps
-          @click="deleteAllJeepneys"
-        />
+        <template v-if="viewMode === 'active'">
+          <q-btn
+            v-if="selectedJeepneys.length > 0"
+            color="negative"
+            :label="`Delete Selected (${selectedJeepneys.length})`"
+            icon="delete"
+            no-caps
+            @click="bulkDelete"
+          />
+          <q-btn
+            v-if="filteredJeepneys.length > 0"
+            color="negative"
+            outline
+            :label="`Delete All (${filteredJeepneys.length})`"
+            icon="delete_sweep"
+            no-caps
+            @click="deleteAllJeepneys"
+          />
+        </template>
+        <template v-if="viewMode === 'deleted'">
+          <q-btn
+            v-if="selectedJeepneys.length > 0"
+            color="positive"
+            :label="`Restore Selected (${selectedJeepneys.length})`"
+            icon="restore"
+            no-caps
+            @click="bulkRestore"
+          />
+          <q-btn
+            v-if="filteredJeepneys.length > 0"
+            color="positive"
+            outline
+            :label="`Restore All (${filteredJeepneys.length})`"
+            icon="restore_page"
+            no-caps
+            @click="restoreAllJeepneys"
+          />
+        </template>
         <q-btn
           outline
           style="border-color: #2d6a4f; color: #2d6a4f"
