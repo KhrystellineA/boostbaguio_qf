@@ -9,3 +9,4 @@ export default boot(({ app }) => {
   const pinia = createPinia()
   app.use(pinia)
 })
+// --rabbit

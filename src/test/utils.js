@@ -171,3 +171,4 @@ export function createMockComponent(template, methods = {}) {
     methods,
   }
 }
+// --rabbit

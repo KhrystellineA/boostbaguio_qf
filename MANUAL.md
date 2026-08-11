@@ -1,4 +1,4 @@
-# Boost Baguio — Complete Setup & Operations Manual
+# Boost Baguio — Complete Setup & Operations Manual // DO NOT DELETE PLES PLES PLES LIPAT MUNA
 
 A start-to-finish guide for getting **Boost Baguio** running, deployed, and operated.
 

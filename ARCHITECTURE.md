@@ -1,4 +1,4 @@
-# Boost Baguio — Architecture & UI Map
+# Boost Baguio — Architecture & UI Map // FOR REVIEW --K checked --rabbit
 
 This is the "where does the code for X live?" cheat sheet. Read it once and you'll know how a click in the UI flows down to the files that handle it.
 
@@ -301,3 +301,5 @@ Full security rules: `firestore.rules`.
 ## Known follow-ups
 
 See `AUDIT.md` for the current list of cleanup candidates and orphan files.
+
+## --rabbit

@@ -168,3 +168,4 @@ function updateCanonicalLink(href) {
 
   link.setAttribute('href', href)
 }
+// --rabbit

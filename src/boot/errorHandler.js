@@ -151,3 +151,4 @@ export default async ({ app, router }) => {
    */
   console.log('[Global Handler] Error monitoring initialized')
 }
+// --rabbit
