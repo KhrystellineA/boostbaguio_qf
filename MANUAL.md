@@ -582,3 +582,5 @@ If lint errors remain after auto-fix, address them — the pre-commit hook (`hus
 **Maintained by:** BaguioBoosters
 
 For day-to-day operational questions, refer first to `ARCHITECTURE.md` ("where does the code for X live?"), then `AUDIT.md` (orphans, smells), then this manual (setup + how-to).
+
+<!-- --rabbit --K -->

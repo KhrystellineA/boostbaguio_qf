@@ -33,4 +33,4 @@ export default async () => {
 
   console.log('[Router Guards] ✅ Auth initialized, app ready to mount')
 }
-// --rabbit
+// --rabbit --K
