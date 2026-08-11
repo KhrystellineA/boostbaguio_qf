@@ -7,16 +7,19 @@
  * - Pre-caching of essential data
  */
 
-import { initOfflineDetection, getOnlineStatus, onOnlineStatusChange } from 'src/utils/offline'
-import { initCacheService, preCacheEssentials } from 'src/utils/offlineCache'
+import {
+  initOfflineDetection,
+  getOnlineStatus,
+  onOnlineStatusChange,
+  preCacheEssentials,
+} from 'src/utils/offlineManager'
 
 export default async () => {
   try {
     // Initialize offline detection
     initOfflineDetection()
 
-    // Initialize cache service
-    initCacheService()
+    // Cache service is now initialized within initOfflineDetection
 
     // Pre-cache essential data in background (non-blocking)
     preCacheEssentials().catch((error) => {

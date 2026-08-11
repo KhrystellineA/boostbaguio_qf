@@ -7,8 +7,7 @@
  * - Window errors
  */
 
-import { logErrorToMonitoring } from 'src/utils/errorMonitoring'
-import { isOnline } from 'src/utils/errorHandler'
+import { logErrorToMonitoring, isOnline } from 'src/utils/errorService'
 
 export default async ({ app, router }) => {
   // Track if we're in development mode

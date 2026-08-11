@@ -1,65 +1,45 @@
 /**
- * Offline-mode composable (premium feature placeholder).
+ * Offline-mode composable (premium feature).
  *
- * Exposes online/offline state plus a queue of actions deferred while the
- * user was offline. Pairs with src/utils/offlineCache.js (the actual
- * caching mechanics) and the OfflinePage / SaveForOfflineBtn components.
- * Currently not consumed by the user pages — see AUDIT.md.
+ * Exposes online/offline state and actions for the UI layer.
+ * Delegates actual caching and queue management to the centralized offlineManager utility.
  */
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useUserStore } from 'stores/user-store'
+import offlineManager from 'src/utils/offlineManager'
 
 export function useOfflineMode() {
   const userStore = useUserStore()
-  const isOnline = ref(navigator.onLine)
-  const offlineQueue = ref([])
+  const isOnline = ref(offlineManager.getOnlineStatus())
 
-  const updateOnlineStatus = () => {
-    isOnline.value = navigator.onLine
+  // Create reactive queue property initialized from manager
+  const offlineQueue = ref(offlineManager.getOfflineQueue())
 
-    if (isOnline.value && offlineQueue.value.length > 0) {
-      processOfflineQueue()
-    }
+  let cleanupListener = null
+
+  const updateOnlineStatus = (status) => {
+    isOnline.value = status.isOnline
+    offlineQueue.value = offlineManager.getOfflineQueue()
   }
 
   const canUseOffline = computed(() => {
     return userStore.isPremium && !isOnline.value
   })
 
+  // Expose simplified APIs for the UI that map to the underlying manager
+
   const cacheRouteData = async (routeData) => {
     if (!userStore.isPremium) return false
-
     try {
-      const cachedRoutes = JSON.parse(localStorage.getItem('cachedRoutes') || '[]')
+      offlineManager.saveItemForOffline('routes', routeData.id, routeData)
 
-      const existingIndex = cachedRoutes.findIndex((r) => r.id === routeData.id)
-
-      if (existingIndex >= 0) {
-        cachedRoutes[existingIndex] = {
-          ...routeData,
-          cachedAt: new Date().toISOString(),
-        }
-      } else {
-        cachedRoutes.push({
-          ...routeData,
-          cachedAt: new Date().toISOString(),
-        })
-      }
-
-      if (cachedRoutes.length > 50) {
-        cachedRoutes.sort((a, b) => new Date(b.cachedAt) - new Date(a.cachedAt))
-        cachedRoutes.length = 50
-      }
-
-      localStorage.setItem('cachedRoutes', JSON.stringify(cachedRoutes))
-
+      // Let service worker know if it exists
       if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller.postMessage({
           type: 'CACHE_ROUTE',
           payload: routeData,
         })
       }
-
       return true
     } catch (error) {
       console.error('Error caching route:', error)
@@ -68,84 +48,31 @@ export function useOfflineMode() {
   }
 
   const getCachedRoutes = () => {
-    try {
-      return JSON.parse(localStorage.getItem('cachedRoutes') || '[]')
-    } catch (error) {
-      console.error('Error getting cached routes:', error)
-      return []
-    }
+    return offlineManager.getAllSavedOfflineItems('routes')
   }
 
   const getCachedRoute = (routeId) => {
-    const routes = getCachedRoutes()
-    return routes.find((r) => r.id === routeId)
+    return offlineManager.getSavedOfflineItem('routes', routeId)
   }
 
   const removeCachedRoute = (routeId) => {
-    try {
-      const routes = getCachedRoutes()
-      const filtered = routes.filter((r) => r.id !== routeId)
-      localStorage.setItem('cachedRoutes', JSON.stringify(filtered))
-      return true
-    } catch (error) {
-      console.error('Error removing cached route:', error)
-      return false
-    }
+    offlineManager.removeSavedOfflineItem('routes', routeId)
+    return true
   }
 
   const clearAllCachedRoutes = () => {
-    try {
-      localStorage.removeItem('cachedRoutes')
-      return true
-    } catch (error) {
-      console.error('Error clearing cached routes:', error)
-      return false
-    }
+    offlineManager.clearAllSavedItems('routes')
+    return true
   }
 
   const queueForOnline = (request) => {
-    offlineQueue.value.push({
-      ...request,
-      timestamp: Date.now(),
-    })
-
-    localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue.value))
-  }
-
-  const processOfflineQueue = async () => {
-    const queue = [...offlineQueue.value]
-
-    for (const request of queue) {
-      try {
-        if (request.type === 'favorite') {
-          await fetch(request.url, {
-            method: request.method,
-            body: JSON.stringify(request.data),
-            headers: { 'Content-Type': 'application/json' },
-          })
-        }
-
-        offlineQueue.value = offlineQueue.value.filter((r) => r.timestamp !== request.timestamp)
-      } catch (error) {
-        console.error('Error processing offline request:', error)
-      }
-    }
-
-    localStorage.setItem('offlineQueue', JSON.stringify(offlineQueue.value))
+    offlineManager.addToOfflineQueue(request)
+    offlineQueue.value = offlineManager.getOfflineQueue()
   }
 
   const getCacheSize = async () => {
-    if ('storage' in navigator && 'estimate' in navigator.storage) {
-      const estimate = await navigator.storage.estimate()
-      return {
-        usage: estimate.usage,
-        quota: estimate.quota,
-        usageInMB: (estimate.usage / (1024 * 1024)).toFixed(2),
-        quotaInMB: (estimate.quota / (1024 * 1024)).toFixed(2),
-        percentageUsed: ((estimate.usage / estimate.quota) * 100).toFixed(2),
-      }
-    }
-    return null
+    const stats = await offlineManager.getOfflineStats()
+    return stats.storageUsage
   }
 
   const registerServiceWorker = async () => {
@@ -163,24 +90,15 @@ export function useOfflineMode() {
   }
 
   onMounted(() => {
-    window.addEventListener('online', updateOnlineStatus)
-    window.addEventListener('offline', updateOnlineStatus)
-
-    try {
-      const saved = localStorage.getItem('offlineQueue')
-      if (saved) {
-        offlineQueue.value = JSON.parse(saved)
-      }
-    } catch (error) {
-      console.error('Error loading offline queue:', error)
-    }
-
+    // Listen to changes from the centralized offline manager
+    cleanupListener = offlineManager.onOnlineStatusChange(updateOnlineStatus)
     registerServiceWorker()
   })
 
   onUnmounted(() => {
-    window.removeEventListener('online', updateOnlineStatus)
-    window.removeEventListener('offline', updateOnlineStatus)
+    if (cleanupListener) {
+      cleanupListener()
+    }
   })
 
   return {

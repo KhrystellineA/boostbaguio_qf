@@ -897,7 +897,7 @@ import {
 import { useGeocoding } from 'src/composables/useGeocoding'
 import { useGeolocation } from 'src/composables/useGeolocation'
 import { fetchPlaces, fuzzyMatch, callOSRM } from 'src/composables/useRouteGeneration'
-import { getErrorMessage, isOnline } from 'src/utils/errorHandler'
+import { getErrorMessage, isOnline } from 'src/utils/errorService'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import RouteMap from 'src/components/RouteMap.vue'

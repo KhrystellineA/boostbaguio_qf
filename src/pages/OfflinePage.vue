@@ -121,10 +121,12 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from 'stores/user-store'
 import { useQuasar } from 'quasar'
+import { useOfflineMode } from 'src/composables/useOfflineMode'
 
 const router = useRouter()
 const userStore = useUserStore()
 const $q = useQuasar()
+const { getCachedRoutes } = useOfflineMode()
 
 const retrying = ref(false)
 const cachedRoutes = ref([])
@@ -167,10 +169,7 @@ const retryConnection = async () => {
 
 const loadCachedRoutes = async () => {
   try {
-    const cached = localStorage.getItem('cachedRoutes')
-    if (cached) {
-      cachedRoutes.value = JSON.parse(cached)
-    }
+    cachedRoutes.value = getCachedRoutes()
   } catch (error) {
     console.error('Error loading cached routes:', error)
   }

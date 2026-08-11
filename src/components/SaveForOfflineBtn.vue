@@ -95,8 +95,9 @@ import {
   isSavedForOffline,
   saveItemForOffline,
   removeSavedOfflineItem,
-} from 'src/utils/offlineCache'
-import { getOnlineStatus, onOnlineStatusChange } from 'src/utils/offline'
+  getOnlineStatus,
+  onOnlineStatusChange,
+} from 'src/utils/offlineManager'
 
 export default {
   name: 'SaveForOfflineBtn',

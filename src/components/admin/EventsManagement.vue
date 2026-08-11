@@ -580,7 +580,7 @@ import {
 } from 'src/utils/validation'
 /* eslint-enable no-unused-vars */
 import { submitFeatureRequest } from 'src/composables/useFeatureRequests'
-import { isOnline } from 'src/utils/errorHandler'
+import { isOnline } from 'src/utils/errorService'
 
 export default {
   name: 'EventsManagement',

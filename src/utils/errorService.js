@@ -1,12 +1,23 @@
 /**
- * Boost Baguio - Error Handling Service
+ * Boost Baguio - Error Service
  *
- * Provides:
+ * Provides a unified API for:
+ * - Error categorization
  * - User-friendly error messages
  * - Retry mechanisms for failed requests
- * - Error logging and monitoring
- * - Error categorization
+ * - Error logging and monitoring to Firestore
  */
+
+import { db } from 'src/boot/firebase'
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  limit,
+  query,
+  orderBy,
+  getDocs,
+} from 'firebase/firestore'
 
 /**
  * Error categories for better handling
@@ -74,14 +85,11 @@ const errorMessages = {
 
 /**
  * Categorize an error
- * @param {Error|any} error - The error to categorize
- * @returns {string} Error category
  */
 export function categorizeError(error) {
   const code = error?.code || error?.error?.code || ''
   const message = (error?.message || error?.error?.message || '').toLowerCase()
 
-  // Network errors
   if (
     code.includes('network') ||
     message.includes('network') ||
@@ -90,23 +98,10 @@ export function categorizeError(error) {
   ) {
     return ErrorCategory.NETWORK
   }
-
-  // Auth errors
-  if (code.includes('auth/')) {
-    return ErrorCategory.AUTH
-  }
-
-  // Permission errors
-  if (code.includes('permission-denied') || message.includes('permission')) {
+  if (code.includes('auth/')) return ErrorCategory.AUTH
+  if (code.includes('permission-denied') || message.includes('permission'))
     return ErrorCategory.PERMISSION
-  }
-
-  // Not found errors
-  if (code.includes('not-found') || code.includes('404')) {
-    return ErrorCategory.NOT_FOUND
-  }
-
-  // Validation errors
+  if (code.includes('not-found') || code.includes('404')) return ErrorCategory.NOT_FOUND
   if (
     code.includes('invalid-argument') ||
     message.includes('invalid') ||
@@ -114,8 +109,6 @@ export function categorizeError(error) {
   ) {
     return ErrorCategory.VALIDATION
   }
-
-  // Server errors
   if (
     code.includes('unavailable') ||
     code.includes('internal') ||
@@ -130,43 +123,26 @@ export function categorizeError(error) {
 
 /**
  * Get user-friendly error message
- * @param {Error|any} error - The error object
- * @param {string} [fallback] - Fallback message if no match found
- * @returns {string} User-friendly message
  */
 export function getErrorMessage(error, fallback = null) {
   const code = error?.code || error?.error?.code || ''
 
-  // Check for exact match
-  if (errorMessages[code]) {
-    return errorMessages[code]
-  }
+  if (errorMessages[code]) return errorMessages[code]
 
-  // Check for partial matches
   for (const [key, message] of Object.entries(errorMessages)) {
     if (code.includes(key) || (error?.message || '').toLowerCase().includes(key)) {
       return message
     }
   }
 
-  // Return custom message or fallback
   return error?.message || fallback || errorMessages['generic/unknown']
 }
 
 /**
  * Retry a failed operation with exponential backoff
- * @param {Function} operation - Async function to retry
- * @param {Object} options - Retry options
- * @param {number} [options.maxRetries=3] - Maximum retry attempts
- * @param {number} [options.initialDelay=1000] - Initial delay in ms
- * @param {number} [options.maxDelay=10000] - Maximum delay in ms
- * @param {number} [options.factor=2] - Exponential backoff factor
- * @param {Function} [options.onRetry] - Callback on each retry
- * @returns {Promise<any>} Result of the operation
  */
 export async function withRetry(operation, options = {}) {
   const { maxRetries = 3, initialDelay = 1000, maxDelay = 10000, factor = 2, onRetry } = options
-
   let lastError
   let delay = initialDelay
 
@@ -175,8 +151,6 @@ export async function withRetry(operation, options = {}) {
       return await operation()
     } catch (error) {
       lastError = error
-
-      // Don't retry on certain errors
       const category = categorizeError(error)
       if (
         category === ErrorCategory.AUTH ||
@@ -185,31 +159,17 @@ export async function withRetry(operation, options = {}) {
       ) {
         throw error
       }
-
-      // Last attempt
-      if (attempt === maxRetries) {
-        break
-      }
-
-      // Call retry callback
-      if (onRetry) {
-        onRetry({ attempt: attempt + 1, maxRetries, error })
-      }
-
-      // Wait with exponential backoff
+      if (attempt === maxRetries) break
+      if (onRetry) onRetry({ attempt: attempt + 1, maxRetries, error })
       await new Promise((resolve) => setTimeout(resolve, Math.min(delay, maxDelay)))
-
-      // Increase delay for next attempt
       delay *= factor
     }
   }
-
   throw lastError
 }
 
 /**
  * Check if user is online
- * @returns {boolean}
  */
 export function isOnline() {
   return navigator.onLine
@@ -217,8 +177,6 @@ export function isOnline() {
 
 /**
  * Wait for online status
- * @param {number} timeout - Max time to wait in ms
- * @returns {Promise<boolean>}
  */
 export function waitForOnline(timeout = 30000) {
   return new Promise((resolve) => {
@@ -250,9 +208,6 @@ export function waitForOnline(timeout = 30000) {
 
 /**
  * Execute operation with online check
- * @param {Function} operation - Async function to execute
- * @param {Object} options - Options
- * @returns {Promise<any>}
  */
 export async function executeWithOnlineCheck(operation, options = {}) {
   const { retryOffline = false, timeout = 30000 } = options
@@ -273,19 +228,14 @@ export async function executeWithOnlineCheck(operation, options = {}) {
 
 /**
  * Create a wrapped fetch with automatic retry
- * @param {string} url - URL to fetch
- * @param {Object} options - Fetch options
- * @returns {Promise<Response>}
  */
 export async function fetchWithRetry(url, options = {}) {
   return withRetry(
     async () => {
       const response = await fetch(url, options)
-
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
       }
-
       return response
     },
     {
@@ -298,9 +248,7 @@ export async function fetchWithRetry(url, options = {}) {
 }
 
 /**
- * Format error for display
- * @param {Error|any} error - Error object
- * @returns {Object} Formatted error
+ * Format error for display and logging
  */
 export function formatError(error) {
   return {
@@ -314,26 +262,176 @@ export function formatError(error) {
 }
 
 /**
- * Log error to console with formatting
- * @param {string} context - Where the error occurred
- * @param {Error|any} error - Error object
- * @param {Object} [metadata] - Additional metadata
+ * Local console logging
  */
 export function logError(context, error, metadata = {}) {
   const formatted = formatError(error)
-
   console.group(`[Error] ${context}`)
   console.error('Category:', formatted.category)
   console.error('Code:', formatted.code)
   console.error('Message:', formatted.message)
   console.error('Raw:', formatted.rawMessage)
-  if (metadata) {
-    console.error('Metadata:', metadata)
-  }
-  if (formatted.stack) {
-    console.error('Stack:', formatted.stack)
-  }
+  if (Object.keys(metadata).length > 0) console.error('Metadata:', metadata)
+  if (formatted.stack) console.error('Stack:', formatted.stack)
   console.groupEnd()
+}
+
+/**
+ * Log an error to Firestore monitoring service
+ */
+export async function logErrorToMonitoring({
+  context,
+  error,
+  severity = 'medium',
+  metadata = {},
+  userId = null,
+  action = null,
+}) {
+  try {
+    const formatted = formatError(error)
+    const errorLog = {
+      context,
+      error: {
+        code: formatted.code,
+        message: formatted.message,
+        rawMessage: formatted.rawMessage,
+        category: formatted.category,
+        stack: formatted.stack,
+      },
+      severity,
+      metadata: {
+        ...metadata,
+        url: window.location.href,
+        userAgent: navigator.userAgent,
+        online: navigator.onLine,
+        language: navigator.language,
+      },
+      userId,
+      action,
+      timestamp: serverTimestamp(),
+    }
+
+    await addDoc(collection(db, 'error_logs'), errorLog)
+
+    if (process.env.DEV) {
+      console.error(`[Error Monitor] ${context}:`, formatted.message)
+    }
+  } catch (logError) {
+    console.error('[Error Monitor] Failed to log error:', logError)
+  }
+}
+
+export async function logHandledError(context, error, metadata = {}) {
+  return logErrorToMonitoring({ context, error, severity: 'low', metadata })
+}
+
+export async function logUnhandledError(context, error, metadata = {}) {
+  return logErrorToMonitoring({ context, error, severity: 'critical', metadata })
+}
+
+export async function logApiFailure(endpoint, error, method = 'GET', metadata = {}) {
+  return logErrorToMonitoring({
+    context: `API:${method}:${endpoint}`,
+    error,
+    severity: 'high',
+    metadata: { endpoint, method, ...metadata },
+  })
+}
+
+export async function logActionFailure(action, error, metadata = {}) {
+  return logErrorToMonitoring({
+    context: `Action:${action}`,
+    error,
+    severity: 'medium',
+    action,
+    metadata,
+  })
+}
+
+export async function getRecentErrorLogs(limitCount = 50) {
+  try {
+    const q = query(collection(db, 'error_logs'), orderBy('timestamp', 'desc'), limit(limitCount))
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+  } catch (error) {
+    console.error('[Error Monitor] Error getting recent logs:', error)
+    return []
+  }
+}
+
+export async function getErrorStatistics() {
+  try {
+    const snapshot = await getDocs(collection(db, 'error_logs'))
+    const logs = snapshot.docs.map((doc) => doc.data())
+    const stats = {
+      total: logs.length,
+      byCategory: {},
+      bySeverity: { low: 0, medium: 0, high: 0, critical: 0 },
+      byContext: {},
+      last24Hours: 0,
+      last7Days: 0,
+    }
+
+    const now = new Date()
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000)
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+
+    logs.forEach((log) => {
+      const category = log.error?.category || 'unknown'
+      stats.byCategory[category] = (stats.byCategory[category] || 0) + 1
+      const severity = log.severity || 'medium'
+      if (stats.bySeverity[severity] !== undefined) stats.bySeverity[severity]++
+      const context = log.context || 'unknown'
+      stats.byContext[context] = (stats.byContext[context] || 0) + 1
+      const logTimestamp = log.timestamp?.toDate?.() || new Date(log.timestamp)
+      if (logTimestamp >= twentyFourHoursAgo) stats.last24Hours++
+      if (logTimestamp >= sevenDaysAgo) stats.last7Days++
+    })
+    return stats
+  } catch (error) {
+    console.error('[Error Monitor] Error getting statistics:', error)
+    return null
+  }
+}
+
+export async function clearOldErrorLogs(daysOld = 30) {
+  try {
+    const cutoffDate = new Date()
+    cutoffDate.setDate(cutoffDate.getDate() - daysOld)
+    const snapshot = await getDocs(collection(db, 'error_logs'))
+    let deletedCount = 0
+    const deletePromises = []
+
+    snapshot.docs.forEach((doc) => {
+      const data = doc.data()
+      const logDate = data.timestamp?.toDate?.() || new Date(data.timestamp)
+      if (logDate < cutoffDate) {
+        deletePromises.push(
+          import('firebase/firestore').then(({ deleteDoc, docRef }) =>
+            deleteDoc(docRef(db, 'error_logs', doc.id))
+          )
+        )
+        deletedCount++
+      }
+    })
+
+    if (deletePromises.length > 0) {
+      const { deleteDoc, doc: docRef } = await import('firebase/firestore')
+      await Promise.all(
+        snapshot.docs
+          .filter((d) => {
+            const data = d.data()
+            const logDate = data.timestamp?.toDate?.() || new Date(data.timestamp)
+            return logDate < cutoffDate
+          })
+          .map((d) => deleteDoc(docRef(db, 'error_logs', d.id)))
+      )
+    }
+    return deletedCount
+  } catch (error) {
+    console.error('[Error Monitor] Error clearing old logs:', error)
+    return 0
+  }
 }
 
 export default {
@@ -347,4 +445,12 @@ export default {
   fetchWithRetry,
   formatError,
   logError,
+  logErrorToMonitoring,
+  logHandledError,
+  logUnhandledError,
+  logApiFailure,
+  logActionFailure,
+  getRecentErrorLogs,
+  getErrorStatistics,
+  clearOldErrorLogs,
 }
