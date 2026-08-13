@@ -183,6 +183,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:color';
 $dark-green: #1b4332;
 $primary-green: #2e5d3e;
 $sage: #b8cfa3;
@@ -308,7 +309,7 @@ $white: #ffffff;
   }
 
   &--sage {
-    background: lighten($sage, 5%);
+    background: color.adjust($sage, $lightness: 5%);
   }
 }
 

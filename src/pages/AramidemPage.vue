@@ -928,6 +928,7 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+@use 'sass:color';
 // Color Palette — aligned with home page
 $dark-green: #1b4332;
 $primary-green: #2e5d3e;
@@ -1264,7 +1265,7 @@ $bento-shadow-hover: 0 14px 30px rgba(20, 36, 26, 0.12);
 }
 
 .calendar-day.has-event {
-  background: lighten($mint-bg, 2%);
+  background: color.adjust($mint-bg, $lightness: 2%);
 }
 
 .calendar-day.selected-day {
