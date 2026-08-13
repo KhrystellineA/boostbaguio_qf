@@ -11,7 +11,7 @@
       @keydown.space.prevent="$router.push('/')"
     >
       <div class="logo-bento">
-        <img src="/src/assets/boost baguio logo small.svg" alt="Boost Baguio Logo" />
+        <img src="~assets/boost baguio logo small.svg" alt="Boost Baguio Logo" />
       </div>
       <div class="brand-text">
         <span class="brand-name">Boost <span class="text-accent">Baguio</span></span>
@@ -207,7 +207,7 @@
           @click="$router.push('/')"
         >
           <div class="logo-bento">
-            <img src="/src/assets/boost baguio logo small.svg" alt="Boost Baguio Logo" />
+            <img src="~assets/boost baguio logo small.svg" alt="Boost Baguio Logo" />
           </div>
           <div class="brand-text">
             <span class="brand-name">Boost <span class="text-accent">Baguio</span></span>
