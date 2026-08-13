@@ -146,10 +146,7 @@
             v-if="selectedFeedback.status === 'unread'"
             label="Mark as Resolved"
             color="positive"
-            @click="
-              markResolved(selectedFeedback)
-              viewDialog = false
-            "
+            @click="markResolvedAndClose(selectedFeedback)"
           />
           <q-btn flat label="Close" color="primary" v-close-popup />
         </q-card-actions>
@@ -246,6 +243,11 @@ export default {
       }
     }
 
+    const markResolvedAndClose = async (row) => {
+      await markResolved(row)
+      viewDialog.value = false
+    }
+
     const confirmDelete = (row) => {
       $q.dialog({
         title: 'Confirm Delete',
@@ -279,6 +281,7 @@ export default {
       formatDate,
       viewFeedback,
       markResolved,
+      markResolvedAndClose,
       confirmDelete,
     }
   },
