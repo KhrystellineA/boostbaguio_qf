@@ -157,7 +157,7 @@
 
         <div class="category-filter-section q-mb-xl">
           <div class="row justify-center">
-            <q-btn-group spread>
+            <q-btn-group spread flat unelevated class="bg-transparent">
               <q-btn
                 v-for="category in categories"
                 :key="category.value"

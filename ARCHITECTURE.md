@@ -119,15 +119,16 @@ The product is built around five named features. Each one is a single page; each
 
 **Sidebar menu** (from `src/components/admin/AdminSidebar.vue`):
 
-| Menu item         | Component                        | Purpose                                      |
-| ----------------- | -------------------------------- | -------------------------------------------- |
-| Dashboard         | (inline in `AdminDashboard.vue`) | Stat cards + analytics, see below            |
-| Routes / Jeepneys | `JeepneyManagement.vue`          | CRUD jeepneys, view routes, **OSRM compare** |
-| Places            | `PlacesManagement.vue`           | CRUD tourist spots, **Request to feature**   |
-| Events            | `EventsManagement.vue`           | CRUD events, **Request to feature**          |
-| Photos            | `PhotosManagement.vue`           | Manage hero/gallery/guide images             |
-| Admins            | `AdminsManagement.vue`           | CRUD admin accounts (super-admin only)       |
-| Activity Logs     | `ActivityLogsManagement.vue`     | Read-only audit trail                        |
+| Menu item          | Component                        | Purpose                                      |
+| ------------------ | -------------------------------- | -------------------------------------------- |
+| Dashboard          | (inline in `AdminDashboard.vue`) | Stat cards + analytics, see below            |
+| Routes / Jeepneys  | `JeepneyManagement.vue`          | CRUD jeepneys, view routes, **OSRM compare** |
+| Places             | `PlacesManagement.vue`           | CRUD tourist spots, **Request to feature**   |
+| Events             | `EventsManagement.vue`           | CRUD events, **Request to feature**          |
+| Photos             | `PhotosManagement.vue`           | Manage hero/gallery/guide images             |
+| Admins             | `AdminsManagement.vue`           | CRUD admin accounts (super-admin only)       |
+| Activity Logs      | `ActivityLogsManagement.vue`     | Read-only audit trail                        |
+| Feedback & Support | `FeedbackManagement.vue`         | Read and resolve contact messages            |
 
 ### Dashboard view
 
