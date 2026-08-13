@@ -88,6 +88,8 @@
         <AdminsManagement v-else-if="activeMenu === 'admins'" />
 
         <ActivityLogsManagement v-else-if="activeMenu === 'activity-logs'" />
+
+        <FeedbackManagement v-else-if="activeMenu === 'feedback'" />
       </q-page>
     </q-page-container>
   </q-layout>
@@ -112,6 +114,7 @@ import PhotosManagement from 'src/components/admin/homepage/PhotosManagement.vue
 import HomepageManagement from 'src/components/admin/HomepageManagement.vue'
 import AnalyticsManagement from 'src/components/admin/AnalyticsManagement.vue'
 import ActivityLogsManagement from 'src/components/admin/ActivityLogsManagement.vue'
+import FeedbackManagement from 'src/components/admin/FeedbackManagement.vue'
 
 export default defineComponent({
   name: 'AdminDashboard',
@@ -129,6 +132,7 @@ export default defineComponent({
     HomepageManagement,
     AnalyticsManagement,
     ActivityLogsManagement,
+    FeedbackManagement,
   },
 
   setup() {

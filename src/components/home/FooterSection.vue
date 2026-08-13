@@ -8,26 +8,25 @@
         <div class="cta-inner">
           <p class="cta-eyebrow">DO YOU NEED OUR HELP?</p>
           <h2 class="cta-title">
-            Let's exchange contact info
+            Let us know what you need
             <br class="hide-mobile" />
             and we'll <em>get in touch!</em>
           </h2>
-          <p class="cta-text">Let us know where to contact you below.</p>
+          <p class="cta-text">Tell us more when you click the button below.</p>
 
-          <div class="cta-form">
-            <q-input
-              v-model="email"
-              outlined
-              dense
-              placeholder="Enter your email"
-              class="cta-input"
-              bg-color="transparent"
+          <div class="cta-form-btn">
+            <q-btn
+              label="Contact Support"
+              unelevated
+              class="cta-submit full-width"
+              @click="isFeedbackOpen = true"
             />
-            <q-btn label="Submit" unelevated class="cta-submit" @click="openContactDialog" />
           </div>
         </div>
       </div>
     </section>
+
+    <feedback-dialog v-model="isFeedbackOpen" />
 
     <!-- Contact Section -->
     <section class="contact-section">
@@ -144,28 +143,18 @@
 import { ref, onMounted } from 'vue'
 import { db } from 'src/boot/firebase'
 import { collection, getDocs, query, orderBy } from 'firebase/firestore'
+import FeedbackDialog from './FeedbackDialog.vue'
 
 export default {
   name: 'FooterSection',
+  components: {
+    FeedbackDialog,
+  },
   emits: ['open-contact'],
   setup() {
-    const email = ref('')
-    const newsletterEmail = ref('')
+    const isFeedbackOpen = ref(false)
     const contacts = ref([])
     const footerLinks = ref([])
-
-    const handleSubscribe = () => {
-      if (newsletterEmail.value) {
-        console.log('Subscribing email:', newsletterEmail.value)
-        newsletterEmail.value = ''
-      }
-    }
-
-    const openContactDialog = () => {
-      if (window.openContactDialog) {
-        window.openContactDialog()
-      }
-    }
 
     // Load contacts and footer links from Firestore
 
@@ -197,10 +186,7 @@ export default {
     })
 
     return {
-      email,
-      newsletterEmail,
-      handleSubscribe,
-      openContactDialog,
+      isFeedbackOpen,
       contacts,
       footerLinks,
     }
@@ -289,43 +275,12 @@ $white: #ffffff;
   line-height: 1.65;
 }
 
-.cta-form {
+.cta-form-btn {
   display: inline-flex;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 999px;
-  padding: 6px;
-  gap: 4px;
-  backdrop-filter: blur(12px);
+  justify-content: center;
   max-width: 480px;
   width: 100%;
-}
-
-.cta-input {
-  flex: 1;
-
-  :deep(.q-field__control) {
-    background: transparent;
-    border-radius: 999px;
-    padding: 0 1rem;
-    color: $white;
-
-    &:before,
-    &:after {
-      border: none !important;
-    }
-  }
-
-  :deep(input) {
-    color: $white;
-    font-size: 0.9rem;
-    padding-top: 1.5rem;
-
-    &::placeholder {
-      color: rgba($white, 0.6);
-    }
-  }
+  margin-top: 1rem;
 }
 
 .cta-submit {
@@ -638,15 +593,10 @@ $white: #ffffff;
     display: none; /* Hide descriptions to save space if 3 cols */
   }
 
-  .cta-form {
+  .cta-form-btn {
     flex-direction: column;
-    border-radius: 18px;
     padding: 8px;
     gap: 8px;
-  }
-
-  .cta-input {
-    width: 100%;
   }
 
   .cta-submit {

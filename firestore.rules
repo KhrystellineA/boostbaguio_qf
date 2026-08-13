@@ -275,15 +275,19 @@ service cloud.firestore {
 
     match /contactMessages/{messageId} {
       // Anyone can create contact messages (public contact form)
-      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'message']) &&
+      allow create: if request.resource.data.keys().hasAll(['name', 'email', 'type', 'message', 'isPremium', 'status', 'createdAt']) &&
                        request.resource.data.name is string &&
                        request.resource.data.name.size() > 0 &&
                        request.resource.data.name.size() <= 200 &&
                        request.resource.data.email is string &&
                        request.resource.data.email.matches('^[^@]+@[^@]+\\.[^@]+$') &&
+                       request.resource.data.type is string &&
                        request.resource.data.message is string &&
                        request.resource.data.message.size() > 0 &&
-                       request.resource.data.message.size() <= 2000;
+                       request.resource.data.message.size() <= 2000 &&
+                       request.resource.data.isPremium is bool &&
+                       request.resource.data.status == 'unread' &&
+                       isTimestamp(request.resource.data.createdAt);
       // Only admins can read contact messages
       allow read: if isAuthenticated() && isAdmin();
       // Only admins can update/delete contact messages

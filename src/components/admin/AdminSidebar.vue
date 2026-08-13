@@ -168,6 +168,22 @@
               <q-item-label>Activity Logs</q-item-label>
             </q-item-section>
           </q-item>
+
+          <q-item
+            clickable
+            v-ripple
+            :active="activeMenu === 'feedback'"
+            @click="$emit('update:activeMenu', 'feedback')"
+            class="nav-item"
+            active-class="nav-item--active"
+          >
+            <q-item-section avatar>
+              <q-icon name="support_agent" />
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Feedback & Support</q-item-label>
+            </q-item-section>
+          </q-item>
         </q-list>
       </q-scroll-area>
 
